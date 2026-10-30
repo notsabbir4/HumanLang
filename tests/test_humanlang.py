@@ -1,6 +1,7 @@
 import glob
 import os
 import sys
+import threading
 import unittest
 from unittest import mock
 
@@ -10,6 +11,28 @@ from humanlang.errors import HLError  # noqa: E402
 from humanlang.interpreter import Interpreter  # noqa: E402
 
 sys.setrecursionlimit(50000)  # the `hl` command does this too, in a big-stack thread
+
+
+def in_big_stack(fn):
+    """Run fn on a thread with a large stack, as the `hl` command does (older Pythons need it for deep recursion)."""
+    box = {}
+
+    def target():
+        try:
+            box["value"] = fn()
+        except BaseException as e:  # hand every outcome back to the test
+            box["error"] = e
+
+    threading.stack_size(256 * 1024 * 1024)
+    try:
+        t = threading.Thread(target=target)
+        t.start()
+        t.join()
+    finally:
+        threading.stack_size(0)
+    if "error" in box:
+        raise box["error"]
+    return box["value"]
 
 
 def run(src, inputs=()):
@@ -119,7 +142,8 @@ class Functions(unittest.TestCase):
         self.assertEqual(run("set t to 0\ndefine bump\n    add 1 to t\nbump\nbump\nsay t"), "2\n")
 
     def test_runaway_recursion(self):
-        self.assertIn("kept calling itself", error_of("define f with n\n    give back f with n\nf with 1"))
+        err = in_big_stack(lambda: error_of("define f with n\n    give back f with n\nf with 1"))
+        self.assertIn("kept calling itself", err)
 
     def test_wrong_arg_count(self):
         self.assertIn("needs 2 values (a and b), but you gave 1",

@@ -153,13 +153,12 @@ class Interpreter:
         if isinstance(v, bool):
             return "yes" if v else "no"
         if isinstance(v, int):
-            try:
-                return str(v)
-            except ValueError:  # Python refuses to print enormous whole numbers
+            if v.bit_length() > 14000:  # about 4200 digits: show the same thing on every Python version
                 try:
                     return "%.10g" % float(v)
                 except OverflowError:
                     return "infinity" if v > 0 else "-infinity"
+            return str(v)
         if isinstance(v, float):
             if v != v:
                 return "not a number"
