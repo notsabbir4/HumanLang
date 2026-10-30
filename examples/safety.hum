@@ -1,0 +1,7 @@
+use math
+try
+    say 10 / 0
+if that fails
+    say "Something went wrong: {problem}"
+
+say "The square root of 144 is {square root of 144}."

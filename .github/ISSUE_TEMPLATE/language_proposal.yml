@@ -1,0 +1,21 @@
+name: Language proposal
+description: Suggest a new phrase, keyword or change to how HL reads
+labels: [proposal]
+body:
+  - type: textarea
+    id: stumble
+    attributes:
+      label: What real stumble does this fix?
+      description: Who got stuck, doing what? Evidence beats taste.
+    validations: { required: true }
+  - type: textarea
+    id: idea
+    attributes:
+      label: The phrase, with 2-3 short example programs
+      render: text
+    validations: { required: true }
+  - type: textarea
+    id: ambiguity
+    attributes:
+      label: Could it be read two ways? Does it clash with words people use as names?
+    validations: { required: true }

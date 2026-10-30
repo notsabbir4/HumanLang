@@ -1,0 +1,6 @@
+ask number "First number?" and save it as a
+ask number "Second number?" and save it as b
+try
+    say "{a} / {b} = {a / b}"
+if that fails
+    say "Can't do that: {problem}"

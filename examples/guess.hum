@@ -1,0 +1,12 @@
+note: Guess the number
+set secret to random number from 1 to 10
+set guess to 0
+
+repeat while guess is not secret
+    ask number "Guess a number from 1 to 10:" and save it as guess
+    if guess is less than secret
+        say "Too low"
+    otherwise if guess is greater than secret
+        say "Too high"
+
+say "You got it!"

@@ -1,0 +1,11 @@
+define add_numbers with a and b
+    give back a + b
+
+define factorial with n
+    if n is at most 1
+        give back 1
+    give back n * factorial with (n - 1)
+
+set total to add_numbers with 2 and 3
+say "Total is {total}"
+say "5 factorial is {factorial with 5}"

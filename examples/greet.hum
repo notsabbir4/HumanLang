@@ -1,0 +1,11 @@
+note: Ask the user a few questions and answer back.
+ask "What is your name?" and save it as name
+ask number "How old are you?" and save it as age
+say "Hi {name}, next year you will be {age + 1}."
+
+if age is at least 18
+    say "Adult"
+otherwise if age is at least 13
+    say "Teenager"
+otherwise
+    say "Child"

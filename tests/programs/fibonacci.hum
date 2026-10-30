@@ -1,0 +1,9 @@
+define fib with n
+    if n is less than 2
+        give back n
+    give back (fib with (n - 1)) + (fib with (n - 2))
+
+set results to empty list
+for each i in list of 0, 1, 2, 3, 10, 15
+    add fib with i to results
+say results

@@ -1,0 +1,16 @@
+set colors to list of "red", "green", "blue"
+add "pink" to colors
+
+for each color in colors
+    say color
+
+say "There are {how many items in colors} colors."
+say "The first one is {item 1 of colors}."
+
+repeat 3 times
+    say "Hello"
+
+set count to 0
+repeat while count is less than 3
+    add 1 to count
+say "Count is {count}"

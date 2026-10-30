@@ -1,0 +1,36 @@
+{
+  "name": "humanlang",
+  "displayName": "HumanLang",
+  "description": "Syntax highlighting, error checking, completion and formatting for HumanLang (.hum) files.",
+  "version": "0.1.1",
+  "publisher": "humanlang",
+  "engines": { "vscode": "^1.75.0" },
+  "categories": ["Programming Languages"],
+  "main": "./extension.js",
+  "activationEvents": [],
+  "contributes": {
+    "languages": [{
+      "id": "humanlang",
+      "aliases": ["HumanLang", "HL"],
+      "extensions": [".hum"],
+      "configuration": "./language-configuration.json"
+    }],
+    "grammars": [{
+      "language": "humanlang",
+      "scopeName": "source.humanlang",
+      "path": "./syntaxes/humanlang.tmLanguage.json"
+    }],
+    "snippets": [{ "language": "humanlang", "path": "./snippets/humanlang.json" }],
+    "configuration": {
+      "title": "HumanLang",
+      "properties": {
+        "humanlang.command": {
+          "type": "string",
+          "default": "hl",
+          "description": "The command that starts HumanLang (for example hl, or python3 -m humanlang)."
+        }
+      }
+    }
+  },
+  "dependencies": { "vscode-languageclient": "^9.0.1" }
+}

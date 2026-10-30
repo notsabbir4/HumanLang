@@ -1,0 +1,39 @@
+name: Beginner feedback
+description: Something was confusing, even if it technically worked. This is the most valuable kind of issue.
+labels: [beginner-feedback]
+body:
+  - type: markdown
+    attributes:
+      value: "Confusing messages and surprising behaviour are bugs in HL, not in you. Thank you for telling us."
+  - type: textarea
+    id: goal
+    attributes:
+      label: What were you trying to do?
+    validations: { required: true }
+  - type: textarea
+    id: typed
+    attributes:
+      label: What did you type?
+      render: text
+    validations: { required: true }
+  - type: textarea
+    id: saw
+    attributes:
+      label: What did HL say or do?
+      render: text
+  - type: dropdown
+    id: understood
+    attributes:
+      label: Did you understand the message without help?
+      options: ["Yes, and I fixed it", "Partly", "No, I needed help", "There was no message"]
+    validations: { required: true }
+  - type: input
+    id: expected-word
+    attributes:
+      label: What word or phrase did you expect to work?
+      placeholder: e.g. print, else, return
+  - type: dropdown
+    id: experience
+    attributes:
+      label: Experience before HL
+      options: ["Never programmed", "A little (school or a course)", "Another language", "Professional"]

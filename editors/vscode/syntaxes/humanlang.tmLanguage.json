@@ -1,0 +1,81 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "HumanLang",
+  "scopeName": "source.humanlang",
+  "patterns": [
+    { "include": "#comment" },
+    { "include": "#string" },
+    { "include": "#definition" },
+    { "include": "#number" },
+    { "include": "#constant" },
+    { "include": "#control" },
+    { "include": "#statement" },
+    { "include": "#operator-word" },
+    { "include": "#builtin" },
+    { "include": "#symbol-operator" }
+  ],
+  "repository": {
+    "comment": {
+      "match": "^\\s*note:.*$",
+      "name": "comment.line.note.humanlang"
+    },
+    "string": {
+      "begin": "\"",
+      "end": "\"",
+      "name": "string.quoted.double.humanlang",
+      "patterns": [
+        { "match": "\\\\.", "name": "constant.character.escape.humanlang" },
+        {
+          "begin": "\\{",
+          "end": "\\}",
+          "name": "meta.interpolation.humanlang",
+          "beginCaptures": { "0": { "name": "punctuation.section.interpolation.begin.humanlang" } },
+          "endCaptures": { "0": { "name": "punctuation.section.interpolation.end.humanlang" } },
+          "patterns": [
+            { "match": "\"[^\"]*\"", "name": "string.quoted.double.humanlang" },
+            { "include": "#number" },
+            { "include": "#constant" },
+            { "include": "#operator-word" },
+            { "include": "#builtin" },
+            { "include": "#symbol-operator" }
+          ]
+        }
+      ]
+    },
+    "definition": {
+      "match": "\\b(define)\\s+([^\\W\\d]\\w*)",
+      "captures": {
+        "1": { "name": "keyword.control.define.humanlang" },
+        "2": { "name": "entity.name.function.humanlang" }
+      }
+    },
+    "number": {
+      "match": "\\b\\d+(\\.\\d+)?\\b",
+      "name": "constant.numeric.humanlang"
+    },
+    "constant": {
+      "match": "\\b(yes|no|nothing|problem)\\b",
+      "name": "constant.language.humanlang"
+    },
+    "control": {
+      "match": "\\b(if that fails|if|otherwise|repeat|while|for each|for|each|in|try|stop|skip|give back|give|back|then)\\b",
+      "name": "keyword.control.humanlang"
+    },
+    "statement": {
+      "match": "\\b(say|set|change|add|subtract|remove|ask|save it as|use|write|with|to|from|by)\\b",
+      "name": "keyword.other.statement.humanlang"
+    },
+    "operator-word": {
+      "match": "\\b(and|or|not|is|less than|greater than|at least|at most|contains|plus|minus|times|divided by|mod|to the power of)\\b",
+      "name": "keyword.operator.word.humanlang"
+    },
+    "builtin": {
+      "match": "\\b(list of|empty list|item|items|how many items in|length of|uppercase of|lowercase of|number of|text of|random number from|random item from|square root of|absolute value of|round of|floor of|ceiling of|sum of|largest of|smallest of|sorted of|reversed of|trim of|read file|split|join|replace|the date today|the time now)\\b",
+      "name": "support.function.builtin.humanlang"
+    },
+    "symbol-operator": {
+      "match": "[-+*/%]",
+      "name": "keyword.operator.arithmetic.humanlang"
+    }
+  }
+}

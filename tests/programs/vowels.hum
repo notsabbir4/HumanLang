@@ -1,0 +1,5 @@
+set count to 0
+for each ch in "Human Language"
+    if lowercase of ch is "a" or lowercase of ch is "e" or lowercase of ch is "u"
+        add 1 to count
+say "Count: {count}"

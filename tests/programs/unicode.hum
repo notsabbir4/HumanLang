@@ -1,0 +1,3 @@
+set naïve to "héllo ✓"
+say naïve
+say length of naïve

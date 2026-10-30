@@ -1,0 +1,9 @@
+note: totals a shopping list
+use math
+set prices to list of 2.5, 4, 10.25
+set total to 0
+for each p in prices
+    add p to total
+say "Total: {total}"
+say "Rounded: {round of total}"
+say "Average: {total / how many items in prices}"
