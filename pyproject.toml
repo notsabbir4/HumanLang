@@ -21,9 +21,9 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/notsabbir4/humanlang"
-Documentation = "https://notsabbir4.github.io/humanlang/"
-Issues = "https://github.com/notsabbir4/humanlang/issues"
+Homepage = "https://github.com/notsabbir4/HumanLang"
+Documentation = "https://notsabbir4.github.io/HumanLang/"
+Issues = "https://github.com/notsabbir4/HumanLang/issues"
 
 [project.scripts]
 hl = "humanlang.cli:main"

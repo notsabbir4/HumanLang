@@ -4,7 +4,7 @@ Thank you for helping! HL has one job: be easy for beginners. Every change is ju
 
 ## Set up
 ```
-git clone https://github.com/notsabbir4/humanlang && cd humanlang
+git clone https://github.com/notsabbir4/HumanLang && cd humanlang
 pip install -e .
 python -m unittest discover -s tests      # must pass before you open a pull request
 python tests/fuzz.py 5000                 # must report 0 crashes
