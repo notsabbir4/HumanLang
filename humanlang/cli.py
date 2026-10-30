@@ -24,18 +24,25 @@ BLOCK_STARTERS = {"if", "repeat", "for", "define", "try"}
 
 def run_big(fn):
     """Run fn in a thread with a big stack so deep recursion is safe."""
-    sys.setrecursionlimit(200000)
-    try:
-        threading.stack_size(256 * 1024 * 1024)
-    except (ValueError, RuntimeError):
-        pass
     result = [1]
 
     def target():
         result[0] = fn()
 
-    t = threading.Thread(target=target, daemon=True)
-    t.start()
+    t = None
+    # some systems refuse a huge stack, so step down; the recursion limit must match the stack we get
+    for megabytes, limit in ((256, 200000), (64, 200000), (16, 20000), (0, 5000)):
+        try:
+            threading.stack_size(megabytes * 1024 * 1024)
+            sys.setrecursionlimit(limit)
+            t = threading.Thread(target=target, daemon=True)
+            t.start()
+            break
+        except (ValueError, RuntimeError):
+            t = None
+    if t is None:  # no helper thread possible: run here, with a limit that is safe for a normal stack
+        sys.setrecursionlimit(5000)
+        return fn()
     try:
         while t.is_alive():
             t.join(0.1)

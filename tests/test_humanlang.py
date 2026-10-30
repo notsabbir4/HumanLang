@@ -151,7 +151,8 @@ class Modules(unittest.TestCase):
     def test_files(self):
         path = os.path.join(os.path.dirname(__file__), "_tmp.txt")
         try:
-            run(f'use files\nwrite "hello" to file "{path}"\nsay read file "{path}"')
+            hl_path = path.replace("\\", "/")  # in HL text a backslash starts an escape; / works everywhere
+            self.assertEqual(run(f'use files\nwrite "hello" to file "{hl_path}"\nsay read file "{hl_path}"'), "hello\n")
         finally:
             if os.path.exists(path):
                 os.remove(path)
@@ -607,6 +608,32 @@ class MigrationHints(unittest.TestCase):
 
     def test_variables_may_use_those_words_as_names(self):
         self.assertEqual(run('set input to 1\nset length to 2\nsay input + length'), "3\n")
+
+
+class BigStackFallback(unittest.TestCase):
+    def test_refused_stack_sizes_step_down(self):
+        from humanlang import cli
+        sizes = []
+
+        def fake_stack_size(n=0):
+            sizes.append(n)
+            if n >= 64 * 1024 * 1024:
+                raise RuntimeError("size not valid")
+            return 0
+
+        with mock.patch.object(cli.threading, "stack_size", fake_stack_size):
+            self.assertEqual(cli.run_big(lambda: 7), 7)
+        self.assertEqual(sizes[:3], [256 * 1024 * 1024, 64 * 1024 * 1024, 16 * 1024 * 1024])
+
+    def test_no_thread_at_all_still_runs(self):
+        from humanlang import cli
+
+        def refuse(n=0):
+            raise ValueError("no")
+
+        with mock.patch.object(cli.threading, "stack_size", refuse):
+            self.assertEqual(cli.run_big(lambda: 9), 9)
+        sys.setrecursionlimit(50000)  # run_big lowered it; the rest of the tests expect the high one
 
 
 class FuzzSmoke(unittest.TestCase):

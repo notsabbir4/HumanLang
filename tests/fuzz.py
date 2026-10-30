@@ -1,6 +1,6 @@
 """Fuzzer: no input may ever crash HL with a raw Python exception.
 Only HLError is acceptable. Run: python tests/fuzz.py [iterations] [seed]"""
-import glob, os, random, signal, sys, traceback
+import glob, os, random, sys, time, traceback
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 sys.setrecursionlimit(50000)
 from humanlang.errors import HLError
@@ -13,22 +13,23 @@ WORDS = ("say set change add subtract remove ask if otherwise repeat while for e
          "math files dates print else true null return break by contains split join replace trim sorted reversed sum largest smallest pick the date today now power x y name naïve 名前 é ✓ ½ ٣ $ @ ; : = < > ! 0 1 3 2.5 -1 \"hi\" \"{x}\" \"{\" ( ) , + - * / % empty").split()
 
 class Timeout(Exception): pass
-def alarm(*_): raise Timeout()
-signal.signal(signal.SIGALRM, alarm)
 
 def attempt(src):
     out = []
     it = Interpreter(out=lambda s: out.append(s) if sum(map(len, out)) < 10000 else None,
                      inp=lambda p: "5")
-    signal.setitimer(signal.ITIMER_REAL, 1.0)
+    deadline = time.monotonic() + 1.0
+
+    def watch(line, text):  # runs before every statement, so endless loops are cut off on any system
+        if time.monotonic() > deadline:
+            raise Timeout()
+    it.trace = watch
     try:
         it.run(src)
     except HLError:
         pass
     except Timeout:
         pass  # infinite loops are legal programs
-    finally:
-        signal.setitimer(signal.ITIMER_REAL, 0)
 
 def mutate(src, rnd):
     toks = src.split(" ")

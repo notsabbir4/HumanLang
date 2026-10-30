@@ -14,4 +14,16 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
       - run: python -m pip install -e . markdown
-      - run: python -m unittest discover -s tests -v
+      - name: Run tests
+        run: python -m unittest discover -s tests -v > test.log 2>&1
+      - name: Show the failures
+        if: failure()
+        shell: python
+        run: |
+          text = open("test.log", encoding="utf-8", errors="replace").read()
+          print(text[-6000:])
+          def esc(t):
+              return t.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
+          bad = [l for l in text.splitlines() if l.startswith(("ERROR:", "FAIL:"))]
+          print("::error title=Failing tests::" + esc("\n".join(bad[:25]) or "(none listed; see the log tail)"))
+          print("::error title=Log tail::" + esc(text[-2800:]))

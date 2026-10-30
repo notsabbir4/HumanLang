@@ -20,6 +20,9 @@ Everything HL understands, in one place. New to HL? Start with the Tutorial.
 | list | `list of 1, 2, 3`, `empty list` | ordered, counting from 1 |
 | nothing | `nothing` | what a function gives back when it gives back nothing |
 
+**File names on Windows:** inside text a backslash starts an escape (`\n` is a new line, `\t` is a tab), so write
+paths with forward slashes, which Windows understands: `"C:/Users/me/notes.txt"`. Or double each backslash: `"C:\\Users\\me\\notes.txt"`.
+
 HL never converts between kinds silently. `"5" + 1` is an error; use `number of "5"` or `text of 5`.
 
 Lists are copied when stored in a variable or passed to a function.
