@@ -23,13 +23,24 @@ def in_big_stack(fn):
         except BaseException as e:  # hand every outcome back to the test
             box["error"] = e
 
-    threading.stack_size(256 * 1024 * 1024)
+    old_limit = sys.getrecursionlimit()
+    t = None
     try:
-        t = threading.Thread(target=target)
-        t.start()
-        t.join()
+        for megabytes in (256, 64, 16, 0):  # some systems refuse a huge stack, so step down
+            try:
+                threading.stack_size(megabytes * 1024 * 1024)
+                t = threading.Thread(target=target)
+                t.start()
+                break
+            except (ValueError, RuntimeError):
+                t = None
+        if t is None:
+            target()
+        else:
+            t.join()
     finally:
         threading.stack_size(0)
+        sys.setrecursionlimit(old_limit)
     if "error" in box:
         raise box["error"]
     return box["value"]
