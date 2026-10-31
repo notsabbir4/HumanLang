@@ -214,7 +214,7 @@ def playground_page(examples):
 <label for="inputs" style="margin-top:10px">Answers for <code>ask</code> (one per line)</label><textarea id="inputs" spellcheck="false"></textarea></div>
 <div><label for="out">Output</label><pre id="out" aria-live="polite"></pre></div>
 </div>
-<p style="color:var(--muted);font-size:.92rem">Tip: <code>ask</code> reads its answers from the Answers box, one line each, in order.
+<p style="color:var(--muted);font-size:.92rem">Tip: when a program uses <code>ask</code>, a small box pops up for each answer. To skip the pop-ups, type the answers in the Answers box instead, one line each, in order.
 Press Stop if a program never finishes.</p>
 """
     script = f'<script>window.HL_EXAMPLES = {json.dumps(examples)};</script>\n<script src="playground.js"></script>'
@@ -241,7 +241,8 @@ def main():
     os.makedirs(out)
 
     for f in glob.glob(os.path.join(HERE, "static", "*")):
-        shutil.copy(f, out)
+        if os.path.isfile(f):
+            shutil.copy(f, out)
     write(os.path.join(out, "config.js"),
           f"self.HL_CONFIG = {json.dumps({'pyodideUrl': args.pyodide_url, 'version': __version__})};\n")
 

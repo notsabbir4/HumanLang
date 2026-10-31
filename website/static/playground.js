@@ -17,6 +17,18 @@
       const m = e.data;
       if (m.type === "ready") { ready = true; runBtn.disabled = false; setStatus("Ready. Press Ctrl+Enter to run."); }
       else if (m.type === "error") { setStatus("Could not load the playground: " + m.message); }
+      else if (m.type === "result" && m.need !== undefined) {
+        // the program asked a question: ask the person here, remember the answer, and run again with it
+        const answer = window.prompt(m.need || "The program asks:");
+        if (answer === null) {
+          clearTimeout(slowTimer); running = false;
+          runBtn.disabled = false; stopBtn.disabled = true;
+          show((m.out || "") + "\n(You closed the question box, so the program was stopped.)", false);
+          setStatus("Stopped."); return;
+        }
+        inputs.value += (inputs.value === "" ? "" : "\n") + answer;
+        running = false; run(true);
+      }
       else if (m.type === "result") {
         clearTimeout(slowTimer); running = false;
         runBtn.disabled = false; stopBtn.disabled = true;
@@ -28,10 +40,11 @@
     };
   }
 
-  function run() {
+  function run(again) {
     if (!ready || running) return;
     running = true; runBtn.disabled = true; stopBtn.disabled = false;
-    show("", false); setStatus("Running...");
+    if (again !== true) show("", false);
+    setStatus("Running...");
     slowTimer = setTimeout(() => setStatus("Still running... press Stop if it is stuck in a loop."), 3000);
     worker.postMessage({ type: "run", code: code.value, inputs: inputs.value === "" ? [] : inputs.value.split("\n") });
   }
@@ -47,6 +60,7 @@
     const ex = examples[name];
     if (!ex) return;
     code.value = ex.code; inputs.value = ex.inputs || ""; show("", false);
+    pick.value = name;
   }
 
   function encode(text) { return btoa(String.fromCharCode(...new TextEncoder().encode(text))); }
@@ -56,7 +70,7 @@
     const o = document.createElement("option"); o.value = name; o.textContent = name; pick.appendChild(o);
   }
   pick.onchange = () => loadExample(pick.value);
-  runBtn.onclick = run; stopBtn.onclick = stop;
+  runBtn.onclick = () => run(); stopBtn.onclick = stop;
   shareBtn.onclick = async () => {
     const link = location.origin + location.pathname + "#code=" + encodeURIComponent(encode(code.value)) +
       (inputs.value ? "&in=" + encodeURIComponent(encode(inputs.value)) : "");
@@ -72,10 +86,15 @@
       code.selectionStart = code.selectionEnd = s + 4;
     } else if ((e.ctrlKey || e.metaKey) && e.key === "Enter") { e.preventDefault(); run(); }
   });
+  // editing the program means the dropdown no longer describes it
+  code.addEventListener("input", () => {
+    if (pick.value && examples[pick.value] && code.value !== examples[pick.value].code) pick.value = "";
+  });
 
   const params = new URLSearchParams(location.hash.slice(1));
   try {
-    if (params.get("code")) { code.value = decode(params.get("code")); inputs.value = params.get("in") ? decode(params.get("in")) : ""; }
+    if (params.get("code")) {
+      const o = document.createElement("option"); o.value = ""; o.textContent = "(your program)"; pick.insertBefore(o, pick.firstChild); pick.value = ""; code.value = decode(params.get("code")); inputs.value = params.get("in") ? decode(params.get("in")) : ""; }
     else loadExample("hello.hum");
   } catch (e) { loadExample("hello.hum"); }
   startWorker();

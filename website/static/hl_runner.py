@@ -13,6 +13,12 @@ class Flood(BaseException):
     pass
 
 
+class NeedInput(BaseException):
+    """The program asked a question and no answer is ready; the page will ask the person and run again."""
+    def __init__(self, prompt):
+        self.prompt = prompt
+
+
 def run(code, inputs):
     out, size, answers = [], [0], list(inputs)
 
@@ -24,7 +30,7 @@ def run(code, inputs):
 
     def ask(prompt):
         if not answers:
-            raise EOFError
+            raise NeedInput(prompt)
         answer = answers.pop(0)
         write(prompt + answer + "\n")
         return answer
@@ -34,8 +40,8 @@ def run(code, inputs):
         Interpreter(out=write, inp=ask).run(code)
     except HLError as e:
         err = e.format(code.splitlines())
-        if "no answer to read" in e.message:
-            err += "\nType the answers in the Answers box, one per line, then press Run."
+    except NeedInput as n:
+        return json.dumps({"out": "".join(out), "need": n.prompt})
     except Flood:
         err = "The program printed too much, so I stopped it."
     return json.dumps({"out": "".join(out), "err": err})
