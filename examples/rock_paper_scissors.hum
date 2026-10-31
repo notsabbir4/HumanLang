@@ -1,0 +1,34 @@
+use random
+
+say "ROCK, PAPER, SCISSORS - first to 3 points wins!"
+
+set choices to list of "rock", "paper", "scissors"
+set you to 0
+set computer to 0
+
+repeat while you is less than 3 and computer is less than 3
+    ask "Your move (rock, paper or scissors)?" and save it as move
+    set move to lowercase of move
+
+    if not (choices contains move)
+        say "Please type rock, paper or scissors."
+        skip
+
+    set pick to random item from choices
+    say "Computer chose {pick}."
+
+    if move is pick
+        say "A tie!"
+    otherwise if move is "rock" and pick is "scissors" or move is "paper" and pick is "rock" or move is "scissors" and pick is "paper"
+        say "You win this round!"
+        add 1 to you
+    otherwise
+        say "Computer wins this round."
+        add 1 to computer
+    say "Score: you {you}, computer {computer}"
+    say ""
+
+if you is 3
+    say "YOU WIN THE GAME! Well played."
+otherwise
+    say "The computer wins the game. Try again!"
