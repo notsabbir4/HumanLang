@@ -30,10 +30,12 @@ PREFIXES = [
     (("floor", "of"), "floor"),
     (("ceiling", "of"), "ceiling"),
     (("read", "file"), "readfile"),
+    (("file", "exists"), "fileexists"),
     (("sum", "of"), "sum"),
     (("largest", "of"), "largest"),
     (("smallest", "of"), "smallest"),
     (("sorted", "of"), "sorted"),
+    (("keys", "of"), "keys"),
     (("reversed", "of"), "reversed"),
     (("trim", "of"), "trim"),
     (("the", "date", "today"), "today"),
@@ -55,7 +57,11 @@ EXAMPLES = {
     "give": "give back a + b",
     "use": "use math",
     "write": 'write "hi" to file "out.txt"',
+    "record": 'set person to record with name "Ann" and age 30',
+    "fail": 'fail with "That is not allowed"',
 }
+
+VALUE_WORDS = ("yes", "no", "nothing", "list", "item")
 
 
 class Parser:
@@ -68,6 +74,8 @@ class Parser:
         self.in_function = 0
         self.in_loop = 0
         self.defined = set()  # names made with "define" so far
+        self.declared = set()  # every name made with "define", anywhere in the program
+        self.warnings = []  # (line, message, hint): things that work but are likely not what was meant
 
     # ---- token helpers -------------------------------------------------
     def peek(self, k=0):
@@ -84,6 +92,90 @@ class Parser:
     def ahead(self, w):
         """Is the word w somewhere later on this line?"""
         return any(t.kind == "WORD" and t.value == w for t in self.toks[self.i + 1:])
+
+    def value_start(self, k=1):
+        """Could a value begin at the token k places ahead? (used to recognise phrases by context)"""
+        t = self.peek(k)
+        if t is None:
+            return False
+        if t.kind in ("NUM", "STR"):
+            return True
+        if t.kind == "OP":
+            return t.value in ("(", "-")
+        return t.kind == "WORD" and (t.value in VALUE_WORDS or t.value not in RESERVED)
+
+    def pair_ahead(self, firsts, second):
+        """Is one of the words `firsts` followed by `second` later on this line? Gives back the word."""
+        for j in range(self.i + 1, len(self.toks) - 1):
+            a, b = self.toks[j], self.toks[j + 1]
+            if a.kind == "WORD" and a.value in firsts and b.kind == "WORD" and b.value == second:
+                return a.value
+        return None
+
+    def field_ahead(self):
+        """Is this "field KEY of ..." (KEY a word, or a calculation in brackets)? The word "field" is not reserved."""
+        if not self.word("field"):
+            return False
+        t = self.peek(1)
+        if t is None:
+            return False
+        if t.kind == "WORD":
+            return t.value not in ("of", "to", "and") and self.word("of", 2)
+        if t.kind == "OP" and t.value == "(":
+            depth = 0
+            for j in range(self.i + 1, len(self.toks)):
+                tj = self.toks[j]
+                if tj.kind == "OP" and tj.value == "(":
+                    depth += 1
+                elif tj.kind == "OP" and tj.value == ")":
+                    depth -= 1
+                    if depth == 0:
+                        nxt = self.toks[j + 1] if j + 1 < len(self.toks) else None
+                        return nxt is not None and nxt.kind == "WORD" and nxt.value == "of"
+        return False
+
+    def field_key(self):
+        """The name of a field: a plain word, or a calculation in brackets, like (column)."""
+        t = self.peek()
+        if t is not None and t.kind == "WORD":
+            self.i += 1
+            return ("lit", t.value)
+        if t is not None and t.kind == "OP" and t.value == "(":
+            self.i += 1
+            e = self.expr()
+            if not (self.peek() is not None and self.peek().kind == "OP" and self.peek().value == ")"):
+                self.fail('I expected ")" to close the bracket')
+            self.i += 1
+            return e
+        self.fail("I expected the name of a field here", hint="Example: field name of person")
+
+    def place(self):
+        """A variable, item N of a place, or field KEY of a place (so things inside things can be changed in place)."""
+        if self.accept("item"):
+            idx = self.arith()
+            self.expect("of")
+            return ("pitem", idx, self.place())
+        if self.field_ahead():
+            self.i += 1
+            key = self.field_key()
+            self.expect("of")
+            return ("pfield", key, self.place())
+        return self.name()
+
+    def wrapped(self, a, b):
+        """Are the tokens from a to b one bracketed group, like (2 + 1)?"""
+        t = self.toks
+        if not (t[a].kind == "OP" and t[a].value == "("):
+            return False
+        depth = 0
+        for j in range(a, b):
+            if t[j].kind == "OP" and t[j].value == "(":
+                depth += 1
+            elif t[j].kind == "OP" and t[j].value == ")":
+                depth -= 1
+                if depth == 0:
+                    return j == b - 1
+        return False
 
     def accept(self, w):
         if self.word(w):
@@ -137,6 +229,10 @@ class Parser:
         self.lineno, self.level = ln.no, ln.indent
 
     def parse_program(self):
+        for ln in self.lines:
+            t = ln.toks
+            if len(t) > 1 and t[0].kind == "WORD" and t[0].value == "define" and t[1].kind == "WORD":
+                self.declared.add(t[1].value)
         return self.parse_block(0)
 
     def parse_block(self, level):
@@ -179,6 +275,10 @@ class Parser:
         w = t.value
         if w == "otherwise":
             self.fail('"otherwise" must come right after an "if" block')
+        if w == "fail" and "fail" not in self.declared and self.word("with", 1):
+            self.i = 1
+            self.example = EXAMPLES["fail"]
+            return self.st_fail()
         if w in STATEMENT_WORDS:
             self.i = 1
             self.example = EXAMPLES.get(w)
@@ -191,8 +291,24 @@ class Parser:
         self.end()
         return ("say", line, e)
 
+    def st_fail(self):
+        line = self.lineno
+        self.expect("with")
+        e = self.expr()
+        self.end()
+        return ("fail", line, e)
+
     def st_set(self):
         line = self.lineno
+        if self.field_ahead():
+            self.i += 1
+            key = self.field_key()
+            self.expect("of")
+            target = self.place()
+            self.expect("to")
+            e = self.expr()
+            self.end()
+            return ("setfield", line, target, key, e)
         name = self.name()
         self.expect("to")
         e = self.expr()
@@ -204,11 +320,20 @@ class Parser:
         if self.accept("item"):
             idx = self.arith()
             self.expect("of")
-            name = self.name()
+            name = self.place()
             self.expect("to")
             e = self.expr()
             self.end()
             return ("changeitem", line, name, idx, e)
+        if self.field_ahead():
+            self.i += 1
+            key = self.field_key()
+            self.expect("of")
+            target = self.place()
+            self.expect("to")
+            e = self.expr()
+            self.end()
+            return ("changefield", line, target, key, e)
         name = self.name()
         self.expect("to")
         e = self.expr()
@@ -219,9 +344,16 @@ class Parser:
         line = self.lineno
         e = self.expr()
         self.expect(word)
-        name = self.name()
+        if kind == "add" and self.word("file") and self.value_start(1):
+            self.i += 1
+            path = self.expr()
+            self.end()
+            return ("append", line, e, path)
+        target = self.place()
         self.end()
-        return (kind, line, e, name)
+        if isinstance(target, str):
+            return (kind, line, e, target)
+        return (kind + "place", line, e, target)
 
     def st_add(self):
         return self._value_then("add", "to")
@@ -331,6 +463,11 @@ class Parser:
         return (kind, line)
 
     def st_stop(self):
+        if self.words("the", "program"):
+            line = self.lineno
+            self.i += 2
+            self.end()
+            return ("exit", line)
         return self._loop_word("stop")
 
     def st_skip(self):
@@ -384,18 +521,31 @@ class Parser:
             return ("callstmt", line, ("call", name, []))
         if self.word("with"):
             self.i += 1
-            args = self.call_args()
+            args = self.call_args(name)
             self.end()
             return ("callstmt", line, ("call", name, args))
         self.fail(f'I don\'t understand "{name}" at the start of a line',
                   hint=for_word(name) or suggest(name, STATEMENT_WORDS) or
                   "Lines start with a word like say, set, change, if, repeat or define.")
 
-    def call_args(self):
-        args = [self.arith()]
+    def call_args(self, name):
+        args = [self.call_arg(name)]
         while self.accept("and"):
-            args.append(self.arith())
+            args.append(self.call_arg(name))
         return args
+
+    def call_arg(self, name):
+        start = self.i
+        node = self.arith()
+        if node[0] == "bin" and not self.wrapped(start, self.i):
+            text = " ".join(self.show(t) for t in self.toks[start:self.i])
+            self.warnings.append((
+                self.lineno,
+                f'"{name} with {text}" gives the whole calculation "{text}" to {name} as its input.',
+                f'Put brackets to show what you mean: "{name} with ({text})". '
+                f'If you wanted to calculate after the call, write "({name} with ...) + ...". '
+                f"Without brackets this will become an error in a future version."))
+        return node
 
     # ---- expressions -----------------------------------------------------
     def expr(self):
@@ -417,11 +567,20 @@ class Parser:
 
     def cmp(self):
         left = self.arith()
+        if self.words("has", "field") and self.peek(2) is not None:
+            self.i += 2
+            return ("hasfield", left, self.field_key())
         if self.accept("contains"):
             return ("contains", left, self.arith())
         if not self.accept("is"):
             return left
         negate = self.accept("not")
+        kind = self.peek(1)
+        if (self.word("a") and kind is not None and kind.kind == "WORD"
+                and kind.value in ("number", "text", "list", "record") and not self.word("of", 2)):
+            self.i += 2
+            node = ("typeis", kind.value, left)
+            return ("not", node) if negate else node
         if self.words("less", "than"):
             op, self.i = "lt", self.i + 2
         elif self.words("greater", "than"):
@@ -519,11 +678,41 @@ class Parser:
         if w == "empty" and self.word("list", 1):
             self.i += 2
             return ("list", [])
+        if w == "empty" and self.word("record", 1):
+            self.i += 2
+            return ("record", [])
+        if w == "record" and self.word("with", 1) and "record" not in self.declared:
+            return self.record_literal()
+        if self.field_ahead():
+            self.i += 1
+            key = self.field_key()
+            self.expect("of")
+            return ("field", key, self.factor())
         if w == "item":
             self.i += 1
             idx = self.arith()
             self.expect("of")
             return ("item", idx, self.factor())
+        if w in ("first", "last") and self.value_start(1):
+            kind = self.pair_ahead(("letters", "items"), "of")
+            if kind:
+                self.i += 1
+                n = self.arith()
+                self.expect(kind)
+                self.expect("of")
+                return ("fn", w, [n, self.unary(), ("lit", kind)])
+        if w in ("letters", "items") and self.value_start(1) and self.ahead("to") and self.ahead("of"):
+            self.i += 1
+            a = self.arith()
+            self.expect("to")
+            b = self.arith()
+            self.expect("of")
+            return ("fn", "slice", [a, b, self.unary(), ("lit", w)])
+        if w == "find" and self.value_start(1) and self.ahead("in"):
+            self.i += 1
+            what = self.arith()
+            self.expect("in")
+            return ("fn", "find", [what, self.unary()])
         if self.words("how", "many", "items", "in"):
             self.i += 4
             return ("fn", "length", [self.factor()])
@@ -553,14 +742,36 @@ class Parser:
                 self.i += len(phrase)
                 if fname in ("today", "now"):
                     return ("fn", fname, [])
-                return ("fn", fname, [self.unary()])
+                arg = self.unary()
+                if fname == "sorted" and self.words("by", "field"):
+                    self.i += 2
+                    return ("fn", "sortby", [arg, self.field_key()])
+                return ("fn", fname, [arg])
         if w in RESERVED:
             self.fail(f'I expected a value here but found "{w}"')
         if self.word("with", 1):
             self.i += 2
-            return ("call", w, self.call_args())
+            return ("call", w, self.call_args(w))
         self.i += 1
         return ("var", w)
+
+    def record_literal(self):
+        """record with name "Ann" and age 30"""
+        self.i += 2
+        pairs, seen = [], set()
+        while True:
+            t = self.peek()
+            if t is None or t.kind != "WORD" or t.value == "and":
+                self.fail("I expected the name of a field here",
+                          hint='Example: record with name "Ann" and age 30')
+            if t.value in seen:
+                self.fail(f'The field "{t.value}" is written twice in this record')
+            seen.add(t.value)
+            self.i += 1
+            pairs.append((t.value, self.arith()))
+            if not self.accept("and"):
+                break
+        return ("record", pairs)
 
     def string_node(self, t):
         parts = []
@@ -574,6 +785,7 @@ class Parser:
                           hint='Put a name or calculation inside, like "Hello {name}".')
             sub = Parser()
             sub.toks, sub.lineno = toks, self.lineno
+            sub.warnings, sub.defined, sub.declared = self.warnings, self.defined, self.declared
             e = sub.expr()
             if sub.peek() is not None:
                 self.fail(f'I didn\'t understand "{val}" inside the text',
@@ -586,6 +798,13 @@ class Parser:
 
 def parse(source_lines):
     return Parser(source_lines).parse_program()
+
+
+def parse_with_warnings(source_lines):
+    """Gives back (statements, warnings); a warning is (line, message, hint)."""
+    p = Parser(source_lines)
+    stmts = p.parse_program()
+    return stmts, p.warnings
 
 
 def parse_expression(src):

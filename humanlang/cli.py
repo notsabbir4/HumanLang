@@ -3,7 +3,7 @@ import sys
 import threading
 
 from . import __version__
-from .errors import HLError
+from .errors import HLError, format_warning
 from .formatter import format_source
 from .interpreter import Interpreter
 
@@ -54,7 +54,7 @@ def run_big(fn):
 
 def read_program(path):
     try:
-        with open(path, encoding="utf-8") as f:
+        with open(path, encoding="utf-8-sig") as f:  # "-sig": skip the invisible mark some Windows editors add
             return f.read()
     except FileNotFoundError:
         print(f'I can\'t find the file "{path}".\nCheck the spelling and the folder.', file=sys.stderr)
@@ -80,6 +80,12 @@ def format_file(path, check_only=False):
     return 0
 
 
+def show_warnings(interp, lines):
+    """Heads-ups go to standard error, so a program's own output stays clean."""
+    for w in interp.warnings:
+        print(format_warning(w, lines), file=sys.stderr)
+
+
 def run_file(path, check_only=False, trace=False):
     source = read_program(path)
     if source is None:
@@ -87,12 +93,18 @@ def run_file(path, check_only=False, trace=False):
     interp = Interpreter()
     if trace:
         interp.trace = lambda n, text: print(f"  [line {n}] {text}", file=sys.stderr)
+    lines = source.splitlines()
     try:
         if check_only:
             interp.check(source)
-            print("No mistakes found.")
+            show_warnings(interp, lines)
+            n = len(interp.warnings)
+            print("No mistakes found." if not n else
+                  f"No mistakes found, but {n} heads-up{'s' if n != 1 else ''} above (the program still runs).")
         else:
-            interp.run(source)
+            stmts = interp.prepare(source)
+            show_warnings(interp, lines)
+            interp.run_statements(stmts, source)
             sys.stdout.flush()
     except HLError as e:
         sys.stdout.flush()

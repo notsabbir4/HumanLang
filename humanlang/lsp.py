@@ -11,7 +11,8 @@ import sys
 from .errors import HLError
 from .formatter import format_source
 from .lexer import lex
-from .parser import MODULES, STATEMENT_WORDS, parse
+from .lint import lint
+from .parser import MODULES, STATEMENT_WORDS, parse_with_warnings
 
 KEYWORDS = sorted(set(STATEMENT_WORDS) | {
     "otherwise", "while", "each", "in", "with", "and", "or", "not", "is", "yes", "no", "nothing",
@@ -30,19 +31,24 @@ NAME_PATTERNS = [
 ]
 
 
+def _range(lines, line):
+    n = max((line or 1) - 1, 0)
+    end = len(lines[n]) if n < len(lines) else 0
+    start = len(lines[n]) - len(lines[n].lstrip()) if n < len(lines) else 0
+    return {"start": {"line": n, "character": start}, "end": {"line": n, "character": end}}
+
+
 def diagnose(text):
-    """Return a list of LSP diagnostics for the program text."""
+    """Return a list of LSP diagnostics: mistakes (severity 1) and heads-ups (severity 2)."""
+    lines = text.splitlines()
     try:
-        parse(lex(text))
+        stmts, parse_warnings = parse_with_warnings(lex(text))
     except HLError as e:
-        lines = text.splitlines()
-        n = max((e.line or 1) - 1, 0)
-        end = len(lines[n]) if n < len(lines) else 0
-        start = len(lines[n]) - len(lines[n].lstrip()) if n < len(lines) else 0
         message = e.message + ("\n" + e.hint if e.hint else "")
-        return [{"range": {"start": {"line": n, "character": start}, "end": {"line": n, "character": end}},
-                 "severity": 1, "source": "HumanLang", "message": message}]
-    return []
+        return [{"range": _range(lines, e.line), "severity": 1, "source": "HumanLang", "message": message}]
+    found = sorted(set(lint(stmts) + parse_warnings), key=lambda w: (w[0], w[1]))
+    return [{"range": _range(lines, line), "severity": 2, "source": "HumanLang",
+             "message": message + ("\n" + hint if hint else "")} for line, message, hint in found]
 
 
 def completions(text):

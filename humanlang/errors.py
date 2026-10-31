@@ -30,3 +30,14 @@ def suggest(word, candidates):
     if matches:
         return f'Did you mean "{matches[0]}"?'
     return None
+
+
+def format_warning(warning, source_lines=None):
+    """A heads-up (line, message, hint) as text, laid out like an error."""
+    line, message, hint = warning
+    out = [f"Heads up, line {line}: {message}"]
+    if source_lines and line and 1 <= line <= len(source_lines):
+        out.append("    " + source_lines[line - 1].strip())
+    if hint:
+        out.append(hint)
+    return "\n".join(out)
