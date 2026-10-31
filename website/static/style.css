@@ -69,3 +69,6 @@ th{background:var(--code-bg)}
 .hero>*,.pg>*,.doc>*,.cards>*{min-width:0}
 .box{max-width:100%}
 article{min-width:0}
+
+#out input.answer{font:inherit;color:inherit;background:transparent;border:0;border-bottom:1px solid var(--muted);outline:0;padding:0 2px;min-width:12em;max-width:100%}
+#out input.answer:focus{border-bottom-color:var(--accent,currentColor)}

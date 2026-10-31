@@ -18,26 +18,37 @@
       if (m.type === "ready") { ready = true; runBtn.disabled = false; setStatus("Ready. Press Ctrl+Enter to run."); }
       else if (m.type === "error") { setStatus("Could not load the playground: " + m.message); }
       else if (m.type === "result" && m.need !== undefined) {
-        // the program asked a question: ask the person here, remember the answer, and run again with it
-        const answer = window.prompt(m.need || "The program asks:");
-        if (answer === null) {
-          clearTimeout(slowTimer); running = false;
-          runBtn.disabled = false; stopBtn.disabled = true;
-          show((m.out || "") + "\n(You closed the question box, so the program was stopped.)", false);
-          setStatus("Stopped."); return;
-        }
-        inputs.value += (inputs.value === "" ? "" : "\n") + answer;
-        running = false; run(true);
+        // the program asked a question: show it in the output box, let the person type next to it,
+        // remember the answer, and run again with it
+        running = false; clearTimeout(slowTimer);
+        stopBtn.disabled = false; setStatus("Waiting for your answer...");
+        askHere(m.out || "", m.need);
       }
       else if (m.type === "result") {
         clearTimeout(slowTimer); running = false;
         runBtn.disabled = false; stopBtn.disabled = true;
-        let text = m.out || "";
+        let text = m.plain !== undefined ? m.plain : (m.out || "");
         if (m.err) text += (text && !text.endsWith("\n") ? "\n" : "") + m.err;
         show(text || "(the program printed nothing)", !!m.err);
         setStatus(m.err ? "Finished with an error." : "Finished.");
       }
     };
+  }
+
+  function askHere(before, question) {
+    out.className = ""; out.textContent = before + question;
+    const box = document.createElement("input");
+    box.type = "text"; box.className = "answer"; box.setAttribute("aria-label", question.trim() || "Your answer");
+    box.autocomplete = "off"; box.spellcheck = false;
+    out.appendChild(box); box.focus();
+    box.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        inputs.value += (inputs.value === "" ? "" : "\n") + box.value;
+        out.textContent = before + question + box.value + "\n";  // keep the conversation on screen while it continues
+        run(true);
+      } else if (e.key === "Escape") { e.preventDefault(); stop(); }
+    });
   }
 
   function run(again) {

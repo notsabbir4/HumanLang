@@ -214,7 +214,7 @@ def playground_page(examples):
 <label for="inputs" style="margin-top:10px">Answers for <code>ask</code> (one per line)</label><textarea id="inputs" spellcheck="false"></textarea></div>
 <div><label for="out">Output</label><pre id="out" aria-live="polite"></pre></div>
 </div>
-<p style="color:var(--muted);font-size:.92rem">Tip: when a program uses <code>ask</code>, a small box pops up for each answer. To skip the pop-ups, type the answers in the Answers box instead, one line each, in order.
+<p style="color:var(--muted);font-size:.92rem">Tip: when a program uses <code>ask</code>, each question appears in the Output box and you type your answer next to it, then press Enter. To skip that, type all the answers in the Answers box instead, one line each, in order.
 Press Stop if a program never finishes.</p>
 """
     script = f'<script>window.HL_EXAMPLES = {json.dumps(examples)};</script>\n<script src="playground.js"></script>'
