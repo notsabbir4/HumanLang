@@ -1,0 +1,182 @@
+note: Student grade manager. Students and their grades live in two lists that stay in step:
+note: names (one name each) and marks (one list of numbers each).
+use math
+use text
+
+set names to empty list
+set marks to empty list
+
+note: ---------- helpers ----------
+define find_student with wanted
+    note: gives back the position of a student, or 0 when not found
+    set position to 1
+    repeat while position is at most how many items in names
+        if lowercase of (item position of names) is lowercase of wanted
+            give back position
+        add 1 to position
+    give back 0
+
+define average_of with scores
+    if how many items in scores is 0
+        give back 0
+    give back round of (sum of scores / how many items in scores * 100) / 100
+
+define letter_for with average
+    if average is at least 90
+        give back "A"
+    if average is at least 80
+        give back "B"
+    if average is at least 70
+        give back "C"
+    if average is at least 60
+        give back "D"
+    give back "F"
+
+define pad with word and width
+    set padded to word
+    repeat while length of padded is less than width
+        add " " to padded
+    give back padded
+
+define ask_mark with question
+    ask number question and save it as mark
+    repeat while mark is less than 0 or mark is greater than 100
+        say "A mark must be between 0 and 100."
+        ask number question and save it as mark
+    give back mark
+
+note: ---------- actions ----------
+define add_student
+    ask "Student name: " and save it as new_name
+    set new_name to trim of new_name
+    if new_name is ""
+        say "A name can't be empty."
+        give back nothing
+    if (find_student with new_name) is not 0
+        say "{new_name} is already in the class."
+        give back nothing
+    add new_name to names
+    add (empty list) to marks
+    say "Added {new_name}."
+
+define add_mark
+    ask "Which student? " and save it as who
+    set at to find_student with who
+    if at is 0
+        say "I don't know a student called \"{who}\"."
+        give back nothing
+    set mark to ask_mark with "Mark (0-100): "
+    set mine to item at of marks
+    add mark to mine
+    change item at of marks to mine
+    say "Recorded {mark} for {item at of names}."
+
+define remove_student
+    ask "Remove which student? " and save it as who
+    set at to find_student with who
+    if at is 0
+        say "I don't know a student called \"{who}\"."
+        give back nothing
+    set keep_names to empty list
+    set keep_marks to empty list
+    set k to 1
+    repeat while k is at most how many items in names
+        if k is not at
+            add (item k of names) to keep_names
+            add (item k of marks) to keep_marks
+        add 1 to k
+    change names to keep_names
+    change marks to keep_marks
+    say "Removed {who}."
+
+define show_report
+    if how many items in names is 0
+        say "No students yet."
+        give back nothing
+    say (pad with "Name" and 14) plus (pad with "Marks" and 7) plus (pad with "Average" and 9) plus "Grade"
+    set total_of_averages to 0
+    set counted to 0
+    set k to 1
+    repeat while k is at most how many items in names
+        set mine to item k of marks
+        if how many items in mine is 0
+            say (pad with (item k of names) and 14) plus (pad with "0" and 7) plus (pad with "-" and 9) plus "-"
+        otherwise
+            set avg to average_of with mine
+            say (pad with (item k of names) and 14) plus (pad with (text of how many items in mine) and 7) plus (pad with (text of avg) and 9) plus (letter_for with avg)
+            add avg to total_of_averages
+            add 1 to counted
+        add 1 to k
+    if counted is greater than 0
+        say "Class average: {round of (total_of_averages / counted * 100) / 100}"
+
+define show_ranking
+    note: students with at least one mark, best average first (selection sort on positions)
+    set order to empty list
+    set averages to empty list
+    set k to 1
+    repeat while k is at most how many items in names
+        if how many items in (item k of marks) is greater than 0
+            add k to order
+            add (average_of with (item k of marks)) to averages
+        add 1 to k
+    if how many items in order is 0
+        say "Nobody has marks yet."
+        give back nothing
+    set start to 1
+    repeat while start is less than how many items in order
+        set best to start
+        set j to start + 1
+        repeat while j is at most how many items in order
+            if item j of averages is greater than item best of averages
+                set best to j
+            add 1 to j
+        if best is not start
+            set tmp_order to item start of order
+            change item start of order to item best of order
+            change item best of order to tmp_order
+            set tmp_avg to item start of averages
+            change item start of averages to item best of averages
+            change item best of averages to tmp_avg
+        add 1 to start
+    set place to 1
+    repeat while place is at most how many items in order
+        say "{place}. {item (item place of order) of names} - {item place of averages}"
+        add 1 to place
+
+define show_at_risk
+    set found to no
+    set k to 1
+    repeat while k is at most how many items in names
+        set mine to item k of marks
+        if how many items in mine is greater than 0
+            if (average_of with mine) is less than 60
+                say "{item k of names} is failing ({average_of with mine})."
+                set found to yes
+        add 1 to k
+    if not found
+        say "Nobody is failing."
+
+note: ---------- the menu ----------
+set running to yes
+repeat while running
+    say ""
+    say "1 Add student   2 Add mark   3 Report   4 Ranking   5 At risk   6 Remove   0 Quit"
+    ask number "Choose: " and save it as choice
+    if choice is 1
+        add_student
+    otherwise if choice is 2
+        add_mark
+    otherwise if choice is 3
+        show_report
+    otherwise if choice is 4
+        show_ranking
+    otherwise if choice is 5
+        show_at_risk
+    otherwise if choice is 6
+        remove_student
+    otherwise if choice is 0
+        set running to no
+    otherwise
+        say "Please choose a number from the menu."
+say "Goodbye!"

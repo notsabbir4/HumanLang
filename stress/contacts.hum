@@ -1,0 +1,212 @@
+note: A contact book that remembers its contacts between runs, in the file contacts.txt.
+note: File format: first line is "HL-CONTACTS 1", then one contact per line as name|phone|email
+use files
+use text
+
+set file_name to "contacts.txt"
+set header to "HL-CONTACTS 1"
+set book to empty list
+set damaged to empty list
+set book_ok to yes
+
+note: ---------- reading and writing the file ----------
+define load_book
+    note: Fills "book" and "damaged". A missing file is normal on the first run.
+    set content to ""
+    try
+        set content to read file file_name
+    if that fails
+        say "(No contact file yet - starting with an empty book.)"
+        give back no
+    set lines to split content by "\n"
+    note: "contains" rather than "is": a Windows editor may put an invisible mark in front of the header
+    if not ((item 1 of lines) contains header)
+        say "{file_name} doesn't look like a contact file, so I won't touch it."
+        say "Rename it or move it away, then run me again."
+        change book_ok to no
+        give back no
+    set number_of_line to 2
+    repeat while number_of_line is at most how many items in lines
+        set one to trim of (item number_of_line of lines)
+        if one is not ""
+            if how many items in (split one by "|") is 3
+                add one to book
+            otherwise
+                add one to damaged
+        add 1 to number_of_line
+    if how many items in damaged is greater than 0
+        say "WARNING: {how many items in damaged} damaged line(s) in {file_name}. I will keep them as they are."
+    give back yes
+
+define save_book
+    set out to list of header
+    for each one in book
+        add one to out
+    for each one in damaged
+        add one to out
+    try
+        write (join out by "\n") to file file_name
+    if that fails
+        say "I could not save your contacts: {problem}"
+        give back no
+    give back yes
+
+note: ---------- reading one contact ----------
+define name_of with one
+    give back item 1 of (split one by "|")
+define phone_of with one
+    give back item 2 of (split one by "|")
+define email_of with one
+    give back item 3 of (split one by "|")
+
+define show_one with one
+    say "  {name_of with one}  |  {phone_of with one}  |  {email_of with one}"
+
+define find_contact with wanted
+    set at to 1
+    repeat while at is at most how many items in book
+        if lowercase of (name_of with (item at of book)) is lowercase of wanted
+            give back at
+        add 1 to at
+    give back 0
+
+note: ---------- checking what the user typed ----------
+define clean_field with label and value
+    note: gives back the cleaned text, or "" if the text can't be stored
+    set value to trim of value
+    if value contains "|"
+        say "{label} can't contain the | character."
+        give back ""
+    give back value
+
+define looks_like_phone with value
+    if length of value is less than 5
+        give back no
+    for each ch in value
+        if not ("0123456789+-() " contains ch)
+            give back no
+    give back yes
+
+define looks_like_email with value
+    if value is ""
+        give back yes
+    set parts to split value by "@"
+    if how many items in parts is not 2
+        give back no
+    if (item 1 of parts) is "" or not ((item 2 of parts) contains ".")
+        give back no
+    give back not (value contains " ")
+
+note: ---------- actions ----------
+define add_contact
+    ask "Name: " and save it as who
+    set who to clean_field with "Name" and who
+    if who is ""
+        say "Nothing added."
+        give back nothing
+    if (find_contact with who) is not 0
+        say "{who} is already in your book. Use 'update' to change them."
+        give back nothing
+    ask "Phone: " and save it as phone
+    set phone to clean_field with "Phone" and phone
+    if not (looks_like_phone with phone)
+        say "That doesn't look like a phone number. Nothing added."
+        give back nothing
+    ask "Email (or leave empty): " and save it as email
+    set email to clean_field with "Email" and email
+    if not (looks_like_email with email)
+        say "That doesn't look like an email address. Nothing added."
+        give back nothing
+    add "{who}|{phone}|{email}" to book
+    if save_book
+        say "Saved {who}."
+
+define list_all
+    if how many items in book is 0
+        say "Your book is empty."
+        give back nothing
+    note: sort keys look like "name~position"; the position is recovered from the last part
+    set keyed to empty list
+    set at to 1
+    repeat while at is at most how many items in book
+        add "{lowercase of (name_of with (item at of book))}~{at}" to keyed
+        add 1 to at
+    for each entry in sorted of keyed
+        set parts to split entry by "~"
+        show_one with (item (number of (item (how many items in parts) of parts)) of book)
+    say "{how many items in book} contact(s)."
+
+define search_contacts
+    ask "Search for: " and save it as wanted
+    set wanted to lowercase of trim of wanted
+    set hits to 0
+    for each one in book
+        if lowercase of one contains wanted
+            show_one with one
+            add 1 to hits
+    if hits is 0
+        say "No match."
+
+define update_contact
+    ask "Who do you want to change? " and save it as who
+    set at to find_contact with who
+    if at is 0
+        say "I couldn't find \"{who}\"."
+        give back nothing
+    set old to item at of book
+    say "Leave a line empty to keep the old value."
+    ask "New phone [{phone_of with old}]: " and save it as phone
+    set phone to clean_field with "Phone" and phone
+    if phone is ""
+        set phone to phone_of with old
+    if not (looks_like_phone with phone)
+        say "That doesn't look like a phone number. Nothing changed."
+        give back nothing
+    ask "New email [{email_of with old}]: " and save it as email
+    set email to clean_field with "Email" and email
+    if email is ""
+        set email to email_of with old
+    if not (looks_like_email with email)
+        say "That doesn't look like an email address. Nothing changed."
+        give back nothing
+    change item at of book to "{name_of with old}|{phone}|{email}"
+    if save_book
+        say "Updated {name_of with old}."
+
+define delete_contact
+    ask "Who do you want to delete? " and save it as who
+    set at to find_contact with who
+    if at is 0
+        say "I couldn't find \"{who}\"."
+        give back nothing
+    ask "Really delete {name_of with (item at of book)}? (yes/no) " and save it as sure
+    if lowercase of sure is not "yes"
+        say "Kept."
+        give back nothing
+    remove (item at of book) from book
+    if save_book
+        say "Deleted."
+
+note: ---------- main ----------
+set ignored to load_book
+set running to book_ok
+if book_ok
+    say "Contact book: {how many items in book} contact(s) loaded."
+repeat while running
+    ask "[add / list / search / update / delete / quit] " and save it as command
+    set command to lowercase of trim of command
+    if command is "add"
+        add_contact
+    otherwise if command is "list"
+        list_all
+    otherwise if command is "search"
+        search_contacts
+    otherwise if command is "update"
+        update_contact
+    otherwise if command is "delete"
+        delete_contact
+    otherwise if command is "quit"
+        set running to no
+    otherwise
+        say "I don't know \"{command}\". Try add, list, search, update, delete or quit."
+say "Goodbye!"
