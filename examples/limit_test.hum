@@ -1,0 +1,173 @@
+use math
+use text
+
+note: ---------- 1. Prime sieve: every prime up to 2000 ----------
+define primes_up_to with limit
+    set flags to empty list
+    repeat limit + 1 times
+        add yes to flags
+    change item 1 of flags to no
+    set n to 2
+    repeat while n * n is at most limit
+        if item n of flags
+            set m to n * n
+            repeat while m is at most limit
+                change item m of flags to no
+                set m to m + n
+        add 1 to n
+    set found to empty list
+    set k to 1
+    repeat while k is at most limit
+        if item k of flags
+            add k to found
+        add 1 to k
+    give back found
+
+set primes to primes_up_to with 2000
+say "1. There are {how many items in primes} primes up to 2000. The last is {item (how many items in primes) of primes}."
+
+note: ---------- 2. Big numbers: 200th Fibonacci and 40 factorial ----------
+define fib with n
+    set a to 0
+    set b to 1
+    repeat n times
+        set t to a + b
+        set a to b
+        set b to t
+    give back a
+
+define factorial with n
+    if n is at most 1
+        give back 1
+    give back n * factorial with (n - 1)
+
+say "2. Fibonacci 200 = {fib with 200}"
+say "   40 factorial   = {factorial with 40}"
+
+note: ---------- 3. N-Queens: how many ways to place 6 queens safely ----------
+define safe with placed and row and col
+    set r to 1
+    repeat while r is less than row
+        set c to item r of placed
+        if c is col
+            give back no
+        if absolute value of (c - col) is row - r
+            give back no
+        add 1 to r
+    give back yes
+
+define queens with size and row and placed
+    if row is greater than size
+        give back 1
+    set total to 0
+    set col to 1
+    repeat while col is at most size
+        if safe with placed and row and col
+            set next to placed
+            add col to next
+            add queens with size and (row + 1) and next to total
+        add 1 to col
+    give back total
+
+say "3. Ways to place 6 queens on a 6x6 board: {queens with 6 and 1 and (empty list)}"
+
+note: ---------- 4. Merge sort on 40 pseudo-random numbers ----------
+define merge with left and right
+    set result to empty list
+    set i to 1
+    set j to 1
+    repeat while i is at most how many items in left and j is at most how many items in right
+        if item i of left is at most item j of right
+            add item i of left to result
+            add 1 to i
+        otherwise
+            add item j of right to result
+            add 1 to j
+    repeat while i is at most how many items in left
+        add item i of left to result
+        add 1 to i
+    repeat while j is at most how many items in right
+        add item j of right to result
+        add 1 to j
+    give back result
+
+define merge_sort with pile
+    set size to how many items in pile
+    if size is at most 1
+        give back pile
+    set middle to floor of (size / 2)
+    set left to empty list
+    set right to empty list
+    set k to 1
+    repeat while k is at most size
+        if k is at most middle
+            add item k of pile to left
+        otherwise
+            add item k of pile to right
+        add 1 to k
+    give back merge with (merge_sort with left) and (merge_sort with right)
+
+set seed to 12345
+set messy to empty list
+repeat 40 times
+    set seed to (seed * 1103515245 + 12345) % 2147483648
+    add seed % 1000 to messy
+set tidy to merge_sort with messy
+say "4. Sorted: {join (list of item 1 of tidy, item 2 of tidy, item 3 of tidy) by ", "} ... {item 40 of tidy}"
+say "   Matches the built-in sort: {tidy is sorted of messy}"
+
+note: ---------- 5. Collatz: longest chain for any start below 3000 ----------
+set best_start to 1
+set best_length to 1
+set start to 1
+repeat while start is less than 3000
+    set n to start
+    set steps to 1
+    repeat while n is not 1
+        if n % 2 is 0
+            set n to n / 2
+        otherwise
+            set n to 3 * n + 1
+        add 1 to steps
+    if steps is greater than best_length
+        set best_length to steps
+        set best_start to start
+    add 1 to start
+say "5. Longest Collatz chain below 3000 starts at {best_start} ({best_length} steps)."
+
+note: ---------- 6. Text: word counts and a palindrome check ----------
+set sentence to "the quick brown fox jumps over the lazy dog the end"
+set words to split sentence by " "
+set seen to empty list
+set counts to empty list
+for each word in words
+    if seen contains word
+        set at to 1
+        repeat while item at of seen is not word
+            add 1 to at
+        change item at of counts to item at of counts + 1
+    otherwise
+        add word to seen
+        add 1 to counts
+set report to empty list
+set q to 1
+repeat while q is at most how many items in seen
+    if item q of counts is greater than 1
+        add "{item q of seen} x{item q of counts}" to report
+    add 1 to q
+say "6. Repeated words: {join report by ", "}"
+
+define is_palindrome with phrase
+    set cleaned to ""
+    for each letter in lowercase of phrase
+        if letter is not " "
+            add letter to cleaned
+    give back cleaned is reversed of cleaned
+
+say "   'A man a plan a canal Panama' is a palindrome: {is_palindrome with "A man a plan a canal Panama"}"
+
+note: ---------- 7. Safety net: errors are caught, not crashes ----------
+try
+    say item 999 of primes
+if that fails
+    say "7. Caught: {problem}"
