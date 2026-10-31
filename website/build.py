@@ -118,7 +118,7 @@ NAV = [("index.html", "Home"), ("tutorial.html", "Tutorial"), ("reference.html",
        ("playground.html", "Playground"), ("install.html", "Install")]
 
 
-def page(title, body, active, extra_head="", extra_body=""):
+def page(title, body, active, extra_head="", extra_body="", main_class=""):
     links = "".join(f'<a href="{h}"{" class=on" if h == active else ""}>{t}</a>' for h, t in NAV)
     return f"""<!doctype html>
 <html lang="en">
@@ -133,7 +133,7 @@ def page(title, body, active, extra_head="", extra_body=""):
 <body>
 <header class="site"><div class="in"><a class="brand" href="index.html">Human<span>Lang</span></a>
 <nav class="main">{links}</nav></div></header>
-<main>
+<main{(" class=" + main_class) if main_class else ""}>
 {body}
 </main>
 <footer>HumanLang {__version__} &middot; MIT licensed &middot; code that reads like you talk</footer>
@@ -201,24 +201,42 @@ one meaning, so you can trust what you read.</p></div>
 
 def playground_page(examples):
     body = """
-<h1>Playground</h1>
-<p>Write HumanLang and run it right here. Nothing is sent anywhere: it all runs in your browser.</p>
-<div class="bar"><div><label for="examples" style="font-weight:700;font-size:.85rem;color:var(--muted)">Examples</label>
-<select id="examples" style="min-width:12em;padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--fg)"></select></div>
-<button class="btn" id="run" type="button" disabled>Run</button>
+<div class="ide">
+<div class="ide-top">
+<select id="examples" aria-label="Example programs"></select>
+<button class="btn run" id="run" type="button" disabled>&#9654; Run</button>
 <button class="btn ghost" id="stop" type="button" disabled>Stop</button>
+<span class="grow"></span>
 <button class="btn ghost" id="share" type="button">Share link</button>
-<span id="status">Loading...</span></div>
-<div class="pg">
-<div><label for="code">Your program</label><textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off"></textarea>
-<label for="inputs" style="margin-top:10px">Answers for <code>ask</code> (one per line)</label><textarea id="inputs" spellcheck="false"></textarea></div>
-<div><label for="out">Output</label><pre id="out" aria-live="polite"></pre></div>
+<button class="btn ghost" id="theme" type="button" aria-label="Switch between light and dark">Light</button>
 </div>
-<p style="color:var(--muted);font-size:.92rem">Tip: when a program uses <code>ask</code>, each question appears in the Output box and you type your answer next to it, then press Enter. To skip that, type all the answers in the Answers box instead, one line each, in order.
-Press Stop if a program never finishes.</p>
+<div class="ide-main">
+<section class="ide-edit" aria-label="Your program">
+<div class="ide-tabs"><span class="tab on">main.hum</span></div>
+<div class="ide-code">
+<pre class="gutter" id="gutter" aria-hidden="true">1</pre>
+<div class="ed"><pre class="hl" id="hl" aria-hidden="true"></pre>
+<textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" wrap="off" aria-label="HumanLang program"></textarea></div>
+</div>
+</section>
+<section class="ide-side" aria-label="Results">
+<div class="ide-tabs" role="tablist">
+<button class="tab on" id="tab-console" role="tab" type="button">Console</button>
+<button class="tab" id="tab-input" role="tab" type="button">Answers</button>
+<span class="grow"></span><span id="took"></span>
+</div>
+<pre id="out" aria-live="polite"></pre>
+<div id="inpane" hidden><p>Optional. If your program uses <code>ask</code>, type all its answers here, one per line, and it will not stop to ask.</p>
+<textarea id="inputs" spellcheck="false" aria-label="Answers, one per line"></textarea></div>
+</section>
+</div>
+<div class="ide-status"><span id="status">Loading...</span><span class="grow"></span><span id="pos">Ln 1, Col 1</span><span>Spaces: 4</span><span>HumanLang</span></div>
+</div>
 """
-    script = f'<script>window.HL_EXAMPLES = {json.dumps(examples)};</script>\n<script src="playground.js"></script>'
-    return page("Playground - HumanLang", body, "playground.html", extra_body=script)
+    words = {"k": CONTROL + STATEMENT, "o": OPERATORS, "f": BUILTINS, "v": CONSTANTS}
+    script = (f'<script>window.HL_EXAMPLES = {json.dumps(examples)}; window.HL_WORDS = {json.dumps(words)};</script>\n'
+              '<script src="playground.js"></script>')
+    return page("Playground - HumanLang", body, "playground.html", extra_body=script, main_class="ide-page")
 
 
 def read(path):
