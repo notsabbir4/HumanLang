@@ -1,0 +1,210 @@
+use dates
+use math
+use text
+
+note: ============ AGE CALCULATOR PREMIUM ============
+note: Works out your exact age, total days lived, your birthday countdown,
+note: the weekday you were born, your zodiac sign and your next milestones.
+
+note: ---------- calendar helpers ----------
+define is_leap with y
+    if y % 400 is 0
+        give back yes
+    if y % 100 is 0
+        give back no
+    give back y % 4 is 0
+
+define days_in_month with y and m
+    if m is 2
+        if (is_leap with y)
+            give back 29
+        give back 28
+    if m is 4 or m is 6 or m is 9 or m is 11
+        give back 30
+    give back 31
+
+note: days since 1970-01-01 (negative before that)
+define day_number with y and m and d
+    set shifted to y
+    if m is at most 2
+        set shifted to y - 1
+    set era to floor of (shifted / 400)
+    set year_of_era to shifted - era * 400
+    set month_index to (m + 9) % 12
+    set day_of_year to floor of ((153 * month_index + 2) / 5) + d - 1
+    set day_of_era to year_of_era * 365 + floor of (year_of_era / 4) - floor of (year_of_era / 100) + day_of_year
+    give back era * 146097 + day_of_era - 719468
+
+note: the opposite: a day number back to year, month, day
+define date_of with number
+    set z to number + 719468
+    set era to floor of (z / 146097)
+    set day_of_era to z - era * 146097
+    set year_of_era to floor of ((day_of_era - floor of (day_of_era / 1460) + floor of (day_of_era / 36524) - floor of (day_of_era / 146096)) / 365)
+    set day_of_year to day_of_era - (365 * year_of_era + floor of (year_of_era / 4) - floor of (year_of_era / 100))
+    set month_index to floor of ((5 * day_of_year + 2) / 153)
+    set d to day_of_year - floor of ((153 * month_index + 2) / 5) + 1
+    set m to month_index + 3
+    if month_index is at least 10
+        set m to month_index - 9
+    set y to year_of_era + era * 400
+    if m is at most 2
+        set y to y + 1
+    give back list of y, m, d
+
+set weekdays to list of "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
+set months to list of "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"
+
+define nice_date with y and m and d
+    set weekday to item (((day_number with y and m and d) + 4) % 7 + 1) of weekdays
+    give back "{weekday}, {d} {item m of months} {y}"
+
+note: ---------- presentation helpers ----------
+define commas with n
+    set backwards to reversed of (text of n)
+    set built to ""
+    set counted to 0
+    for each digit in backwards
+        if counted is 3
+            add "," to built
+            set counted to 0
+        add digit to built
+        add 1 to counted
+    give back reversed of built
+
+define plural with n and word
+    if n is 1
+        give back "1 {word}"
+    give back "{commas with n} {word}s"
+
+define rule with width
+    set bar to ""
+    repeat width times
+        add "=" to bar
+    give back bar
+
+define zodiac with m and d
+    set before to list of "Capricorn", "Aquarius", "Pisces", "Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius"
+    set after to list of "Aquarius", "Pisces", "Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn"
+    set starts to list of 20, 19, 21, 20, 21, 21, 23, 23, 23, 23, 22, 22
+    if d is less than item m of starts
+        give back item m of before
+    give back item m of after
+
+note: ---------- today ----------
+set today_parts to split (the date today) by "-"
+set this_year to number of (item 1 of today_parts)
+set this_month to number of (item 2 of today_parts)
+set this_day to number of (item 3 of today_parts)
+set today_number to day_number with this_year and this_month and this_day
+
+say rule with 46
+say "      AGE CALCULATOR  -  PREMIUM EDITION"
+say rule with 46
+say "Today is {nice_date with this_year and this_month and this_day}."
+say ""
+
+ask "What is your name?" and save it as who
+if who is ""
+    set who to "friend"
+
+note: ---------- ask for the birthday, until each answer makes sense ----------
+ask number "Year you were born (for example 1998)?" and save it as born_year
+repeat while born_year is less than 1900 or born_year is greater than this_year
+    say "Please enter a year between 1900 and {this_year}."
+    ask number "Year you were born?" and save it as born_year
+
+ask number "Month you were born (1 to 12)?" and save it as born_month
+repeat while born_month is less than 1 or born_month is greater than 12
+    say "The month must be from 1 to 12."
+    ask number "Month you were born (1 to 12)?" and save it as born_month
+
+set most_days to days_in_month with born_year and born_month
+ask number "Day of the month you were born (1 to {most_days})?" and save it as born_day
+repeat while born_day is less than 1 or born_day is greater than most_days
+    say "{item born_month of months} {born_year} only has {most_days} days."
+    ask number "Day of the month you were born (1 to {most_days})?" and save it as born_day
+
+set born_number to day_number with born_year and born_month and born_day
+
+note: everything below runs only for a real birthday
+define show_report
+    note: ---------- exact age in years, months and days ----------
+    set years to this_year - born_year
+    set months_old to this_month - born_month
+    set days_old to this_day - born_day
+    if days_old is less than 0
+        set months_old to months_old - 1
+        set before_month to this_month - 1
+        set before_year to this_year
+        if before_month is 0
+            set before_month to 12
+            set before_year to this_year - 1
+        set days_old to days_old + days_in_month with before_year and before_month
+    if months_old is less than 0
+        set years to years - 1
+        set months_old to months_old + 12
+
+    set total_days to today_number - born_number
+
+    note: ---------- next birthday ----------
+    set next_year to this_year
+    set next_month to born_month
+    set next_day to born_day
+    if born_month is 2 and born_day is 29 and not (is_leap with this_year)
+        set next_month to 3
+        set next_day to 1
+    if (day_number with next_year and next_month and next_day) is less than today_number
+        set next_year to this_year + 1
+        set next_month to born_month
+        set next_day to born_day
+        if born_month is 2 and born_day is 29 and not (is_leap with next_year)
+            set next_month to 3
+            set next_day to 1
+    set until_birthday to (day_number with next_year and next_month and next_day) - today_number
+
+    note: ---------- milestones ----------
+    set next_thousand to (floor of (total_days / 1000) + 1) * 1000
+    set thousand_date to date_of with (born_number + next_thousand)
+    set billion_day to born_number + 11574
+    set billion_date to date_of with billion_day
+
+    note: ---------- the report ----------
+    say ""
+    say rule with 46
+    say "  {uppercase of who}, HERE IS YOUR LIFE IN NUMBERS"
+    say rule with 46
+    say ""
+    say "  Born on     {nice_date with born_year and born_month and born_day}"
+    say "  Zodiac      {zodiac with born_month and born_day}"
+    say ""
+    say "  YOUR AGE"
+    say "    {plural with years and "year"}, {plural with months_old and "month"} and {plural with days_old and "day"}"
+    say ""
+    say "  YOU HAVE LIVED"
+    say "    {plural with total_days and "day"}"
+    say "    {plural with floor of (total_days / 7) and "week"}"
+    say "    {plural with total_days * 24 and "hour"}"
+    say "    {plural with total_days * 1440 and "minute"}"
+    say ""
+    say "  NEXT BIRTHDAY"
+    if until_birthday is 0
+        say "    HAPPY BIRTHDAY, {who}! Today is your day."
+    otherwise
+        say "    {nice_date with next_year and next_month and next_day}"
+        say "    in {plural with until_birthday and "day"}, when you turn {years + 1}"
+    say ""
+    say "  MILESTONES"
+    say "    Day {commas with next_thousand}:  {nice_date with item 1 of thousand_date and item 2 of thousand_date and item 3 of thousand_date}"
+    if billion_day is greater than today_number
+        say "    1 billion seconds old:  {nice_date with item 1 of billion_date and item 2 of billion_date and item 3 of billion_date}"
+    otherwise
+        say "    You passed 1 billion seconds old on {nice_date with item 1 of billion_date and item 2 of billion_date and item 3 of billion_date}"
+    say ""
+    say rule with 46
+
+if born_number is greater than today_number
+    say ""
+    say "That date is in the future, {who}! Run the program again with your real birthday."
+otherwise
+    show_report
