@@ -1,0 +1,140 @@
+use text
+
+note: A calculator that obeys the rules of arithmetic:
+note: brackets first, then powers, then * / %, then + -
+note: Supports decimals, unary minus, and ^ for powers.
+
+set tokens to empty list
+set pos to 1
+set failure to ""
+
+note: ---------- reporting problems ----------
+note: HL has no way to raise an error from inside a function,
+note: so a function records the FIRST problem here and the caller checks it.
+define fail_with with message
+    if failure is ""
+        change failure to message
+
+note: ---------- step 1: cut the text into tokens ----------
+define tokenize with source
+    set digits to "0123456789"
+    set buffer to ""
+    for each ch in source
+        if digits contains ch or ch is "."
+            add ch to buffer
+        otherwise
+            if buffer is not ""
+                try
+                    add number of buffer to tokens
+                if that fails
+                    fail_with with "\"{buffer}\" is not a number"
+                set buffer to ""
+            if ch is " "
+                skip
+            if "+-*/%^()" contains ch
+                add ch to tokens
+            otherwise
+                fail_with with "I don't understand \"{ch}\""
+    if buffer is not ""
+        try
+            add number of buffer to tokens
+        if that fails
+            fail_with with "\"{buffer}\" is not a number"
+
+note: ---------- step 2: the parser, one function per level of priority ----------
+define peek
+    if pos is greater than how many items in tokens
+        give back "end"
+    give back item pos of tokens
+
+define advance
+    change pos to pos + 1
+
+define parse_atom
+    set t to peek
+    if t is "end"
+        fail_with with "the expression ends too early"
+        give back 0
+    if t is "("
+        advance
+        set inside to parse_expr
+        if peek is ")"
+            advance
+        otherwise
+            fail_with with "a closing bracket is missing"
+        give back inside
+    if "+-*/%^)" contains text of t
+        fail_with with "unexpected \"{t}\""
+        advance
+        give back 0
+    advance
+    give back t
+
+define parse_unary
+    if peek is "-"
+        advance
+        give back 0 - parse_unary
+    if peek is "+"
+        advance
+        give back parse_unary
+    give back parse_power
+
+define parse_power
+    set base to parse_atom
+    if peek is "^"
+        advance
+        give back base to the power of (parse_unary)
+    give back base
+
+define parse_term
+    set value to parse_unary
+    repeat while peek is "*" or peek is "/" or peek is "%"
+        set op to peek
+        advance
+        set right to parse_unary
+        if op is "*"
+            set value to value * right
+        otherwise if op is "/"
+            set value to value / right
+        otherwise
+            set value to value % right
+    give back value
+
+define parse_expr
+    set value to parse_term
+    repeat while peek is "+" or peek is "-"
+        set op to peek
+        advance
+        set right to parse_term
+        if op is "+"
+            set value to value + right
+        otherwise
+            set value to value - right
+    give back value
+
+note: ---------- step 3: put it together ----------
+define calculate with source
+    change tokens to empty list
+    change pos to 1
+    change failure to ""
+    tokenize with source
+    if failure is not ""
+        give back "Error: {failure}"
+    if how many items in tokens is 0
+        give back "Error: nothing to calculate"
+    try
+        set answer to parse_expr
+    if that fails
+        give back "Error: {problem}"
+    if failure is "" and pos is at most how many items in tokens
+        fail_with with "unexpected \"{peek}\""
+    if failure is not ""
+        give back "Error: {failure}"
+    give back answer
+
+say "Calculator. Type an expression, or quit."
+repeat while yes
+    ask "> " and save it as line
+    if lowercase of line is "quit"
+        stop
+    say calculate with line
