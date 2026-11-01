@@ -1,0 +1,18 @@
+[
+  {
+    "id": "the-last-signal",
+    "title": "THE LAST SIGNAL",
+    "subtitle": "Director's Cut",
+    "file": "the_last_signal.hum",
+    "tagline": "A branching sci-fi story. A voice on the radio says people are still alive.",
+    "blurb": "Year 2097. The world went silent thirty years ago, until an old radio turns on. Five days, five choices, four endings. Who can you trust?",
+    "tags": ["Story", "Sci-fi", "Choices matter", "About 10 minutes"],
+    "test_runs": [
+      {"ending": "THE LAST HOPE", "answers": ["Ada", "2", "1", "1", "1", "2"]},
+      {"ending": "THE PERFECT PRISON", "answers": ["Ada", "1", "1", "1", "1", "1"]},
+      {"ending": "THE LAST SURVIVOR", "answers": ["Ada", "3", "2", "2", "3", "3"]},
+      {"ending": "A BROKEN PROMISE", "answers": ["Ada", "1", "1", "3", "4", "2"]},
+      {"ending": "SILENCE", "answers": ["Ada", "9", "9", "9", "9", "9"]}
+    ]
+  }
+]

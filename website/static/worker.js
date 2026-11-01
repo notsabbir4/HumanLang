@@ -19,7 +19,7 @@ async function init() {
 onmessage = (e) => {
   if (e.data.type !== "run" || !run) return;
   try {
-    postMessage({ type: "result", ...JSON.parse(run(e.data.code, e.data.inputs)) });
+    postMessage({ type: "result", ...JSON.parse(run(e.data.code, e.data.inputs, e.data.seed)) });
   } catch (err) {
     postMessage({ type: "result", out: "", err: "Something went wrong inside the playground: " + err });
   }

@@ -116,7 +116,7 @@ def render_markdown(text):
 
 # ---- page template -----------------------------------------------------------
 NAV = [("index.html", "Home"), ("tutorial.html", "Tutorial"), ("reference.html", "Reference"),
-       ("playground.html", "Playground"), ("install.html", "Install")]
+       ("playground.html", "Playground"), ("games.html", "Games"), ("install.html", "Install")]
 
 
 def page(title, body, active, extra_head="", extra_body="", main_class=""):
@@ -240,6 +240,33 @@ def playground_page(examples):
     return page("Playground - HumanLang", body, "playground.html", extra_body=script, main_class="ide-page")
 
 
+def games_page(games):
+    body = """
+<div class="games">
+<section id="lobby">
+<h1>Games</h1>
+<p class="lead">Games written in HumanLang. Pick one and play it right here, nothing to install.
+Want to see how one works? Every game is a plain <code>.hum</code> file in the
+<a href="https://github.com/notsabbir4/HumanLang/tree/main/games">games folder</a>.</p>
+<div class="game-grid" id="grid"></div>
+</section>
+<section id="stage" hidden>
+<div class="stage-top">
+<button class="btn ghost" id="back" type="button">&larr; All games</button>
+<span class="grow"></span>
+<button class="btn run" id="restart" type="button">Restart</button>
+</div>
+<h1 id="gtitle"></h1>
+<p class="gtags" id="gtags"></p>
+<pre id="screen" aria-live="polite"></pre>
+<p id="gstatus" class="gstatus"></p>
+</section>
+</div>
+"""
+    script = (f'<script>window.HL_GAMES = {json.dumps(games)};</script>\n<script src="games.js"></script>')
+    return page("Games - HumanLang", body, "games.html", extra_body=script)
+
+
 def read(path):
     with open(path, encoding="utf-8") as f:
         return f.read()
@@ -275,11 +302,17 @@ def main():
         name = os.path.basename(p)
         examples[name] = {"code": read(p), "inputs": answers.get(name, "")}
 
+    games = []
+    with open(os.path.join(ROOT, "games", "index.json"), encoding="utf-8") as f:
+        for g in json.load(f):
+            games.append({k: v for k, v in g.items() if k != "test_runs"} | {"code": read(os.path.join(ROOT, "games", g["file"]))})
+
     write(os.path.join(out, "index.html"), index_page())
     write(os.path.join(out, "tutorial.html"), doc_page("Tutorial", read(os.path.join(ROOT, "docs", "tutorial.md")), "tutorial.html"))
     write(os.path.join(out, "reference.html"), doc_page("Reference", read(os.path.join(ROOT, "docs", "reference.md")), "reference.html"))
     write(os.path.join(out, "install.html"), doc_page("Install", read(os.path.join(HERE, "install_page.md")), "install.html"))
     write(os.path.join(out, "playground.html"), playground_page(examples))
+    write(os.path.join(out, "games.html"), games_page(games))
     write(os.path.join(out, ".nojekyll"), "")
     print(f"Built {len(os.listdir(out))} files in {out}")
 

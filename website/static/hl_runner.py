@@ -1,5 +1,6 @@
 """Runs a HumanLang program inside the browser (Pyodide). Called from worker.js."""
 import json
+import random
 import sys
 
 from humanlang.errors import HLError, format_warning
@@ -19,7 +20,9 @@ class NeedInput(BaseException):
         self.prompt = prompt
 
 
-def run(code, inputs):
+def run(code, inputs, seed=None):
+    if seed is not None:
+        random.seed(seed)  # the page re-runs the program for every answer; a fixed seed keeps dice rolls the same each time
     out, plain, size, answers = [], [], [0], list(inputs)  # plain = what the program says, without the questions and answers
 
     def write(text):

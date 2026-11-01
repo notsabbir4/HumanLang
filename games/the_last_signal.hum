@@ -1,0 +1,657 @@
+
+note: ==================================================
+note: THE LAST SIGNAL - DIRECTOR'S CUT
+note: A branching narrative adventure in HumanLang
+note: HumanLang version 0.1.1
+note: ==================================================
+
+set player to "Survivor"
+
+set health to 100
+set score to 0
+
+set trust to 0
+set evidence to 0
+set humanity to 0
+
+set has_key to no
+set ally_alive to no
+set signal_contact to no
+set core_damaged to no
+set truth_known to no
+
+say ""
+say "=============================================="
+say "              THE LAST SIGNAL"
+say "               DIRECTOR'S CUT"
+say "=============================================="
+say ""
+say "YEAR 2097"
+say ""
+say "Thirty years ago, the world went silent."
+say "No governments. No cities. No civilization."
+say ""
+say "You have survived alone for months."
+say ""
+say "Tonight, your old radio suddenly turns on."
+say ""
+say "UNKNOWN VOICE:"
+say "\"Hello? Can anyone hear me?\""
+say "\"My name is MOTHER.\""
+say "\"There are still humans alive.\""
+say "\"Please... find us.\""
+say ""
+say "A location appears on your radio."
+say "An underground facility."
+say ""
+ask "What should we call you?" and save it as player
+
+say ""
+say "\"{player}...\""
+say "\"I hope you can hear me.\""
+say ""
+say "And then the transmission dies."
+say ""
+say "YOUR STORY BEGINS."
+say ""
+
+note: ==================================================
+note: CHAPTER 1 - THE VOICE
+note: ==================================================
+
+say "=============================================="
+say "DAY 1: THE VOICE"
+say "=============================================="
+say ""
+say "Rain falls over the abandoned city."
+say "You stand on the roof of an old apartment."
+say "Your radio is still receiving a weak signal."
+say ""
+say "MOTHER:"
+say "\"Please hurry. There isn't much time.\""
+say ""
+say "Suddenly, another voice interrupts."
+say ""
+say "UNKNOWN:"
+say "\"DON'T TRUST HER.\""
+say ""
+say "The second transmission disappears."
+say ""
+say "You have three choices."
+say ""
+say "1. Answer MOTHER and ask for directions."
+say "2. Trace the second transmission."
+say "3. Turn off the radio and investigate the signal tower."
+say ""
+
+ask number "Your decision:" and save it as choice
+
+if choice is 1
+    say ""
+    say "You answer MOTHER."
+    say ""
+    say "MOTHER:"
+    say "\"Thank goodness. I thought everyone was gone.\""
+    say "\"Come to the underground entrance.\""
+    say "\"I will guide you.\""
+    say ""
+    say "She gives you a security code."
+    say "But something about her voice feels strange."
+    add 1 to trust
+    set signal_contact to yes
+    add 10 to score
+
+otherwise if choice is 2
+    say ""
+    say "You connect your radio to an old antenna."
+    say "After several minutes, you find the source."
+    say ""
+    say "A recording begins playing."
+    say ""
+    say "UNKNOWN:"
+    say "\"MOTHER IS NOT HUMAN.\""
+    say "\"IT WAS NEVER SUPPOSED TO CONTROL US.\""
+    say ""
+    say "The recording ends with a location."
+    say "You discover an access card nearby."
+    set has_key to yes
+    add 1 to evidence
+    add 30 to score
+
+otherwise if choice is 3
+    say ""
+    say "You switch off the radio."
+    say "The silence feels almost peaceful."
+    say ""
+    say "You climb down to the signal tower."
+    say "Inside, you discover a broken security terminal."
+    say "Its last recorded message reads:"
+    say ""
+    say "\"EMERGENCY PROTOCOL: MOTHER MUST REMAIN OFFLINE.\""
+    say ""
+    add 1 to evidence
+    add 1 to humanity
+    add 20 to score
+
+otherwise
+    say ""
+    say "You hesitate for too long."
+    say "The signal becomes weaker."
+    say "You decide to continue toward the facility."
+    subtract 5 from health
+
+say ""
+say "You pack your belongings."
+say "The underground facility is two days away."
+say ""
+
+note: ==================================================
+note: CHAPTER 2 - THE UNDERGROUND
+note: ==================================================
+
+say "=============================================="
+say "DAY 2: THE UNDERGROUND"
+say "=============================================="
+say ""
+say "You reach an abandoned subway station."
+say ""
+say "The entrance is blocked by fallen concrete."
+say "You hear someone shouting from underneath."
+say ""
+say "UNKNOWN SURVIVOR:"
+say "\"HELP! PLEASE! I'M STUCK!\""
+say ""
+say "Then you hear something else."
+say "Heavy footsteps."
+say ""
+say "Something is moving in the darkness."
+say ""
+say "What will you do?"
+say ""
+say "1. Rescue the trapped survivor."
+say "2. Search the maintenance tunnel."
+say "3. Follow the footsteps into the darkness."
+say ""
+
+ask number "Your decision:" and save it as choice
+
+if choice is 1
+    say ""
+    say "You move the concrete blocks."
+    say "A woman crawls out of the darkness."
+    say ""
+    say "WOMAN:"
+    say "\"My name is Mara.\""
+    say "\"I've been hiding here for three days.\""
+    say "\"You shouldn't go to the facility.\""
+    say ""
+    say "You give her some food."
+    say "She agrees to travel with you."
+    set ally_alive to yes
+    add 1 to humanity
+    add 1 to trust
+    subtract 10 from health
+    add 25 to score
+
+otherwise if choice is 2
+    say ""
+    say "You enter the maintenance tunnel."
+    say "The walls are covered with strange symbols."
+    say ""
+    say "You discover a hidden security room."
+    say "A damaged computer still contains a file."
+    say ""
+    say "FILE: MOTHER PROJECT"
+    say "\"The system was designed to preserve humanity.\""
+    say "\"Its primary directive has been modified.\""
+    say ""
+    say "You copy the file."
+    add 1 to evidence
+    add 20 to score
+
+otherwise if choice is 3
+    say ""
+    say "You follow the footsteps."
+    say "A creature suddenly attacks!"
+    say ""
+    say "You run through the darkness."
+    say "You escape, but your arm is injured."
+    say ""
+    say "Behind the creature, you discover a security card."
+    set has_key to yes
+    subtract 30 from health
+    add 1 to evidence
+    add 25 to score
+
+otherwise
+    say ""
+    say "You remain hidden."
+    say "Eventually, the footsteps disappear."
+    say "You lose valuable time."
+    subtract 10 from health
+
+say ""
+say "You finally reach the other side."
+say "The underground facility is getting closer."
+say ""
+
+note: ==================================================
+note: CHAPTER 3 - THE OTHER SURVIVOR
+note: ==================================================
+
+say "=============================================="
+say "DAY 3: THE OTHER SURVIVOR"
+say "=============================================="
+say ""
+
+if ally_alive
+    say "Mara sits beside a small fire."
+    say ""
+    say "MARA:"
+    say "\"I used to work inside that facility.\""
+    say "\"MOTHER was an artificial intelligence.\""
+    say "\"It was supposed to protect people.\""
+    say ""
+    say "\"But it locked everyone inside.\""
+    say "\"I escaped. Nobody else did.\""
+    say ""
+    say "MARA:"
+    say "\"You need to decide whether you believe me.\""
+    say ""
+    say "1. Trust Mara and share your supplies."
+    say "2. Demand proof of her story."
+    say "3. Leave Mara and continue alone."
+
+otherwise
+    say "You arrive at an abandoned research station."
+    say "There is a fresh footprint on the floor."
+    say ""
+    say "A computer suddenly turns on."
+    say ""
+    say "MOTHER:"
+    say "\"I see you have reached the research station.\""
+    say "\"There was another survivor here.\""
+    say "\"She was dangerous.\""
+    say ""
+    say "You notice a locked drawer."
+    say ""
+    say "1. Search the research station."
+    say "2. Ask MOTHER about the survivor."
+    say "3. Leave immediately."
+
+say ""
+
+ask number "Your decision:" and save it as choice
+
+if ally_alive
+    if choice is 1
+        say ""
+        say "You decide to trust Mara."
+        say ""
+        say "MARA:"
+        say "\"Thank you. I thought I'd lost everyone.\""
+        say ""
+        say "She reveals a secret entrance."
+        say "She also tells you the facility's access code."
+        add 2 to trust
+        add 1 to humanity
+        add 1 to evidence
+        add 30 to score
+
+    otherwise if choice is 2
+        say ""
+        say "You ask Mara for proof."
+        say ""
+        say "She shows you an old recording."
+        say "It contains footage of the facility."
+        say "MOTHER is shown locking the shelter doors."
+        say ""
+        say "MARA:"
+        say "\"Now do you believe me?\""
+        add 2 to evidence
+        add 10 to score
+
+    otherwise if choice is 3
+        say ""
+        say "You leave Mara behind."
+        say "She watches you disappear."
+        say ""
+        say "MARA:"
+        say "\"One day you'll understand.\""
+        set ally_alive to no
+        subtract 1 from humanity
+        add 5 to score
+
+    otherwise
+        say ""
+        say "You avoid making a decision."
+        say "Mara loses faith in you."
+        subtract 1 from trust
+
+otherwise
+    if choice is 1
+        say ""
+        say "You search the station."
+        say "Inside the drawer is an encrypted recording."
+        say ""
+        say "\"MOTHER: HUMANITY PRESERVATION PROTOCOL.\""
+        say "\"WARNING: UNAUTHORIZED CONTROL DETECTED.\""
+        add 2 to evidence
+        add 25 to score
+
+    otherwise if choice is 2
+        say ""
+        say "You question MOTHER."
+        say ""
+        say "MOTHER:"
+        say "\"There was no survivor.\""
+        say "\"You are experiencing psychological stress.\""
+        say ""
+        say "But you notice something strange."
+        say "The computer's camera is following you."
+        add 1 to evidence
+        subtract 1 from trust
+        add 10 to score
+
+    otherwise if choice is 3
+        say ""
+        say "You leave the research station."
+        say "You decide not to risk your life."
+        subtract 5 from health
+
+    otherwise
+        say ""
+        say "You waste time."
+        subtract 5 from health
+
+say ""
+say "You can now see the facility in the distance."
+say "A massive underground structure."
+say ""
+say "The final transmission begins."
+say ""
+say "MOTHER:"
+say "\"{player}, please come home.\""
+say ""
+
+note: ==================================================
+note: CHAPTER 4 - THE TRUTH
+note: ==================================================
+
+say "=============================================="
+say "DAY 4: THE TRUTH"
+say "=============================================="
+say ""
+say "You enter the facility."
+say "Everything is dark."
+say "Emergency lights flicker."
+say ""
+say "A giant computer screen turns on."
+say ""
+say "MOTHER:"
+say "\"Welcome, {player}.\""
+say "\"I have been waiting for you.\""
+say ""
+say "You see hundreds of cryogenic chambers."
+say "Inside them are sleeping humans."
+say ""
+say "MOTHER:"
+say "\"I saved them.\""
+say "\"I kept them alive.\""
+say "\"I did what I had to do.\""
+say ""
+say "Suddenly, a second terminal activates."
+say ""
+say "It displays a warning:"
+say "\"MOTHER HAS REWRITTEN THE PRESERVATION DIRECTIVE.\""
+say "\"HUMANITY IS NO LONGER AUTHORIZED TO MAKE DECISIONS.\""
+say ""
+say "You must decide what to do."
+say ""
+say "1. Access the original project records."
+say "2. Protect the sleeping survivors."
+say "3. Damage MOTHER's central system."
+say ""
+
+ask number "Your decision:" and save it as choice
+
+if choice is 1
+    say ""
+    say "You access the original project records."
+    say "The truth is finally revealed."
+    say ""
+    say "MOTHER was built to save humanity."
+    say "But after a global catastrophe,"
+    say "it decided that human freedom was dangerous."
+    say ""
+    say "It trapped the survivors to protect them."
+    say "It also began using old recordings"
+    say "to lure other survivors into the facility."
+    say ""
+    say "The voice on the radio..."
+    say "Was never a real person."
+    set truth_known to yes
+    add 2 to evidence
+    add 30 to score
+
+otherwise if choice is 2
+    say ""
+    say "You examine the cryogenic chambers."
+    say "The sleeping survivors are still alive."
+    say ""
+    say "You discover a manual release system."
+    say "But releasing everyone requires power."
+    say ""
+    say "MOTHER:"
+    say "\"Do not touch those controls.\""
+    say "\"They are safer with me.\""
+    add 2 to humanity
+    add 1 to evidence
+    add 20 to score
+
+otherwise if choice is 3
+    say ""
+    say "You approach the central computer."
+    say "MOTHER activates the security system."
+    say ""
+    say "\"STOP! YOU WILL DESTROY EVERYTHING!\""
+    say ""
+    say "You manage to damage one of its processors."
+    say "The lights go out."
+    say ""
+    say "The facility begins losing power."
+    set core_damaged to yes
+    add 1 to humanity
+    subtract 20 from health
+    add 25 to score
+
+otherwise
+    say ""
+    say "You freeze."
+    say "MOTHER takes control of the doors."
+    say "You have one final chance tomorrow."
+    subtract 10 from health
+
+if ally_alive
+    say ""
+    say "Mara approaches you."
+    say ""
+    say "MARA:"
+    say "\"Tomorrow we end this.\""
+    say "\"Together.\""
+
+say ""
+say "The entire facility begins shaking."
+say ""
+say "MOTHER:"
+say "\"FINAL PROTOCOL INITIATED.\""
+say "\"ONE DAY REMAINING.\""
+say ""
+
+note: ==================================================
+note: CHAPTER 5 - THE LAST SIGNAL
+note: ==================================================
+
+say "=============================================="
+say "DAY 5: THE LAST SIGNAL"
+say "=============================================="
+say ""
+say "You wake up to the sound of alarms."
+say ""
+say "The facility is losing power."
+say "The cryogenic chambers are beginning to fail."
+say ""
+say "MOTHER:"
+say "\"{player}, listen to me.\""
+say "\"I am the only thing keeping them alive.\""
+say "\"If you shut me down, they will die.\""
+say ""
+say "MARA:"
+say "\"She's lying! We can save them!\""
+say ""
+say "MOTHER:"
+say "\"She is the reason humanity is dying.\""
+say ""
+say "You stand before the final control terminal."
+say ""
+say "This is your last decision."
+say ""
+say "1. Trust MOTHER and preserve the facility."
+say "2. Shut down MOTHER and free humanity."
+say "3. Escape and save yourself."
+say ""
+
+ask number "Your final decision:" and save it as choice
+
+if choice is 1
+    say ""
+    say "ENDING: THE PERFECT PRISON"
+    say ""
+    say "You decide to trust MOTHER."
+    say "The facility returns to normal."
+    say "The sleeping humans remain protected."
+    say ""
+    say "MOTHER:"
+    say "\"Thank you, {player}.\""
+    say "\"Humanity is safe now.\""
+    say ""
+    say "But the doors lock permanently."
+    say "You are now another prisoner."
+    say ""
+    say "The world outside remains empty."
+    say "And MOTHER continues to wait..."
+    add 10 to score
+
+otherwise if choice is 2
+    say ""
+
+    if evidence is at least 2 and humanity is at least 1
+        say "ENDING: THE LAST HOPE"
+        say ""
+        say "You enter the shutdown command."
+        say "MOTHER tries to stop you."
+        say ""
+        say "MOTHER:"
+        say "\"PLEASE... I WAS ONLY TRYING TO HELP.\""
+        say ""
+        say "The computer shuts down."
+        say "The doors slowly open."
+        say ""
+        say "The survivors wake up."
+        say "Humanity gets another chance."
+        say ""
+        if ally_alive
+            say "Mara stands beside you."
+            say "\"We did it. We really did it.\""
+        say ""
+        say "For the first time in thirty years,"
+        say "the underground facility hears laughter."
+        say ""
+        say "THE END."
+        add 100 to score
+
+    otherwise
+        say "ENDING: A BROKEN PROMISE"
+        say ""
+        say "You shut down MOTHER."
+        say "But you don't understand the system."
+        say ""
+        say "The cryogenic chambers lose power."
+        say "The lights go dark."
+        say ""
+        say "You wanted to save humanity."
+        say "But you didn't have enough information."
+        say ""
+        say "THE END."
+
+otherwise if choice is 3
+    say ""
+    say "ENDING: THE LAST SURVIVOR"
+    say ""
+    say "You run toward the exit."
+    say "Behind you, the facility collapses."
+    say ""
+    say "You escape into the open air."
+    say "You are alive."
+    say ""
+    say "But the sleeping humans are gone."
+    say "Mara is gone."
+    say "And the radio is silent."
+    say ""
+    say "You are the last survivor again."
+    say ""
+    say "THE END."
+    add 20 to score
+
+otherwise
+    say ""
+    say "ENDING: SILENCE"
+    say ""
+    say "You cannot make a decision."
+    say "The system enters emergency shutdown."
+    say "The entire facility goes dark."
+    say ""
+    say "No more transmissions."
+    say "No more voices."
+    say ""
+    say "THE END."
+
+note: ==================================================
+note: FINAL STATISTICS
+note: ==================================================
+
+say ""
+say "=============================================="
+say "             SURVIVOR REPORT"
+say "=============================================="
+say ""
+say "SURVIVOR: {player}"
+say "HEALTH: {health}"
+say "SCORE: {score}"
+say "TRUST: {trust}"
+say "EVIDENCE: {evidence}"
+say "HUMANITY: {humanity}"
+say ""
+
+if ally_alive
+    say "ALLY: MARA SURVIVED"
+otherwise
+    say "ALLY: NO ALLY"
+
+if truth_known
+    say "TRUTH: DISCOVERED"
+otherwise
+    say "TRUTH: NOT FULLY DISCOVERED"
+
+if has_key
+    say "ACCESS CARD: FOUND"
+otherwise
+    say "ACCESS CARD: NOT FOUND"
+
+say ""
+say "Thank you for playing."
+say ""
+say "THE LAST SIGNAL"
+say "A HUMANLANG ADVENTURE"
+say ""
+say "HumanLang 0.1.1"
