@@ -22,6 +22,8 @@ KEYWORDS = sorted(set(STATEMENT_WORDS) | {
     "random item from", "square root of", "absolute value of", "round of", "sum of", "largest of",
     "smallest of", "sorted of", "reversed of", "trim of", "read file", "the date today",
     "the time now", "if that fails", "problem",
+    "fail with", "stop the program", "record with", "empty record", "field", "keys of", "has field", "by field",
+    "file exists", "first", "last", "letters", "find", "is a number", "is a text", "is a list", "is a record",
 })
 NAME_PATTERNS = [
     (re.compile(r"^\s*(?:set|change)\s+([^\W\d]\w*)\s+to\b"), 6),

@@ -8,6 +8,7 @@ import re
 import subprocess
 import sys
 import tempfile
+import unicodedata
 from decimal import Decimal, ROUND_HALF_UP
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -135,6 +136,12 @@ def check_grades(sessions=60):
 
 
 # ---------------- 3. contacts (three separate runs share one file) ----------------
+def friendly(text):
+    """The order HumanLang 0.2 sorts text in: ignore capitals and accents."""
+    plain = "".join(c for c in unicodedata.normalize("NFKD", text) if not unicodedata.combining(c))
+    return (plain.casefold(), text)
+
+
 def check_contacts(trials=25):
     random.seed(21)
     names = ["Ann", "ann", "Bob Li", "Zoe~Q", "Émile", "élodie", "Zed", "Carla Ruiz", "D'Arcy", "Mo"]
@@ -181,7 +188,7 @@ def check_contacts(trials=25):
                 out = hl("contacts.hum", inp + ["list", "quit"], cwd=folder)
                 tail = out.split("contact(s).")[0].split("[add / list / search / update / delete / quit]")[-1]
                 shown = [tuple(x) for x in re.findall(r"^\s*(.*?)  \|  (.*?)  \|  (.*)$", tail, re.M)]
-                expect = sorted(model.values(), key=lambda t: t[0].lower())
+                expect = sorted(model.values(), key=lambda t: friendly(t[0]))
                 if shown != [tuple(x) for x in expect] and not (not model and "empty" in out):
                     bad += 1
                     print("  contacts listing mismatch:", expect, shown)

@@ -2,7 +2,7 @@
   "name": "humanlang",
   "displayName": "HumanLang",
   "description": "Syntax highlighting, error checking, completion and formatting for HumanLang (.hum) files.",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "publisher": "humanlang",
   "engines": { "vscode": "^1.75.0" },
   "categories": ["Programming Languages"],

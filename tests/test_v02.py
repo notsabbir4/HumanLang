@@ -96,6 +96,33 @@ class ShadowingWarning(unittest.TestCase):
             self.assertIn("1 heads-up", checked.stdout)
 
 
+class ShadowingPrecision(unittest.TestCase):
+    """The warning should help, not nag: it fires only when an outside variable plausibly exists."""
+
+    def lines(self, src):
+        return [w[0] for w in warnings_of(src)]
+
+    def test_outside_variable_made_before_the_function(self):
+        self.assertEqual(self.lines("set tokens to empty list\ndefine f\n    set tokens to list of 1\nf\n"), [3])
+
+    def test_outside_variable_made_after_but_read_first(self):
+        self.assertEqual(self.lines("define bump\n    set count to count + 1\nset count to 0\nbump\n"), [2])
+
+    def test_a_private_name_that_happens_to_exist_later_is_left_alone(self):
+        self.assertEqual(self.lines("define f\n    set n to 2\n    say n * n\nset n to 5\nf\n"), [])
+
+    def test_loop_variables_made_at_the_top_count(self):
+        self.assertEqual(self.lines("for each i in list of 1\n    say i\ndefine f\n    set i to 5\nf\n"), [4])
+
+    def test_a_function_inside_a_function(self):
+        self.assertEqual(self.lines("define outer\n    set x to 1\n    define inner\n        set x to 2\n    inner\nouter\n"), [4])
+
+    def test_a_broken_check_never_stops_a_program(self):
+        from unittest import mock
+        with mock.patch("humanlang.interpreter.lint", side_effect=RuntimeError("bug")):
+            self.assertEqual(run('say "still runs"'), "still runs\n")
+
+
 class StopAndFail(unittest.TestCase):
     """Problem 2: no way to raise an error or end the program."""
 
@@ -378,6 +405,26 @@ class FriendlierSorting(unittest.TestCase):
     def test_sort_a_list_of_lists_by_its_first_item(self):
         self.assertEqual(run('say sorted of list of (list of 2, "b"), (list of 1, "z")'),
                          "list of (list of 1, z), (list of 2, b)\n")
+
+
+class MigrationHintsForNewThings(unittest.TestCase):
+    def hint(self, src):
+        return error_of(src)
+
+    def test_raise_and_throw_point_to_fail_with(self):
+        self.assertIn('"fail with"', self.hint('throw "bad"'))
+        self.assertIn('"fail with"', self.hint('raise "bad"'))
+
+    def test_exit_points_to_stop_the_program(self):
+        self.assertIn('"stop the program"', self.hint("exit"))
+
+    def test_substring_and_indexof_point_to_the_new_phrases(self):
+        self.assertIn("letters 2 to 5 of", self.hint("substring"))
+        self.assertIn('find "a" in name', self.hint("indexof"))
+
+    def test_dict_and_struct_point_to_records(self):
+        self.assertIn("record with", self.hint("dict"))
+        self.assertIn("record with", self.hint("struct"))
 
 
 class Editors(unittest.TestCase):

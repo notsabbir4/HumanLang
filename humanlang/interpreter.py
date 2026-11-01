@@ -145,7 +145,11 @@ class Interpreter:
     def prepare(self, source):
         """Parse the program and collect heads-up warnings (things that work, but may not mean what you hoped)."""
         stmts, parse_warnings = parse_with_warnings(lex(source))
-        self.warnings = sorted(set(lint(stmts) + parse_warnings), key=lambda w: (w[0], w[1]))
+        try:
+            found = lint(stmts)
+        except Exception:  # a heads-up check must never stop a program from running
+            found = []
+        self.warnings = sorted(set(found + parse_warnings), key=lambda w: (w[0], w[1]))
         return stmts
 
     def run(self, source):

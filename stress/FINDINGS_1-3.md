@@ -14,7 +14,27 @@ Every program was also compared with a Python model on random inputs (`python st
 5000 contacts load and sort in about 0.3 s. Every bug below was either in my own program or a gap in the language
 that made a bug easy to write.
 
+## Status in 0.2.0 (what was done about each problem)
+
+All three programs were rewritten with the new features (`calc` 144 to 113 lines, `grades` 182 to 143,
+`contacts` 212 to 178) and `python stress/run_checks.py` shows the same 0 disagreements with Python.
+Tests for every item are in `tests/test_v02.py`.
+
+| # | Problem | Status |
+|---|---|---|
+| 1 | `set` in a function silently shadows | **Warns.** "Heads up" in `hl run`, `hl check`, the editor and the playground, only when an outside variable plausibly exists. Behaviour is unchanged, as the stability policy requires. |
+| 2 | No own errors, no early exit | **Fixed.** `fail with "..."` (caught by `try`) and `stop the program`. |
+| 3 | Calls swallow everything to their right | **Warns only.** Behaviour is unchanged in 0.2.0 (the policy says deprecate first); the warning shows how to write it either way. The rule itself is still inconsistent with the built-in phrases until a later 0.x version. |
+| 4 | No substring / find | **Fixed.** `first/last N letters of`, `letters A to B of`, `find X in Y` (also for lists). |
+| 5 | Thin file handling | **Fixed.** `file exists`, `add ... to file`, separate errors for missing / folder / no permission, byte-order mark skipped when reading data files and program files. Still missing: delete, rename, copy, listing a folder. |
+| 6 | Errors far from their cause | **Partly fixed.** When `set x to f` or `change x to f` stores a function's `nothing` and `x` later causes an error on a line that names `x`, the message names `f`. It does not follow `nothing` through lists, records or arguments. |
+| 7 | No records | **Fixed.** Records with fields, `has field`, `keys of`, `sorted ... by field`. Missing: records cannot be printed as a table, and there is no way to build a field name into a phrase other than `field (name) of r`. |
+| 8 | Nested lists awkward | **Fixed.** Places can nest (`item`, `field`) in `add`, `subtract`, `remove`, `change`; errors name the place; nested lists print with brackets. |
+| 9 | Small gaps | **Fixed.** `is a number/text/list/record`; sort by field; `sorted` ignores capitals and accents. This changes the order for text lists, so it is listed under "Breaking" in the changelog. |
+
 ## Where the language got hard (worst first)
+
+*(This is the report as written after round 1, before the fixes.)*
 
 ### 1. `set` inside a function silently makes a new variable (HIGH)
 `set tokens to empty list` inside a function does not touch the `tokens` defined outside. It creates a private copy.

@@ -469,6 +469,65 @@ list of 1, 2
 list of 1, 2, 3
 ```
 
+**Lists inside lists.** A list can hold lists, and you can change something deep inside in one line:
+
+```hum
+set scores to list of (list of 90, 80), (list of 70)
+add 85 to item 2 of scores
+change item 1 of item 1 of scores to 95
+say scores
+say item 2 of item 1 of scores
+```
+
+```output
+list of (list of 95, 80), (list of 70, 85)
+80
+```
+
+**Records.** When one thing has several named parts, don't use several lists that must stay in step.
+Use a **record**. Each part is a **field**:
+
+```hum
+set person to record with name "Ann" and age 30
+say field name of person
+change field age of person to 31
+set field email of person to "ann@example.com"
+say person
+```
+
+```output
+Ann
+record with name Ann and age 31 and email ann@example.com
+```
+
+`change field` only works on a field that exists, so a typo gets caught. `set field` makes a new one:
+
+```hum-error
+set person to record with name "Ann" and age 30
+change field agee of person to 31
+```
+
+```output
+Line 2: "person" has no field called "agee".
+    change field agee of person to 31
+Did you mean "age"?  To add a new field, write: set field agee of person to ...
+```
+
+Records and lists go together well. Here is a class of students, sorted by score:
+
+```hum
+set students to list of (record with name "Zoe" and score 71), (record with name "Ana" and score 92)
+add (record with name "Ben" and score 85) to students
+for each student in reversed of (sorted of students by field score)
+    say "{field name of student}: {field score of student}"
+```
+
+```output
+Ana: 92
+Ben: 85
+Zoe: 71
+```
+
 ## 8. Functions
 
 A **function** is a mini-program with a name. You write it once and use it as often as you like.
@@ -552,6 +611,42 @@ Create it first with: set secret to ...
 The last line failed because `secret` only exists inside `make_secret`, so out here HL has never
 heard of it. (A function that needs no values is used just by writing its name, like `make_secret`.)
 
+**Changing a variable from inside a function.** `set` always makes a *new* variable. So inside a function,
+`set total to ...` makes a private `total` and leaves the outside one alone. To update the outside one, use `change`:
+
+```hum
+set total to 0
+define add_to_total with n
+    change total to total + n
+
+add_to_total with 5
+add_to_total with 10
+say total
+```
+
+```output
+15
+```
+
+If you write `set` there by mistake, the program still runs, but HL prints a **Heads up** to tell you.
+
+**A call takes everything after `with`.** `double with 2 + 1` means `double with (2 + 1)`, which is 6.
+To calculate after the call, put the call in brackets: `(double with 2) + 1` is 5. HL prints a heads-up when you write
+a calculation after `with` without brackets, so you always say which one you mean.
+
+```hum
+define double with n
+    give back n * 2
+
+say double with (2 + 1)
+say (double with 2) + 1
+```
+
+```output
+6
+5
+```
+
 ## 9. When things go wrong
 
 Everyone makes mistakes, including professionals, and HL's job is to help you fix yours. An error
@@ -596,6 +691,63 @@ Oops: You can't divide by zero.
 The program keeps going.
 ```
 
+**Making your own errors.** Your program can report a problem itself with `fail with`. A function can use it to
+refuse bad input, and whoever called the function catches it with `try`:
+
+```hum
+define safe_divide with a and b
+    if b is 0
+        fail with "I can't divide {a} by nothing."
+    give back a / b
+
+try
+    say safe_divide with 10 and 2
+    say safe_divide with 1 and 0
+if that fails
+    say "Oops: {problem}"
+```
+
+```output
+5
+Oops: I can't divide 1 by nothing.
+```
+
+If nothing catches it, the program stops and shows your message as the error. To end a program on purpose,
+write `stop the program` (it works inside functions and loops too):
+
+```hum
+say "Checking..."
+set age to 15
+if age is less than 18
+    say "Sorry, adults only."
+    stop the program
+say "Welcome in!"
+```
+
+```output
+Checking...
+Sorry, adults only.
+```
+
+To check what kind of thing a value is, ask: `x is a number`, `x is a text`, `x is a list`, `x is a record`.
+
+```hum
+set things to list of 5, "five", list of 5
+for each thing in things
+    if thing is a number
+        say "number"
+    otherwise if thing is a text
+        say "text"
+    otherwise
+        say "something else"
+```
+
+```output
+number
+text
+something else
+```
+
 **Two helpful commands**
 
 - `hl check myfile.hum` looks for mistakes without running the program.
@@ -608,10 +760,10 @@ Some features are switched on with `use`, to keep things simple until you need t
 | Module | What you get |
 |---|---|
 | `math` | `square root of`, `absolute value of`, `round of`, `floor of`, `ceiling of`, `sum of`, `largest of`, `smallest of` |
-| `text` | `split`, `join`, `replace`, `trim of` |
+| `text` | `split`, `join`, `replace`, `trim of`, `first 3 letters of`, `last 3 letters of`, `letters 2 to 4 of`, `find` |
 | `random` | `random item from` a list (`random number from 1 to 10` works without `use`) |
 | `dates` | `the date today`, `the time now` |
-| `files` | `read file`, `write ... to file` |
+| `files` | `read file`, `write ... to file`, `add ... to file`, `file exists` |
 
 ```hum
 use math
@@ -645,6 +797,29 @@ the dog sat
 [padded]
 ```
 
+To take a piece of text, or to find where something is:
+
+```hum
+use text
+set word to "banana"
+say first 3 letters of word
+say last 2 letters of word
+say letters 2 to 4 of word
+say find "nan" in word
+say find "z" in word
+```
+
+```output
+ban
+na
+ana
+3
+0
+```
+
+`find` gives the position (counting from 1), or `0` when the text isn't there. The same phrases work on lists:
+`first 2 items of colors`.
+
 ```hum
 use files
 write "Hello from HL" to file "note.txt"
@@ -653,6 +828,26 @@ say read file "note.txt"
 
 ```output
 Hello from HL
+```
+
+`write` replaces the whole file. `add ... to file` puts text at the end instead, and makes the file if it isn't
+there yet. `file exists` lets you check first:
+
+```hum
+use files
+write "one\n" to file "log.txt"
+add "two\n" to file "log.txt"
+say read file "log.txt"
+say file exists "log.txt"
+say file exists "nothing-here.txt"
+```
+
+```output
+one
+two
+
+yes
+no
 ```
 
 Random numbers and dates change every time, so their output will be different on your computer:

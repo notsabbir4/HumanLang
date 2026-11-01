@@ -58,7 +58,7 @@
       "name": "constant.language.humanlang"
     },
     "control": {
-      "match": "\\b(if that fails|if|otherwise|repeat|while|for each|for|each|in|try|stop|skip|give back|give|back|then)\\b",
+      "match": "\\b(if that fails|if|otherwise|repeat|while|for each|for|each|in|try|stop the program|stop|skip|give back|give|back|then|fail with)\\b",
       "name": "keyword.control.humanlang"
     },
     "statement": {
@@ -66,11 +66,11 @@
       "name": "keyword.other.statement.humanlang"
     },
     "operator-word": {
-      "match": "\\b(and|or|not|is|less than|greater than|at least|at most|contains|plus|minus|times|divided by|mod|to the power of)\\b",
+      "match": "\\b(and|or|not|is|less than|greater than|at least|at most|contains|has field|plus|minus|times|divided by|mod|to the power of)\\b",
       "name": "keyword.operator.word.humanlang"
     },
     "builtin": {
-      "match": "\\b(list of|empty list|item|items|how many items in|length of|uppercase of|lowercase of|number of|text of|random number from|random item from|square root of|absolute value of|round of|floor of|ceiling of|sum of|largest of|smallest of|sorted of|reversed of|trim of|read file|split|join|replace|the date today|the time now)\\b",
+      "match": "\\b(list of|empty list|empty record|record with|field|keys of|by field|file exists|item|items|how many items in|length of|uppercase of|lowercase of|number of|text of|random number from|random item from|square root of|absolute value of|round of|floor of|ceiling of|sum of|largest of|smallest of|sorted of|reversed of|trim of|read file|split|join|replace|find|first|last|letters|the date today|the time now)\\b",
       "name": "support.function.builtin.humanlang"
     },
     "symbol-operator": {

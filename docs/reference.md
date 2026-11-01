@@ -17,7 +17,8 @@ Everything HL understands, in one place. New to HL? Start with the Tutorial.
 | number | `42`, `3.5`, `-7` | whole or decimal, no size limit for whole numbers |
 | text | `"Hello"`, `"Hi {name}"` | `{ }` inserts a value; `\"` `\{` `\}` `\\` `\n` `\t` are escapes |
 | yes/no | `yes`, `no` | the result of every question |
-| list | `list of 1, 2, 3`, `empty list` | ordered, counting from 1 |
+| list | `list of 1, 2, 3`, `empty list` | ordered, counting from 1; a list can hold lists |
+| record | `record with name "Ann" and age 30`, `empty record` | named parts (fields); see [Records](#records) |
 | nothing | `nothing` | what a function gives back when it gives back nothing |
 
 **File names on Windows:** inside text a backslash starts an escape (`\n` is a new line, `\t` is a tab), so write
@@ -25,7 +26,8 @@ paths with forward slashes, which Windows understands: `"C:/Users/me/notes.txt"`
 
 HL never converts between kinds silently. `"5" + 1` is an error; use `number of "5"` or `text of 5`.
 
-Lists are copied when stored in a variable or passed to a function.
+Lists and records are copied when stored in a variable or passed to a function, including anything inside them.
+A list inside a list is shown in brackets so it reads back the way you write it: `list of (list of 1, 2), (list of 3)`.
 
 ## Statements
 
@@ -35,6 +37,9 @@ Lists are copied when stored in a variable or passed to a function.
 | `set NAME to VALUE` | create a variable (or replace it) |
 | `change NAME to VALUE` | update a variable that must already exist |
 | `change item N of NAME to VALUE` | replace one item of a list |
+| `add VALUE to PLACE`, `subtract VALUE from PLACE`, `remove VALUE from PLACE` | `PLACE` can be a name, `item N of PLACE`, or `field KEY of PLACE`, so you can change something inside something: `add 85 to item 2 of scores` |
+| `set field KEY of PLACE to VALUE` | make a field of a record, or replace it |
+| `change field KEY of PLACE to VALUE` | replace a field that must already exist (a typo is an error, not a new field) |
 | `add VALUE to NAME` | number: add; text: append; list: add an item at the end |
 | `subtract VALUE from NAME` | subtract from a number |
 | `remove VALUE from NAME` | remove the first matching item of a list |
@@ -51,8 +56,11 @@ Lists are copied when stored in a variable or passed to a function.
 | `give back VALUE` | send a value out of a function (only inside `define`) |
 | `NAME with X and Y` | call a function (as a statement or inside a value) |
 | `try` + block, then `if that fails` + block | catch an error; its message is in `problem` |
+| `fail with TEXT` | stop with your own error. A `try` catches it; otherwise it ends the program with `TEXT` as the message |
+| `stop the program` | end the whole program right now, from anywhere (inside a function or a loop too). A `try` does not catch it |
 | `use MODULE` | switch on a module |
-| `write VALUE to file PATH` | save text to a file (needs `use files`) |
+| `write VALUE to file PATH` | save text to a file, replacing what was there (needs `use files`) |
+| `add VALUE to file PATH` | add text to the end of a file; the file is made if it doesn't exist (needs `use files`) |
 
 ## Questions (conditions)
 
@@ -62,6 +70,8 @@ Lists are copied when stored in a variable or passed to a function.
 | `a is less than b` / `a is greater than b` | smaller / bigger (two numbers, or two texts) |
 | `a is at least b` / `a is at most b` | bigger or equal / smaller or equal |
 | `text contains "x"` / `list contains x` | is it inside? |
+| `record has field KEY` | does the record have that field? |
+| `x is a number` / `a text` / `a list` / `a record` | what kind of value is it? (`is not a number` works too) |
 | `not Q`, `Q and Q`, `Q or Q` | combine questions (`not` first, then `and`, then `or`) |
 
 `if` and `repeat while` need a `yes` or `no`. A plain number or text there is an error.
@@ -96,7 +106,11 @@ Always available:
 | `number of TEXT` | text that looks like a number, as a number |
 | `text of X` | any value, as text |
 | `item N of X` | the Nth item of a list, or Nth letter of text (from 1) |
-| `sorted of LIST`, `reversed of LIST_OR_TEXT` | a new, sorted or reversed copy |
+| `sorted of LIST`, `reversed of LIST_OR_TEXT` | a new, sorted or reversed copy. Text is sorted like a dictionary: capitals and accents are ignored (`apple, Banana, Émile, Zoe`). A list of lists is sorted by its first item |
+| `sorted of LIST by field KEY` | a list of records, sorted by one field (numbers, or text in every record). Use `reversed of (...)` for the other way |
+| `record with NAME VALUE and NAME VALUE`, `empty record` | make a record |
+| `field KEY of RECORD` | one field of a record. `KEY` is a word, or a calculation in brackets: `field (column) of row` |
+| `keys of RECORD` | the field names, as a list |
 | `random number from A to B` | a whole number from A to B, both included |
 | `list of A, B, C`, `empty list` | make a list |
 
@@ -105,10 +119,10 @@ By module (`use math`, and so on):
 | Module | Phrases |
 |---|---|
 | `math` | `square root of X`, `absolute value of X`, `round of X` (0.5 rounds up), `floor of X`, `ceiling of X`, `sum of LIST`, `largest of LIST`, `smallest of LIST` |
-| `text` | `split TEXT by SEPARATOR`, `join LIST by SEPARATOR`, `replace OLD by NEW in TEXT`, `trim of TEXT` |
+| `text` | `split TEXT by SEPARATOR`, `join LIST by SEPARATOR`, `replace OLD by NEW in TEXT`, `trim of TEXT`, `first N letters of TEXT`, `last N letters of TEXT`, `letters A to B of TEXT`, `find X in TEXT` (the position, or 0). The same phrases work on lists with `items` instead of `letters` |
 | `random` | `random item from LIST` |
 | `dates` | `the date today` (`2026-10-29`), `the time now` (`17:05`) |
-| `files` | `read file PATH`, and the statement `write VALUE to file PATH` |
+| `files` | `read file PATH`, `file exists PATH`, and the statements `write VALUE to file PATH` and `add VALUE to file PATH`. `read file` skips the invisible mark some Windows editors put at the start |
 
 A phrase's value ends where a calculation would: `length of name + 1` means `(length of name) + 1`.
 Put brackets around anything longer.
@@ -116,10 +130,50 @@ Put brackets around anything longer.
 ## Functions
 
 - `define` makes a function; its variables are private to it. Functions can read and `change` variables that exist outside.
+- **`set` always makes a new variable.** Inside a function, `set total to 0` makes a private `total` even when a `total` exists outside, and the outside one is left alone. To update the outside one, write `change total to 0`. HL prints a "Heads up" when it sees this (see [Heads-ups](#heads-ups)).
 - Values go in with `with ... and ...`; give nested calls brackets: `add with 1 and (add with 2 and 3)`.
-- A function that reaches the end without `give back` gives back `nothing`.
+- **A call takes everything to its right as its input.** `f with 2 + 1` is `f with (2 + 1)`, which is different from the built-in phrases (`length of "abc" + 1` is `(length of "abc") + 1`). HL prints a "Heads up" for a call whose input is a calculation without brackets. Write `f with (2 + 1)` to say what you mean, or `(f with 2) + 1` to calculate after the call. *Planned: from a later 0.x version, calls will end where a calculation would, like the built-in phrases, so write the brackets now.*
+- A function that reaches the end without `give back` gives back `nothing`. If that `nothing` later causes an error, the error tells you which function it came from.
 - A function can call itself, up to 1000 levels deep.
 - A function with no inputs is used by writing just its name.
+- A function can report its own problem with `fail with "message"`; the caller catches it with `try`. `stop the program` ends everything.
+
+## Records
+
+A record holds named parts, called fields. Use one value instead of several lists that must stay in step.
+
+```hum
+set person to record with name "Ann" and age 30
+say field name of person
+change field age of person to 31
+set field email of person to "ann@example.com"
+say person
+say keys of person
+say person has field phone
+```
+
+```output
+Ann
+record with name Ann and age 31 and email ann@example.com
+list of name, age, email
+no
+```
+
+- `change field` needs the field to exist, so a typo is an error: `Did you mean "age"?`. `set field` makes a new one.
+- Lists of records work well, and you can change a field inside a list: `change field age of item 2 of people to 26`.
+- Records are copied like lists, so changing a copy never changes the original.
+
+## Heads-ups
+
+Some things run fine but probably don't do what you meant. HL still runs the program and prints a **Heads up** on the error stream (so the program's own output stays clean). `hl check` lists them and the editor shows them as warnings.
+
+```
+Heads up, line 3: "set total to ..." inside "add_to" makes a new private "total"; the "total" outside the function stays as it is.
+    set total to total + n
+To update the outside "total", write: change total to ...
+```
+
+A heads-up never changes what a program does, and it is not an error: the exit code stays `0`.
 
 ## Coming from another language
 
@@ -150,6 +204,13 @@ when you type the other form by mistake.
 | `f"Hi {name}"` | `"Hi {name}"` |
 | `# comment` | `note: comment` |
 | `try / except` | `try` then `if that fails` (the message is `problem`) |
+| `raise Error("x")`, `throw` | `fail with "x"` |
+| `exit()`, `sys.exit()` | `stop the program` |
+| `s[0:3]`, `s.substring(0, 3)` | `first 3 letters of s`, `letters 1 to 3 of s` (`use text`) |
+| `s.find("x")`, `indexOf` | `find "x" in s` (0 when not found; `use text`) |
+| `{"name": "Ann"}`, `person.name` | `record with name "Ann"`, `field name of person` |
+| `isinstance(x, int)` | `x is a number` |
+| `open(f, "a")` append | `add "text" to file "notes.txt"` |
 | `import math` | `use math` |
 
 ## Errors

@@ -2,7 +2,7 @@
 import json
 import sys
 
-from humanlang.errors import HLError
+from humanlang.errors import HLError, format_warning
 from humanlang.interpreter import Interpreter
 
 sys.setrecursionlimit(20000)
@@ -38,12 +38,14 @@ def run(code, inputs):
         return answer
 
     err = None
+    interp = Interpreter(out=write, inp=ask)
     try:
-        Interpreter(out=write, inp=ask).run(code)
+        interp.run(code)
     except HLError as e:
         err = e.format(code.splitlines())
     except NeedInput as n:
         return json.dumps({"out": "".join(out), "need": n.prompt})
     except Flood:
         err = "The program printed too much, so I stopped it."
-    return json.dumps({"out": "".join(out), "plain": "".join(plain), "err": err})
+    heads_up = [format_warning(w, code.splitlines()) for w in interp.warnings]
+    return json.dumps({"out": "".join(out), "plain": "".join(plain), "err": err, "warnings": heads_up})

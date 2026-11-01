@@ -103,3 +103,4 @@ main.ide-page{max-width:none;padding:0}
   .ide-top{flex-wrap:wrap}
   .ide-status span:nth-last-child(-n+2){display:none}
 }
+#out .warn{margin-top:14px;padding-top:10px;border-top:1px dashed var(--line);color:var(--op);font-size:.92em}

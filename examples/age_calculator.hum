@@ -184,8 +184,8 @@ define show_report
     say "  YOU HAVE LIVED"
     say "    {plural with total_days and "day"}"
     say "    {plural with floor of (total_days / 7) and "week"}"
-    say "    {plural with total_days * 24 and "hour"}"
-    say "    {plural with total_days * 1440 and "minute"}"
+    say "    {plural with (total_days * 24) and "hour"}"
+    say "    {plural with (total_days * 1440) and "minute"}"
     say ""
     say "  NEXT BIRTHDAY"
     if until_birthday is 0

@@ -1,55 +1,42 @@
 note: A calculator that understands + - * / % ^ brackets, decimals and negative numbers,
 note: with the usual rules: brackets first, then ^, then * / %, then + -.
-use math
+note: (Version 2: "fail with" replaces the error flag, "is a number" replaces the kinds list.)
 
-set digits to "0123456789"
 set tokens to empty list
-set kinds to empty list
 set position to 1
-set calc_problem to ""
 
 note: ---------- step 1: cut the text into tokens ----------
 define tokenize with source
     change tokens to empty list
-    change kinds to empty list
     set i to 1
-    set size to length of source
-    repeat while i is at most size
+    repeat while i is at most length of source
         set ch to item i of source
         if ch is " "
             add 1 to i
-        otherwise if digits contains ch or ch is "."
+        otherwise if "0123456789." contains ch
             set piece to ""
-            repeat while i is at most size and (digits contains (item i of source) or (item i of source) is ".")
-                add (item i of source) to piece
+            repeat while i is at most length of source and "0123456789." contains item i of source
+                add item i of source to piece
                 add 1 to i
-            add (number of piece) to tokens
-            add "num" to kinds
+            add number of piece to tokens
         otherwise if "+-*/%^()" contains ch
             add ch to tokens
-            add "op" to kinds
             add 1 to i
         otherwise
-            change calc_problem to "I don't understand the character \"{ch}\"."
-            give back no
-    give back yes
+            fail with "I don't understand the character \"{ch}\"."
 
 note: ---------- step 2: understand the tokens ----------
 define peek
     if position is greater than how many items in tokens
         give back ""
-    if (item position of kinds) is "num"
-        give back "number"
     give back item position of tokens
 
 define parse_expression
     set left to parse_term
-    repeat while calc_problem is "" and (peek is "+" or peek is "-")
-        set op to item position of tokens
+    repeat while peek is "+" or peek is "-"
+        set op to peek
         add 1 to position
         set right to parse_term
-        if calc_problem is not ""
-            give back 0
         if op is "+"
             set left to left + right
         otherwise
@@ -58,12 +45,10 @@ define parse_expression
 
 define parse_term
     set left to parse_unary
-    repeat while calc_problem is "" and (peek is "*" or peek is "/" or peek is "%")
-        set op to item position of tokens
+    repeat while peek is "*" or peek is "/" or peek is "%"
+        set op to peek
         add 1 to position
         set right to parse_unary
-        if calc_problem is not ""
-            give back 0
         if op is "*"
             set left to left * right
         otherwise if op is "/"
@@ -76,8 +61,7 @@ note: a minus sign applies after ^, so -2^2 is -(2^2) = -4, while 2^-1 still wor
 define parse_unary
     if peek is "-"
         add 1 to position
-        set inner to parse_unary
-        give back 0 - inner
+        give back 0 - parse_unary
     if peek is "+"
         add 1 to position
         give back parse_unary
@@ -86,59 +70,44 @@ define parse_unary
 note: ^ groups to the right: 2^3^2 is 2^(3^2)
 define parse_power
     set base to parse_primary
-    if calc_problem is "" and peek is "^"
+    if peek is "^"
         add 1 to position
-        set exponent to parse_unary
-        if calc_problem is not ""
-            give back 0
-        give back base to the power of exponent
+        give back base to the power of (parse_unary)
     give back base
 
 define parse_primary
     set seen to peek
-    if seen is "number"
-        set value to item position of tokens
+    if seen is a number
         add 1 to position
-        give back value
+        give back seen
     if seen is "("
         add 1 to position
         set value to parse_expression
-        if calc_problem is not ""
-            give back 0
         if peek is not ")"
-            change calc_problem to "A bracket was opened but never closed."
-            give back 0
+            fail with "A bracket was opened but never closed."
         add 1 to position
         give back value
     if seen is ""
-        change calc_problem to "The expression ended too early."
-    otherwise
-        change calc_problem to "I didn't expect \"{seen}\" here."
-    give back 0
+        fail with "The expression ended too early."
+    fail with "I didn't expect \"{seen}\" here."
 
 note: ---------- step 3: put it together ----------
 define calculate with source
     change position to 1
-    change calc_problem to ""
-    if not (tokenize with source)
-        give back "Error: {calc_problem}"
+    tokenize with source
     if how many items in tokens is 0
-        give back "Error: please type something to calculate."
+        fail with "please type something to calculate."
     set answer to parse_expression
-    if calc_problem is not ""
-        give back "Error: {calc_problem}"
     if position is at most how many items in tokens
-        give back "Error: I didn't expect \"{item position of tokens}\" after the end of the calculation."
+        fail with "I didn't expect \"{item position of tokens}\" after the end of the calculation."
     give back answer
 
 say "Calculator. Type an expression, or 'quit'."
-set running to yes
-repeat while running
+repeat while yes
     ask "> " and save it as line
     if lowercase of line is "quit"
-        set running to no
-    otherwise
-        try
-            say calculate with line
-        if that fails
-            say "Error: {problem}"
+        stop
+    try
+        say calculate with line
+    if that fails
+        say "Error: {problem}"

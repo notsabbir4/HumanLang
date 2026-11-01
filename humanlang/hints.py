@@ -4,6 +4,11 @@ _SAY = 'In HL you show something with "say". Example: say "Hello"'
 _ELSE = 'In HL the other case is called "otherwise". Example: otherwise'
 _DEFINE = 'In HL you make a function with "define". Example: define add with a and b'
 _SET = 'In HL you make a variable with "set". Example: set age to 20'
+_FAIL = 'In HL you raise your own error with "fail with", and "try" catches it. Example: fail with "That is not allowed"'
+_EXIT = 'In HL you end the program with "stop the program".'
+_SLICE = 'In HL take part of a text with "first 3 letters of", "last 3 letters of" or "letters 2 to 5 of". Example: first 3 letters of name (needs: use text)'
+_FIND = 'In HL find where something is with "find". Example: find "a" in name (gives 0 when it is not there; needs: use text)'
+_RECORD = 'In HL, things with named parts are records. Example: set person to record with name "Ann" and age 30   then   field name of person'
 _ASK = 'In HL you read what someone types with "ask". Example: ask "Your name?" and save it as name'
 
 WORDS = {
@@ -26,8 +31,12 @@ WORDS = {
     "catch": 'In HL write "if that fails" after a "try" block.',
     "except": 'In HL write "if that fails" after a "try" block.',
     "finally": 'HL has no "finally". Put the code after the "if that fails" block.',
-    "throw": 'HL has no "throw". Errors happen by themselves, and "try" catches them.',
-    "raise": 'HL has no "raise". Errors happen by themselves, and "try" catches them.',
+    "throw": _FAIL, "raise": _FAIL, "panic": _FAIL, "assert": _FAIL,
+    "exit": _EXIT, "quit": _EXIT, "abort": _EXIT, "die": _EXIT,
+    "substring": _SLICE, "substr": _SLICE, "slice": _SLICE, "mid": _SLICE, "left": _SLICE, "right": _SLICE,
+    "indexof": _FIND, "strpos": _FIND, "index": _FIND,
+    "dict": _RECORD, "dictionary": _RECORD, "struct": _RECORD, "object": _RECORD, "class": _RECORD,
+    "map": _RECORD, "hashmap": _RECORD, "tuple": _RECORD,
     "true": 'HL uses "yes" and "no" instead of true and false.',
     "false": 'HL uses "yes" and "no" instead of true and false.',
     "null": 'In HL the empty value is "nothing".',
@@ -36,7 +45,7 @@ WORDS = {
     "undefined": 'In HL the empty value is "nothing".',
     "len": 'In HL you count with "length of" or "how many items in". Example: length of name',
     "length": 'In HL write "length of name" (the word "of" is needed).',
-    "append": 'In HL you add to a list with "add". Example: add "pink" to colors',
+    "append": 'In HL you add to a list with "add" (or to a file: add "text" to file "notes.txt"). Example: add "pink" to colors',
     "push": 'In HL you add to a list with "add". Example: add "pink" to colors',
     "int": 'In HL turn text into a number with "number of". Example: number of "5"',
     "float": 'In HL turn text into a number with "number of". Example: number of "5"',

@@ -89,6 +89,11 @@
         let text = m.plain !== undefined ? m.plain : (m.out || "");
         if (m.err) text += (text && !text.endsWith("\n") ? "\n" : "") + m.err;
         show(text || "(the program printed nothing)", !!m.err);
+        if (m.warnings && m.warnings.length) {
+          const box = document.createElement("div");
+          box.className = "warn"; box.textContent = m.warnings.join("\n\n");
+          out.appendChild(box);
+        }
         setStatus(m.err ? "Finished with an error" : "Finished");
       }
     };
