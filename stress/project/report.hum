@@ -1,0 +1,12 @@
+note: ===== module: report (tables) =====
+define show_books
+    say "{pad_right with "ID" and 6}{pad_right with "TITLE" and 22}{pad_left with "OUT" and 4}{pad_left with "OF" and 4}"
+    for each b in sorted of books by field id
+        say "{pad_right with (field id of b) and 6}{pad_right with (field title of b) and 22}{pad_left with (field out of b) and 4}{pad_left with (field copies of b) and 4}"
+
+define show_members
+    for each m in sorted of members by field name
+        set ids to empty list
+        for each loan in field loans of m
+            add field id of loan to ids
+        say "{pad_right with (field name of m) and 10}{join ids by ", "}"

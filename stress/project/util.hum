@@ -1,0 +1,31 @@
+note: ===== module: util (small helpers used by every other module) =====
+use text
+use math
+
+define pad_right with value and width
+    set t to text of value
+    repeat while (length of t) is less than width
+        set t to t + " "
+    give back t
+
+define pad_left with value and width
+    set t to text of value
+    repeat while (length of t) is less than width
+        set t to " " + t
+    give back t
+
+define cents_text with cents
+    set whole to floor of (cents / 100)
+    set rest to cents - whole * 100
+    set rest_text to text of rest
+    if rest is less than 10
+        set rest_text to "0" + rest_text
+    give back "{whole}.{rest_text}"
+
+define all_digits with t
+    if t is ""
+        give back no
+    for each ch in t
+        if not ("0123456789" contains ch)
+            give back no
+    give back yes

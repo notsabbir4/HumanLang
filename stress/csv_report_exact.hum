@@ -1,0 +1,193 @@
+note: Round 2, test 4 (exact version): the same report, but money is kept as whole cents so nothing is ever off by a cent.
+note: Input columns: date, region, product, units, price
+use text
+use files
+use math
+
+set rows to empty list
+set text_all to ""
+set problems to empty list
+
+note: ---------- reading: a small state machine that follows the CSV rules ----------
+note: quoted fields may hold commas, doubled quotes and even line breaks
+define parse_csv with data
+    set table to empty list
+    set row to empty list
+    set field to ""
+    set inside to no
+    set just_closed to no
+    set pending_quote to no
+    set was_quote to no
+    for each ch in data
+        if inside
+            if pending_quote
+                note: we saw a quote inside quotes: a second one means a literal quote
+                if ch is "\""
+                    set field to field + "\""
+                    set pending_quote to no
+                    skip
+                otherwise
+                    set inside to no
+                    set pending_quote to no
+            otherwise if ch is "\""
+                set pending_quote to yes
+                skip
+            otherwise
+                set field to field + ch
+                skip
+        if ch is "\""
+            if field is ""
+                set inside to yes
+                set was_quote to yes
+                skip
+        if ch is ","
+            add field to row
+            set field to ""
+            set was_quote to no
+        otherwise if ch is "\n"
+            add field to row
+            add row to table
+            set row to empty list
+            set field to ""
+            set was_quote to no
+        otherwise
+            set field to field + ch
+    if pending_quote
+        set inside to no
+    if field is not "" or (how many items in row) is greater than 0 or was_quote
+        add field to row
+        add row to table
+    give back table
+
+define digits_only with t
+    if t is ""
+        give back no
+    for each ch in t
+        if not ("0123456789" contains ch)
+            give back no
+    give back yes
+
+note: a price like "19.99" becomes the whole number 1999 and a count of decimals (2)
+define price_parts with t
+    set pieces to split t by "."
+    if (how many items in pieces) is 1
+        if digits_only with (item 1 of pieces)
+            give back list of (number of (item 1 of pieces)), 0
+        give back nothing
+    if (how many items in pieces) is 2
+        set a to item 1 of pieces
+        set b to item 2 of pieces
+        if (digits_only with a) and (digits_only with b)
+            give back list of (number of (a + b)), (length of b)
+    give back nothing
+
+define cents_of with whole_number and decimals and units
+    note: units * price, in cents, rounded half up, using only whole numbers
+    set scale to 10 to the power of decimals
+    give back floor of ((2 * units * whole_number * 100 + scale) / (2 * scale))
+
+define money_cents with cents
+    set whole to floor of (cents / 100)
+    set rest to cents - whole * 100
+    set rest_text to text of rest
+    if rest is less than 10
+        set rest_text to "0" + rest_text
+    give back "{whole}.{rest_text}"
+
+define money with amount
+    note: HL has no way to print 12.5 as 12.50, so build it by hand
+    set cents to round of (amount * 100)
+    set whole to floor of (cents / 100)
+    set rest to cents - whole * 100
+    set rest_text to text of rest
+    if rest is less than 10
+        set rest_text to "0" + rest_text
+    give back "{whole}.{rest_text}"
+
+define quote_if_needed with value
+    set v to text of value
+    if (v contains ",") or (v contains "\"") or (v contains "\n")
+        give back "\"" + (replace "\"" by "\"\"" in v) + "\""
+    give back v
+
+ask "CSV file:" and save it as path
+if not (file exists path)
+    say "No such file: {path}"
+    stop the program
+set text_all to read file path
+set table to parse_csv with text_all
+say "Read {how many items in table} rows."
+if how many items in table is 0
+    say "The file is empty."
+    stop the program
+
+set header to item 1 of table
+set expected to list of "date", "region", "product", "units", "price"
+set clean_header to empty list
+for each h in header
+    add lowercase of (trim of h) to clean_header
+if clean_header is not expected
+    say "Unexpected columns: {join clean_header by ", "}"
+    stop the program
+
+note: ---------- checking each row ----------
+set good to empty list
+set n to 1
+repeat while n is less than how many items in table
+    add 1 to n
+    set r to item n of table
+    if (how many items in r) is 1 and (item 1 of r) is ""
+        skip
+    if how many items in r is not 5
+        add "row {n}: expected 5 columns, found {how many items in r}" to problems
+        skip
+    set units_text to trim of (item 4 of r)
+    set price_text to trim of (item 5 of r)
+    if not (digits_only with units_text)
+        add "row {n}: units must be a whole number and nothing can be negative" to problems
+        skip
+    set parts to price_parts with price_text
+    if parts is nothing
+        add "row {n}: units or price is not a number" to problems
+        skip
+    set units to number of units_text
+    set rec to record with date (trim of (item 1 of r)) and region (trim of (item 2 of r)) and product (trim of (item 3 of r)) and units units and price_whole (item 1 of parts) and price_places (item 2 of parts) and price_text price_text
+    add rec to good
+say "{how many items in good} good rows, {how many items in problems} rejected."
+for each p in problems
+    say "  rejected {p}"
+
+note: ---------- totals per region and per product ----------
+set by_region to empty record
+set by_product to empty record
+set grand to 0
+for each rec in good
+    set amount to cents_of with (field price_whole of rec) and (field price_places of rec) and (field units of rec)
+    set grand to grand + amount
+    set reg to field region of rec
+    if by_region has field (reg)
+        change field (reg) of by_region to (field (reg) of by_region) + amount
+    otherwise
+        set field (reg) of by_region to amount
+    set prod to field product of rec
+    if by_product has field (prod)
+        change field (prod) of by_product to (field (prod) of by_product) + (field units of rec)
+    otherwise
+        set field (prod) of by_product to field units of rec
+say ""
+say "Sales by region"
+for each reg in sorted of (keys of by_region)
+    say "  {reg}: {money_cents with (field (reg) of by_region)}"
+say "Units by product"
+for each prod in sorted of (keys of by_product)
+    say "  {prod}: {field (prod) of by_product}"
+say "Grand total: {money_cents with grand}"
+
+note: ---------- writing a tidy copy ----------
+set out_lines to list of "date,region,product,units,price,total"
+for each rec in good
+    set total to cents_of with (field price_whole of rec) and (field price_places of rec) and (field units of rec)
+    set parts to list of (quote_if_needed with (field date of rec)), (quote_if_needed with (field region of rec)), (quote_if_needed with (field product of rec)), (field units of rec), (money_cents with (cents_of with (field price_whole of rec) and (field price_places of rec) and 1)), (money_cents with total)
+    add join parts by "," to out_lines
+write (join out_lines by "\n") + "\n" to file path + ".clean"
+say "Wrote {how many items in out_lines} lines to {path}.clean"
