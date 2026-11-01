@@ -979,10 +979,8 @@ class Interpreter:
             except FileNotFoundError:
                 raise self.err(f'There is no file called "{v}".',
                                f'Check the spelling and the folder. To test first, write: file exists "{v}"')
-            except IsADirectoryError:
-                raise self.err(f'"{v}" is a folder, not a file.')
-            except PermissionError:
-                raise self.err(f'I\'m not allowed to read the file "{v}".')
+            except (IsADirectoryError, PermissionError) as e:  # Windows says "permission" for a folder
+                raise self.err(self.file_problem(v, e, "read"))
             except UnicodeDecodeError:
                 raise self.err(f'"{v}" doesn\'t look like a text file.',
                                "HumanLang reads text saved as UTF-8 (the usual choice).")
