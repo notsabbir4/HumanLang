@@ -17,7 +17,7 @@ jobs:
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
       - run: python -m pip install . pyinstaller
-      - run: pyinstaller --onefile --name hl packaging/hl_entry.py
+      - run: pyinstaller --onefile --name hl --icon packaging/icon.ico packaging/hl_entry.py
       - name: Rename (Unix)
         if: runner.os != 'Windows'
         run: mv dist/hl dist/${{ matrix.name }}

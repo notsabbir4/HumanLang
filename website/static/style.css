@@ -128,3 +128,7 @@ main.ide-page{max-width:none;padding:0}
 #screen input.answer:focus{border-bottom-color:#fff}
 .gstatus{color:var(--muted);font-size:.9rem;min-height:1.5em}
 #lobby[hidden],#stage[hidden]{display:none}
+
+/* logo */
+.brand{display:inline-flex;align-items:center;line-height:0}
+.brand img{height:46px;width:auto;display:block}

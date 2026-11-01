@@ -1,3 +1,5 @@
+<p align="center"><img src="assets/logo.png" alt="HumanLang" width="460"></p>
+
 # HumanLang (HL)
 
 **Code that reads like you talk.** HumanLang is a programming language for people who have never programmed:

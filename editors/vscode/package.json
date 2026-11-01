@@ -4,6 +4,7 @@
   "description": "Syntax highlighting, error checking, completion and formatting for HumanLang (.hum) files.",
   "version": "0.2.0",
   "publisher": "humanlang",
+  "icon": "icon.png",
   "engines": { "vscode": "^1.75.0" },
   "categories": ["Programming Languages"],
   "main": "./extension.js",
@@ -13,7 +14,8 @@
       "id": "humanlang",
       "aliases": ["HumanLang", "HL"],
       "extensions": [".hum"],
-      "configuration": "./language-configuration.json"
+      "configuration": "./language-configuration.json",
+      "icon": { "light": "./icon.png", "dark": "./icon.png" }
     }],
     "grammars": [{
       "language": "humanlang",

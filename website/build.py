@@ -128,11 +128,18 @@ def page(title, body, active, extra_head="", extra_body="", main_class=""):
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{html.escape(title)}</title>
 <meta name="description" content="HumanLang (HL): a beginner-friendly programming language that reads like English.">
+<link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta property="og:title" content="{html.escape(title)}">
+<meta property="og:description" content="HumanLang (HL): code that reads like you talk.">
+<meta property="og:image" content="social-preview.png">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="style.css">
 {extra_head}
 </head>
 <body>
-<header class="site"><div class="in"><a class="brand" href="index.html">Human<span>Lang</span></a>
+<header class="site"><div class="in"><a class="brand" href="index.html" aria-label="HumanLang home"><img src="logo.png" alt="HumanLang" width="181" height="46"></a>
 <nav class="main">{links}</nav></div></header>
 <main{(" class=" + main_class) if main_class else ""}>
 {body}
@@ -289,6 +296,9 @@ def main():
     for f in glob.glob(os.path.join(HERE, "static", "*")):
         if os.path.isfile(f):
             shutil.copy(f, out)
+    for name in ("logo.png", "icon-32.png", "icon-180.png", "social-preview.png"):
+        shutil.copy(os.path.join(ROOT, "assets", name), out)
+    shutil.copy(os.path.join(ROOT, "assets", "icon.ico"), os.path.join(out, "favicon.ico"))
     write(os.path.join(out, "config.js"),
           f"self.HL_CONFIG = {json.dumps({'pyodideUrl': args.pyodide_url, 'version': __version__})};\n")
 
