@@ -27,7 +27,7 @@ Did you mean "name"?
 ## Install
 
 ```
-pip install humanlang        # once published; until then: pip install .
+pip install .                # from a downloaded copy of this repository
 hl --version
 ```
 
