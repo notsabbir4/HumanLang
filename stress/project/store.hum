@@ -17,11 +17,10 @@ define add_book with id and title and copies
         fail with "a book needs at least 1 copy"
     add (record with id id and title title and copies copies and out 0) to books
 
-define lend_book with id
+define lend_book with id and change_by
     set at to find_book with id
     if at is 0
         fail with "no book {id}"
-    set book to item at of books
-    if (field out of book) is at least (field copies of book)
+    if change_by is 1 and (field out of (item at of books)) is at least (field copies of (item at of books))
         fail with "all copies of {id} are out"
-    change field out of item at of books to (field out of book) + 1
+    add change_by to field out of (item at of books)

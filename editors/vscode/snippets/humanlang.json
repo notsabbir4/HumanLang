@@ -73,5 +73,22 @@
       "fail with \"${1:What went wrong}\""
     ],
     "description": "raise an error that try can catch"
+  },
+  "use file": {
+    "prefix": "usefile",
+    "body": [
+      "use \"${1:helpers}.hum\""
+    ],
+    "description": "Bring in another HumanLang file"
+  },
+  "read csv": {
+    "prefix": "csv",
+    "body": [
+      "use files",
+      "set ${1:rows} to read csv \"${2:data}.csv\"",
+      "for each ${3:row} in ${1:rows}",
+      "    say field ${4:name} of ${3:row}"
+    ],
+    "description": "Read a CSV file as records"
   }
 }

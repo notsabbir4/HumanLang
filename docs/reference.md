@@ -37,12 +37,13 @@ A list inside a list is shown in brackets so it reads back the way you write it:
 | `set NAME to VALUE` | create a variable (or replace it) |
 | `change NAME to VALUE` | update a variable that must already exist |
 | `change item N of NAME to VALUE` | replace one item of a list |
-| `add VALUE to PLACE`, `subtract VALUE from PLACE`, `remove VALUE from PLACE` | `PLACE` can be a name, `item N of PLACE`, or `field KEY of PLACE`, so you can change something inside something: `add 85 to item 2 of scores` |
+| `add VALUE to PLACE`, `subtract VALUE from PLACE`, `remove VALUE from PLACE` | `PLACE` can be a name, `item N of PLACE`, or `field KEY of PLACE` (brackets around a place are fine), so you can change something inside something: `add 85 to item 2 of scores`, `change field out of (item at of books) to 9` |
 | `set field KEY of PLACE to VALUE` | make a field of a record, or replace it |
 | `change field KEY of PLACE to VALUE` | replace a field that must already exist (a typo is an error, not a new field) |
 | `add VALUE to NAME` | number: add; text: append; list: add an item at the end |
 | `subtract VALUE from NAME` | subtract from a number |
 | `remove VALUE from NAME` | remove the first matching item of a list |
+| `remove item N from PLACE` | remove the Nth item of a list (counting from 1) |
 | `ask "QUESTION" and save it as NAME` | read a line of text |
 | `ask number "QUESTION" and save it as NAME` | read a number (asks again until valid) |
 | `if QUESTION` + block | run the block when the answer is `yes` |
@@ -50,15 +51,17 @@ A list inside a list is shown in brackets so it reads back the way you write it:
 | `otherwise` + block | run when all the above were `no` |
 | `repeat N times` + block | repeat; N must be a whole number, 0 or more |
 | `repeat while QUESTION` + block | repeat while the answer is `yes` |
+| `repeat forever` + block | repeat until a `stop` or `stop the program` (or the program is stopped, see [Limits](#limits)) |
 | `for each NAME in LIST_OR_TEXT` + block | go through items (or letters) one by one |
 | `stop` / `skip` | leave the loop / go to its next round (only inside loops) |
 | `define NAME with A and B` + block | make a function; `with ...` is left out if it needs no values |
 | `give back VALUE` | send a value out of a function (only inside `define`) |
 | `NAME with X and Y` | call a function (as a statement or inside a value) |
-| `try` + block, then `if that fails` + block | catch an error; its message is in `problem` |
+| `try` + block, then `if that fails` + block | catch an error. Inside the second block, `problem` is its message, `problem_line` the line it happened on, and `problem_kind` is `"fail"` when the program's own `fail with` raised it and `"error"` when HumanLang found a mistake (a bug, usually) |
 | `fail with TEXT` | stop with your own error. A `try` catches it; otherwise it ends the program with `TEXT` as the message |
 | `stop the program` | end the whole program right now, from anywhere (inside a function or a loop too). A `try` does not catch it |
 | `use MODULE` | switch on a module |
+| `use "FILE.hum"` | bring in another HumanLang file (see [Using other files](#using-other-files)) |
 | `write VALUE to file PATH` | save text to a file, replacing what was there (needs `use files`) |
 | `add VALUE to file PATH` | add text to the end of a file; the file is made if it doesn't exist (needs `use files`) |
 
@@ -91,7 +94,9 @@ Highest first:
 | 6 | | `and` |
 | 7 | | `or` |
 
-`/` always gives an exact answer (`7 / 2` is `3.5`). `%` and `mod` give the remainder.
+`/` always gives an exact answer (`7 / 2` is `3.5`). `%` and `mod` give the remainder. `A divided evenly by B` gives the whole part of the division, rounded down (`7 divided evenly by 2` is `3`, `-7 divided evenly by 2` is `-4`), and works on numbers of any size.
+
+**Numbers are exact.** `0.1 + 0.2` is exactly `0.3`, so `0.1 + 0.2 is 0.3` is `yes`, and a shop total such as `19.99 * 3` is exactly `59.97`. Whole numbers can have any number of digits. A number with a fraction keeps up to 40 digits; a division that never ends, such as `1 / 3`, is cut after 40 digits (so `1 / 3 * 3 is 1` is `no`, though both show as `1`). Numbers are shown with up to 10 significant digits, but compared in full. Results beyond 40 digits are rounded and shown like `1.5e+400`.
 Both sides of a calculation must be numbers (except `+`, which also joins two texts or two lists).
 `repeat 3 times` and `x times y` don't clash: a line that ends with `times` is a repeat.
 
@@ -105,6 +110,7 @@ Always available:
 | `uppercase of TEXT`, `lowercase of TEXT` | changed case |
 | `number of TEXT` | text that looks like a number, as a number |
 | `text of X` | any value, as text |
+| `text of X to N places` | a number as text with exactly N decimals: `text of 12.5 to 2 places` is `12.50` |
 | `item N of X` | the Nth item of a list, or Nth letter of text (from 1) |
 | `sorted of LIST`, `reversed of LIST_OR_TEXT` | a new, sorted or reversed copy. Text is sorted like a dictionary: capitals and accents are ignored (`apple, Banana, Émile, Zoe`). A list of lists is sorted by its first item |
 | `sorted of LIST by field KEY` | a list of records, sorted by one field (numbers, or text in every record). Use `reversed of (...)` for the other way |
@@ -118,11 +124,11 @@ By module (`use math`, and so on):
 
 | Module | Phrases |
 |---|---|
-| `math` | `square root of X`, `absolute value of X`, `round of X` (0.5 rounds up), `floor of X`, `ceiling of X`, `sum of LIST`, `largest of LIST`, `smallest of LIST` |
+| `math` | `square root of X`, `absolute value of X`, `round of X` (0.5 rounds up), `round of X to N places`, `floor of X`, `ceiling of X`, `sum of LIST`, `largest of LIST`, `smallest of LIST` |
 | `text` | `split TEXT by SEPARATOR`, `join LIST by SEPARATOR`, `replace OLD by NEW in TEXT`, `trim of TEXT`, `first N letters of TEXT`, `last N letters of TEXT`, `letters A to B of TEXT`, `find X in TEXT` (the position, or 0). The same phrases work on lists with `items` instead of `letters` |
 | `random` | `random item from LIST` |
 | `dates` | `the date today` (`2026-10-29`), `the time now` (`17:05`) |
-| `files` | `read file PATH`, `file exists PATH`, and the statements `write VALUE to file PATH` and `add VALUE to file PATH`. `read file` skips the invisible mark some Windows editors put at the start |
+| `files` | `read file PATH`, `read csv PATH`, `read csv PATH as rows`, `file exists PATH`, and the statements `write VALUE to file PATH`, `write csv LIST to file PATH` and `add VALUE to file PATH`. Reading skips the invisible mark some Windows editors put at the start |
 
 A phrase's value ends where a calculation would: `length of name + 1` means `(length of name) + 1`.
 Put brackets around anything longer.
@@ -137,6 +143,48 @@ Put brackets around anything longer.
 - A function can call itself, up to 1000 levels deep.
 - A function with no inputs is used by writing just its name.
 - A function can report its own problem with `fail with "message"`; the caller catches it with `try`. `stop the program` ends everything.
+
+## Using other files
+
+`use "helpers.hum"` at the very top level of a program brings in another HumanLang file, as if its lines were written there:
+
+```text
+use "money.hum"
+use "lib/report.hum"
+say price_text with 12.5
+```
+
+- The name is looked up from the folder of the file that has the `use` line, so a file can use its neighbours wherever the program is started from. Use `/` between folders.
+- A file is used **once**, however many files name it, and the lines run in the order of the `use` lines. Files may use each other in a circle.
+- Everything is shared: functions and variables made in one file can be used in all the others (there are no private names). So that two files do not break each other, HL prints a *heads-up* when a `define` replaces another function or variable of the same name, and says in which file.
+- A mistake in a used file says which file and line: `Line 3 of lib/report.hum: ...`. `hl check` looks inside them too.
+- It only works at the top level (not inside `if`, `repeat` or `define`), and the name must be plain text in quotes.
+
+## Reading and writing CSV
+
+A CSV file is a table saved as text, one row per line, values separated by commas (Excel and most programs can save one).
+
+- `read csv PATH` gives a list of records, one per row. The first line names the columns (spaces around a name are dropped), so `field price of row` is the `price` column. Every value is text: use `number of` to calculate. Blank lines are skipped, and quoted values with commas, quotes (`""`) or line breaks inside are read correctly. A row with too many or too few values stops with an error that gives its line in the file.
+- `read csv PATH as rows` gives a list of lists instead, with the first line included, and does not complain about uneven rows.
+- `write csv LIST to file PATH` saves a list of records (the field names become the first line) or a list of lists. Values with commas, quotes or line breaks are quoted for you.
+- All of these need `use files`.
+
+```text
+use files
+set rows to read csv "sales.csv"
+for each row in rows
+    say "{field product of row}: {field price of row}"
+write csv rows to file "copy.csv"
+```
+
+## Limits
+
+A program that never ends, or one that makes a text or list bigger and bigger, is stopped with a message that names the line, instead of freezing the computer:
+
+- A text made by joining texts may have up to 50,000,000 letters, and a list made by joining lists up to 10,000,000 items.
+- A program may print up to 20,000,000 letters. `hl run --max-output LETTERS FILE` changes this (`0` means no limit).
+- A program may run for as long as it needs, unless you say otherwise: `hl run --time-limit SECONDS FILE`. Ctrl+C stops it at any time and says which line it was on.
+- If the computer itself runs out of memory, the program stops with a message instead of crashing.
 
 ## Records
 
@@ -172,6 +220,13 @@ Heads up, line 3: "set total to ..." inside "add_to" makes a new private "total"
     set total to total + n
 To update the outside "total", write: change total to ...
 ```
+
+Heads-ups exist for:
+
+- `set` inside a function that hides a variable of the same name from outside (use `change`).
+- A `define` (or `set`) that replaces a function or variable of the same name, which usually means two files or two parts of a program use the same name.
+- A call whose input is an unbracketed calculation (see [Functions](#functions)).
+- An escape such as `\U` in text that HL does not know, as in `"C:\Users"`. It stays as two characters. The escapes are `\n` `\t` `\r` `\"` `\\` `\{` `\}`; to write a backslash, write two.
 
 A heads-up never changes what a program does, and it is not an error: the exit code stays `0`.
 
@@ -212,6 +267,12 @@ when you type the other form by mistake.
 | `isinstance(x, int)` | `x is a number` |
 | `open(f, "a")` append | `add "text" to file "notes.txt"` |
 | `import math` | `use math` |
+| `import helpers`, `#include "x.h"`, `require "x"` | `use "helpers.hum"` |
+| `csv.DictReader(f)`, `read_csv("x.csv")` | `read csv "x.csv"` (`use files`) |
+| `round(x, 2)`, `f"{x:.2f}"` | `round of x to 2 places`, `text of x to 2 places` |
+| `a // b` | `a divided evenly by b` |
+| `while True:` | `repeat forever` |
+| `del items[2]`, `items.pop(1)` | `remove item 2 from items` |
 
 ## Errors
 
@@ -236,12 +297,24 @@ Did you mean "name"?
 | `You asked for item 5, but there are only 2 items.` | list items count from 1 |
 | `This needs the "math" module.` | add `use math` near the top |
 
+When the mistake is inside a function, the message also says how the program got there:
+
+```text
+Line 2: You asked for item 6, but there are only 2 items.
+    give back item x of list of 1, 2
+Item numbers start at 1.
+This happened inside "inner", which was called from:
+  line 4, inside "middle"
+  line 6, inside "outer"
+  line 8
+```
+
 ## Command line
 
 | Command | Does |
 |---|---|
 | `hl` | interactive prompt (`exit` to leave) |
-| `hl run FILE.hum` | run a program (`--trace` shows each line as it runs) |
+| `hl run FILE.hum` | run a program (`--trace` shows each line as it runs; `--time-limit SECONDS` and `--max-output LETTERS` stop a runaway program) |
 | `hl check FILE.hum` | find mistakes in how the program is written, without running it |
 | `hl format FILE.hum` | tidy spacing and indentation (`--check` only reports) |
 | `hl lsp` | language server for editors |

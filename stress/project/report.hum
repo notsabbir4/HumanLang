@@ -1,4 +1,8 @@
 note: ===== module: report (tables) =====
+use "util.hum"
+use "store.hum"
+use "members.hum"
+
 define show_books
     say "{pad_right with "ID" and 6}{pad_right with "TITLE" and 22}{pad_left with "OUT" and 4}{pad_left with "OF" and 4}"
     for each b in sorted of books by field id

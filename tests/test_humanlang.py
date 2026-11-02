@@ -291,7 +291,7 @@ class EdgeCases(unittest.TestCase):
 
     def test_big_numbers_do_not_crash(self):
         self.assertEqual(run("say 99999999999999999999 * 99999999999999999999"), "9999999999999999999800000000000000000001\n")
-        self.assertEqual(run("set x to 1\nrepeat 400 times\n    set x to x * 10.5\nsay x"), "infinity\n")
+        self.assertEqual(run("set x to 1\nrepeat 400 times\n    set x to x * 10.5\nsay x"), "2.990333512e+408\n")
 
     def test_math_edges(self):
         self.assertEqual(run("say -7 mod 3\nsay -0"), "2\n0\n")
@@ -471,7 +471,7 @@ class StandardLibrary(unittest.TestCase):
         self.assertEqual(run(src), "1\n1691\n")
         out = run("set big to 1\nrepeat 6000 times\n    set big to big * 10\nsay big")
         self.assertIn("infinity", out)
-        self.assertIn("too big", error_of("set a to 10 to the power of 400\nsay a / 0.5"))
+        self.assertEqual(run("set a to 10 to the power of 400\nsay a / 0.5"), "2e+400\n")
 
 
 class Formatter(unittest.TestCase):
@@ -580,8 +580,9 @@ class FastPathsKeepMeaning(unittest.TestCase):
         self.assertEqual(run("say yes is 1\nsay 1 is 1.0\nsay 2 is less than 2.5"), "no\nyes\nyes\n")
 
     def test_huge_plus_float_is_friendly(self):
-        self.assertIn("too big", error_of("say 10 to the power of 400 + 1.5"))
-        self.assertIn("too big", error_of("say 10 to the power of 400 * 1.5"))
+        self.assertEqual(run("say 10 to the power of 400 + 1.5"), "1e+400\n")  # numbers are exact up to 40 digits, then rounded
+        self.assertEqual(run("say 10 to the power of 400 * 1.5"), "1.5e+400\n")
+        self.assertIn("too big", error_of("say 10.5 to the power of 9000 * 10.5 to the power of 9000"))
 
     def test_results_stay_tidy(self):
         self.assertEqual(run("say 0.5 + 0.5\nsay 2.5 * 2\nsay 7 - 0.25\nset a to 1\nadd 0.5 to a\nadd 0.5 to a\nsay a"),

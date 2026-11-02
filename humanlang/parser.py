@@ -29,6 +29,7 @@ PREFIXES = [
     (("round", "of"), "round"),
     (("floor", "of"), "floor"),
     (("ceiling", "of"), "ceiling"),
+    (("read", "csv"), "readcsv"),
     (("read", "file"), "readfile"),
     (("file", "exists"), "fileexists"),
     (("sum", "of"), "sum"),
@@ -55,7 +56,7 @@ EXAMPLES = {
     "for": "for each color in colors",
     "define": "define add with a and b",
     "give": "give back a + b",
-    "use": "use math",
+    "use": "use math   or   use \"helpers.hum\"",
     "write": 'write "hi" to file "out.txt"',
     "record": 'set person to record with name "Ann" and age 30',
     "fail": 'fail with "That is not allowed"',
@@ -151,6 +152,15 @@ class Parser:
 
     def place(self):
         """A variable, item N of a place, or field KEY of a place (so things inside things can be changed in place)."""
+        t = self.peek()
+        if t is not None and t.kind == "OP" and t.value == "(":  # (item 2 of books): brackets around a place are fine
+            self.i += 1
+            inner = self.place()
+            n = self.peek()
+            if n is None or n.kind != "OP" or n.value != ")":
+                self.fail('I expected ")" to close the bracket')
+            self.i += 1
+            return inner
         if self.accept("item"):
             idx = self.arith()
             self.expect("of")
@@ -161,6 +171,32 @@ class Parser:
             self.expect("of")
             return ("pfield", key, self.place())
         return self.name()
+
+    def places_ahead(self):
+        """Is this `to N places` (as in: round of price to 2 places)? N is a number, a name or a bracketed calculation."""
+        if not self.word("to"):
+            return False
+        t = self.peek(1)
+        if t is None:
+            return False
+        if t.kind == "NUM" or (t.kind == "WORD" and t.value not in RESERVED):
+            k = 2
+        elif t.kind == "OP" and t.value == "(":
+            depth, k = 0, 2
+            while self.peek(k) is not None:
+                tk = self.peek(k)
+                if tk.kind == "OP" and tk.value == "(":
+                    depth += 1
+                elif tk.kind == "OP" and tk.value == ")":
+                    if depth == 0:
+                        break
+                    depth -= 1
+                k += 1
+            k += 1
+        else:
+            return False
+        n = self.peek(k)
+        return n is not None and n.kind == "WORD" and n.value in ("place", "places", "decimal", "decimals")
 
     def wrapped(self, a, b):
         """Are the tokens from a to b one bracketed group, like (2 + 1)?"""
@@ -200,7 +236,12 @@ class Parser:
             t = self.peek()
             if t is None:
                 self.fail(f'The line ended too early; I expected "{w}" here')
-            self.fail(f'I expected "{w}" here but found "{self.show(t)}"')
+            hint = None
+            before, after = (self.toks[self.i - 1] if self.i else None), self.peek(1)
+            if t.kind == "OP" and t.value == "-" and before is not None and before.kind == "WORD" \
+                    and after is not None and after.kind == "WORD":
+                hint = f"A name can't contain a minus sign. Join the words with an underscore instead: {before.value}_{after.value}"
+            self.fail(f'I expected "{w}" here but found "{self.show(t)}"', hint)
 
     def end(self):
         t = self.peek()
@@ -362,6 +403,20 @@ class Parser:
         return self._value_then("subtract", "from")
 
     def st_remove(self):
+        line = self.lineno
+        if self.word("item"):  # remove item 3 from colors: by position (otherwise: remove "red" from colors, by value)
+            start = self.i
+            self.i += 1
+            try:
+                idx = self.arith()
+            except HLError:
+                idx = None
+            if idx is not None and self.word("from"):
+                self.i += 1
+                target = self.place()
+                self.end()
+                return ("removeat", line, idx, target)
+            self.i = start
         return self._value_then("remove", "from")
 
     def st_ask(self):
@@ -410,6 +465,10 @@ class Parser:
             self.example = "repeat while count is less than 3"
             cond = self.cond_header()
             return ("while", line, cond, self.loop_body(lvl))
+        if self.word("forever") and self.peek(1) is None:
+            self.i += 1
+            self.example = "repeat forever"
+            return ("while", line, ("lit", True), self.loop_body(lvl))
         n = self.arith()
         self.expect("times")
         self.end()
@@ -476,23 +535,37 @@ class Parser:
     def st_use(self):
         line = self.lineno
         t = self.peek()
+        if t is not None and t.kind == "STR":  # use "helpers.hum": bring in another file
+            if not all(kind == "t" for kind, _ in t.value):
+                self.fail("The name of the file must be plain text in quotes, without { } in it")
+            if self.level or self.in_function:
+                self.fail('A "use" with a file name must be at the top of the program, not inside an "if", "repeat" or "define"')
+            self.i += 1
+            self.end()
+            return ("include", line, "".join(v for _, v in t.value))
         if t is None or t.kind != "WORD":
-            self.fail("I expected a module name here")
+            self.fail("I expected a module name here, or the name of a file in quotes",
+                      hint='Examples: use math   or   use "helpers.hum"')
         if t.value not in MODULES:
             self.fail(f'I don\'t know a module called "{t.value}"',
-                      hint=suggest(t.value, MODULES) or "Modules: " + ", ".join(MODULES))
+                      hint=(suggest(t.value, MODULES) or "Modules: " + ", ".join(MODULES)) +
+                      f'. To use your own file, write its name in quotes: use "{t.value}.hum"')
         self.i += 1
         self.end()
         return ("use", line, t.value)
 
     def st_write(self):
         line = self.lineno
+        kind = "write"
+        if self.word("csv") and self.value_start(1):  # write csv rows to file "out.csv"
+            self.i += 1
+            kind = "writecsv"
         value = self.expr()
         self.expect("to")
         self.expect("file")
         path = self.expr()
         self.end()
-        return ("write", line, value, path)
+        return (kind, line, value, path)
 
     def st_try(self):
         line, lvl = self.lineno, self.level
@@ -623,6 +696,9 @@ class Parser:
             elif self.words("divided", "by"):
                 op = "/"
                 self.i += 2
+            elif self.words("divided", "evenly", "by"):
+                op = "//"
+                self.i += 3
             elif t.kind == "WORD" and t.value == "mod":
                 op = "%"
                 self.i += 1
@@ -746,6 +822,14 @@ class Parser:
                 if fname == "sorted" and self.words("by", "field"):
                     self.i += 2
                     return ("fn", "sortby", [arg, self.field_key()])
+                if fname == "readcsv" and self.words("as", "rows"):
+                    self.i += 2
+                    return ("fn", "readrows", [arg])
+                if fname in ("round", "totext") and self.places_ahead():
+                    self.i += 1
+                    places = self.unary()
+                    self.i += 1  # the word "places"
+                    return ("fn", "roundto" if fname == "round" else "fixed", [arg, places])
                 return ("fn", fname, [arg])
         if w in RESERVED:
             self.fail(f'I expected a value here but found "{w}"')

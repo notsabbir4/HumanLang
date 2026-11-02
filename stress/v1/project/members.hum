@@ -1,0 +1,52 @@
+note: ===== module: members (people, and what each one has borrowed) =====
+set members to empty list
+set LIMIT to 2
+
+define find_member with name
+    set i to 1
+    repeat while i is at most how many items in members
+        if (field name of (item i of members)) is name
+            give back i
+        add 1 to i
+    give back 0
+
+define add_member with name
+    if (find_member with name) is not 0
+        fail with "member {name} already exists"
+    add (record with name name and loans empty list) to members
+
+define take_loan with name and id and day
+    set at to find_member with name
+    if at is 0
+        fail with "no member {name}"
+    set m to item at of members
+    if (how many items in (field loans of m)) is at least LIMIT
+        fail with "{name} already has {LIMIT} books"
+    for each loan in field loans of m
+        if (field id of loan) is id
+            fail with "{name} already has {id}"
+    lend_book with id
+    add (record with id id and day day) to field loans of item at of members
+
+define end_loan with name and id and day
+    set at to find_member with name
+    if at is 0
+        fail with "no member {name}"
+    set loans to field loans of (item at of members)
+    set k to 1
+    repeat while k is at most how many items in loans
+        if (field id of (item k of loans)) is id
+            set taken to field day of (item k of loans)
+            remove (item k of loans) from field loans of item at of members
+            note: the book comes back to the shelf
+            set shelf_at to find_book with id
+            set shelf_book to item shelf_at of books
+            change field out of item shelf_at of books to (field out of shelf_book) - 1
+            give back fee_for with (day - taken)
+        add 1 to k
+    fail with "{name} does not have {id}"
+
+define fee_for with days_out
+    if days_out is at most 14
+        give back 0
+    give back (days_out - 14) * 10

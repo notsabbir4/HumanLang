@@ -1,5 +1,47 @@
 # Changelog
 
+## 0.3.0 - 2026-11-02
+Found by stress-testing HumanLang with a CSV processor, a five-file project and 94 deliberately broken programs
+(see `stress/FINDINGS_4-6.md`). Every problem those programs hit is addressed below.
+
+### New
+- **Use other files:** `use "helpers.hum"` brings in another HumanLang file (once, however often it is named; names are
+  looked up next to the file that says `use`). Errors, heads-ups and `hl check` name the file and line.
+  HL prints a heads-up when a `define` (or `set`) replaces a function or variable of the same name, in any file.
+- **Exact numbers.** `0.1 + 0.2 is 0.3` is now `yes`, and money adds up like it does on paper. New phrases:
+  `round of X to 2 places`, `text of X to 2 places` (so `12.5` prints as `12.50`), and `A divided evenly by B`
+  (the whole part of a division, exact for numbers of any size).
+- **Limits and safe stops.** A text or list made by joining is stopped at 50 million letters / 10 million items, a
+  program that prints more than 20 million letters is stopped, and running out of memory is a message instead of a
+  crash. `hl run --time-limit SECONDS` and `--max-output LETTERS` stop a runaway program, and Ctrl+C says which line
+  it was on. `repeat forever` is a loop you leave with `stop`.
+- **Where an error happened.** An error inside a function lists the calls that led to it ("called from line 4, inside
+  middle").
+- **Telling errors apart.** Inside `if that fails`, `problem_line` is the line it happened on and `problem_kind` is
+  `"fail"` for your own `fail with` and `"error"` for a mistake HumanLang found. `problem` is unchanged.
+- **CSV:** `read csv PATH` (a list of records named by the first line), `read csv PATH as rows`, and
+  `write csv LIST to file PATH`. Quoted commas, quotes and line breaks, blank lines, Windows line endings and a
+  leading byte-order mark all work.
+- **Escapes:** `"\r"` is a carriage return. An escape HL does not know (like `\U` in `"C:\Users"`) now prints a
+  heads-up; it still stays as two characters.
+- **Places:** brackets around a place work (`change field out of (item at of books) to 9`), and
+  `remove item 3 from list` removes by position.
+- Clearer messages: text values are quoted (`but got "a"`), `my-name` explains that names use `_`, a number used as
+  yes/no suggests `if x is not 0`, and `import`/`include`/`require` point to `use "file.hum"`.
+
+### Breaking (and how to update)
+- **Numbers are exact decimals instead of binary floats.** Programs that printed `0.3` for `0.1 + 0.2` still do; what
+  changes is that comparisons now agree with what is shown (`0.1 + 0.2 is 0.3` was `no`, and is now `yes`), and
+  `round` of values like `5 * 1.005 * 100` follows the exact value. Fractions keep 40 digits, so `1 / 3 * 3 is 1` is
+  still `no`. Results beyond 40 digits are rounded and shown like `1.5e+400` (they were `infinity` before 1e308).
+- `split TEXT by ""` and `replace "" by ... in TEXT` are now errors (they split into letters / put text between
+  every letter, which was almost never meant). To go through the letters, write `for each letter in text`.
+- `"\r"` in text is now a carriage return (it was two characters, a backslash and `r`).
+- `number of` and `ask number` accept only the digits 0 to 9 (they accepted other scripts' digits, such as Arabic-Indic).
+
+### Still planned
+- The rule that a function call takes everything to its right (see 0.2.0) is unchanged and still has a heads-up.
+
 ## 0.2.0 - 2026-11-01
 Found by stress-testing HumanLang with a calculator, a grade manager and a file-based contact manager
 (see `stress/FINDINGS_1-3.md`). Every problem those programs hit is addressed below.

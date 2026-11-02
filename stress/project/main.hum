@@ -1,15 +1,27 @@
 note: ===== module: main (reads commands, one per line, until "quit") =====
+use "util.hum"
+use "store.hum"
+use "members.hum"
+use "report.hum"
+
 set fees_total to 0
 set errors to 0
+
+define rest_of with words and start
+    set out to empty list
+    set i to start
+    repeat while i is at most how many items in words
+        add item i of words to out
+        add 1 to i
+    give back out
 
 define run_command with line
     set words to split line by " "
     set cmd to item 1 of words
     if cmd is "book"
         note: book ID COPIES TITLE...
-        set copies to number of (item 3 of words)
         set title to join (rest_of with words and 4) by " "
-        add_book with (item 2 of words) and title and copies
+        add_book with (item 2 of words) and title and (number of (item 3 of words))
         say "ok: added {title}"
     otherwise if cmd is "join"
         add_member with (item 2 of words)
@@ -32,15 +44,7 @@ define run_command with line
     otherwise
         fail with "unknown command {cmd}"
 
-define rest_of with words and start
-    set out to empty list
-    set i to start
-    repeat while i is at most how many items in words
-        add item i of words to out
-        add 1 to i
-    give back out
-
-repeat while yes
+repeat forever
     ask "> " and save it as line
     if line is "quit"
         stop
@@ -50,5 +54,8 @@ repeat while yes
         run_command with line
     if that fails
         add 1 to errors
-        say "error: {problem}"
+        if problem_kind is "fail"
+            say "error: {problem}"
+        otherwise
+            say "BUG (line {problem_line}): {problem}"
 say "Fees collected: {cents_text with fees_total}. Errors: {errors}."

@@ -1,5 +1,6 @@
 """Lexer: turns HumanLang source text into indented lines of tokens."""
 import re
+from decimal import Decimal
 
 from .errors import HLError
 from .hints import CHARACTERS
@@ -26,13 +27,13 @@ class Line:
 
 
 WORD_RE = re.compile(r"[^\W\d]\w*")  # letters (any language), digits and _
-NUM_RE = re.compile(r"\d+(?:\.\d+)?")
-ESCAPES = {"n": "\n", "t": "\t", '"': '"', "\\": "\\", "{": "{", "}": "}"}
+NUM_RE = re.compile(r"[0-9]+(?:\.[0-9]+)?")
+ESCAPES = {"n": "\n", "t": "\t", "r": "\r", '"': '"', "\\": "\\", "{": "{", "}": "}"}
 COMPARE_HINT = ("HL compares with words: is, is not, is less than, "
                 "is greater than, is at least, is at most.")
 
 
-def scan_string(s, i, lineno):
+def scan_string(s, i, lineno, warn=None):
     """Scan a "..." text starting at s[i]. Returns (parts, next_index).
 
     parts is a list of ("t", literal_text) and ("e", expression_source).
@@ -47,6 +48,10 @@ def scan_string(s, i, lineno):
             return parts, i + 1
         if c == "\\" and i + 1 < len(s):
             nxt = s[i + 1]
+            if nxt not in ESCAPES and warn is not None:
+                warn.append((lineno, f'I don\'t know the escape "\\{nxt}" in this text, so it stays as two characters.',
+                             'The escapes are: \\n (new line), \\t (tab), \\r (carriage return), \\" (quote), '
+                             '\\\\ (one backslash), \\{ and \\}. To write a backslash, write two: \\\\'))
             buf.append(ESCAPES.get(nxt, "\\" + nxt))
             i += 2
             continue
@@ -78,19 +83,22 @@ def scan_string(s, i, lineno):
     raise HLError('This text is missing its closing quote (").', lineno)
 
 
-def tokenize(s, lineno):
+def tokenize(s, lineno, warn=None):
     toks, i, n = [], 0, len(s)
     while i < n:
         c = s[i]
         if c in " \t":
             i += 1
         elif c == '"':
-            parts, i = scan_string(s, i, lineno)
+            parts, i = scan_string(s, i, lineno, warn)
             toks.append(Tok("STR", parts))
-        elif c.isdigit():
+        elif c in "0123456789":
             m = NUM_RE.match(s, i)
             text = m.group()
-            toks.append(Tok("NUM", float(text) if "." in text else int(text)))
+            number = Decimal(text) if "." in text else int(text)
+            if type(number) is Decimal:  # 5.0 is just 5, and 2.50 is 2.5
+                number = int(number) if number == number.to_integral_value() else number.normalize()
+            toks.append(Tok("NUM", number))
             i = m.end()
         elif c.isalpha() or c == "_":
             m = WORD_RE.match(s, i)
@@ -114,7 +122,8 @@ def tokenize(s, lineno):
     return toks
 
 
-def lex(source):
+def lex(source, warn=None):
+    """warn: an optional list that gets (line, message, hint) heads-ups."""
     lines = []
     for no, raw in enumerate(source.lstrip("﻿").splitlines(), 1):
         raw = raw.rstrip()
@@ -128,5 +137,5 @@ def lex(source):
         if len(lead) % 4:
             raise HLError(f"This line is indented by {len(lead)} spaces, but indentation must be a multiple of 4.", no,
                           hint="Use exactly 4 spaces for each level.")
-        lines.append(Line(no, len(lead) // 4, tokenize(stripped, no)))
+        lines.append(Line(no, len(lead) // 4, tokenize(stripped, no, warn)))
     return lines

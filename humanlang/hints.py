@@ -9,6 +9,7 @@ _EXIT = 'In HL you end the program with "stop the program".'
 _SLICE = 'In HL take part of a text with "first 3 letters of", "last 3 letters of" or "letters 2 to 5 of". Example: first 3 letters of name (needs: use text)'
 _FIND = 'In HL find where something is with "find". Example: find "a" in name (gives 0 when it is not there; needs: use text)'
 _RECORD = 'In HL, things with named parts are records. Example: set person to record with name "Ann" and age 30   then   field name of person'
+_USE = 'In HL you switch on extras with "use", and bring in another HL file by writing its name in quotes. Examples: use math   or   use "helpers.hum"'
 _ASK = 'In HL you read what someone types with "ask". Example: ask "Your name?" and save it as name'
 
 WORDS = {
@@ -21,9 +22,8 @@ WORDS = {
     "while": 'In HL a loop that keeps going starts with "repeat". Example: repeat while count is less than 3',
     "var": _SET, "let": _SET, "const": _SET, "my": _SET,
     "input": _ASK, "prompt": _ASK, "scanf": _ASK, "cin": _ASK, "readline": _ASK,
-    "import": 'In HL you switch on extras with "use". Example: use math',
-    "include": 'In HL you switch on extras with "use". Example: use math',
-    "require": 'In HL you switch on extras with "use". Example: use math',
+    "import": _USE, "include": _USE, "require": _USE, "source": _USE, "load": _USE,
+    "csv": 'In HL read a CSV file with "read csv". Example: set rows to read csv "data.csv"  (needs: use files)',
     "break": 'In HL, leave a loop early with "stop".',
     "continue": 'In HL, jump to the next round of a loop with "skip".',
     "switch": 'HL has no "switch". Use "if" and "otherwise if" instead.',

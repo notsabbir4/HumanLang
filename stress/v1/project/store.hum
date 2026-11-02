@@ -1,0 +1,27 @@
+note: ===== module: store (the books) =====
+note: a book is a record: id, title, copies, out (how many are lent)
+set books to empty list
+
+define find_book with id
+    set i to 1
+    repeat while i is at most how many items in books
+        if (field id of (item i of books)) is id
+            give back i
+        add 1 to i
+    give back 0
+
+define add_book with id and title and copies
+    if (find_book with id) is not 0
+        fail with "book {id} already exists"
+    if copies is less than 1
+        fail with "a book needs at least 1 copy"
+    add (record with id id and title title and copies copies and out 0) to books
+
+define lend_book with id
+    set at to find_book with id
+    if at is 0
+        fail with "no book {id}"
+    set book to item at of books
+    if (field out of book) is at least (field copies of book)
+        fail with "all copies of {id} are out"
+    change field out of item at of books to (field out of book) + 1

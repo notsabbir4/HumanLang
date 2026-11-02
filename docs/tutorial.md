@@ -319,7 +319,7 @@ if age
 ```output
 Line 2: I expected yes or no here, but got a number.
     if age
-Use a comparison such as "is", "is greater than" or "is at least".
+Use a comparison such as "is", "is greater than" or "is at least". To ask whether a number is anything but zero, write: if x is not 0
 ```
 
 ## 6. Repeat things
@@ -674,6 +674,17 @@ Did you mean "say"?
 
 Read the first line, then look at the line it shows. Most mistakes are typos.
 
+When the mistake happens inside a function, the message also lists the calls that led to it, innermost first, so you can see which call sent the bad value:
+
+```text
+Line 2: I can only multiply numbers, but this has text and a number.
+    give back w * h
+To turn text into a number, use: number of "5"
+This happened inside "area", which was called from:
+  line 4, inside "report"
+  line 6
+```
+
 **Catching errors yourself.** Sometimes you expect something might fail, like dividing by a number a
 person typed. Put it in `try`, and write what to do `if that fails`. The message is saved in a
 variable called `problem`:
@@ -689,6 +700,32 @@ say "The program keeps going."
 ```output
 Oops: You can't divide by zero.
 The program keeps going.
+```
+
+Besides `problem` you also get `problem_line` (the line it happened on) and `problem_kind`. The kind is `"fail"` when
+your own program raised the error with `fail with` (see below), and `"error"` when HumanLang found a mistake, which is
+usually a bug in your program. Telling them apart means a real bug never hides behind a friendly message:
+
+```hum
+define pick with n
+    if n is 0
+        fail with "zero is not allowed"
+    give back item n of list of "a", "b"
+
+for each n in list of 1, 0, 5
+    try
+        say pick with n
+    if that fails
+        if problem_kind is "fail"
+            say "refused: {problem}"
+        otherwise
+            say "BUG on line {problem_line}: {problem}"
+```
+
+```output
+a
+refused: zero is not allowed
+BUG on line 4: You asked for item 5, but there are only 2 items.
 ```
 
 **Making your own errors.** Your program can report a problem itself with `fail with`. A function can use it to
@@ -781,6 +818,30 @@ Square root of 144: 12
 2.5 rounds to 3
 ```
 
+**Money and decimals.** Numbers are exact, so shop arithmetic comes out the way you would do it on paper.
+`round of X to 2 places` rounds (0.5 rounds up), and `text of X to 2 places` makes text with exactly two decimals, so `12.5` prints as `12.50`:
+
+```hum
+use math
+say 0.1 + 0.2 is 0.3
+set price to 19.99
+set total to price * 3
+say "Total: {text of total to 2 places}"
+say "With 7.5% tax: {text of (total * 1.075) to 2 places}"
+say "Per person (3 people): {round of (total / 3) to 2 places}"
+say "Whole euros: {total divided evenly by 1}"
+```
+
+```output
+yes
+Total: 59.97
+With 7.5% tax: 64.47
+Per person (3 people): 19.99
+Whole euros: 59
+```
+
+`A divided evenly by B` gives only the whole part of a division, and works on numbers of any size.
+
 ```hum
 use text
 set words to split "one,two,three" by ","
@@ -860,7 +921,34 @@ say "Lucky colour: {random item from list of "red", "green", "blue"}"
 say "Dice roll: {random number from 1 to 6}"
 ```
 
-## 11. Put it together
+## 11. Files, spreadsheets and bigger programs
+
+**Reading a spreadsheet.** A CSV file is a table saved as text. `read csv` turns it into a list of records, one per row, named by the first line (`use files` first). Every value is text, so use `number of` to calculate:
+
+```hum-fragment
+use files
+set rows to read csv "sales.csv"
+set total to 0
+for each row in rows
+    add (number of (field units of row)) * (number of (field price of row)) to total
+say "Total: {text of total to 2 places}"
+```
+
+`write csv rows to file "copy.csv"` saves a list of records (or a list of lists) back, adding quotes where a value needs them. If a file is messy, `read csv "sales.csv" as rows` gives every line as a plain list and lets you decide what to do with the odd ones.
+
+**Splitting a program into files.** When a program gets long, move parts to other files and bring them in with `use` and the file name in quotes, at the top:
+
+```hum-fragment
+use "money.hum"
+use "lib/report.hum"
+say price_text with 12.5
+```
+
+Everything the files make (functions and variables) can be used everywhere. Each file is read once, and names are looked up from the folder of the file that says `use`. If two files make a function with the same name, the later one wins and HL prints a heads-up that says where the other one is, so rename one. When a mistake is inside a file, the error says which file and line.
+
+**Stopping a runaway program.** A program that never ends can be stopped with Ctrl+C (HL says which line it was on), or you can give it a limit: `hl run --time-limit 10 myfile.hum`. A text or list that keeps growing, or a program that prints without end, is stopped by HL with a message that names the line.
+
+## 12. Put it together
 
 A tip calculator:
 
@@ -931,7 +1019,7 @@ say "You got it!"
 2. Make a program that asks for 3 names, puts them in a list, and says hello to each one.
 3. Write a function `is_even` that gives back `yes` when a number is even (hint: `mod`).
 
-## 12. Where next
+## 13. Where next
 
 - The **Reference** lists every word HL understands, in one place.
 - `hl format myfile.hum` tidies your spacing and indentation.

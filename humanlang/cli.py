@@ -13,6 +13,8 @@ Usage:
   hl                   start the interactive prompt
   hl run FILE.hum      run a program
   hl run --trace FILE  run a program and show each line as it runs
+  hl run --time-limit SECONDS FILE   stop a program that runs longer than this
+  hl run --max-output LETTERS FILE   stop a program that prints more than this (0 = no limit)
   hl check FILE.hum    check a program for mistakes without running it
   hl format FILE.hum   tidy a program's spacing and indentation (--check to only report)
   hl lsp               start the language server (for editors)
@@ -20,6 +22,8 @@ Usage:
 """
 
 BLOCK_STARTERS = {"if", "repeat", "for", "define", "try"}
+VALUE_FLAGS = ("--time-limit", "--max-output")
+RUNNING = {}  # the interpreter that is running now, so Ctrl-C can say where the program was
 
 
 def run_big(fn):
@@ -47,7 +51,13 @@ def run_big(fn):
         while t.is_alive():
             t.join(0.1)
     except KeyboardInterrupt:
-        print("\nStopped.", file=sys.stderr)
+        interp = RUNNING.get("interp")
+        line = interp.line if interp else 0
+        where = ""
+        if line:
+            src = interp.source
+            where = f" It was on line {line}" + (f" of {src.name}" if src.name else "") + "."
+        print(f"\nStopped.{where}", file=sys.stderr)
         return 130
     return result[0]
 
@@ -86,24 +96,31 @@ def show_warnings(interp, lines):
         print(format_warning(w, lines), file=sys.stderr)
 
 
-def run_file(path, check_only=False, trace=False):
+def run_file(path, check_only=False, trace=False, time_limit=0, max_output=None):
     source = read_program(path)
     if source is None:
         return 1
     interp = Interpreter()
+    RUNNING["interp"] = interp
+    if time_limit:
+        interp.set_time_limit(time_limit)
+    if max_output is not None:
+        interp.max_output = max_output
     if trace:
         interp.trace = lambda n, text: print(f"  [line {n}] {text}", file=sys.stderr)
     lines = source.splitlines()
     try:
         if check_only:
-            interp.check(source)
+            interp.check(source, path)
             show_warnings(interp, lines)
             n = len(interp.warnings)
             print("No mistakes found." if not n else
                   f"No mistakes found, but {n} heads-up{'s' if n != 1 else ''} above (the program still runs).")
         else:
-            stmts = interp.prepare(source)
+            stmts = interp.prepare(source, path)
             show_warnings(interp, lines)
+            if time_limit:
+                interp.set_time_limit(time_limit)  # the clock starts when the program does, not while it is being read
             interp.run_statements(stmts, source)
             sys.stdout.flush()
     except HLError as e:
@@ -177,14 +194,39 @@ def main(argv=None):
     if cmd == "lsp":
         from .lsp import serve
         return serve()
-    flags = [a for a in argv[1:] if a.startswith("--")]
-    rest = [a for a in argv[1:] if not a.startswith("--")] if cmd in ("run", "check", "format") else argv
+    flags, rest, values, skip = [], [], {}, False
+    for k, a in enumerate(argv[1:]):
+        if skip:
+            skip = False
+        elif a.startswith("--"):
+            name, eq, value = a.partition("=")
+            if name in VALUE_FLAGS:
+                if not eq:
+                    value = argv[k + 2] if k + 2 < len(argv) else ""
+                    skip = True
+                values[name] = value
+            flags.append(name)
+        else:
+            rest.append(a)
+    if cmd not in ("run", "check", "format"):
+        rest = argv
+    numbers = {}
+    for name, value in values.items():
+        try:
+            numbers[name] = float(value)
+            if numbers[name] < 0:
+                raise ValueError
+        except ValueError:
+            print(f'{name} needs a number (0 or more), for example: {name} 10', file=sys.stderr)
+            return 1
     if cmd == "format":
         return format_file(rest[0], "--check" in flags) if rest else (print(USAGE) or 1)
     if not rest:
         print(USAGE)
         return 1
-    return run_big(lambda: run_file(rest[0], cmd == "check", "--trace" in flags))
+    max_output = int(numbers["--max-output"]) if "--max-output" in numbers else None
+    return run_big(lambda: run_file(rest[0], cmd == "check", "--trace" in flags,
+                                    numbers.get("--time-limit", 0), max_output))
 
 
 if __name__ == "__main__":

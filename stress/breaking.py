@@ -54,7 +54,7 @@ CASES = [
     ("power negative", "say 0 to the power of -1", []),
     ("big factorial recursion", "define f with n\n    give back n * f with (n - 1)\nsay f with 5", []),
     ("recursion forever", "define f with n\n    give back f with (n + 1)\nsay f with 1", []),
-    ("infinite loop (killed at 10s)", "repeat while yes\n    set x to 1", []),
+    ("infinite loop (stopped by --time-limit 5)", "repeat while yes\n    set x to 1", []),
     ("endless output", 'repeat while yes\n    say "spam"', []),
     ("memory: list doubling", "set l to list of 1\nrepeat 40 times\n    set l to l + l\nsay how many items in l", []),
     ("memory: text doubling", 'set t to "ab"\nrepeat 60 times\n    set t to t + t\nsay length of t', []),
@@ -67,6 +67,15 @@ CASES = [
     ("ask number: 1e3, 0x10, -0, 5.", 'ask number "n?" and save it as n\nsay n', ["1e3", "0x10", "-0", "5.", "7"]),
     ("ask number: 'nan' and 'inf'", 'ask number "n?" and save it as n\nsay n', ["nan", "inf", "-inf", "3"]),
     ("ask number: huge", 'ask number "n?" and save it as n\nsay n * n', ["9" * 400]),
+    ("use a file that is not there", 'use "nope.hum"', []),
+    ("use inside an if", 'if yes\n    use "x.hum"', []),
+    ("read csv: missing file", 'use files\nsay read csv "nope.csv"', []),
+    ("round to too many places", "use math\nsay round of 1.5 to 99 places", []),
+    ("text of to places, bad places", 'say text of 1.5 to "a" places', []),
+    ("remove item 0", "set l to list of 1\nremove item 0 from l", []),
+    ("brackets around a place", "set l to list of (list of 1)\nadd 2 to (item 1 of l)\nsay l", []),
+    ("unknown escape", 'say "C:\\Users\\x"', []),
+    ("a function that fails deep inside", "define a\n    fail with \"deep\"\ndefine b\n    give back a\nsay b", []),
     ("empty program", "", []),
     ("only comments", "note: nothing here\nnote: still nothing", []),
     ("no trailing newline", 'say "x"', []),
@@ -103,7 +112,7 @@ def run(program, lines):
     with open(path, "w", encoding="utf-8", newline="") as f:
         f.write(program)
     try:
-        p = subprocess.run([sys.executable, "-m", "humanlang", "run", path], input="\n".join(lines) + ("\n" if lines else ""),
+        p = subprocess.run([sys.executable, "-m", "humanlang", "run", "--time-limit", "5", path], input="\n".join(lines) + ("\n" if lines else ""),
                            capture_output=True, text=True, cwd=ROOT, env=ENV, timeout=10, errors="replace")
         return p.returncode, p.stdout, p.stderr, False
     except subprocess.TimeoutExpired as e:

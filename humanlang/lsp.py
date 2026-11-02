@@ -23,7 +23,8 @@ KEYWORDS = sorted(set(STATEMENT_WORDS) | {
     "smallest of", "sorted of", "reversed of", "trim of", "read file", "the date today",
     "the time now", "if that fails", "problem",
     "fail with", "stop the program", "record with", "empty record", "field", "keys of", "has field", "by field",
-    "file exists", "first", "last", "letters", "find", "is a number", "is a text", "is a list", "is a record",
+    "file exists", "read csv", "write csv", "divided evenly by", "forever", "places", "problem_line", "problem_kind",
+    "first", "last", "letters", "find", "is a number", "is a text", "is a list", "is a record",
 })
 NAME_PATTERNS = [
     (re.compile(r"^\s*(?:set|change)\s+([^\W\d]\w*)\s+to\b"), 6),
@@ -44,7 +45,9 @@ def diagnose(text):
     """Return a list of LSP diagnostics: mistakes (severity 1) and heads-ups (severity 2)."""
     lines = text.splitlines()
     try:
-        stmts, parse_warnings = parse_with_warnings(lex(text))
+        lex_warnings = []
+        stmts, parse_warnings = parse_with_warnings(lex(text, lex_warnings))
+        parse_warnings = parse_warnings + lex_warnings
     except HLError as e:
         message = e.message + ("\n" + e.hint if e.hint else "")
         return [{"range": _range(lines, e.line), "severity": 1, "source": "HumanLang", "message": message}]

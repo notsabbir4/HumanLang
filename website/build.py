@@ -25,18 +25,18 @@ CDN_PYODIDE = "https://cdn.jsdelivr.net/pyodide/v0.26.4/full/"
 
 # ---- syntax colouring for HL code -----------------------------------------
 CONTROL = ["if that fails", "otherwise", "give back", "for each", "if", "repeat", "while", "in", "try",
-           "stop", "skip", "define", "then", "else", "stop the program", "fail with"]
+           "stop", "skip", "define", "then", "else", "stop the program", "fail with", "forever"]
 STATEMENT = ["say", "set", "change", "add", "subtract", "remove", "ask", "save it as", "use", "write",
-             "with", "to", "from", "by", "file"]
+             "with", "to", "from", "by", "file", "write csv", "places", "place", "decimals", "as rows"]
 OPERATORS = ["and", "or", "not", "is", "less than", "greater than", "at least", "at most", "contains", "has field",
-             "plus", "minus", "times", "divided by", "mod", "to the power of"]
+             "plus", "minus", "times", "divided evenly by", "divided by", "mod", "to the power of"]
 BUILTINS = ["list of", "empty list", "empty record", "record with", "field", "keys of", "by field", "file exists",
             "first", "last", "letters", "find", "item", "how many items in", "length of", "uppercase of", "lowercase of",
             "number of", "text of", "random number from", "random item from", "square root of",
             "absolute value of", "round of", "floor of", "ceiling of", "sum of", "largest of", "smallest of",
-            "sorted of", "reversed of", "trim of", "read file", "split", "join", "replace",
+            "sorted of", "reversed of", "trim of", "read csv", "read file", "split", "join", "replace",
             "the date today", "the time now"]
-CONSTANTS = ["yes", "no", "nothing", "problem"]
+CONSTANTS = ["yes", "no", "nothing", "problem_line", "problem_kind", "problem"]
 
 
 def alternation(words):

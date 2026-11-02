@@ -11,13 +11,19 @@ it was made before the function was written, or the function reads x before givi
 
 STATEMENTS = {"say", "set", "change", "changeitem", "add", "subtract", "remove", "addplace", "subtractplace",
               "removeplace", "ask", "if", "while", "times", "for", "define", "give", "stop", "skip", "use",
-              "write", "append", "try", "callstmt", "fail", "exit", "setfield", "changefield"}
+              "write", "append", "try", "callstmt", "fail", "exit", "setfield", "changefield", "removeat", "include", "module", "writecsv"}
 
 
-def lint(stmts):
+def lint(stmts, known=None):
+    """known: names that other files of the program already make (so a function here may be hiding one of them)."""
+    known = set(known or ())
     warnings = []
-    _top(stmts, _assigned(stmts, False), set(), warnings)
+    _top(stmts, _assigned(stmts, False) | known, set(known), warnings)
     return warnings
+
+
+def assigned_names(stmts):
+    return _assigned(stmts, False)
 
 
 def _blocks(s):

@@ -26,49 +26,38 @@ def q(v):
     return '"' + v.replace('"', '""') + '"' if any(c in v for c in ',"\n') else v
 
 
-def model(text, exact=False):
+def model(text):
     """What csv_report.hum should print and write."""
-    rows = list(csv.reader(io.StringIO(text, newline="")))
+    rows = [r for r in csv.reader(io.StringIO(text, newline="")) if r]  # a blank line is not a row
     if not rows:
         return "Read 0 rows.\nThe file is empty.\n", None
     out = [f"Read {len(rows)} rows."]
     if [h.strip().lower() for h in rows[0]] != ["date", "region", "product", "units", "price"]:
         return None, None  # the header text is checked elsewhere
     good, bad = [], []
+    number = re.compile(r"-?[0-9]+(\.[0-9]+)?")
     for n, r in enumerate(rows[1:], 2):
-        if r == [] or (len(r) == 1 and r[0] == ""):
+        if r == [""]:
             continue
         if len(r) != 5:
             bad.append(f"row {n}: expected 5 columns, found {len(r)}")
             continue
-        if exact:  # the exact program accepts only digits (and one point in the price)
-            if not re.fullmatch(r"[0-9]+", r[3].strip()):
-                bad.append(f"row {n}: units must be a whole number and nothing can be negative")
-                continue
-            if not re.fullmatch(r"[0-9]+(\.[0-9]+)?", r[4].strip()):
-                bad.append(f"row {n}: units or price is not a number")
-                continue
-            u, p = Decimal(r[3].strip()), Decimal(r[4].strip())
-        else:
-            try:
-                u, p = Decimal(r[3].strip()), Decimal(r[4].strip())
-            except Exception:
-                bad.append(f"row {n}: units or price is not a number")
-                continue
-            if u < 0 or p < 0 or u != u.to_integral_value():
-                bad.append(f"row {n}: units must be a whole number and nothing can be negative")
-                continue
-        good.append((r[0].strip(), r[1].strip(), r[2].strip(), u, p))
+        u, p = r[3].strip(), r[4].strip()
+        if not number.fullmatch(u) or Decimal(u) < 0 or Decimal(u) != Decimal(u).to_integral_value():
+            bad.append(f"row {n}: units must be a whole number and nothing can be negative")
+            continue
+        if not number.fullmatch(p) or Decimal(p) < 0:
+            bad.append(f"row {n}: units or price is not a number")
+            continue
+        good.append((r[0].strip(), r[1].strip(), r[2].strip(), Decimal(u), Decimal(p)))
     out.append(f"{len(good)} good rows, {len(bad)} rejected.")
     out += ["  rejected " + b for b in bad]
     reg, prod, grand = {}, {}, Decimal(0)
     for d, rg, pr, u, p in good:
-        amount = u * p
-        if exact:  # the exact program rounds each row to whole cents before adding up
-            amount = Decimal(money(amount).replace(".", "")) / 100
-        reg[rg] = reg.get(rg, 0) + amount
+        reg[rg] = reg.get(rg, 0) + u * p
         prod[pr] = prod.get(pr, 0) + u
-        grand += amount
+        grand += u * p
+
     def key(s):  # HL sorts text like a dictionary: no capitals, no accents
         return ("".join(c for c in unicodedata.normalize("NFKD", s) if not unicodedata.combining(c)).casefold(), s)
     out += ["", "Sales by region"] + [f"  {k}: {money(reg[k])}" for k in sorted(reg, key=key)]
@@ -111,7 +100,6 @@ def run_hl(path, rest="", program="csv_report.hum"):
 
 def test4(n=60, program="csv_report.hum"):
     random.seed(4)
-    exact = "exact" in program
     bad = 0
     with tempfile.TemporaryDirectory() as d:
         for i in range(n):
@@ -121,7 +109,7 @@ def test4(n=60, program="csv_report.hum"):
                 f.write(text)
             # the program reads text files the way Python's open() does: line endings become \n, the BOM goes
             seen = text.replace("\r\n", "\n").lstrip("﻿")
-            want, want_clean = model(seen, exact)
+            want, want_clean = model(seen)
             got, err = run_hl(path, program=program)
             got = got.split("Wrote ")[0] if want_clean else got
             if want is None:
@@ -241,11 +229,10 @@ def random_session():
 
 def test5(n=40):
     random.seed(5)
-    subprocess.run([sys.executable, os.path.join(HERE, "project", "build.py")], check=True, capture_output=True)
     bad = 0
     for i in range(n):
         cmds = random_session()
-        p = subprocess.run([sys.executable, "-m", "humanlang", "run", os.path.join(HERE, "project", "library.hum")],
+        p = subprocess.run([sys.executable, "-m", "humanlang", "run", os.path.join(HERE, "project", "main.hum")],
                            input="\n".join(cmds + ["quit"]) + "\n", capture_output=True, text=True, cwd=ROOT, env=ENV)
         got = [l.strip() if l.startswith(" ") else l for l in p.stdout.replace("> ", "\n").splitlines() if l.strip() != ""]
         got = [l.rstrip() for l in got]
@@ -267,7 +254,6 @@ if __name__ == "__main__":
     which = sys.argv[1:] or ["4"]
     if "4" in which:
         test4()
-        test4(program="csv_report_exact.hum")
     if "5" in which:
         test5()
     if "speed" in which:

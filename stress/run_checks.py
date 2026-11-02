@@ -2,6 +2,7 @@
 Run from the project folder:  python stress/run_checks.py
 """
 import math
+from fractions import Fraction
 import os
 import random
 import re
@@ -47,7 +48,8 @@ def check_calculator(n=400):
     bad = 0
     for e, got in zip(exprs, answers):
         try:
-            want = eval(e.replace("^", "**"))
+            # exact fractions, because HumanLang's numbers are exact (5.8 % 0.1 is 0, not 0.0999999999999995)
+            want = eval(re.sub(r"\d+(?:\.\d+)?", lambda m: f"F('{m.group()}')", e).replace("^", "**"), {"F": Fraction})
         except ZeroDivisionError:
             want = "ERR"
         except OverflowError:
