@@ -31,7 +31,9 @@ pip install .                # from a downloaded copy of this repository
 hl --version
 ```
 
-Or download a single program for Windows, macOS or Linux from the Releases page (no Python needed).
+Or, with no Python needed, download from the Releases page:
+- **Windows:** `HumanLang-Setup.exe`. It gives `.hum` files the HumanLang icon, runs them when you double-click, and lets you type `hl` in a terminal. (Windows may warn that the installer is not signed: choose "More info", then "Run anyway".)
+- **macOS / Linux:** a single program (`hl-macos`, `hl-linux`).
 More detail: [website/install_page.md](website/install_page.md).
 
 ## Use

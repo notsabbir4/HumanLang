@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.3.1 - 2026-11-02
+
+### New
+- **Windows installer.** Each release now has `HumanLang-Setup.exe`. Double-click it and `.hum` files get the HumanLang
+  icon in File Explorer, double-clicking a `.hum` file runs it (the window stays open so you can read the result),
+  and you can type `hl` in any terminal. It installs for you only (no administrator password) and uninstalls from
+  Windows "Installed apps". Windows may show a "protected your PC" notice because the installer is not signed:
+  choose "More info", then "Run anyway".
+
+### Fixed
+- The release no longer tries to upload to PyPI (the name `humanlang` there belongs to another project).
+- The README install line no longer points to that other project.
+
 ## 0.3.0 - 2026-11-02
 Found by stress-testing HumanLang with a CSV processor, a five-file project and 94 deliberately broken programs
 (see `stress/FINDINGS_4-6.md`). Every problem those programs hit is addressed below.
