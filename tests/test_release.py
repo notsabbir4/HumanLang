@@ -26,7 +26,7 @@ class Release(unittest.TestCase):
     def test_required_files(self):
         for name in ("LICENSE", "README.md", "CONTRIBUTING.md", "CHANGELOG.md", ".gitignore",
                      ".github/workflows/tests.yml", ".github/workflows/release.yml",
-                     ".github/workflows/pages.yml", "docs/tutorial.md", "docs/reference.md"):
+                     ".github/workflows/pages.yml", ".github/workflows/installer.yml", "packaging/installer.iss", "docs/tutorial.md", "docs/reference.md"):
             self.assertTrue(os.path.exists(os.path.join(ROOT, name)), name)
 
     def test_website_builds(self):

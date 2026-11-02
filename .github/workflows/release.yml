@@ -26,8 +26,10 @@ jobs:
         run: Move-Item dist/hl.exe dist/${{ matrix.name }}
       - uses: actions/upload-artifact@v4
         with: { name: "${{ matrix.name }}", path: "dist/${{ matrix.name }}" }
+  installer:
+    uses: ./.github/workflows/installer.yml
   publish:
-    needs: binaries
+    needs: [binaries, installer]
     runs-on: ubuntu-latest
     permissions: { contents: write }
     steps:

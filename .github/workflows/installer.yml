@@ -1,0 +1,52 @@
+name: installer
+# Builds the Windows installer (HumanLang-Setup.exe) and tests it by really installing and uninstalling it.
+on:
+  workflow_call:
+  workflow_dispatch:
+  push:
+    paths: ["packaging/**", ".github/workflows/installer.yml"]
+jobs:
+  installer:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: python -m pip install . pyinstaller
+      - run: pyinstaller --onefile --name hl --icon packaging/icon.ico packaging/hl_entry.py
+      - name: Build the installer
+        shell: pwsh
+        run: |
+          if (-not (Get-Command iscc -ErrorAction SilentlyContinue)) { choco install innosetup -y --no-progress }
+          $iscc = (Get-Command iscc -ErrorAction SilentlyContinue).Source
+          if (-not $iscc) { $iscc = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" }
+          $v = python -c "import humanlang; print(humanlang.__version__)"
+          & $iscc "/DAppVersion=$v" "/DExePath=$((Resolve-Path dist\hl.exe).Path)" packaging\installer.iss
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+      - name: Test it - install, check, uninstall
+        shell: pwsh
+        run: |
+          $dir = Join-Path $env:RUNNER_TEMP "HL Test"
+          Start-Process installer-out\HumanLang-Setup.exe -ArgumentList "/VERYSILENT","/SUPPRESSMSGBOXES","/NORESTART","/TASKS=addpath,assoc","/DIR=`"$dir`"" -Wait
+          & "$dir\hl.exe" --version
+          if ($LASTEXITCODE -ne 0) { throw "hl.exe did not run" }
+          if (-not (Test-Path "$dir\hum.ico")) { throw "icon missing" }
+          $ext = (Get-ItemProperty "HKCU:\Software\Classes\.hum").'(default)'
+          if ($ext -ne "HumanLang.File") { throw ".hum is not associated: $ext" }
+          $icon = (Get-ItemProperty "HKCU:\Software\Classes\HumanLang.File\DefaultIcon").'(default)'
+          if ($icon -ne "$dir\hum.ico") { throw "wrong icon: $icon" }
+          $cmd = (Get-ItemProperty "HKCU:\Software\Classes\HumanLang.File\shell\open\command").'(default)'
+          Write-Host "open command: $cmd"
+          if ($cmd -notlike "*hl.exe*run*%1*") { throw "wrong open command" }
+          $path = (Get-ItemProperty "HKCU:\Environment").Path
+          if ($path -notlike "*$dir*") { throw "not on PATH" }
+          # the command the Explorer double-click would run
+          "say ""installer ok""" | Set-Content "$env:RUNNER_TEMP\t.hum"
+          & "$dir\hl.exe" run "$env:RUNNER_TEMP\t.hum"
+          Start-Process "$dir\unins000.exe" -ArgumentList "/VERYSILENT","/SUPPRESSMSGBOXES" -Wait
+          Start-Sleep -Seconds 3
+          if (Test-Path "$dir\hl.exe") { throw "hl.exe still there after uninstall" }
+          if (Test-Path "HKCU:\Software\Classes\.hum") { throw ".hum key still there after uninstall" }
+          if ((Get-ItemProperty "HKCU:\Environment").Path -like "*$dir*") { throw "still on PATH after uninstall" }
+      - uses: actions/upload-artifact@v4
+        with: { name: installer, path: installer-out/HumanLang-Setup.exe }
