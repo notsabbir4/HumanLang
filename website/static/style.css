@@ -151,3 +151,16 @@ footer .fl{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;margin-bo
 footer .fl a{color:var(--muted);text-decoration:none;font-weight:600}
 footer .fl a:hover{color:var(--fg)}
 @media(max-width:800px){.dl{padding:24px 18px}.dl h1{font-size:2rem}}
+
+/* games: pictures and the typing animation */
+.game-card .thumb{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:10px;display:block;margin:-6px 0 6px;background:var(--out-bg)}
+#stage .banner{width:100%;max-height:190px;object-fit:cover;object-position:center;border-radius:14px;display:block;margin:6px 0 14px}
+#stage .banner[hidden]{display:none}
+.screen-tools{display:flex;align-items:center;gap:10px;margin:6px 0 10px;color:var(--muted);font-size:.9rem}
+.screen-tools select{padding:5px 8px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--fg);font:inherit}
+.screen-tools .btn{padding:5px 12px;font-size:.88rem}
+.screen-tools .btn[hidden]{display:none}
+#screen{cursor:default}
+#screen .cursor{color:#ffd479;animation:blink 1s steps(2,start) infinite}
+@keyframes blink{to{visibility:hidden}}
+@media (prefers-reduced-motion:reduce){#screen .cursor{animation:none}}

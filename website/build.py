@@ -317,8 +317,15 @@ Want to see how one works? Every game is a plain <code>.hum</code> file in the
 <span class="grow"></span>
 <button class="btn run" id="restart" type="button">Restart</button>
 </div>
+<img class="banner" id="gbanner" alt="" hidden>
 <h1 id="gtitle"></h1>
 <p class="gtags" id="gtags"></p>
+<div class="screen-tools">
+<label for="speed">Typing speed</label>
+<select id="speed"><option value="slow">Slow</option><option value="normal" selected>Normal</option>
+<option value="fast">Fast</option><option value="instant">Instant</option></select>
+<button class="btn ghost" id="skip" type="button" hidden>Skip ahead</button>
+</div>
 <pre id="screen" aria-live="polite"></pre>
 <p id="gstatus" class="gstatus"></p>
 </section>
@@ -369,7 +376,12 @@ def main():
     games = []
     with open(os.path.join(ROOT, "games", "index.json"), encoding="utf-8") as f:
         for g in json.load(f):
-            games.append({k: v for k, v in g.items() if k != "test_runs"} | {"code": read(os.path.join(ROOT, "games", g["file"]))})
+            entry = {k: v for k, v in g.items() if k not in ("test_runs", "image")}
+            entry["code"] = read(os.path.join(ROOT, "games", g["file"]))
+            if g.get("image"):
+                entry["image"] = "game-" + g["id"] + os.path.splitext(g["image"])[1]
+                shutil.copy(os.path.join(ROOT, "games", g["image"]), os.path.join(out, entry["image"]))
+            games.append(entry)
 
     write(os.path.join(out, "index.html"), index_page())
     write(os.path.join(out, "tutorial.html"), doc_page("Tutorial", read(os.path.join(ROOT, "docs", "tutorial.md")), "tutorial.html"))

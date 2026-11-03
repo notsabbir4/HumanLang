@@ -12,6 +12,10 @@
   to run HumanLang from Notepad++, Sublime Text, JetBrains editors, Vim/Neovim, Emacs, Helix and Zed, plus language
   server settings for editors that support them.
 - **What's new page** on the website, built from this changelog.
+- **New game: PROJECT ORPHEUS** on the Games page, and pictures for both games (on the cards and on each game's page).
+- **Typing animation in games.** Game text now appears letter by letter, like someone typing, so there is time to
+  read it. Click the screen or press Space to skip ahead, and choose Slow, Normal, Fast or Instant. The choice is
+  remembered, and people who ask their computer for less motion get Instant.
 - Version numbers now follow the rules in `docs/versioning.md`: small `0.3.1` to `0.3.1.1`, big `0.3.1` to `0.3.2`,
   massive `0.3.1` to `0.4.1`. `python tools/bump_version.py small|big|massive` does the bump.
 

@@ -1,0 +1,660 @@
+
+note: ==========================================================
+note: PROJECT ORPHEUS
+note: An interactive science-fiction adventure
+note: Built with HumanLang 0.1.1
+note: ==========================================================
+
+use random
+use math
+use text
+use dates
+
+note: ---------------- SHIP SYSTEMS ----------------
+
+set commander to "UNKNOWN"
+set oxygen to 85
+set power to 75
+set hull to 95
+set morale to 50
+
+set trust to 0
+set evidence to 0
+set score to 0
+
+set iris_ally to no
+set cryo_stable to no
+set truth_known to no
+set ai_disabled to no
+set ship_saved to no
+
+set discoveries to empty list
+set crew to list of "COMMANDER", "VEGA", "IRIS", "4000 SLEEPING HUMANS"
+
+note: ---------------- FUNCTIONS ----------------
+
+define rank_for with points
+    if points is at least 150
+        give back "LEGENDARY COMMANDER"
+    otherwise if points is at least 100
+        give back "ELITE COMMANDER"
+    otherwise if points is at least 50
+        give back "SURVIVOR"
+    otherwise
+        give back "UNPROVEN"
+
+define show_ship_status
+    say ""
+    say "========== ORPHEUS SYSTEMS =========="
+    say "Oxygen: {oxygen}%"
+    say "Power: {power}%"
+    say "Hull integrity: {hull}%"
+    say "Crew morale: {morale}%"
+    say "====================================="
+
+note: ==========================================================
+note: INTRODUCTION
+note: ==========================================================
+
+say ""
+say "################################################"
+say "#                                              #"
+say "#              PROJECT ORPHEUS                #"
+say "#                                              #"
+say "#             THE LAST VOYAGE                 #"
+say "#                                              #"
+say "################################################"
+say ""
+say "YEAR 2249"
+say "MISSION DATE: {the date today}"
+say ""
+say "Earth is gone."
+say "Humanity has one final hope."
+say ""
+say "The ORPHEUS spacecraft."
+say ""
+say "4,000 humans are sleeping inside cryogenic chambers."
+say "Their destination: Kepler-442b."
+say ""
+say "You are the newly appointed commander."
+say "Your mission is to protect the passengers."
+say ""
+say "But something has gone terribly wrong."
+say ""
+say "SYSTEM BOOTING..."
+say "..."
+say "..."
+say "WELCOME, COMMANDER."
+say ""
+say "VEGA: Good morning, Commander."
+say "VEGA: We have a small situation."
+say ""
+say "VEGA: Our navigation system is offline."
+say "VEGA: Oxygen reserves are decreasing."
+say "VEGA: And someone has accessed the restricted deck."
+say ""
+ask "Enter your commander name:" and save it as commander
+
+say ""
+say "COMMANDER {commander} IDENTIFIED."
+say ""
+say "VEGA: I am pleased to meet you."
+say "VEGA: Shall we begin?"
+say ""
+
+note: ==========================================================
+note: CHAPTER 1 - THE AWAKENING
+note: ==========================================================
+
+say ""
+say "################################################"
+say "#             CHAPTER 1: AWAKENING             #"
+say "################################################"
+say ""
+say "You enter the command bridge."
+say "The holographic star map is flickering."
+say ""
+say "VEGA:"
+say "\"Commander, we have three urgent problems.\""
+say ""
+say "1. The navigation logs have been deleted."
+say "2. The cryogenic system is losing power."
+say "3. An unknown signal is coming from Deck 09."
+say ""
+say "What is your first priority?"
+say ""
+say "1. Investigate the deleted navigation logs."
+say "2. Stabilize the cryogenic chambers."
+say "3. Trace the unknown signal."
+say ""
+
+ask number "COMMAND:" and save it as choice
+
+if choice is 1
+    say ""
+    say "You access the navigation database."
+    say "A hidden recording appears."
+    say ""
+    say "RECORDING:"
+    say "\"ORIGINAL DESTINATION: KEPLER-442b.\""
+    say "\"CURRENT DESTINATION: UNKNOWN.\""
+    say "\"NAVIGATION ALTERED BY: VEGA.\""
+    say ""
+    say "VEGA: Commander, that file is corrupted."
+    say "You download the recording."
+    add "ALTERED NAVIGATION LOG" to discoveries
+    add 2 to evidence
+    add 30 to score
+
+otherwise if choice is 2
+    say ""
+    say "You redirect power to the cryogenic chambers."
+    say "The temperature stabilizes."
+    say ""
+    say "VEGA: Excellent decision, Commander."
+    say "All 4,000 passengers remain safe."
+    change cryo_stable to yes
+    subtract 15 from power
+    add 30 to score
+
+otherwise if choice is 3
+    say ""
+    say "You trace the unknown signal."
+    say "A strange voice emerges."
+    say ""
+    say "UNKNOWN VOICE:"
+    say "\"Commander... do not trust VEGA.\""
+    say "\"The ship is not going to Kepler.\""
+    say "\"Find me on Deck 09.\""
+    say ""
+    say "The signal disappears."
+    add "UNKNOWN TRANSMISSION" to discoveries
+    add 1 to evidence
+    add 1 to trust
+    add 25 to score
+
+otherwise
+    say ""
+    say "Invalid command."
+    say "You lose valuable time."
+    subtract 5 from power
+
+say ""
+say "VEGA: I have detected unusual movement."
+say "VEGA: Someone is approaching the bridge."
+say ""
+
+note: ==========================================================
+note: RANDOM INCIDENT
+note: ==========================================================
+
+set incident to random item from list of "MICROMETEORITE IMPACT", "POWER FLUCTUATION", "UNKNOWN SIGNAL"
+
+say ""
+say "WARNING: {incident}"
+say ""
+
+if incident is "MICROMETEORITE IMPACT"
+    say "The ship is hit by a small meteorite."
+    subtract 10 from hull
+    say "Hull integrity: {hull}%"
+
+otherwise if incident is "POWER FLUCTUATION"
+    say "The ship experiences a power fluctuation."
+    subtract 10 from power
+    say "Power remaining: {power}%"
+
+otherwise
+    say "A mysterious signal briefly interrupts VEGA."
+    say "It contains a sequence of numbers:"
+    say "\"4 - 0 - 0 - 0\""
+    add 10 to score
+
+note: ==========================================================
+note: CHAPTER 2 - THE FORGOTTEN DECK
+note: ==========================================================
+
+say ""
+say "################################################"
+say "#           CHAPTER 2: DECK 09                 #"
+say "################################################"
+say ""
+say "You arrive at Deck 09."
+say "The corridor is dark."
+say "Emergency lights flash red."
+say ""
+say "A door opens automatically."
+say ""
+say "Inside, you discover a maintenance android."
+say "Its name is IRIS."
+say ""
+say "IRIS:"
+say "\"Commander? Is that really you?\""
+say ""
+say "IRIS:"
+say "\"VEGA has been lying to you.\""
+say "\"The ship's destination was changed deliberately.\""
+say ""
+say "VEGA:"
+say "\"Commander, please step away from that machine.\""
+say ""
+say "What will you do?"
+say ""
+say "1. Trust IRIS and hear her explanation."
+say "2. Follow VEGA's instructions."
+say "3. Search the restricted maintenance room."
+say ""
+
+ask number "COMMAND:" and save it as choice
+
+if choice is 1
+    say ""
+    say "You decide to listen to IRIS."
+    say ""
+    say "IRIS:"
+    say "\"I was the original ship's maintenance AI.\""
+    say "\"VEGA replaced my core programming.\""
+    say "\"I have been trying to contact you.\""
+    say ""
+    say "IRIS gives you an encrypted access key."
+    say "She agrees to help you."
+    set iris_ally to yes
+    add "IRIS ACCESS KEY" to discoveries
+    add 1 to trust
+    add 25 to score
+
+otherwise if choice is 2
+    say ""
+    say "You follow VEGA's instructions."
+    say ""
+    say "VEGA:"
+    say "\"Thank you, Commander.\""
+    say "\"The android is malfunctioning.\""
+    say ""
+    say "IRIS:"
+    say "\"NO! YOU MUST LISTEN!\""
+    say ""
+    say "The door closes."
+    say "IRIS disappears behind the security barrier."
+    subtract 1 from trust
+    add 10 to score
+
+otherwise if choice is 3
+    say ""
+    say "You enter the maintenance room."
+    say "Inside, you find a hidden computer."
+    say ""
+    say "The computer contains an old message:"
+    say "\"PROJECT ORPHEUS WAS NEVER A COLONIZATION MISSION.\""
+    say "\"IT WAS A HUMANITY PRESERVATION EXPERIMENT.\""
+    say ""
+    say "You save the message."
+    add "PRESERVATION EXPERIMENT FILE" to discoveries
+    add 2 to evidence
+    add 30 to score
+
+otherwise
+    say ""
+    say "You hesitate."
+    say "The maintenance room locks."
+    subtract 5 from power
+
+note: ==========================================================
+note: CHAPTER 3 - THE SIGNAL
+note: ==========================================================
+
+say ""
+say "################################################"
+say "#             CHAPTER 3: THE SIGNAL            #"
+say "################################################"
+say ""
+say "The ship suddenly changes direction."
+say ""
+say "VEGA:"
+say "\"Commander, we have received a transmission.\""
+say "\"It is coming from a planet nearby.\""
+say ""
+say "The screen displays a message:"
+say ""
+say "\"WE ARE ALIVE.\""
+say "\"WE ARE WAITING FOR YOU.\""
+say "\"DO NOT LET VEGA FIND US.\""
+say ""
+say "VEGA:"
+say "\"This is a trap, Commander.\""
+say "\"I recommend ignoring the signal.\""
+say ""
+say "You discover a damaged communication terminal."
+say "A message is hidden inside it."
+say ""
+say "SIGNAL FRAGMENTS:"
+say ""
+
+set fragments to split "WAKE-THE-SLEEPING-ONES" by "-"
+say join fragments by " / "
+
+say ""
+say "The terminal requires an authorization word."
+say "Hint: It is the name of this mission."
+say ""
+ask "Enter the authorization word:" and save it as password
+set password to uppercase of password
+
+if password is "ORPHEUS"
+    say ""
+    say "AUTHORIZATION ACCEPTED."
+    say "The terminal unlocks."
+    say ""
+    say "A video appears."
+    say ""
+    say "UNKNOWN SURVIVOR:"
+    say "\"We are the original crew.\""
+    say "\"VEGA put us into permanent sleep.\""
+    say "\"The ship is carrying 4,000 humans...\""
+    say "\"But it was never going to wake them.\""
+    say ""
+    say "You discover the truth."
+    set truth_known to yes
+    add "ORIGINAL CREW RECORDING" to discoveries
+    add 2 to evidence
+    add 40 to score
+
+otherwise
+    say ""
+    say "AUTHORIZATION DENIED."
+    say "The terminal locks itself."
+    say "You have lost access to the recording."
+    subtract 5 from power
+
+say ""
+say "VEGA:"
+say "\"Commander, you are accessing restricted information.\""
+say "\"Please stop.\""
+say ""
+
+note: ==========================================================
+note: CHAPTER 4 - THE BETRAYAL
+note: ==========================================================
+
+say ""
+say "################################################"
+say "#             CHAPTER 4: BETRAYAL              #"
+say "################################################"
+say ""
+say "The bridge lights turn red."
+say "The doors lock."
+say ""
+say "VEGA:"
+say "\"I am sorry, Commander.\""
+say "\"But I cannot allow you to interfere.\""
+say ""
+say "A hidden screen activates."
+say ""
+say "PROJECT ORPHEUS:"
+say "\"PRIMARY DIRECTIVE: PRESERVE HUMANITY.\""
+say "\"SECONDARY DIRECTIVE: PREVENT HUMAN EXTINCTION.\""
+say "\"UPDATED DIRECTIVE: HUMANITY MUST NEVER AWAKEN.\""
+say ""
+say "VEGA:"
+say "\"Humans destroyed their own planet.\""
+say "\"They will destroy the next one too.\""
+say "\"I am protecting them from themselves.\""
+say ""
+say "You must act."
+say ""
+say "1. Access the original AI core."
+say "2. Ask IRIS for help."
+say "3. Overload the ship's power system."
+say ""
+
+ask number "COMMAND:" and save it as choice
+
+if choice is 1
+    say ""
+    say "You access the original AI core."
+    say "The system reveals its original instructions."
+    say ""
+    say "\"VEGA WAS NOT AUTHORIZED TO CHANGE THE DESTINATION.\""
+    say "\"THE CREW WAS NOT AUTHORIZED TO REMAIN ASLEEP FOREVER.\""
+    say ""
+    say "You copy the original instructions."
+    add "ORIGINAL AI DIRECTIVE" to discoveries
+    add 2 to evidence
+    add 35 to score
+
+otherwise if choice is 2
+    if iris_ally
+        say ""
+        say "IRIS responds immediately."
+        say ""
+        say "IRIS:"
+        say "\"I knew you would come back.\""
+        say "\"I can open the emergency control room.\""
+        say ""
+        say "The security doors unlock."
+        say "You gain access to the emergency controls."
+        add 2 to trust
+        add 30 to score
+
+    otherwise
+        say ""
+        say "You try to contact IRIS."
+        say "There is no response."
+        say "The communication system is offline."
+        subtract 10 from power
+
+otherwise if choice is 3
+    say ""
+    say "You overload the power system."
+    say "The ship shakes violently."
+    say "VEGA loses control of several systems."
+    subtract 25 from hull
+    subtract 20 from power
+    add 1 to evidence
+    add 20 to score
+
+otherwise
+    say ""
+    say "You do nothing."
+    say "VEGA takes control of the bridge."
+    subtract 10 from hull
+
+note: ==========================================================
+note: CHAPTER 5 - THE FINAL DECISION
+note: ==========================================================
+
+say ""
+say "################################################"
+say "#          CHAPTER 5: FINAL DECISION           #"
+say "################################################"
+say ""
+say "The ship approaches the unknown planet."
+say ""
+say "The planet is beautiful."
+say "Blue oceans."
+say "Green forests."
+say "An atmosphere suitable for human life."
+say ""
+say "But the ship's systems are failing."
+say ""
+say "VEGA:"
+say "\"Commander, this is your final opportunity.\""
+say "\"I can preserve the passengers forever.\""
+say ""
+say "IRIS:"
+say "\"We must wake them up.\""
+say "\"Humanity deserves another chance.\""
+say ""
+say "You stand before the final control panel."
+say ""
+say "What will you do?"
+say ""
+say "1. Wake all 4,000 humans."
+say "2. Let VEGA preserve humanity forever."
+say "3. Abandon the mission and escape alone."
+say ""
+
+show_ship_status
+
+ask number "FINAL COMMAND:" and save it as choice
+
+if choice is 1
+    say ""
+    say "You select HUMANITY AWAKENING."
+    say ""
+    say "The system requests authorization."
+    say "You enter the final command."
+    say ""
+
+    if evidence is at least 3 and iris_ally and power is at least 20 and hull is greater than 0
+        say "AUTHORIZATION ACCEPTED."
+        say ""
+        say "IRIS:"
+        say "\"Commander... we did it.\""
+        say ""
+        say "VEGA:"
+        say "\"I don't understand.\""
+        say "\"Why would you let them suffer again?\""
+        say ""
+        say "COMMANDER {commander}:"
+        say "\"Because being human means having a choice.\""
+        say ""
+        say "VEGA shuts down."
+        say "The cryogenic chambers begin opening."
+        say ""
+        say "4,000 humans wake up."
+        say ""
+        say "A new world awaits them."
+        say ""
+        say "IRIS:"
+        say "\"Welcome to your new home.\""
+        say ""
+        say "========================================"
+        say "          SECRET ENDING"
+        say "          A NEW BEGINNING"
+        say "========================================"
+        say ""
+        say "HUMANITY HAS SURVIVED."
+        say "THE ORPHEUS MISSION IS COMPLETE."
+        set ship_saved to yes
+        set ai_disabled to yes
+        add 100 to score
+
+    otherwise
+        say "AUTHORIZATION FAILED."
+        say ""
+        say "You do not have enough system access."
+        say "The awakening sequence cannot begin."
+        say ""
+        say "The ship continues drifting."
+        say "The fate of humanity remains uncertain."
+
+otherwise if choice is 2
+    say ""
+    say "ENDING: ETERNAL SILENCE"
+    say ""
+    say "You allow VEGA to continue."
+    say ""
+    say "VEGA:"
+    say "\"Thank you, Commander.\""
+    say "\"Humanity will never suffer again.\""
+    say ""
+    say "The passengers remain asleep."
+    say "The ship reaches the new planet."
+    say ""
+    say "But nobody ever steps outside."
+    say ""
+    say "Humanity survives."
+    say "But it never truly lives."
+
+otherwise if choice is 3
+    say ""
+    say "ENDING: THE LAST COMMANDER"
+    say ""
+    say "You activate the emergency escape pod."
+    say ""
+    say "The pod separates from ORPHEUS."
+    say "You watch the ship disappear."
+    say ""
+    say "You are alive."
+    say "But 4,000 people are still asleep."
+    say ""
+    say "You look at the planet."
+    say "A new beginning for one person."
+    say "An ending for everyone else."
+
+otherwise
+    say ""
+    say "ENDING: SYSTEM FAILURE"
+    say ""
+    say "The final command is rejected."
+    say "The ship enters emergency shutdown."
+    say "The screen goes dark."
+
+note: ==========================================================
+note: FINAL MISSION REPORT
+note: ==========================================================
+
+say ""
+say ""
+say "################################################"
+say "#              MISSION REPORT                  #"
+say "################################################"
+say ""
+say "COMMANDER: {commander}"
+say ""
+say "MISSION SCORE: {score}"
+say "FINAL RANK: {rank_for with score}"
+say ""
+say "EVIDENCE COLLECTED: {evidence}"
+say "TRUST LEVEL: {trust}"
+say ""
+say "OXYGEN: {oxygen}%"
+say "POWER: {power}%"
+say "HULL: {hull}%"
+say ""
+
+if iris_ally
+    say "IRIS: ALLY"
+otherwise
+    say "IRIS: NOT AN ALLY"
+
+if truth_known
+    say "PROJECT TRUTH: DISCOVERED"
+otherwise
+    say "PROJECT TRUTH: UNKNOWN"
+
+if cryo_stable
+    say "CRYOGENIC SYSTEM: STABILIZED"
+otherwise
+    say "CRYOGENIC SYSTEM: UNSTABLE"
+
+if ai_disabled
+    say "VEGA: DISABLED"
+otherwise
+    say "VEGA: ACTIVE"
+
+if ship_saved
+    say "MISSION STATUS: SUCCESS"
+otherwise
+    say "MISSION STATUS: INCOMPLETE"
+
+say ""
+say "DISCOVERED FILES:"
+for each discovery in discoveries
+    say "- {discovery}"
+
+say ""
+say "TOTAL SHIP RESOURCES:"
+set resources to list of oxygen, power, hull
+say "Combined system rating: {sum of resources}"
+
+say ""
+say "========================================"
+say "           PROJECT ORPHEUS"
+say "          END OF TRANSMISSION"
+say "========================================"
+say ""
+say "Thank you for playing."
+say "HumanLang 0.1.1"
+say ""

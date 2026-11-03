@@ -29,6 +29,7 @@ class Games(unittest.TestCase):
             self.assertNotIn(g["id"], ids)
             ids.add(g["id"])
             self.assertTrue(os.path.isfile(os.path.join(GAMES, g["file"])))
+            self.assertTrue(os.path.isfile(os.path.join(GAMES, g["image"])), f"{g['id']}: thumbnail missing")
 
     def test_every_game_file_is_listed(self):
         listed = {g["file"] for g in self.index}
@@ -45,7 +46,7 @@ class Games(unittest.TestCase):
                         text, left = play(code, r["answers"])
                     except HLError as e:
                         self.fail(e.format(code.splitlines()))
-                    self.assertIn("ENDING: " + r["ending"], text, text[-300:])
+                    self.assertIn(r.get("expect") or "ENDING: " + r["ending"], text, text[-300:])
                     self.assertEqual(left, [], "the game did not ask for every answer")
 
 

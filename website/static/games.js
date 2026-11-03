@@ -15,6 +15,11 @@
     const t = document.createElement("div"); t.className = "tags";
     for (const x of g.tags || []) { const s = document.createElement("span"); s.textContent = x; t.appendChild(s); }
     const go = document.createElement("span"); go.className = "btn"; go.textContent = "Play";
+    if (g.image) {
+      const img = document.createElement("img");
+      img.className = "thumb"; img.src = g.image; img.alt = ""; img.loading = "lazy";
+      a.appendChild(img);
+    }
     a.append(h, sub, p, t, go);
     $("grid").appendChild(a);
   }
@@ -38,12 +43,78 @@
     };
   }
 
-  function shown(text) { screen.textContent = text; screen.className = ""; }
+  // ---- typing animation: text arrives letter by letter, so there is time to read it ----
+  const speedBox = $("speed"), skipBtn = $("skip");
+  const SPEEDS = { slow: [38, 420], normal: [22, 260], fast: [9, 90], instant: [0, 0] };  // [ms per letter, ms after each line]
+  const calm = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let speed = calm ? "instant" : "normal";
+  try { const saved = localStorage.getItem("hl-typing-speed"); if (saved && SPEEDS[saved]) speed = saved; } catch (e) {}
+  speedBox.value = speed;
+  speedBox.onchange = () => {
+    speed = speedBox.value;
+    try { localStorage.setItem("hl-typing-speed", speed); } catch (e) {}
+    if (typing) finishTyping();
+  };
+  let typed = "", textNode = null, cursor = null, typing = null;  // typing = {rest, i, timer, done}
+
   function bottom() { screen.scrollTop = screen.scrollHeight; }
+  function reset(text) {
+    cancelTyping();
+    screen.textContent = "";
+    textNode = document.createTextNode(text);
+    screen.appendChild(textNode);
+    typed = text; screen.className = "";
+  }
+  function shown(text) { reset(text); }
+  function cancelTyping() {
+    if (typing) { clearTimeout(typing.timer); typing = null; }
+    if (cursor) { cursor.remove(); cursor = null; }
+    skipBtn.hidden = true;
+  }
+  function finishTyping() {
+    if (!typing) return;
+    const t = typing; clearTimeout(t.timer); typing = null;
+    textNode.appendData(t.rest.slice(t.i)); typed += t.rest.slice(t.i);
+    if (cursor) { cursor.remove(); cursor = null; }
+    skipBtn.hidden = true; bottom();
+    t.done();
+  }
+  // show `target` on the screen: what is already there stays, only the new part is typed
+  function type(target, done) {
+    if (!target.startsWith(typed)) reset("");           // should not happen; start the page over
+    const rest = target.slice(typed.length);
+    const [per, pause] = SPEEDS[speed];
+    if (!rest || !per) { textNode.appendData(rest); typed = target; bottom(); done(); return; }
+    cursor = document.createElement("span"); cursor.className = "cursor"; cursor.textContent = "\u258C";
+    screen.appendChild(cursor);
+    skipBtn.hidden = false; setStatus("Typing...  click the screen or press Space to skip ahead.");
+    typing = { rest, i: 0, timer: 0, done };
+    const step = () => {
+      if (!typing) return;
+      const ch = rest[typing.i++];
+      textNode.appendData(ch); typed += ch; bottom();
+      if (typing.i >= rest.length) { const d = typing.done; typing = null; cursor.remove(); cursor = null; skipBtn.hidden = true; d(); return; }
+      let wait = per;
+      if (ch === "\n") wait += rest[typing.i] === "\n" ? pause * 0.4 : pause;
+      typing.timer = setTimeout(step, wait);
+    };
+    step();
+  }
+  screen.addEventListener("click", () => finishTyping());
+  skipBtn.onclick = () => finishTyping();
+  document.addEventListener("keydown", (e) => {
+    if (typing && (e.key === " " || e.key === "Enter" || e.key === "Escape") && !(e.target && e.target.tagName === "INPUT")) {
+      e.preventDefault(); finishTyping();
+    }
+  });
 
   function ask(before, question) {
-    waiting = true; setStatus("Type your answer and press Enter.");
-    shown(before + question);
+    waiting = true; setStatus("...");
+    type(before + question, () => askBox(before, question));
+  }
+
+  function askBox(before, question) {
+    setStatus("Type your answer and press Enter.");
     const box = document.createElement("input");
     box.type = "text"; box.className = "answer"; box.autocomplete = "off"; box.spellcheck = false;
     box.setAttribute("aria-label", question.trim() || "Your answer");
@@ -61,11 +132,13 @@
   function finish(m) {
     let text = m.out || "";
     if (m.err) text += (text && !text.endsWith("\n") ? "\n" : "") + "\n" + m.err;
-    shown(text);
-    screen.className = m.err ? "error" : "";
-    setStatus(m.err ? "The game hit a problem. Press Play again to restart." : "The end. Press Play again to start over.");
-    restartBtn.textContent = "Play again";
-    bottom();
+    setStatus("...");
+    type(text, () => {
+      screen.className = m.err ? "error" : "";
+      setStatus(m.err ? "The game hit a problem. Press Play again to restart." : "The end. Press Play again to start over.");
+      restartBtn.textContent = "Play again";
+      bottom();
+    });
   }
 
   function run() {
@@ -75,7 +148,7 @@
   }
 
   function play() {
-    answers = []; waiting = false; shown(""); restartBtn.textContent = "Restart";
+    answers = []; waiting = false; shown(""); restartBtn.textContent = "Restart"; setStatus("");
     if (!ready) { setStatus("Loading HumanLang... (the first time takes a few seconds)"); return; }
     if (running) { worker.terminate(); startWorker(); return; }  // answered mid-run: start clean
     run();
@@ -84,12 +157,14 @@
   // ---- showing a game ----
   function open(id) {
     const g = games.find((x) => x.id === id);
-    if (!g) { current = null; lobby.hidden = false; stage.hidden = true; document.title = "Games - HumanLang"; return; }
+    if (!g) { current = null; cancelTyping(); lobby.hidden = false; stage.hidden = true; document.title = "Games - HumanLang"; return; }
     current = g;
     lobby.hidden = true; stage.hidden = false;
     title.textContent = g.title + (g.subtitle ? " - " + g.subtitle : "");
     document.title = g.title + " - HumanLang Games";
     tags.textContent = (g.tags || []).join("  ·  ");
+    const banner = $("gbanner");
+    if (g.image) { banner.src = g.image; banner.hidden = false; } else banner.hidden = true;
     window.scrollTo(0, 0);
     play();
   }
