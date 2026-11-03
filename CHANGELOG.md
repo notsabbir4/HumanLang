@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.3.1.1 - 2026-11-03
+
+### New
+- **Download page.** The website now has real download buttons (it picks your system), a very simple step-by-step
+  install guide for Windows, Mac and Linux, and one-line installs for Mac and Linux. The "install with Python" option
+  was removed from the page.
+- **VS Code extension download.** `HumanLang-VSCode.vsix` is now part of every release. It gives colours, live error
+  messages, snippets and a **Run** button (also Ctrl+F5) for `.hum` files.
+- **Editors guide.** A new page explains, step by step, how to set up VS Code (and VSCodium, Cursor, Windsurf) and how
+  to run HumanLang from Notepad++, Sublime Text, JetBrains editors, Vim/Neovim, Emacs, Helix and Zed, plus language
+  server settings for editors that support them.
+- **What's new page** on the website, built from this changelog.
+- Version numbers now follow the rules in `docs/versioning.md`: small `0.3.1` to `0.3.1.1`, big `0.3.1` to `0.3.2`,
+  massive `0.3.1` to `0.4.1`. `python tools/bump_version.py small|big|massive` does the bump.
+
 ## 0.3.1 - 2026-11-02
 
 ### New
