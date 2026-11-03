@@ -28,8 +28,10 @@ jobs:
         with: { name: "${{ matrix.name }}", path: "dist/${{ matrix.name }}" }
   installer:
     uses: ./.github/workflows/installer.yml
+  editors:
+    uses: ./.github/workflows/editors.yml
   publish:
-    needs: [binaries, installer]
+    needs: [binaries, installer, editors]
     runs-on: ubuntu-latest
     permissions: { contents: write }
     steps:

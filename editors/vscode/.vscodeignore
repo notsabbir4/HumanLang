@@ -1,0 +1,4 @@
+.vscode/**
+**/*.map
+node_modules/.bin/**
+test/**

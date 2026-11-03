@@ -1,0 +1,24 @@
+name: editors
+# Packages the VS Code extension (HumanLang-VSCode.vsix) and checks its Run command with a stand-in for VS Code.
+on:
+  workflow_call:
+  workflow_dispatch:
+  push:
+    paths: ["editors/**", ".github/workflows/editors.yml"]
+jobs:
+  vscode:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "20" }
+      - name: Install the extension's one dependency
+        working-directory: editors/vscode
+        run: npm install --omit=dev --no-audit --no-fund
+      - name: Check the Run command
+        run: node editors/vscode/test/run_command.js
+      - name: Package
+        working-directory: editors/vscode
+        run: npx --yes @vscode/vsce package --out ../../HumanLang-VSCode.vsix
+      - uses: actions/upload-artifact@v4
+        with: { name: vscode, path: HumanLang-VSCode.vsix }

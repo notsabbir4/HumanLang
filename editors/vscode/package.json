@@ -5,24 +5,48 @@
   "version": "0.3.1",
   "publisher": "humanlang",
   "icon": "icon.png",
-  "engines": { "vscode": "^1.75.0" },
-  "categories": ["Programming Languages"],
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
   "main": "./extension.js",
-  "activationEvents": [],
+  "activationEvents": [
+    "onLanguage:humanlang",
+    "onCommand:humanlang.run"
+  ],
   "contributes": {
-    "languages": [{
-      "id": "humanlang",
-      "aliases": ["HumanLang", "HL"],
-      "extensions": [".hum"],
-      "configuration": "./language-configuration.json",
-      "icon": { "light": "./icon.png", "dark": "./icon.png" }
-    }],
-    "grammars": [{
-      "language": "humanlang",
-      "scopeName": "source.humanlang",
-      "path": "./syntaxes/humanlang.tmLanguage.json"
-    }],
-    "snippets": [{ "language": "humanlang", "path": "./snippets/humanlang.json" }],
+    "languages": [
+      {
+        "id": "humanlang",
+        "aliases": [
+          "HumanLang",
+          "HL"
+        ],
+        "extensions": [
+          ".hum"
+        ],
+        "configuration": "./language-configuration.json",
+        "icon": {
+          "light": "./icon.png",
+          "dark": "./icon.png"
+        }
+      }
+    ],
+    "grammars": [
+      {
+        "language": "humanlang",
+        "scopeName": "source.humanlang",
+        "path": "./syntaxes/humanlang.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "humanlang",
+        "path": "./snippets/humanlang.json"
+      }
+    ],
     "configuration": {
       "title": "HumanLang",
       "properties": {
@@ -32,7 +56,50 @@
           "description": "The command that starts HumanLang (for example hl, or python3 -m humanlang)."
         }
       }
-    }
+    },
+    "commands": [
+      {
+        "command": "humanlang.run",
+        "title": "HumanLang: Run this file",
+        "icon": "$(play)"
+      },
+      {
+        "command": "humanlang.check",
+        "title": "HumanLang: Check this file for mistakes"
+      }
+    ],
+    "menus": {
+      "editor/title/run": [
+        {
+          "command": "humanlang.run",
+          "when": "resourceLangId == humanlang",
+          "group": "navigation"
+        }
+      ],
+      "editor/title": [
+        {
+          "command": "humanlang.run",
+          "when": "resourceLangId == humanlang",
+          "group": "navigation"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "humanlang.run",
+        "key": "ctrl+f5",
+        "mac": "cmd+f5",
+        "when": "editorLangId == humanlang"
+      }
+    ]
   },
-  "dependencies": { "vscode-languageclient": "^9.0.1" }
+  "dependencies": {
+    "vscode-languageclient": "^9.0.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/notsabbir4/HumanLang"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/notsabbir4/HumanLang"
 }

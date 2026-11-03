@@ -87,6 +87,10 @@ def render_markdown(text):
         info, body = m.group(1), m.group(2).rstrip("\n")
         if info.startswith("hum"):
             html_ = box("code", "HumanLang", highlight(body), copy=True)
+        elif info == "terminal":
+            html_ = box("code", "Type this in the terminal", html.escape(body), copy=True)
+        elif info == "config":
+            html_ = box("code", "Copy this", html.escape(body), copy=True)
         elif info == "input":
             html_ = box("input", "You type", html.escape(body))
         elif info == "output":
@@ -116,7 +120,10 @@ def render_markdown(text):
 
 # ---- page template -----------------------------------------------------------
 NAV = [("index.html", "Home"), ("tutorial.html", "Tutorial"), ("reference.html", "Reference"),
-       ("playground.html", "Playground"), ("games.html", "Games"), ("install.html", "Install")]
+       ("playground.html", "Playground"), ("games.html", "Games"), ("editors.html", "Editors"),
+       ("install.html", "Download")]
+REPO = "https://github.com/notsabbir4/HumanLang"
+LATEST = REPO + "/releases/latest/download/"
 
 
 def page(title, body, active, extra_head="", extra_body="", main_class=""):
@@ -144,7 +151,9 @@ def page(title, body, active, extra_head="", extra_body="", main_class=""):
 <main{(" class=" + main_class) if main_class else ""}>
 {body}
 </main>
-<footer>HumanLang {__version__} &middot; MIT licensed &middot; code that reads like you talk</footer>
+<footer><div class="fl"><a href="install.html">Download</a><a href="editors.html">Editors</a><a href="changelog.html">What&rsquo;s new</a>
+<a href="{REPO}">GitHub</a><a href="{REPO}/issues">Report a problem</a></div>
+HumanLang {__version__} &middot; MIT licensed &middot; code that reads like you talk</footer>
 <script>
 function copyCode(b){{var t=b.parentNode.querySelector('code').innerText;
 (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(function(){{b.textContent='Copied';setTimeout(function(){{b.textContent='Copy'}},1500)}},function(){{b.textContent='Select + copy'}})}}
@@ -160,6 +169,47 @@ def doc_page(title, md_text, active):
     side = "".join(f'<a href="#{i}">{html.escape(n)}</a>' for i, n in toc)
     layout = f'<div class="doc"><aside class="toc"><b>On this page</b>{side}</aside><article>{body}</article></div>'
     return page(f"{title} - HumanLang", layout, active)
+
+
+def download_panel():
+    """The big download area (like python.org). Works without JavaScript; download.js picks the visitor's system."""
+    def card(key, name, sub, href, label):
+        return (f'<div class="dl-card" data-os="{key}"><h3>{name}</h3><p>{sub}</p>'
+                f'<a class="btn" href="{href}" data-asset="{label}">Download</a></div>')
+    cards = (
+        card("windows", "Windows", "Windows 10 or 11 &middot; installer", LATEST + "HumanLang-Setup.exe", "HumanLang-Setup.exe")
+        + card("mac", "Mac", "Apple chip (M1 or newer) &middot; one program", LATEST + "hl-macos", "hl-macos")
+        + card("linux", "Linux", "64-bit Intel/AMD &middot; one program", LATEST + "hl-linux", "hl-linux")
+    )
+    return f"""
+<section class="dl">
+<div class="dl-main">
+<p class="dl-ver"><span id="dl-version">Latest version</span> &middot; free &middot; no Python needed</p>
+<h1 id="dl-title">Download HumanLang</h1>
+<p class="lead" id="dl-sub">Pick your computer below. The step-by-step guide is right underneath.</p>
+<div class="btns"><a class="btn big" id="dl-main-btn" href="{LATEST}HumanLang-Setup.exe">Download for Windows</a>
+<a class="btn ghost" href="#steps">Show me how</a></div>
+<p class="dl-note" id="dl-note">Windows may say &ldquo;Windows protected your PC&rdquo;. That is normal: click <b>More info</b>, then <b>Run anyway</b>.</p>
+</div>
+<div class="dl-grid">{cards}
+<div class="dl-card" data-os="editor"><h3>VS Code</h3><p>Colours, live errors and a Run button</p>
+<a class="btn ghost" href="{LATEST}HumanLang-VSCode.vsix">Download extension</a></div></div>
+<p class="dl-small">Not sure which? <a href="playground.html">Try HumanLang in your browser first</a>. &middot;
+<a href="changelog.html">What&rsquo;s new</a> &middot; <a href="{REPO}/releases">All versions</a></p>
+</section>
+<script src="download.js"></script>
+"""
+
+
+def download_page():
+    body, toc = render_markdown(read(os.path.join(HERE, "install_page.md")))
+    body = body.replace("<h1", "<h1 hidden", 1)  # the big heading above takes its place
+    body = body.replace("<h2 id=\"step-by-step-windows\"", "<h2 id=\"steps\"", 1)
+    side = "".join(f'<a href="#{i}">{html.escape(n)}</a>' for i, n in toc)
+    layout = (download_panel()
+              + f'<div class="doc"><aside class="toc"><b>On this page</b>{side}</aside><article>{body}</article></div>')
+    return page("Download HumanLang", layout, "install.html")
+
 
 
 HERO_CODE = '''note: ask, decide, repeat
@@ -179,8 +229,10 @@ def index_page():
 <h1>Code that reads like you talk.</h1>
 <p class="lead">HumanLang is a programming language for people who have never programmed.
 Write instructions in plain English sentences. Get error messages that actually help.</p>
-<div class="btns"><a class="btn" href="playground.html">Try it in your browser</a>
+<div class="btns"><a class="btn big" href="install.html">Download HumanLang</a>
+<a class="btn ghost" href="playground.html">Try it in your browser</a>
 <a class="btn ghost" href="tutorial.html">Start the tutorial</a></div>
+<p class="dl-small">Version {__version__} &middot; free &middot; Windows, Mac and Linux</p>
 </div>
 <div>{box("code", "HumanLang", highlight(HERO_CODE), copy=True)}
 {box("output", "Output", html.escape("What is your name? Sam" + chr(10) + "How old are you? 15" + chr(10) + "Hi Sam, come back in 3 years."))}</div>
@@ -201,7 +253,9 @@ one meaning, so you can trust what you read.</p></div>
 <li>A one-hour <a href="tutorial.html">tutorial</a> where every example is tested to really run.</li>
 <li>A <a href="playground.html">playground</a> that works in your browser, nothing to install.</li>
 <li>A <a href="reference.html">reference</a> with every word HL knows.</li>
-<li>An <a href="install.html">installer</a> for Windows, macOS and Linux, plus editor support for VS Code.</li>
+<li>A one-click <a href="install.html">installer</a> for Windows, and one-line installs for Mac and Linux.</li>
+<li><a href="editors.html">Editor support</a>: colours, live error messages and a Run button in VS Code, and setup guides for other editors.</li>
+<li>A <a href="changelog.html">changelog</a> that says what is new in every version.</li>
 </ul>
 """
     return page("HumanLang - code that reads like you talk", body, "index.html")
@@ -320,7 +374,9 @@ def main():
     write(os.path.join(out, "index.html"), index_page())
     write(os.path.join(out, "tutorial.html"), doc_page("Tutorial", read(os.path.join(ROOT, "docs", "tutorial.md")), "tutorial.html"))
     write(os.path.join(out, "reference.html"), doc_page("Reference", read(os.path.join(ROOT, "docs", "reference.md")), "reference.html"))
-    write(os.path.join(out, "install.html"), doc_page("Install", read(os.path.join(HERE, "install_page.md")), "install.html"))
+    write(os.path.join(out, "install.html"), download_page())
+    write(os.path.join(out, "editors.html"), doc_page("Editors", read(os.path.join(HERE, "editors_page.md")), "editors.html"))
+    write(os.path.join(out, "changelog.html"), doc_page("What's new", read(os.path.join(ROOT, "CHANGELOG.md")), "changelog.html"))
     write(os.path.join(out, "playground.html"), playground_page(examples))
     write(os.path.join(out, "games.html"), games_page(games))
     write(os.path.join(out, ".nojekyll"), "")

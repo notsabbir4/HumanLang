@@ -21,7 +21,8 @@ class Release(unittest.TestCase):
         pyproject = re.search(r'^version = "([^"]+)"', read("pyproject.toml"), re.M).group(1)
         self.assertEqual(pyproject, humanlang.__version__)
         self.assertIn(f"## {humanlang.__version__}", read("CHANGELOG.md"))
-        self.assertIn(f'"version": "{humanlang.__version__}"', read("editors", "vscode", "package.json"))
+        three = ".".join(humanlang.__version__.split(".")[:3])  # VS Code understands only three numbers
+        self.assertIn(f'"version": "{three}"', read("editors", "vscode", "package.json"))
 
     def test_required_files(self):
         for name in ("LICENSE", "README.md", "CONTRIBUTING.md", "CHANGELOG.md", ".gitignore",
@@ -90,6 +91,30 @@ class Growth(unittest.TestCase):
             bad = subprocess.run([sys.executable, os.path.join(ROOT, "tools", "bump_version.py"), "seven", "--root", tmp],
                                  capture_output=True, text=True)
             self.assertNotEqual(bad.returncode, 0)
+
+    def test_version_sizes(self):
+        sys.path.insert(0, os.path.join(ROOT, "tools"))
+        from bump_version import next_version
+        self.assertEqual(next_version("0.3.1", "small"), "0.3.1.1")
+        self.assertEqual(next_version("0.3.1.1", "small"), "0.3.1.2")
+        self.assertEqual(next_version("0.3.1", "big"), "0.3.2")
+        self.assertEqual(next_version("0.3.1.2", "big"), "0.3.2")
+        self.assertEqual(next_version("0.3.1", "massive"), "0.4.1")
+        self.assertEqual(next_version("0.3.5.2", "massive"), "0.4.1")
+
+    def test_four_part_version_is_accepted(self):
+        import shutil
+        with tempfile.TemporaryDirectory() as tmp:
+            for item in ("pyproject.toml", "CHANGELOG.md", "humanlang", "editors", "tests"):
+                src = os.path.join(ROOT, item)
+                (shutil.copytree if os.path.isdir(src) else shutil.copy)(src, os.path.join(tmp, item))
+            r = subprocess.run([sys.executable, os.path.join(ROOT, "tools", "bump_version.py"), "small", "--root", tmp],
+                               capture_output=True, text=True)
+            self.assertEqual(r.returncode, 0, r.stderr)
+            r = subprocess.run([sys.executable, "-m", "unittest", "tests.test_release.Release.test_versions_agree"],
+                               capture_output=True, text=True, cwd=tmp)
+            self.assertEqual(r.returncode, 0, r.stderr)
+            self.assertIn("## 0.3.1.1", read(tmp, "CHANGELOG.md"))
 
     def test_policy_documents_exist(self):
         for name in ("docs/versioning.md", "docs/community.md", "docs/proposals/README.md",
