@@ -11,7 +11,7 @@ it was made before the function was written, or the function reads x before givi
 
 STATEMENTS = {"say", "set", "change", "changeitem", "add", "subtract", "remove", "addplace", "subtractplace",
               "removeplace", "ask", "if", "while", "times", "for", "define", "give", "stop", "skip", "use",
-              "write", "append", "try", "callstmt", "fail", "exit", "setfield", "changefield", "removeat", "include", "module", "writecsv"}
+              "write", "append", "try", "callstmt", "fail", "exit", "setfield", "changefield", "removeat", "include", "module", "writecsv", "page", "put"}
 
 
 def lint(stmts, known=None):
@@ -37,6 +37,10 @@ def _blocks(s):
         return [s[4]]
     if kind == "try":
         return [s[2], s[3]]
+    if kind == "page":
+        return [s[4]]
+    if kind == "put":
+        return [s[8]] if s[8] else []
     return []
 
 

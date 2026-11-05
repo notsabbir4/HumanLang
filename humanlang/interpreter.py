@@ -11,6 +11,7 @@ import time
 import unicodedata
 from decimal import Decimal
 
+from .designrun import DesignRun
 from .errors import HLError, suggest
 from .hints import for_word
 from .lexer import lex
@@ -182,8 +183,9 @@ class Source:
         self.name, self.lines, self.path = name, lines, path
 
 
-class Interpreter:
+class Interpreter(DesignRun):
     def __init__(self, out=None, inp=None):
+        self.design_init()
         self.out = out or sys.stdout.write
         self.inp = inp or input
         self.globals = Env()

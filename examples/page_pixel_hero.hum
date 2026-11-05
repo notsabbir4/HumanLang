@@ -1,0 +1,16 @@
+note: A pixel art character. Each letter is a colour, each line of letters is a row of pixels.
+show a page titled "Pixel hero" with background light blue
+    put pixel art at 10, 10 with pixel size 14
+        where "h" is brown, "s" is skin, "e" is black, "b" is blue, "p" is dark gray
+        "...hhhh..."
+        "..hhhhhh.."
+        "..ssssss.."
+        "..sesses.."
+        "..ssssss.."
+        "...ssss..."
+        "..bbbbbb.."
+        ".bbbbbbbb."
+        ".sbbbbbbs."
+        ".sbbbbbbs."
+        "..pp..pp.."
+        "..pp..pp.."

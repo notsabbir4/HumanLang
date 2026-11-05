@@ -164,3 +164,15 @@ footer .fl a:hover{color:var(--fg)}
 #screen .cursor{color:#ffd479;animation:blink 1s steps(2,start) infinite}
 @keyframes blink{to{visibility:hidden}}
 @media (prefers-reduced-motion:reduce){#screen .cursor{animation:none}}
+
+/* playground: preview of a page */
+#prepane{flex:1;position:relative;min-height:0;background:#fff}
+#prepane[hidden]{display:none}
+#preview{position:absolute;inset:0;width:100%;height:100%;border:0;background:#fff}
+#pnote{position:absolute;left:0;right:0;top:0;z-index:2;padding:6px 12px;background:#fff3cd;color:#664d03;font-size:.85rem;border-bottom:1px solid #ffe69c}
+#pnote[hidden]{display:none}
+
+/* design examples in the docs: the real result, next to the code */
+.box.result{background:#fff;border-color:var(--line);margin-bottom:18px}
+.box.result .tag{background:#fff;padding-right:6px}
+.box.result iframe{display:block;width:100%;height:340px;border:0;background:#fff;padding-top:22px}

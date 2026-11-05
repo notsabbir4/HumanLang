@@ -5,6 +5,7 @@ import sys
 
 from humanlang.errors import HLError, format_warning
 from humanlang.interpreter import Interpreter
+from humanlang.render import to_html
 
 sys.setrecursionlimit(20000)
 LIMIT = 200000  # characters of output before the program is stopped
@@ -51,4 +52,5 @@ def run(code, inputs, seed=None):
     except Flood:
         err = "The program printed too much, so I stopped it."
     heads_up = [format_warning(w, code.splitlines()) for w in interp.warnings]
-    return json.dumps({"out": "".join(out), "plain": "".join(plain), "err": err, "warnings": heads_up})
+    page = to_html(interp.designs[-1]) if interp.designs else None  # a design: shown in the Preview tab
+    return json.dumps({"out": "".join(out), "plain": "".join(plain), "err": err, "warnings": heads_up, "page": page})

@@ -1019,11 +1019,147 @@ say "You got it!"
 2. Make a program that asks for 3 names, puts them in a list, and says hello to each one.
 3. Write a function `is_even` that gives back `yes` when a number is even (hint: `mod`).
 
-## 13. Where next
+## 13. Design: pages, buttons and drawings
+
+So far HumanLang has *said* things. It can also *show* things: a page with buttons and text, a drawing of a football,
+even a little pixel-art person. You describe what you want, in words, and HumanLang draws it.
+
+Where do you see it? In the **Playground** a **Preview** tab appears and follows what you type. In **VS Code** the
+Run button opens a preview beside your code. On your computer, `hl run myfile.hum` opens the page in your browser, and
+`hl build myfile.hum` saves it as a web page (`myfile.html`) that you can put on any website.
+
+### Your first page
+
+```hum-page
+show a page titled "My first page"
+    put a heading "Hello!"
+    put a text "This is my page."
+    put a button "Click me"
+```
+
+`show a page titled "..."` starts a page. Everything **indented below it** is on the page. Each `put a ...` line puts one
+thing on it: a `heading`, a `text`, a `button`, an `input` (a box to type in), and more. The words to show go in quotes.
+(The button does not do anything yet. This chapter is only about how things *look*.)
+
+### Making things look good: `with`
+
+After a thing, write `with` and then what it should look like. Join several with commas.
+
+```hum-page
+show a page titled "Colours" with background light yellow
+    put a heading "Colourful!" with colour dark blue
+    put a text "Big and bold" with size big, bold
+    put a button "Go" with background green, colour white, rounded, padding 12
+```
+
+- **Colours** can be names (`red`, `dark blue`, `sky blue`, `light gray`, `hot pink`, ...) or a code like `"#ff8800"`.
+  Put `dark`, `light` or `pale` in front of most colours to change them.
+- **Sizes** are `tiny`, `small`, `normal`, `big`, `huge`, or a number of pixels.
+- Other things you can say: `bold`, `italic`, `underlined`, `align right`, `font serif`, `border 2`,
+  `border colour red`, `rounded`, `shadow`, `padding 10`, `width 200`, `height 100`.
+
+If you ask for something a thing can't have, HL tells you what it *can* have.
+
+### Boxes and rows: where things go
+
+A **box** holds things and stacks them from top to bottom. A **row** puts them side by side. They can go inside each other.
+`space between` sets the gap, and `columns 3` makes a grid.
+
+```hum-page
+show a page titled "Layout" with background light gray
+    put a box with background white, padding 16, rounded 12, shadow, space between 10
+        put a heading "Sign in"
+        put an input with hint "Your name"
+        put a row with space between 8
+            put a button "OK" with background blue, colour white
+            put a button "Cancel"
+```
+
+### Loops build pages
+
+Pages are made by a real program, so everything you know works inside them: `for each`, `repeat`, `if`, variables and
+functions. Here is the look of a calculator, with 16 keys made by one loop:
+
+```hum-page
+set keys to list of "7", "8", "9", "+", "4", "5", "6", "-", "1", "2", "3", "*", "0", ".", "=", "/"
+
+show a page titled "Calculator" with background light gray, centered
+    put a box with background white, padding 16, rounded 14, shadow, space between 10
+        put a text "0" with size huge, align right, background black, colour white, padding 10, width full
+        put a box with columns 4, space between 8
+            for each key in keys
+                put a button key with rounded 8, size big
+```
+
+### Drawings: shapes at a spot
+
+Inside a `drawing`, you place shapes at a spot: `at 150, 100` means 150 across and 100 down from the top left corner.
+You can draw a `circle` (with a `radius`), an `oval`, a `rectangle`, a `square`, a `triangle` (with `width` and `height`),
+a `line` (`from 0, 0 to 100, 50`), a `polygon` (`from` and then corners joined by `to`), and a `text` placed at a spot.
+Shapes are drawn in the order you write them, so later ones are on top.
+
+```hum-page
+show a page titled "Football"
+    put a drawing with width 300, height 300, background sky blue, rounded 12
+        put a rectangle at 0, 220 with width 300 and height 80 and colour green
+        put a circle at 150, 130 with radius 70 and colour white and border colour black and border 4
+        put a polygon from 150, 95 to 180, 117 to 168, 152 to 132, 152 to 120, 117 with colour black
+        put a text "GOAL!" at 100, 20 with size big, bold, colour white
+```
+
+### Pixel art
+
+Pixel art is a picture made of little squares. First say which letter is which colour with `where`, then draw the picture
+with one line of letters for each row of squares. A `.` (or a space) is a see-through square.
+
+```hum-page
+show a page titled "Pixel hero" with background light blue
+    put pixel art at 10, 10 with pixel size 14
+        where "h" is brown, "s" is skin, "e" is black, "b" is blue, "p" is dark gray
+        "...hhhh..."
+        "..hhhhhh.."
+        "..ssssss.."
+        "..sesses.."
+        "..ssssss.."
+        "...ssss..."
+        "..bbbbbb.."
+        ".bbbbbbbb."
+        ".sbbbbbbs."
+        ".sbbbbbbs."
+        "..pp..pp.."
+        "..pp..pp.."
+```
+
+Every row must be the same length, and every letter needs a colour. HL checks both and tells you which line is wrong.
+
+### Reuse a drawing with a function
+
+A function can put things on the page, so you can draw something once and use it again and again:
+
+```hum-page
+define ball with x and y
+    put a circle at x, y with radius 14 and colour white and border 3 and border colour black
+
+show a page titled "Three balls"
+    put a drawing with width 240, height 60, background green, rounded 10
+        ball with 40 and 30
+        ball with 120 and 30
+        ball with 200 and 30
+```
+
+**Challenges**
+
+1. Make a page with your name as a heading and a box with three buttons in a row.
+2. Draw a house: a square for the walls, a triangle for the roof, and a rectangle for the door.
+3. Draw your own pixel-art face, 8 squares wide.
+4. Use `repeat` or `for each` to draw ten circles in a row.
+
+## 14. Where next
 
 - The **Reference** lists every word HL understands, in one place.
 - `hl format myfile.hum` tidies your spacing and indentation.
-- Install the editor extension for coloured code and live error messages.
+- Install the editor extension for coloured code, live error messages and a page preview.
+- Pages can't react to clicks yet. That is coming: the same words will make buttons do things.
 - Stuck? Read the error message slowly, then check the line it shows. Most mistakes are a typo or a missing indent.
 
 Welcome to programming!

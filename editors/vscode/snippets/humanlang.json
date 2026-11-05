@@ -90,5 +90,47 @@
       "    say field ${4:name} of ${3:row}"
     ],
     "description": "Read a CSV file as records"
+  },
+  "show a page": {
+    "prefix": "page",
+    "body": [
+      "show a page titled \"${1:My page}\" with background ${2:white}",
+      "    put a heading \"${3:Welcome}\"",
+      "    $0"
+    ],
+    "description": "A page (design)"
+  },
+  "put a button": {
+    "prefix": "button",
+    "body": [
+      "put a button \"${1:Click me}\" with background ${2:blue}, colour ${3:white}, rounded"
+    ],
+    "description": "A button on a page"
+  },
+  "put a text": {
+    "prefix": "text",
+    "body": [
+      "put a text \"${1:Hello}\" with size ${2:big}"
+    ],
+    "description": "Words on a page"
+  },
+  "put a drawing": {
+    "prefix": "drawing",
+    "body": [
+      "put a drawing with width ${1:300}, height ${2:200}, background ${3:sky blue}",
+      "    put a circle at ${4:150}, ${5:100} with radius ${6:50} and colour ${7:yellow}",
+      "    $0"
+    ],
+    "description": "A drawing (shapes at spots)"
+  },
+  "put pixel art": {
+    "prefix": "pixelart",
+    "body": [
+      "put pixel art at ${1:10}, ${2:10} with pixel size ${3:12}",
+      "    where \"${4:r}\" is ${5:red}",
+      "    \"${4:r}${4:r}\"",
+      "    \"${4:r}${4:r}\""
+    ],
+    "description": "Pixel art: each letter is a colour"
   }
 }

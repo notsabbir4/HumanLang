@@ -25,6 +25,11 @@ KEYWORDS = sorted(set(STATEMENT_WORDS) | {
     "fail with", "stop the program", "record with", "empty record", "field", "keys of", "has field", "by field",
     "file exists", "read csv", "write csv", "divided evenly by", "forever", "places", "problem_line", "problem_kind",
     "first", "last", "letters", "find", "is a number", "is a text", "is a list", "is a record",
+    "show a page", "titled", "called", "where", "put a box", "put a row", "put a text", "put a heading",
+    "put a button", "put an input", "put a drawing", "put a circle", "put an oval", "put a rectangle",
+    "put a square", "put a triangle", "put a line", "put a polygon", "put pixel art",
+    "background", "colour", "padding", "space between", "columns", "rounded", "shadow", "width", "height", "radius",
+    "border colour", "pixel size", "centered", "bold", "italic", "underlined", "align", "hint",
 })
 NAME_PATTERNS = [
     (re.compile(r"^\s*(?:set|change)\s+([^\W\d]\w*)\s+to\b"), 6),

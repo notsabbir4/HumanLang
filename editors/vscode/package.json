@@ -2,7 +2,7 @@
   "name": "humanlang",
   "displayName": "HumanLang",
   "description": "Syntax highlighting, error checking, completion and formatting for HumanLang (.hum) files.",
-  "version": "0.3.1",
+  "version": "0.4.1",
   "publisher": "humanlang",
   "icon": "icon.png",
   "engines": {
@@ -14,7 +14,8 @@
   "main": "./extension.js",
   "activationEvents": [
     "onLanguage:humanlang",
-    "onCommand:humanlang.run"
+    "onCommand:humanlang.run",
+    "onCommand:humanlang.preview"
   ],
   "contributes": {
     "languages": [
@@ -64,6 +65,11 @@
         "icon": "$(play)"
       },
       {
+        "command": "humanlang.preview",
+        "title": "HumanLang: Open design preview",
+        "icon": "$(open-preview)"
+      },
+      {
         "command": "humanlang.check",
         "title": "HumanLang: Check this file for mistakes"
       }
@@ -77,6 +83,11 @@
         }
       ],
       "editor/title": [
+        {
+          "command": "humanlang.preview",
+          "when": "resourceLangId == humanlang",
+          "group": "navigation"
+        },
         {
           "command": "humanlang.run",
           "when": "resourceLangId == humanlang",

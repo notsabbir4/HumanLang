@@ -20,6 +20,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 sys.path.insert(0, ROOT)
 from humanlang import __version__  # noqa: E402
+from humanlang.interpreter import Interpreter  # noqa: E402
+from humanlang.render import to_html  # noqa: E402
 
 CDN_PYODIDE = "https://cdn.jsdelivr.net/pyodide/v0.26.4/full/"
 
@@ -36,6 +38,10 @@ BUILTINS = ["list of", "empty list", "empty record", "record with", "field", "ke
             "absolute value of", "round of", "floor of", "ceiling of", "sum of", "largest of", "smallest of",
             "sorted of", "reversed of", "trim of", "read csv", "read file", "split", "join", "replace",
             "the date today", "the time now"]
+DESIGN_KINDS = ["box", "row", "text", "heading", "button", "input", "drawing", "circle", "oval", "rectangle",
+                "square", "triangle", "line", "polygon", "pixel art"]
+DESIGN = ["show a page", "titled", "called", "where"] + [
+    f"put {'an' if k[0] in 'aeiou' else 'a'} {k}" for k in DESIGN_KINDS] + ["put some"]
 CONSTANTS = ["yes", "no", "nothing", "problem_line", "problem_kind", "problem"]
 
 
@@ -47,7 +53,7 @@ TOKEN = re.compile(
     r"(?P<c>^[ \t]*note:.*$)"
     r'|(?P<s>"(?:\\.|[^"\\])*")'
     r"|(?P<n>\b\d+(?:\.\d+)?\b)"
-    r"|\b(?P<k>" + alternation(CONTROL + STATEMENT) + r")\b"
+    r"|\b(?P<k>" + alternation(CONTROL + STATEMENT + DESIGN) + r")\b"
     r"|\b(?P<o>" + alternation(OPERATORS) + r")\b"
     r"|\b(?P<f>" + alternation(BUILTINS) + r")\b"
     r"|\b(?P<v>" + alternation(CONSTANTS) + r")\b",
@@ -79,13 +85,24 @@ def box(kind, label, inner, extra="", copy=False):
     return f'<div class="{cls}"><span class="tag">{label}</span>{button}<pre><code>{inner}</code></pre></div>'
 
 
+def page_preview(code):
+    """What a design example looks like: the real page, in a frame that can't run scripts."""
+    interp = Interpreter(out=lambda _t: None, inp=lambda _p: "")
+    interp.run(code)  # a mistake in a docs example stops the build (the docs tests catch it first)
+    doc = to_html(interp.designs[-1])
+    return (f'<div class="box result"><span class="tag">What it looks like</span>'
+            f'<iframe sandbox="" loading="lazy" title="Result of the example above" srcdoc="{html.escape(doc, quote=True)}"></iframe></div>')
+
+
 def render_markdown(text):
     """Returns (html, [(id, title), ...]) for the h2 headings."""
     stash, prev = [], {"kind": None}
 
     def take(m):
         info, body = m.group(1), m.group(2).rstrip("\n")
-        if info.startswith("hum"):
+        if info == "hum-page":
+            html_ = box("code", "HumanLang", highlight(body), copy=True) + page_preview(body)
+        elif info.startswith("hum"):
             html_ = box("code", "HumanLang", highlight(body), copy=True)
         elif info == "terminal":
             html_ = box("code", "Type this in the terminal", html.escape(body), copy=True)
@@ -254,6 +271,7 @@ one meaning, so you can trust what you read.</p></div>
 <li>A <a href="playground.html">playground</a> that works in your browser, nothing to install.</li>
 <li>A <a href="reference.html">reference</a> with every word HL knows.</li>
 <li>A one-click <a href="install.html">installer</a> for Windows, and one-line installs for Mac and Linux.</li>
+<li><b>Design:</b> make pages, buttons, drawings and pixel art in plain words, with a live preview. See the <a href="tutorial.html#13-design-pages-buttons-and-drawings">tutorial chapter</a>.</li>
 <li><a href="editors.html">Editor support</a>: colours, live error messages and a Run button in VS Code, and setup guides for other editors.</li>
 <li>A <a href="changelog.html">changelog</a> that says what is new in every version.</li>
 </ul>
@@ -284,10 +302,12 @@ def playground_page(examples):
 <section class="ide-side" aria-label="Results">
 <div class="ide-tabs" role="tablist">
 <button class="tab on" id="tab-console" role="tab" type="button">Console</button>
+<button class="tab" id="tab-preview" role="tab" type="button" hidden>Preview</button>
 <button class="tab" id="tab-input" role="tab" type="button">Answers</button>
 <span class="grow"></span><span id="took"></span>
 </div>
 <pre id="out" aria-live="polite"></pre>
+<div id="prepane" hidden><div id="pnote" hidden></div><iframe id="preview" sandbox="" title="Preview of your page"></iframe></div>
 <div id="inpane" hidden><p>Optional. If your program uses <code>ask</code>, type all its answers here, one per line, and it will not stop to ask.</p>
 <textarea id="inputs" spellcheck="false" aria-label="Answers, one per line"></textarea></div>
 </section>
@@ -295,7 +315,7 @@ def playground_page(examples):
 <div class="ide-status"><span id="status">Loading...</span><span class="grow"></span><span id="pos">Ln 1, Col 1</span><span>Spaces: 4</span><span>HumanLang</span></div>
 </div>
 """
-    words = {"k": CONTROL + STATEMENT, "o": OPERATORS, "f": BUILTINS, "v": CONSTANTS}
+    words = {"k": CONTROL + STATEMENT + DESIGN, "o": OPERATORS, "f": BUILTINS, "v": CONSTANTS}
     script = (f'<script>window.HL_EXAMPLES = {json.dumps(examples)}; window.HL_WORDS = {json.dumps(words)};</script>\n'
               '<script src="playground.js"></script>')
     return page("Playground - HumanLang", body, "playground.html", extra_body=script, main_class="ide-page")

@@ -1,0 +1,10 @@
+note: A calculator's looks: a screen and a grid of buttons (no maths yet, we are only designing)
+set keys to list of "7", "8", "9", "+", "4", "5", "6", "-", "1", "2", "3", "*", "0", ".", "=", "/"
+
+show a page titled "Calculator" with background light gray, centered
+    put a heading "Calculator" with colour dark blue
+    put a box with background white, padding 16, rounded 14, shadow, space between 10
+        put a text "0" with size huge, align right, background black, colour white, padding 10, width full
+        put a box with columns 4, space between 8
+            for each key in keys
+                put a button key with rounded 8, size big

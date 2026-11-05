@@ -1,0 +1,7 @@
+note: A football on a pitch, drawn with shapes
+show a page titled "Football"
+    put a drawing with width 300, height 300, background sky blue, rounded 12
+        put a rectangle at 0, 220 with width 300 and height 80 and colour green
+        put a circle at 150, 130 with radius 70 and colour white and border colour black and border 4
+        put a polygon from 150, 95 to 180, 117 to 168, 152 to 132, 152 to 120, 117 with colour black
+        put a text "GOAL!" at 100, 20 with size big, bold, colour white

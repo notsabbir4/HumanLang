@@ -60,6 +60,18 @@ To check a file for mistakes without running it, use the command **HumanLang: Ch
 - **Live errors:** a wavy red line appears under a mistake, with the same helpful message HumanLang gives when you run the program. Move the mouse over it.
 - **Completion:** as you type, VS Code suggests HumanLang words and your own names.
 
+### Design preview
+
+If your program starts with `show a page`, the Run button does not open a terminal. It opens a **preview** beside your code, and the preview changes as you type. Try this:
+
+```hum-page
+show a page titled "Preview test" with background light yellow
+    put a heading "It works!" with colour dark blue
+    put a button "Hello" with background green, colour white, rounded
+```
+
+You can also click the small preview icon at the top right of the editor. If you make a mistake, the preview keeps your last working page and shows what to fix. Words your program prints appear in the **Output** panel under *HumanLang*.
+
 ### If something does not work
 
 | What you see | What to do |

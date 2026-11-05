@@ -5,6 +5,8 @@
   const examples = window.HL_EXAMPLES;
   const hl = $("hl"), gutter = $("gutter"), pos = $("pos"), took = $("took"), themeBtn = $("theme");
   const tabConsole = $("tab-console"), tabInput = $("tab-input"), inpane = $("inpane");
+  const tabPreview = $("tab-preview"), prepane = $("prepane"), preview = $("preview"), pnote = $("pnote");
+  let pending = false, liveTimer = null, lastPage = null, liveRun = false;
   let worker = null, ready = false, running = false, slowTimer = null, startedAt = 0;
 
   // ---- colours: the same words and colours as the docs ----
@@ -45,11 +47,25 @@
 
   // ---- tabs and theme ----
   function showTab(name) {
-    const c = name === "console";
-    $("out").hidden = !c; inpane.hidden = c;
-    tabConsole.className = "tab" + (c ? " on" : ""); tabInput.className = "tab" + (c ? "" : " on");
+    $("out").hidden = name !== "console"; inpane.hidden = name !== "input"; prepane.hidden = name !== "preview";
+    tabConsole.className = "tab" + (name === "console" ? " on" : "");
+    tabInput.className = "tab" + (name === "input" ? " on" : "");
+    tabPreview.className = "tab" + (name === "preview" ? " on" : "");
   }
-  tabConsole.onclick = () => showTab("console"); tabInput.onclick = () => showTab("input");
+  tabConsole.onclick = () => showTab("console"); tabInput.onclick = () => showTab("input"); tabPreview.onclick = () => showTab("preview");
+
+  // ---- designs: a program that says "show a page" gets a live preview that follows the typing ----
+  const hasPage = (text) => /^[ \t]*show a page\b/m.test(text);
+  function showPage(html) {
+    lastPage = html; tabPreview.hidden = false;
+    if (preview.srcdoc !== html) preview.srcdoc = html;
+    pnote.hidden = true;
+  }
+  function liveSoon() {
+    clearTimeout(liveTimer);
+    if (!hasPage(code.value)) return;
+    liveTimer = setTimeout(() => { if (running) pending = true; else { liveRun = true; run(); } }, 600);
+  }
   function setTheme(t) {
     document.documentElement.dataset.theme = t;
     themeBtn.textContent = t === "dark" ? "Light" : "Dark";
@@ -79,6 +95,7 @@
         // the program asked a question: show it in the output box, let the person type next to it,
         // remember the answer, and run again with it
         running = false; clearTimeout(slowTimer);
+        if (liveRun) { liveRun = false; runBtn.disabled = false; stopBtn.disabled = true; setStatus("The preview needs answers: put them in the Answers tab, or press Run."); return; }
         stopBtn.disabled = false; setStatus("Waiting for your answer...");
         askHere(m.out || "", m.need);
       }
@@ -88,7 +105,19 @@
         took.textContent = Math.round(performance.now() - startedAt) + " ms";
         let text = m.plain !== undefined ? m.plain : (m.out || "");
         if (m.err) text += (text && !text.endsWith("\n") ? "\n" : "") + m.err;
-        show(text || "(the program printed nothing)", !!m.err);
+        if (m.page) {
+          showPage(m.page);
+          show(text, !!m.err);
+          if (!liveRun) showTab("preview");
+        } else {
+          show(text || "(the program printed nothing)", !!m.err);
+          if (!hasPage(code.value)) { tabPreview.hidden = true; if (!prepane.hidden) showTab("console"); lastPage = null; }
+          else if (liveRun && lastPage && m.err) {
+            pnote.textContent = "Showing your last working page. The Console tab says what to fix."; pnote.hidden = false;
+          }
+        }
+        liveRun = false;
+        if (pending) { pending = false; liveRun = true; run(); }
         if (m.warnings && m.warnings.length) {
           const box = document.createElement("div");
           box.className = "warn"; box.textContent = m.warnings.join("\n\n");
@@ -118,7 +147,8 @@
   function run(again) {
     if (!ready || running) return;
     running = true; runBtn.disabled = true; stopBtn.disabled = false;
-    if (again !== true) { show("", false); startedAt = performance.now(); took.textContent = ""; showTab("console"); }
+    if (again !== true && !liveRun) { show("", false); startedAt = performance.now(); took.textContent = ""; showTab("console"); }
+    else if (liveRun) { startedAt = performance.now(); took.textContent = ""; }
     setStatus("Running...");
     slowTimer = setTimeout(() => setStatus("Still running... press Stop if it is stuck in a loop."), 3000);
     worker.postMessage({ type: "run", code: code.value, inputs: inputs.value === "" ? [] : inputs.value.split("\n") });
@@ -134,8 +164,8 @@
   function loadExample(name) {
     const ex = examples[name];
     if (!ex) return;
-    code.value = ex.code; inputs.value = ex.inputs || ""; show("", false);
-    pick.value = name; code.scrollTop = 0; code.scrollLeft = 0; refresh();
+    code.value = ex.code; inputs.value = ex.inputs || ""; show("", false); lastPage = null; tabPreview.hidden = true; showTab("console");
+    pick.value = name; code.scrollTop = 0; code.scrollLeft = 0; refresh(); liveSoon();
   }
 
   function encode(text) { return btoa(String.fromCharCode(...new TextEncoder().encode(text))); }
@@ -154,6 +184,7 @@
     catch (e) { setStatus("Copy the link from your address bar."); }
   };
   code.addEventListener("input", refresh);
+  code.addEventListener("input", liveSoon);
   code.addEventListener("scroll", sync);
   code.addEventListener("keyup", where); code.addEventListener("click", where);
   code.addEventListener("keydown", (e) => {
@@ -177,4 +208,5 @@
   } catch (e) { loadExample("hello.hum"); }
   refresh();
   startWorker();
+  const firstRun = setInterval(() => { if (ready) { clearInterval(firstRun); if (hasPage(code.value)) { liveRun = false; run(); } } }, 200);
 })();

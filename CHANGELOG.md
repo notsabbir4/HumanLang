@@ -1,5 +1,36 @@
 # Changelog
 
+## 0.4.1 - 2026-11-06
+
+HumanLang can now **design**. Until now a program could only print words. Now it can show a page with text, buttons,
+boxes and grids, draw shapes (a football, a house) and make pixel art (a little person), all in plain words, so a
+beginner can make how something looks without learning another language. Clicks and buttons that do things come next.
+
+### New
+- **Pages:** `show a page titled "My page"` starts a page, and `put a heading`, `put a text`, `put a button`,
+  `put an input`, `put a box` and `put a row` fill it. Looks go after `with`: `background`, `colour`, `size`, `bold`,
+  `rounded`, `shadow`, `padding`, `space between`, `columns` (a grid), `width`, `height`, `align` and more. Colours are
+  names (`sky blue`, `dark red`), codes like `"#ff8800"`, or a variable holding one.
+- **Drawings:** `put a drawing`, then shapes at a spot: `circle`, `oval`, `rectangle`, `square`, `triangle`, `line`,
+  `polygon` and `text`.
+- **Pixel art:** `put pixel art` with `where "h" is brown` and one line of letters per row of squares.
+- Pages are built by a real program, so `for each`, `repeat`, `if`, variables and functions work inside them.
+  A calculator's 16 buttons are one loop; a function can draw a ball again and again.
+- **See it where you work:** the website Playground shows a **Preview** tab that follows your typing; in VS Code the
+  Run button (or "HumanLang: Open design preview") shows a preview beside your code; `hl run` opens the page in your
+  browser; `hl build FILE.hum` saves it as one web page (`FILE.html`) you can put on any website; `hl page` gives the
+  page to other tools.
+- Clear mistakes for pages: unknown colours suggest the right one, a thing that can't have a look lists what it can
+  have, pixel-art rows that don't match say which line is wrong.
+- New tutorial chapter "Design: pages, buttons and drawings" and a reference section, with the real result shown
+  next to every example on the website. Three examples in the Playground: a calculator's looks, a football, a pixel hero.
+- Editors: new colours and snippets (`page`, `button`, `drawing`, `pixelart`) in VS Code, and completion for the new words.
+
+### Notes
+- The new words (`show a page`, `put a ...`) only mean something at the start of a line in a page, so programs that
+  already use `show`, `put` or `page` as names keep working.
+- Pages are safe: they contain no scripts, and everything you write is escaped.
+
 ## 0.3.1.1 - 2026-11-03
 
 ### New

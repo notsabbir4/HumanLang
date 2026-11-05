@@ -15,7 +15,12 @@ jobs:
       - name: Install the extension's one dependency
         working-directory: editors/vscode
         run: npm install --omit=dev --no-audit --no-fund
-      - name: Check the Run command
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: Check the Run command and the design preview
+        env:
+          HL_TEST_COMMAND: python3 -m humanlang
+          PYTHONPATH: ${{ github.workspace }}
         run: node editors/vscode/test/run_command.js
       - name: Package
         working-directory: editors/vscode

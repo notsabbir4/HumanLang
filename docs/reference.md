@@ -211,6 +211,51 @@ no
 - Lists of records work well, and you can change a field inside a list: `change field age of item 2 of people to 26`.
 - Records are copied like lists, so changing a copy never changes the original.
 
+## Pages and drawings (design)
+
+A program can show a **page**: text, buttons, boxes, drawings and pixel art. In the Playground the page appears in the
+Preview tab, in VS Code the Run button opens a preview, `hl run` opens it in the browser, and `hl build FILE.hum` saves
+it as `FILE.html`. A page is built by a normal program, so loops, `if`, variables and functions work inside it. If the
+program shows more than one page, the last one is used. Pages do not react to clicks yet.
+
+```hum-page
+show a page titled "Hello" with background light gray
+    put a heading "Welcome"
+    put a button "Click me" with background green, colour white, rounded
+```
+
+| Phrase | What it does |
+|---|---|
+| `show a page` / `show a page titled "T"` | starts a page; the lines indented below are on it |
+| `put a heading "T"`, `put a text "T"`, `put a button "T"` | words, a title, a button |
+| `put an input with hint "T"` | a box to type in |
+| `put a box` / `put a row` | holds things: a box stacks them downwards, a row puts them side by side |
+| `put a drawing with width W, height H` | a canvas for shapes placed at a spot |
+| `put pixel art at X, Y with pixel size N` | a picture of squares; `where "a" is colour` then one text per row |
+| `called name` | gives a thing a name (two things can't have the same name) |
+
+Shapes inside a drawing (X is across, Y is down from the top left):
+
+| Phrase | Needs |
+|---|---|
+| `put a circle at X, Y with radius R` | spot, radius |
+| `put an oval at X, Y with width W and height H` | spot, width, height |
+| `put a rectangle at X, Y with width W and height H` | spot, width, height |
+| `put a square at X, Y with width W` | spot, width |
+| `put a triangle at X, Y with width W and height H` | spot, width, height |
+| `put a line from X, Y to X, Y` | two points; `thickness N` |
+| `put a polygon from X, Y to X, Y to X, Y ...` | three or more corners |
+| `put a text "T" at X, Y` | spot (also `size`, `bold`, `colour`, `font`) |
+
+**Looks** go after `with`, joined by commas or `and`: `background`, `colour`, `border N`, `border colour`, `rounded` (or
+`rounded N`), `shadow`, `padding N`, `space between N`, `columns N` (a grid), `width N` or `width full`, `height N`,
+`size` (`tiny`, `small`, `normal`, `big`, `huge` or pixels), `bold`, `italic`, `underlined`, `align left|center|right`,
+`centered`, `font normal|serif|monospace|rounded`, `hint "T"`, `radius N`, `thickness N`, `pixel size N`.
+Each kind of thing accepts the looks that make sense for it, and HL lists them when you ask for one it doesn't.
+
+**Colours** are names (`red`, `sky blue`, `light gray`), with `dark`, `light` or `pale` in front, a code like `"#ff8800"`,
+`nothing` for see-through, or a variable that holds one of these: `set c to "dark red"` then `with colour c`.
+
 ## Heads-ups
 
 Some things run fine but probably don't do what you meant. HL still runs the program and prints a **Heads up** on the error stream (so the program's own output stays clean). `hl check` lists them and the editor shows them as warnings.

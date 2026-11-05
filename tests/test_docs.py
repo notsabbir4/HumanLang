@@ -6,7 +6,7 @@ import unittest
 
 ROOT = os.path.join(os.path.dirname(__file__), "..")
 sys.path.insert(0, os.path.join(ROOT, "tools"))
-from docs_runner import find_examples, run_example, transcript  # noqa: E402
+from docs_runner import find_examples, run_example, shows_a_page, transcript  # noqa: E402
 
 
 class DocExamples(unittest.TestCase):
@@ -27,7 +27,9 @@ class DocExamples(unittest.TestCase):
                         self.assertIsNotNone(err, f"{where}: expected an error")
                     else:
                         self.assertIsNone(err, f"{where}: unexpected error\n{err}")
-                    if ex.kind != "hum-random":
+                    if ex.kind == "hum-page":
+                        self.assertTrue(shows_a_page(ex), f"{where}: this example should show a page")
+                    elif ex.kind != "hum-random":
                         self.assertIsNotNone(ex.out_text, f"{where}: add an output block, then run tools/docs_fill.py")
                         self.assertEqual(transcript(ex), ex.out_text, where)
         self.assertGreater(total, 40)

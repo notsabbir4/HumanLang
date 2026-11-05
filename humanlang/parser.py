@@ -5,6 +5,7 @@ Statements:  (kind, line, ...)      Expressions:  (kind, ...)
 from .errors import HLError, suggest
 from .hints import for_word
 from .lexer import Line, tokenize
+from .design import DesignParser, EXAMPLES as DESIGN_EXAMPLES
 
 STATEMENT_WORDS = ["say", "set", "change", "add", "subtract", "remove", "ask", "if",
                    "repeat", "for", "define", "give", "stop", "skip", "use", "try", "write"]
@@ -65,7 +66,7 @@ EXAMPLES = {
 VALUE_WORDS = ("yes", "no", "nothing", "list", "item")
 
 
-class Parser:
+class Parser(DesignParser):
     def __init__(self, lines=None):
         self.lines = lines or []
         self.pos = 0
@@ -320,6 +321,16 @@ class Parser:
             self.i = 1
             self.example = EXAMPLES["fail"]
             return self.st_fail()
+        if w == "show" and "show" not in self.declared and self.word("a", 1) and self.word("page", 2):
+            self.i = 1
+            return self.st_page()
+        if w == "put" and "put" not in self.declared:
+            if not self.in_design and not self.in_function:
+                self.example = DESIGN_EXAMPLES["page"]
+                self.fail('"put" only works inside a page',
+                          hint='Start a page first, then indent what goes on it:\nshow a page\n    put a button "Click me"')
+            self.i = 1
+            return self.st_put()
         if w in STATEMENT_WORDS:
             self.i = 1
             self.example = EXAMPLES.get(w)
@@ -494,15 +505,15 @@ class Parser:
         if len(set(params)) != len(params):
             self.fail("Two inputs of this function have the same name")
         self.end()
-        saved = self.in_loop
-        self.in_loop = 0
+        saved, saved_design = self.in_loop, self.in_design
+        self.in_loop = self.in_design = 0
         self.defined.add(name)
         self.in_function += 1
         try:
             body = self.body(lvl)
         finally:
             self.in_function -= 1
-            self.in_loop = saved
+            self.in_loop, self.in_design = saved, saved_design
         return ("define", line, name, params, body)
 
     def st_give(self):
@@ -833,7 +844,7 @@ class Parser:
                 return ("fn", fname, [arg])
         if w in RESERVED:
             self.fail(f'I expected a value here but found "{w}"')
-        if self.word("with", 1):
+        if self.word("with", 1) and not (self.design_content and self.prop_word(2)):
             self.i += 2
             return ("call", w, self.call_args(w))
         self.i += 1
