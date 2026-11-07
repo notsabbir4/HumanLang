@@ -73,6 +73,23 @@ def code_of(text):
     return (m.group(1) if m else text or "").strip("\n")
 
 
+IMAGE_HOSTS = (r"https://github\.com/user-attachments/", r"https://user-images\.githubusercontent\.com/",
+               r"https://private-user-images\.githubusercontent\.com/",
+               r"https://raw\.githubusercontent\.com/notsabbir4/HumanLang/")
+
+
+def image_of(text):
+    """The first picture link in the thumbnail box: ![alt](url), <img src="url"> or a bare link. '' if none."""
+    t = re.sub(r"_No response_", "", text or "")
+    m = (re.search(r"!\[[^\]]*\]\(\s*<?([^)\s>]+)", t) or re.search(r'<img[^>]+src="([^"]+)"', t)
+         or re.search(r"(https?://\S+)", t))
+    return m.group(1) if m else ""
+
+
+def image_ok(url):
+    return any(re.match(h, url) for h in IMAGE_HOSTS)
+
+
 def people(text):
     """GitHub names in 'Made together with': @ada, grace and so on."""
     found = re.findall(r"@?([A-Za-z0-9](?:[A-Za-z0-9-]{0,38}))", re.sub(r"_No response_", "", text or ""))
@@ -193,6 +210,10 @@ def analyse(issue, others, official_code=(), banned=(), officials=()):
     priv = private_info([("code", code), ("description", desc)])
     if priv:
         problems.append("Please remove private details (" + ", ".join(priv) + ").")
+    picture = image_of(f.get("Thumbnail picture (optional)", ""))
+    if f.get("Thumbnail picture (optional)", "").replace("_No response_", "").strip() and not (picture and image_ok(picture)):
+        problems.append("The thumbnail must be a picture you dragged into the thumbnail box (GitHub then keeps it for you). "
+                        "Links to other websites are not accepted. Leave the box empty to get an automatic thumbnail.")
     if len(desc) < 10:
         problems.append("Please write at least a sentence about what your work is and how to use it.")
 

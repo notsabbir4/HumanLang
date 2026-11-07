@@ -18,6 +18,13 @@
     const m = /```[ \t]*\w*[ \t]*\n([\s\S]*?)\n?```/.exec(text || "");
     return (m ? m[1] : text || "").replace(/^\n+|\n+$/g, "");
   }
+  const IMAGE_HOSTS = [/^https:\/\/github\.com\/user-attachments\//, /^https:\/\/user-images\.githubusercontent\.com\//,
+    /^https:\/\/private-user-images\.githubusercontent\.com\//, /^https:\/\/raw\.githubusercontent\.com\/notsabbir4\/HumanLang\//];
+  function imageOf(text) {
+    const t = String(text || "").replace(/_No response_/g, "");
+    const m = /!\[[^\]]*\]\(\s*<?([^)\s>]+)/.exec(t) || /<img[^>]+src="([^"]+)"/.exec(t) || /(https?:\/\/\S+)/.exec(t);
+    return m && IMAGE_HOSTS.some((r) => r.test(m[1])) ? m[1] : "";
+  }
   function people(text) {
     const t = String(text || "").replace(/_No response_/g, "");
     return (t.match(/@?[A-Za-z0-9][A-Za-z0-9-]{0,38}/g) || []).map((p) => p.replace(/^@/, ""))
@@ -29,7 +36,7 @@
       id: issue.number, title: String(issue.title || "").replace(/^Post:\s*/i, ""), author: issue.user.login,
       avatar: issue.user.avatar_url, date: issue.created_at, updated: issue.updated_at, url: issue.html_url,
       category: f["Category"] || "Other", description: (f["What is it? (describe your work)"] || "").replace(/_No response_/g, ""),
-      code: codeOf(f["Your HumanLang code"]), together: people(f["Made together with (optional)"]), labels: names,
+      code: codeOf(f["Your HumanLang code"]), thumb: imageOf(f["Thumbnail picture (optional)"]), together: people(f["Made together with (optional)"]), labels: names,
       verified: names.includes("verified-hl") && !names.some((n) => HIDE.includes(n)), writes: names.includes("writes-files"),
       comments: issue.comments || 0,
     };

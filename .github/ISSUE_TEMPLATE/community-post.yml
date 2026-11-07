@@ -35,6 +35,13 @@ body:
       description: Paste the whole program. It must be HumanLang only (no other language).
       render: hum
     validations: { required: true }
+  - type: textarea
+    id: thumbnail
+    attributes:
+      label: Thumbnail picture (optional)
+      description: |
+        Drag a picture into this box (or paste it). Portrait 4:5, like 800 x 1000, looks best; other shapes are cropped to fit.
+        No picture? We make one for you. It must be your own picture and follow the rules.
   - type: input
     id: together
     attributes:

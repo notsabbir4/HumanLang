@@ -13,7 +13,7 @@
     const o = officialNames.get(p.author.toLowerCase());
     const name = o ? o.name : p.author;
     const link = `https://github.com/${encodeURIComponent(p.author)}`;
-    return `<a class="by" href="${link}" rel="noopener"><img src="${esc(p.avatar)}" alt="" width="24" height="24" loading="lazy"><span>${esc(name)}</span>${o ? TICK : ""}</a>`;
+    return `<a class="by" href="${link}" rel="noopener"><img src="${esc(o && o.avatar ? o.avatar : p.avatar)}" alt="" width="24" height="24" loading="lazy"><span>${esc(name)}</span>${o ? TICK : ""}</a>`;
   }
   function team(p) {
     return p.together.length ? `<span class="with">with ${p.together.map((n) => `<a href="https://github.com/${encodeURIComponent(n)}" rel="noopener">@${esc(n)}</a>`).join(", ")}</span>` : "";
@@ -34,8 +34,16 @@
   const listing = (code) => `<ol class="listing">${code.split("\n").map((l, i) => `<li>${paint(l) || " "}</li>`).join("")}</ol>`;
 
   // ---- the list ----
+  // the 4:5 picture of a post: the poster's thumbnail, or one we make from the title
+  function thumb(p) {
+    if (p.thumb) return `<span class="thumb"><img src="${esc(p.thumb)}" alt="" loading="lazy" referrerpolicy="no-referrer"></span>`;
+    const hue = (p.id * 47) % 360, words = p.title.split(/\s+/).filter(Boolean);
+    const initials = (words.length > 1 ? words[0][0] + words[1][0] : (words[0] || "?").slice(0, 2)).toUpperCase();
+    return `<span class="thumb gen" style="--h:${hue}"><b>${esc(initials)}</b><i>${esc(p.category)}</i></span>`;
+  }
   function card(p) {
     return `<article class="post${officialNames.has(p.author.toLowerCase()) ? " official" : ""}">
+<a class="thumb-link" href="#${p.id}" aria-label="Open post #${p.id}">${thumb(p)}</a>
 <header><a class="pid" href="#${p.id}" title="Post ID">#${p.id}</a><span class="cat">${esc(p.category)}</span></header>
 <h3><a href="#${p.id}">${esc(p.title)}</a></h3>
 <p class="desc">${esc(p.description.length > 170 ? p.description.slice(0, 170).trim() + "..." : p.description)}</p>
@@ -85,6 +93,7 @@
     const official = officialNames.has(p.author.toLowerCase());
     box.innerHTML = `<p><a href="#" class="back">&larr; All posts</a></p>
 <article class="post big${official ? " official" : ""}">
+<div class="big-thumb">${thumb(p)}</div>
 <header><span class="pid">Post ID #${p.id}</span><span class="cat">${esc(p.category)}</span></header>
 <h2>${esc(p.title)}</h2>
 <footer class="meta">${who(p)}${team(p)}<span class="when">${ago(p.date)}</span></footer>

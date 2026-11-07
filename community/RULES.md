@@ -4,7 +4,7 @@
 4. **Anything made with HumanLang goes.** Games, stories, pages, pictures, tools, lessons, puzzles, data helpers: pick the closest category (or "Other").
 5. **Make it kind and safe for everyone.** Kids use this site. No hate, bullying, harassment, or sexual, violent or scary-for-kids content. No programs meant to harm, trick, spy or waste someone's computer. A program that writes or changes files must say so in the description (the post is marked automatically).
 6. **No private information.** No real names of other people, emails, phone numbers, addresses, passwords or keys, yours or anyone's.
-7. **Use your own ideas, art and names.** Do not use another person's artwork, music, characters, logos or trademarks. Making a game in the style of an old arcade game is fine; copying a real game's art, names or characters is not.
+7. **Use your own ideas, art and names.** Do not use another person's artwork, music, characters, logos or trademarks. This includes your thumbnail picture. Making a game in the style of an old arcade game is fine; copying a real game's art, names or characters is not.
 8. **Be yourself.** Do not pretend to be another person or the official HumanLang profile. The blue tick belongs to the official profile only.
 9. **No spam or ads.** One post per project. No selling, advertising or "download this other thing" links. If you improve your project, edit your post instead of posting it again.
 10. **Say what it is and make it work.** Write a clear title and a few sentences: what it is and how to use it. Try it first. Posts that do not run or do not say what they are will be asked to be fixed.

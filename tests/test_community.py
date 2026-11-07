@@ -22,9 +22,9 @@ otherwise
 
 
 def body(code=GOOD, desc="A tiny adder that adds the numbers from one to ten and says the total.", category="Tools and utilities",
-         together="", rules=True, fence="hum"):
+         together="", rules=True, fence="hum", thumb=""):
     return (f"### Category\n\n{category}\n\n### What is it? (describe your work)\n\n{desc}\n\n"
-            f"### Your HumanLang code\n\n```{fence}\n{code}\n```\n\n### Made together with (optional)\n\n{together or '_No response_'}\n\n"
+            f"### Your HumanLang code\n\n```{fence}\n{code}\n```\n\n### Thumbnail picture (optional)\n\n{thumb or '_No response_'}\n\n### Made together with (optional)\n\n{together or '_No response_'}\n\n"
             f"### Rules\n\n- [{'x' if rules else ' '}] I read the rules.\n")
 
 
@@ -45,6 +45,24 @@ class Reading(unittest.TestCase):
     def test_people(self):
         self.assertEqual(cc.people("@Ada and grace, @linus-t"), ["ada", "grace", "linus-t"])
         self.assertEqual(cc.people("_No response_"), [])
+
+
+class Thumbnails(unittest.TestCase):
+    def test_no_picture_is_fine(self):
+        self.assertTrue(cc.analyse(post(), [])["ok"])
+
+    def test_a_github_picture_is_accepted(self):
+        pic = "![thumb](https://github.com/user-attachments/assets/1234abcd-0000-1111-2222-333344445555)"
+        self.assertTrue(cc.analyse(post(thumb=pic), [])["ok"])
+        self.assertEqual(cc.image_of(pic), "https://github.com/user-attachments/assets/1234abcd-0000-1111-2222-333344445555")
+
+    def test_a_link_to_another_site_is_refused(self):
+        r = cc.analyse(post(thumb="![x](https://example.com/me.png)"), [])
+        self.assertFalse(r["ok"])
+        self.assertIn("needs-fix", labels(r))
+
+    def test_html_image_tag(self):
+        self.assertTrue(cc.image_ok(cc.image_of('<img width="400" src="https://github.com/user-attachments/assets/ab" />')))
 
 
 class Publishing(unittest.TestCase):
