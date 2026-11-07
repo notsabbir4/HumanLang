@@ -473,6 +473,23 @@ def write(path, text):
         f.write(text)
 
 
+def stamp_assets(out):
+    """style.css?v=abc123: a changed script or style gets a new address, so browsers never show an old copy of it."""
+    import hashlib
+    def stamp(m):
+        path = os.path.join(out, m.group(2))
+        if not os.path.isfile(path):
+            return m.group(0)
+        with open(path, "rb") as f:
+            digest = hashlib.sha1(f.read()).hexdigest()[:8]
+        return f'{m.group(1)}{m.group(2)}?v={digest}"'
+    for name in os.listdir(out):
+        if name.endswith(".html"):
+            p = os.path.join(out, name)
+            text = read(p)
+            write(p, re.sub(r'((?:src|href)=")([\w.-]+\.(?:js|css))"', stamp, text))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--pyodide-url", default=CDN_PYODIDE)
@@ -526,6 +543,7 @@ def main():
     write(os.path.join(out, "games.html"), games_page(games))
     write(os.path.join(out, "community.html"), community_page())
     write(os.path.join(out, ".nojekyll"), "")
+    stamp_assets(out)
     print(f"Built {len(os.listdir(out))} files in {out}")
 
 
