@@ -69,7 +69,45 @@
         ]
       }
     ],
-    "image": "thumbs/the_last_signal.jpg"
+    "image": "thumbs/the_last_signal.jpg",
+    "kind": "story",
+    "how": [
+      {
+        "title": "Remembering things",
+        "at": "set player to",
+        "text": "A story needs a memory. Each `set` line makes a variable: `health` and `score` are numbers, `trust` and `evidence` count your choices, and `has_key` or `truth_known` are yes/no flags. Later parts of the story read them to decide what happens."
+      },
+      {
+        "title": "The opening scene",
+        "at": "say \"\"",
+        "text": "`say` prints a line. The opening is only `say` lines, which is how you tell a story one line at a time. Because HL is plain English, you can read this part like a script."
+      },
+      {
+        "title": "Asking for your name",
+        "at": "ask \"What should we call you?\"",
+        "text": "`ask ... and save it as player` stops the program, waits for you to type, and keeps your answer in `player`. After that `{player}` inside any `say` line is replaced by the name you typed."
+      },
+      {
+        "title": "Chapter 1: a choice",
+        "at": "note: CHAPTER 1",
+        "text": "A `note:` line is a comment for people, and HL ignores it. The chapters are separated with notes so the file is easy to find your way around in."
+      },
+      {
+        "title": "Making a choice matter",
+        "at": "ask number \"Your decision:\"",
+        "text": "`ask number` only accepts a number. Then `if choice is 1 ... otherwise if choice is 2 ...` runs a different piece of story for each answer, and `add 1 to trust` or `add 1 to evidence` quietly changes the memory. Nothing tells you yet, but the ending will look at these numbers."
+      },
+      {
+        "title": "The last decision",
+        "at": "say \"1. Trust MOTHER and preserve the facility.\"",
+        "text": "The final choice again uses `ask number` and `if`. Look at the second option: `if evidence is at least 2 and humanity is at least 1` joins two conditions with `and`, so the good ending needs the choices you made earlier. That is why the same final button can lead to different endings."
+      },
+      {
+        "title": "The report",
+        "at": "note: FINAL STATISTICS",
+        "text": "After the ending, the game prints your numbers. `if ally_alive ... otherwise ...` turns a yes/no flag back into words. Every ending prints a line starting with `ENDING:`, which is how the tests check that all four can be reached."
+      }
+    ]
   },
   {
     "id": "project-orpheus",
@@ -142,6 +180,286 @@
           "9",
           "9"
         ]
+      }
+    ],
+    "kind": "story",
+    "how": [
+      {
+        "title": "Tools and memory",
+        "at": "use random",
+        "text": "`use random`, `use math`, `use text` and `use dates` add extra tools. Then `set` makes the ship's numbers (`oxygen`, `power`, `hull`, `morale`), flags like `iris_ally`, and a `list of` crew names."
+      },
+      {
+        "title": "Your own functions",
+        "at": "define rank_for with points",
+        "text": "`define` makes a reusable piece of code with a name. `rank_for with points` takes a number and `give back` sends a title back (like `ELITE COMMANDER`). `show_ship_status` is a function with no inputs that prints the dashboard, so the game can show it anywhere by writing its name."
+      },
+      {
+        "title": "The introduction",
+        "at": "note: INTRODUCTION",
+        "text": "Plain `say` lines for the story, then `ask ... and save it as commander` to get your name."
+      },
+      {
+        "title": "Chapter 1 and choices",
+        "at": "note: CHAPTER 1",
+        "text": "`ask number \"COMMAND:\"` reads a menu choice and `if / otherwise if` picks the scene. Many choices also change the ship, for example `subtract 10 from hull`."
+      },
+      {
+        "title": "A random event",
+        "at": "note: RANDOM INCIDENT",
+        "text": "`random item from list of ...` picks one of three events by luck, so no two playthroughs are the same. Then an `if incident is ...` chain runs the matching event."
+      },
+      {
+        "title": "A password",
+        "at": "note: CHAPTER 3",
+        "text": "The game can also ask for words: `ask \"Enter the authorization word:\" and save it as password`, then compare it with `if password is ...`."
+      },
+      {
+        "title": "The final decision",
+        "at": "note: CHAPTER 5",
+        "text": "The last choice checks several things at once, like `if evidence is at least 3 and iris_ally and power is at least 20 and hull is greater than 0`. One clever player can find the secret ending."
+      },
+      {
+        "title": "The mission report",
+        "at": "note: FINAL MISSION REPORT",
+        "text": "The game finishes by showing your score and calling the function: `{rank_for with score}` inside a `say` line runs it and puts the rank into the sentence."
+      }
+    ]
+  },
+  {
+    "id": "planet-defenders",
+    "title": "PLANET DEFENDERS",
+    "subtitle": "Arcade",
+    "file": "planet_defenders.hum",
+    "kind": "arcade",
+    "tagline": "Shoot the marching invaders before they land.",
+    "blurb": "A shoot-the-invaders arcade game. Eight rows of aliens march and drop bombs; you have three lives and one shot at a time.",
+    "tags": [
+      "Arcade",
+      "Shooter",
+      "Keyboard"
+    ],
+    "keys": "Left and Right move, Space shoots, Enter plays again",
+    "image": "thumbs/planet-defenders.jpg",
+    "how": [
+      {
+        "title": "Sprites: the pictures",
+        "at": "make a sprite called cannon",
+        "text": "A sprite is a picture made of squares. The `where` line says what each letter means (`g` is light green), then each line of quotes is one row of squares; a dot is empty. `with 2 frames` stacks two pictures so the aliens can wiggle, and `pixel size 2` makes every square 2 dots wide."
+      },
+      {
+        "title": "The game's memory",
+        "at": "set columns to",
+        "text": "The game remembers everything in variables: where the cannon is (`px`), where the shot and the bomb are (`shot_y`, `bomb_y`; -1 means none), how far the invaders have marched (`gx`, `gy`), the `score` and the `lives`. The invaders are a list `alive` with a 1 for each living alien and a 0 for each dead one."
+      },
+      {
+        "title": "Helper functions",
+        "at": "define start_over",
+        "text": "`define` gives names to small jobs. `start_over` resets everything, `alien_x` and `alien_y` work out where an alien is from its column and row, `aliens_left` counts the 1s in the list, and `lowest_alien` finds how close the invaders are to the ground."
+      },
+      {
+        "title": "The game and its first part",
+        "at": "play a game titled",
+        "text": "`play a game` sets the screen size and the background. Everything indented under it is a part of the game. `when the game starts` runs once and calls `start_over`."
+      },
+      {
+        "title": "Every frame: moving",
+        "at": "every frame",
+        "text": "`every frame` runs about 60 times a second. Inside, `if key \"left\" is down` moves the cannon. The invaders slide sideways by `heading * speed`, and when they hit a wall `heading` flips and they step down. They also speed up as `aliens_left` goes down."
+      },
+      {
+        "title": "Shots and bombs",
+        "at": "note: the cannon's shot",
+        "text": "A shot moves up 6 dots a frame. A bomb falls 3 dots; sometimes (`random number from 1 to 40 is 1`) a random column drops one. If the bomb reaches the cannon, you lose a life and hear `play the sound \"explosion\"`."
+      },
+      {
+        "title": "Did the shot hit?",
+        "at": "note: did the shot hit an invader?",
+        "text": "Two loops, `for each row from 1 to rows` and `for each col from 1 to columns`, visit every alien. If the shot is inside an alien's box, that alien's entry in the list becomes 0, the shot disappears and the score goes up by 10."
+      },
+      {
+        "title": "Drawing the picture",
+        "at": "note: ---- drawing ----",
+        "text": "Each frame is drawn again from scratch: `draw the sprite crab at x, y frame pose` for each living alien (`pose` flips between 1 and 2 as the frame number grows), the cannon, the shot as a `put a rectangle`, and the words with `put a text`."
+      },
+      {
+        "title": "Keys that happen once",
+        "at": "when the key \"space\" is pressed",
+        "text": "`when the key ... is pressed` runs once when you press, not while you hold. Space fires only if there is no shot on screen. Enter starts over after you win or lose."
+      }
+    ]
+  },
+  {
+    "id": "maze-muncher",
+    "title": "MAZE MUNCHER",
+    "subtitle": "Arcade",
+    "file": "maze_muncher.hum",
+    "kind": "arcade",
+    "tagline": "Eat every dot, dodge two ghosts, grab a big dot to turn the tables.",
+    "blurb": "A maze chase on a tile map. The ghosts hunt you, until you eat a big dot: then they run away and you can catch them.",
+    "tags": [
+      "Arcade",
+      "Maze",
+      "Keyboard"
+    ],
+    "keys": "Arrow keys steer, Enter plays again",
+    "image": "thumbs/maze-muncher.jpg",
+    "how": [
+      {
+        "title": "Sprites",
+        "at": "make a sprite called dot",
+        "text": "Dots, the muncher and three kinds of ghost are all sprites. The muncher and the ghosts have 2 frames (mouth open and shut, feet apart and together)."
+      },
+      {
+        "title": "The maze is a map",
+        "at": "make a map called maze",
+        "text": "A map is a grid of tiles. In the `where` line, `#` is a blue wall, `p` is the dot sprite and `O` the big dot. The picture of letters below it is the whole maze. HL draws it for you with one line: `draw the map maze`."
+      },
+      {
+        "title": "Positions in tiles",
+        "at": "set pc to",
+        "text": "Everything here moves one tile at a time, so positions are a column and a row (`pc`, `pr`) with a direction (`pdx`, `pdy`). The ghosts keep theirs in lists, one item per ghost. `wdx` and `wdy` remember the direction you asked for with the keys."
+      },
+      {
+        "title": "Reading the map",
+        "at": "define open_tile",
+        "text": "`tile in column c, row r of maze` is the letter at that place. A tile is open when it is not `#` and not empty text (outside the map). `count_dots` loops over the whole map to count dots, and `start_over` puts the dots back."
+      },
+      {
+        "title": "How a ghost thinks",
+        "at": "define pick_ghost_move",
+        "text": "At each tile a ghost looks at the four directions, ignores walls and going straight back, and picks the one that gets closest to you (distance = columns apart + rows apart, plus a little random number so they are not perfect). While you are powered up the distance is flipped, so they run away."
+      },
+      {
+        "title": "The game loop",
+        "at": "play a game titled",
+        "text": "`tick` counts frames. Every 8 frames everyone arrives on a new tile: you eat what is there (`change tile in column ... to \".\"` removes a dot), the ghosts choose their next step, and HL checks who touched whom."
+      },
+      {
+        "title": "Smooth movement",
+        "at": "note: ---- drawing ----",
+        "text": "Between arrivals, the pictures slide: the muncher is drawn at its tile plus `direction * tick * 2` dots, so it looks smooth even though the logic hops from tile to tile. `facing left` turns the muncher around."
+      },
+      {
+        "title": "Steering",
+        "at": "when the key \"left\" is pressed",
+        "text": "Each arrow key only writes down the direction you want. The muncher turns at the next tile if that way is open, which makes corners easy."
+      }
+    ]
+  },
+  {
+    "id": "crate-climber",
+    "title": "CRATE CLIMBER",
+    "subtitle": "Arcade",
+    "file": "crate_climber.hum",
+    "kind": "arcade",
+    "tagline": "Climb the ladders to the star while barrels roll down.",
+    "blurb": "A ladders-and-barrels climber. Hop over rolling barrels for bonus points and reach the star at the top.",
+    "tags": [
+      "Arcade",
+      "Platformer",
+      "Keyboard"
+    ],
+    "keys": "Left/Right walk, Up/Down climb a ladder, Space jumps, Enter plays again",
+    "image": "thumbs/crate-climber.jpg",
+    "how": [
+      {
+        "title": "Sprites",
+        "at": "make a sprite called climber",
+        "text": "The climber has one set of pictures for walking and one for climbing (hands up the ladder). The barrel rolls with 2 frames. `girder`, `ladder` and `ladder_top` are tile pictures."
+      },
+      {
+        "title": "The level is a map",
+        "at": "make a map called tiers",
+        "text": "In the map, `#` is a girder (solid ground), `h` is a ladder, and `H` is the top of a ladder (you can stand on it, and climb down through it). The picture of letters is the whole level."
+      },
+      {
+        "title": "Memory",
+        "at": "set px to",
+        "text": "`px`, `py` and `vy` are the climber's place and falling speed. `climbing` and `on_ground` are yes/no flags. The barrels are several lists side by side (`bx`, `by`, `bdir`, `bfall`, `bpaid`): the item number is the barrel."
+      },
+      {
+        "title": "Helpers",
+        "at": "define reset_hero",
+        "text": "`reset_hero` puts you back at the start and clears the barrels. `hurt` takes a life. `remove_barrel with i` removes item `i` from every barrel list."
+      },
+      {
+        "title": "Climbing",
+        "at": "note: grab a ladder",
+        "text": "`tile at px + 6, py + 8 of tiers` is the tile under the middle of the climber. If it is a ladder and you press up, `climbing` becomes yes: gravity stops and up/down move you 1.5 dots. At the top, HL puts you on the girder."
+      },
+      {
+        "title": "Walking and gravity",
+        "at": "note: walking and falling",
+        "text": "Left and right change `px`. Every frame `vy` gets 0.45 bigger (gravity) and `py` moves by `vy`. If the feet are on a girder, the climber lands: `vy` becomes 0 and `on_ground` is yes. The jump key sets `vy` to -5, an upward push that gravity slowly cancels."
+      },
+      {
+        "title": "Barrels",
+        "at": "note: barrels",
+        "text": "Every 140 frames a new barrel is added to the lists. A barrel rolls along a girder; when there is no floor it falls, and when it lands it turns around. That makes it zig-zag down the tiers. `repeat while` walks through the lists, and `remove_barrel` deletes barrels that leave the screen."
+      },
+      {
+        "title": "Hitting and jumping over",
+        "at": "note: the star at the top",
+        "text": "If a barrel is within 12 dots of you, `hurt` is called. If you are in the air above a barrel instead, you earn 100 points (once per barrel, remembered in `bpaid`). Reaching the star ends the game with a win."
+      }
+    ]
+  },
+  {
+    "id": "sky-runner",
+    "title": "SKY RUNNER",
+    "subtitle": "Arcade",
+    "file": "sky_runner.hum",
+    "kind": "arcade",
+    "tagline": "A side-scrolling platformer: coins, pits and beetles to stomp.",
+    "blurb": "Run and jump across a level three screens wide. The camera follows you; stomp beetles from above, collect coins and reach the flag.",
+    "tags": [
+      "Arcade",
+      "Platformer",
+      "Keyboard"
+    ],
+    "keys": "Left/Right run, Up or Space jumps, Enter plays again",
+    "image": "thumbs/sky-runner.jpg",
+    "how": [
+      {
+        "title": "Sprites",
+        "at": "make a sprite called hero",
+        "text": "The hero, the beetle, the ground and bricks, the coin and the flag are all small pixel pictures. Both walkers have 2 frames to look like they are walking."
+      },
+      {
+        "title": "A level wider than the screen",
+        "at": "make a map called level",
+        "text": "The map is 64 tiles wide but the screen only shows 20, so the camera has to follow the hero. `#` is ground, `B` is brick, `c` a coin, `F` the flag. Blank space is sky, and the gaps in the ground are pits."
+      },
+      {
+        "title": "Memory",
+        "at": "set coin_cols to",
+        "text": "`px, py, vx, vy` are the hero's place and speed. The beetles are lists (`ex`, `ey`, `edir`). `coin_cols` and `coin_rows` remember where the coins were, so a new game can put them back."
+      },
+      {
+        "title": "Is there something solid?",
+        "at": "define solid_at",
+        "text": "`solid_at with x and y` looks at the tile at that exact spot and answers yes for ground or brick. The hero's collision is built from four calls, one per corner, so you cannot walk into a wall or fall through the floor."
+      },
+      {
+        "title": "Moving the hero",
+        "at": "note: running",
+        "text": "Sideways first: if the corners of the new position are not solid, the hero moves. Then gravity: `vy` grows by 0.45 and the hero moves down, landing on the floor or bumping its head. Doing sideways and down separately keeps it simple and reliable."
+      },
+      {
+        "title": "Beetles, coins and pits",
+        "at": "note: coins",
+        "text": "Stepping on a `c` tile removes it (`change tile at ... of level to \".\"`) and adds 10. Beetles walk and turn at walls or edges. `the sprite hero at px, py touches the sprite beetle at e, ey` is a collision test: falling onto a beetle from above stomps it, any other touch hurts."
+      },
+      {
+        "title": "The camera",
+        "at": "note: ---- the camera follows the hero ----",
+        "text": "`move the camera to cam, 0` slides the whole world. The clouds are drawn at `60 + cam * 0.7`, so they move slower than the ground. That is called parallax and it makes the picture feel deep. Text, like the score, stays on the screen."
+      },
+      {
+        "title": "Jumping",
+        "at": "when the key \"up\" is pressed",
+        "text": "The jump key only works when `on_ground` is yes. It sets `vy` to -7.6 and plays a sound. Space does the same, so you can use either."
       }
     ]
   }

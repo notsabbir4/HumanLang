@@ -1,0 +1,49 @@
+name: Community post
+description: Share something you made with HumanLang on the website's Community page.
+title: "Post: "
+labels: [community]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for sharing! Your post gets its **Post ID** (a number) the moment you press Submit.
+        A bot reads your program (it never runs it) and, if it is 100% HumanLang, it shows on the Community page within a few minutes.
+        Please read the [rules](https://github.com/notsabbir4/HumanLang/blob/main/community/RULES.md) first: only HumanLang, only your own work.
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      options:
+        - Games
+        - Stories
+        - Design (pages and pictures)
+        - Tools and utilities
+        - Learning (lessons and puzzles)
+        - Data and files
+        - Other
+    validations: { required: true }
+  - type: textarea
+    id: description
+    attributes:
+      label: What is it? (describe your work)
+      description: A few sentences. What does it do, and how do people use it (which keys, what to type)?
+    validations: { required: true }
+  - type: textarea
+    id: code
+    attributes:
+      label: Your HumanLang code
+      description: Paste the whole program. It must be HumanLang only (no other language).
+      render: hum
+    validations: { required: true }
+  - type: input
+    id: together
+    attributes:
+      label: Made together with (optional)
+      description: GitHub names of everyone who built it with you, like @ada and @grace. Leave empty if it is only yours.
+  - type: checkboxes
+    id: rules
+    attributes:
+      label: Rules
+      options:
+        - label: I read the rules. This is 100% HumanLang, it is my own work (or made with the people listed), and it follows the rules.
+          required: true

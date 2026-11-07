@@ -1321,8 +1321,9 @@ play a game titled "Coins" with size 160 by 64 and background black
 `hl build mygame.hum` saves the whole game as one web page, `mygame.html`. Put that file on any website or send it to
 a friend: it opens in any browser. (It needs the internet when it starts, to load the part that runs HL in the browser.)
 
-The **Arcade** page on the website has four full games: Planet Defenders, Maze Muncher, Crate Climber and Sky Runner.
-Their code is in the `arcade` folder. Read them, change a number, and see what happens: that is the fastest way to learn.
+The **Games** page on the website has four full arcade games: Planet Defenders, Maze Muncher, Crate Climber and Sky Runner.
+Press **Inspect** on one to read its code with every part explained (the code is also in the `games` folder). Change a number,
+run it, and see what happens: that is the fastest way to learn.
 
 ### Try it
 

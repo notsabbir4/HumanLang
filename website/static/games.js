@@ -21,7 +21,11 @@
       a.appendChild(img);
     }
     a.append(h, sub, p, t, go);
-    $("grid").appendChild(a);
+    const wrap = document.createElement("div"); wrap.className = "game-wrap";
+    const ins = document.createElement("a"); ins.className = "inspect-link"; ins.href = "#" + g.id + "/inspect"; ins.textContent = "Inspect";
+    ins.title = "See the code and how it works";
+    wrap.append(a, ins);
+    $("grid").appendChild(wrap);
   }
 
   function setStatus(text) { status.textContent = text; }
@@ -35,6 +39,8 @@
       const m = e.data;
       if (m.type === "ready") { ready = true; setStatus(""); if (current) play(); }
       else if (m.type === "error") setStatus("Could not load the game engine: " + m.message);
+      else if (m.type === "gameinfo") arcadeInfo(m);
+      else if (m.type === "gameframe") arcadeFrame(m);
       else if (m.type === "result") {
         running = false;
         if (m.need !== undefined) ask(m.out || "", m.need);
@@ -141,6 +147,37 @@
     });
   }
 
+  // ---- arcade games: drawn on a canvas, one frame at a time (the engine is shared with the Playground) ----
+  const abox = $("arcade-box"), acanvas = $("arcade-screen");
+  let arcade = null, frameWaiting = null, starting = false;
+  function stopArcade() { if (arcade) { arcade.stop(); arcade = null; } frameWaiting = null; starting = false; }
+  function startArcade() {
+    stopArcade();
+    if (!ready) { setStatus("Loading HumanLang... (the first time takes a few seconds)"); return; }
+    starting = true; setStatus("Starting the game...");
+    worker.postMessage({ type: "gamestart", code: current.code });
+  }
+  function arcadeInfo(m) {
+    starting = false;
+    if (!current || current.kind !== "arcade") return;
+    if (m.error) { setStatus(""); abox.hidden = true; screen.hidden = false; screen.className = "error"; screen.textContent = m.error; return; }
+    const k = Math.max(1, Math.floor(Math.min(stage.clientWidth || 640, 900) / m.info.w));
+    acanvas.style.width = m.info.w * k + "px"; acanvas.style.height = m.info.h * k + "px";
+    arcade = Arcade(acanvas, m.info, (input) => new Promise((resolve, reject) => {
+      frameWaiting = { resolve, reject };
+      worker.postMessage({ type: "gameframe", input });
+    }), {
+      onError: (msg) => { setStatus("The game stopped with a problem."); screen.hidden = false; screen.className = "error"; screen.textContent = msg; },
+      onOver: () => setStatus("Game over. Press Restart to play again."),
+    });
+    setStatus("Click the game, then use the keys."); acanvas.focus(); arcade.start();
+  }
+  function arcadeFrame(m) {
+    const w = frameWaiting; frameWaiting = null; if (!w) return;
+    const f = JSON.parse(m.json);
+    if (f.error) w.reject(new Error(f.error)); else w.resolve(f);
+  }
+
   function run() {
     if (!ready || running || !current) return;
     running = true; setStatus("...");
@@ -148,6 +185,7 @@
   }
 
   function play() {
+    if (current && current.kind === "arcade") { startArcade(); return; }
     answers = []; waiting = false; shown(""); restartBtn.textContent = "Restart"; setStatus("");
     if (!ready) { setStatus("Loading HumanLang... (the first time takes a few seconds)"); return; }
     if (running) { worker.terminate(); startWorker(); return; }  // answered mid-run: start clean
@@ -155,20 +193,58 @@
   }
 
   // ---- showing a game ----
-  function open(id) {
+  const inspectBtn = $("inspect-btn"), inspectBox = $("inspect"), inspectBody = $("inspect-body");
+  function setInspect(on) {
+    inspectBox.hidden = !on; inspectBtn.setAttribute("aria-expanded", String(on));
+    inspectBtn.textContent = on ? "Hide code" : "Inspect";
+  }
+  function fillInspect(g) {
+    inspectBody.innerHTML = g.inspect || '<pre class="plain"></pre>';
+    if (!g.inspect) inspectBody.firstChild.textContent = g.code;
+    const edit = $("inspect-edit");
+    edit.hidden = g.kind !== "arcade"; edit.href = "playground.html#example=" + encodeURIComponent(g.file);
+    const lines = inspectBody.querySelectorAll(".listing li");
+    for (const b of inspectBody.querySelectorAll(".step")) {
+      b.onclick = () => {
+        const from = +b.dataset.from, to = +b.dataset.to;
+        for (const x of inspectBody.querySelectorAll(".step.on")) x.classList.remove("on");
+        b.classList.add("on");
+        lines.forEach((li, i) => li.classList.toggle("hot", i + 1 >= from && i + 1 <= to));
+        if (lines[from - 1]) {
+          const box = lines[from - 1].closest(".listing"), top = lines[from - 1].offsetTop;
+          box.scrollTo({ top: Math.max(0, top - 24), behavior: calm ? "auto" : "smooth" });
+        }
+      };
+    }
+  }
+  inspectBtn.onclick = () => {
+    const open_ = inspectBox.hidden;
+    if (current) history.replaceState(null, "", "#" + current.id + (open_ ? "/inspect" : ""));
+    setInspect(open_);
+    if (open_) inspectBox.scrollIntoView({ behavior: calm ? "auto" : "smooth", block: "start" });
+  };
+
+  function open(hash) {
+    const [id, extra] = hash.split("/");
     const g = games.find((x) => x.id === id);
+    stopArcade();
     if (!g) { current = null; cancelTyping(); lobby.hidden = false; stage.hidden = true; document.title = "Games - HumanLang"; return; }
+    const same = current === g;
     current = g;
+    const arc = g.kind === "arcade";
+    abox.hidden = !arc; screen.hidden = arc; $("speed").parentElement.hidden = arc;
+    $("arcade-keys").textContent = g.keys ? "Keys: " + g.keys : "";
+    fillInspect(g); setInspect(extra === "inspect");
     lobby.hidden = true; stage.hidden = false;
     title.textContent = g.title + (g.subtitle ? " - " + g.subtitle : "");
     document.title = g.title + " - HumanLang Games";
     tags.textContent = (g.tags || []).join("  ·  ");
     const banner = $("gbanner");
     if (g.image) { banner.src = g.image; banner.hidden = false; } else banner.hidden = true;
-    window.scrollTo(0, 0);
-    play();
+    if (extra === "inspect") inspectBox.scrollIntoView(); else window.scrollTo(0, 0);
+    if (!same) play();
   }
-  restartBtn.onclick = () => { if (running) { worker.terminate(); running = false; startWorker(); } play(); };
+  restartBtn.onclick = () => { if (current && current.kind === "arcade") { startArcade(); return; } if (running) { worker.terminate(); running = false; startWorker(); } play(); };
   backBtn.onclick = () => { if (worker && running) { worker.terminate(); running = false; startWorker(); } location.hash = ""; };
   window.addEventListener("hashchange", () => open(location.hash.slice(1)));
 

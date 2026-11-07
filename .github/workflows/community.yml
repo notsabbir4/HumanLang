@@ -1,0 +1,23 @@
+name: community
+on:
+  issues:
+    types: [opened, edited, reopened, labeled]
+permissions:
+  issues: write
+  contents: read
+concurrency:
+  group: community-${{ github.event.issue.number }}
+  cancel-in-progress: true
+jobs:
+  check:
+    # the bot's own label changes must not start it again
+    if: github.event.action != 'labeled' || github.event.label.name == 'community'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: Read the post (it is only read, never run)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python tools/community_check.py

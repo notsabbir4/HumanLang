@@ -240,6 +240,16 @@
   try {
     if (params.get("code")) {
       const o = document.createElement("option"); o.value = ""; o.textContent = "(your program)"; pick.insertBefore(o, pick.firstChild); pick.value = ""; code.value = decode(params.get("code")); inputs.value = params.get("in") ? decode(params.get("in")) : ""; }
+    else if (params.get("post") && window.HLCommunity) {
+      // a community post: fetch it (the program is only read here, then runs in your browser like any other)
+      const o = document.createElement("option"); o.value = ""; o.textContent = "(community post #" + params.get("post") + ")"; pick.insertBefore(o, pick.firstChild); pick.value = "";
+      code.value = 'note: loading community post #' + params.get("post") + ' ...';
+      HLCommunity.getIssue(params.get("post")).then((issue) => {
+        const p = issue && HLCommunity.parse(issue);
+        code.value = p && p.verified ? p.code : 'note: there is no published community post with that ID.';
+        refresh();
+      }).catch((e) => { code.value = "note: I could not load the post (" + e.message + ")."; refresh(); });
+    }
     else if (params.get("example") && examples[params.get("example")]) loadExample(params.get("example"));
     else loadExample("hello.hum");
   } catch (e) { loadExample("hello.hum"); }

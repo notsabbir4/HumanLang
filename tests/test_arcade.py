@@ -202,18 +202,32 @@ class Page(unittest.TestCase):
 
 
 def load(name):
-    with open(os.path.join(ROOT, "arcade", name), encoding="utf-8") as f:
+    with open(os.path.join(ROOT, "games", name), encoding="utf-8") as f:
         return f.read()
 
 
 class Showcase(unittest.TestCase):
-    def test_index_lists_every_game(self):
-        with open(os.path.join(ROOT, "arcade", "index.json"), encoding="utf-8") as f:
-            listed = {g["file"] for g in json.load(f)}
-        self.assertEqual(listed, {os.path.basename(p) for p in glob.glob(os.path.join(ROOT, "arcade", "*.hum"))})
+    def arcade_files(self):
+        with open(os.path.join(ROOT, "games", "index.json"), encoding="utf-8") as f:
+            return [g["file"] for g in json.load(f) if g.get("kind") == "arcade"]
+
+    def test_four_arcade_games_are_listed(self):
+        self.assertEqual(len(self.arcade_files()), 4)
+
+    def test_every_game_explains_itself_for_inspect(self):
+        sys.path.insert(0, os.path.join(ROOT, "website"))
+        import build  # noqa: E402
+        with open(os.path.join(ROOT, "games", "index.json"), encoding="utf-8") as f:
+            for g in json.load(f):
+                with self.subTest(game=g["id"]):
+                    self.assertTrue(g.get("how"), "every game needs its 'how' steps for the Inspect button")
+                    html = build.inspect_html(load(g["file"]), g["how"], g["id"])
+                    self.assertIn("How it works", html)
+                    self.assertEqual(html.count('class="step"'), len(g["how"]))
 
     def test_every_game_runs_and_draws(self):
-        for path in sorted(glob.glob(os.path.join(ROOT, "arcade", "*.hum"))):
+        for name in self.arcade_files():
+            path = os.path.join(ROOT, "games", name)
             with self.subTest(game=os.path.basename(path)):
                 it = make(load(os.path.basename(path)), out=lambda t: None)
                 keys = ["left", "right", "up", "down", "space"]

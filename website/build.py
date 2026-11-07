@@ -140,7 +140,7 @@ def render_markdown(text):
 
 # ---- page template -----------------------------------------------------------
 NAV = [("index.html", "Home"), ("tutorial.html", "Tutorial"), ("reference.html", "Reference"),
-       ("playground.html", "Playground"), ("games.html", "Games"), ("arcade.html", "Arcade"), ("editors.html", "Editors"),
+       ("playground.html", "Playground"), ("games.html", "Games"), ("community.html", "Community"), ("editors.html", "Editors"),
        ("install.html", "Download")]
 REPO = "https://github.com/notsabbir4/HumanLang"
 LATEST = REPO + "/releases/latest/download/"
@@ -320,30 +320,100 @@ def playground_page(examples):
 """
     words = {"k": CONTROL + STATEMENT + DESIGN, "o": OPERATORS, "f": BUILTINS, "v": CONSTANTS}
     script = (f'<script>window.HL_EXAMPLES = {json.dumps(examples)}; window.HL_WORDS = {json.dumps(words)};</script>\n'
-              '<script src="arcade.js"></script><script src="playground.js"></script>')
+              '<script src="arcade.js"></script><script src="community-lib.js"></script><script src="playground.js"></script>')
     return page("Playground - HumanLang", body, "playground.html", extra_body=script, main_class="ide-page")
 
 
-def arcade_page(arcade):
-    cards = "".join(
-        f'<a class="game-card" href="playground.html#example={html.escape(g["file"])}">'
-        f'<strong>{html.escape(g["title"])}</strong><span>{html.escape(g["blurb"])}</span>'
-        f'<em>{html.escape(g["keys"])}</em></a>' for g in arcade)
+def inspect_html(code, how, game_id):
+    """The Inspect panel: the explanation steps on the left, the code with line numbers on the right.
+    Each step lights up its own lines of code."""
+    lines = code.split("\n")
+    starts = []
+    for step in how:
+        found = next((i for i, l in enumerate(lines) if l.strip().startswith(step["at"])), None)
+        if found is None:
+            raise SystemExit(f'{game_id}: the Inspect step "{step["title"]}" starts at "{step["at"]}", which is not in the game')
+        starts.append(found)
+    if starts != sorted(set(starts)):
+        raise SystemExit(f"{game_id}: the Inspect steps must be in the order they appear in the code")
+    ends = starts[1:] + [len(lines)]
+    steps = "".join(
+        f'<li><button type="button" class="step" data-from="{a + 1}" data-to="{b}">'
+        f'<strong>{html.escape(st["title"])}</strong>'
+        f'<span>{re.sub(r"`([^`]+)`", lambda m: "<code>" + m.group(1) + "</code>", html.escape(st["text"]))}</span></button></li>'
+        for st, a, b in zip(how, starts, ends))
+    code_html = "".join(f'<li id="L{i + 1}">{highlight(l) or " "}</li>' for i, l in enumerate(lines))
+    return (f'<div class="inspect-grid"><div><h3>How it works</h3><p class="hint">Press a step to see its lines in the code.</p>'
+            f'<ol class="steps">{steps}</ol></div>'
+            f'<div><h3>The code</h3><ol class="listing" id="listing">{code_html}</ol></div></div>')
+
+
+def community_snapshot():
+    """The published community posts as of this build (the page also asks GitHub live, this is the fallback)."""
+    import urllib.request
+    posts = []
+    try:
+        for page_no in range(1, 6):
+            req = urllib.request.Request(
+                f"https://api.github.com/repos/notsabbir4/HumanLang/issues?labels=community,verified-hl&state=open&per_page=100&page={page_no}",
+                headers={"Accept": "application/vnd.github+json"})
+            if os.environ.get("GITHUB_TOKEN"):
+                req.add_header("Authorization", "Bearer " + os.environ["GITHUB_TOKEN"])
+            with urllib.request.urlopen(req, timeout=20) as r:
+                batch = json.load(r)
+            for i in batch:
+                if "pull_request" in i:
+                    continue
+                posts.append({k: i.get(k) for k in ("number", "title", "body", "created_at", "updated_at", "html_url", "comments")}
+                             | {"user": {"login": i["user"]["login"], "avatar_url": i["user"]["avatar_url"]},
+                                "labels": [{"name": l["name"]} for l in i.get("labels", [])]})
+            if len(batch) < 100:
+                break
+    except Exception as e:  # no internet while building: the page still works, it asks GitHub when opened
+        print(f"(community snapshot skipped: {e})", file=sys.stderr)
+    return posts
+
+
+def community_page():
+    sys.path.insert(0, os.path.join(ROOT, "tools"))
+    import community_check
+    rules, _ = render_markdown(read(os.path.join(ROOT, "community", "RULES.md")))
+    data = {
+        "official": community_check.load_json("official.json", {}).get("accounts", []),
+        "banned": [b["login"] for b in community_check.load_json("banned.json", {}).get("banned", [])],
+        "categories": community_check.CATEGORIES,
+        "keywords": sorted({w for w in re.findall(r"[a-z]+(?: [a-z]+)*", " ".join(DESIGN + CONTROL + STATEMENT + OPERATORS).lower())}),
+        "snapshot": community_snapshot(),
+    }
+    new_post = f"{REPO}/issues/new?template=community-post.yml"
     body = f"""
-<div class="games">
-<h1>Arcade</h1>
-<p class="lead">Old-school 2D arcade games, written in HumanLang. Press a card to open it in the Playground and play it
-right away (the first time takes a few seconds to load). Read the code next to the game, change it, press Run again.</p>
-<div class="game-grid">{cards}</div>
-<h2>Make your own</h2>
-<p>A game is a few sprites, maybe a tile map, and three or four short parts: <em>when the game starts</em>,
-<em>every frame</em>, <em>when the key ... is pressed</em>. The
-<a href="tutorial.html">tutorial</a> has a chapter for it, and the <a href="reference.html">reference</a> lists every word.
-To keep a finished game, type <code>hl build mygame.hum</code>: you get one web page you can put on any website.</p>
-<p>All art, names and levels here are original. HumanLang can make games in the style of the old arcade classics:
-scrolling platformers, maze chasers, shoot-em-ups, ladder climbers.</p>
+<div class="community">
+<section id="browse">
+<h1>Community</h1>
+<p class="lead">Things people made with HumanLang: games, stories, pages, tools and more. Every post is 100% HumanLang
+and has its own <strong>Post ID</strong>. Run any post in the Playground, read its code, and learn from it.</p>
+<div class="comm-top">
+<a class="btn run" href="{new_post}" rel="noopener">Post your work</a>
+<a class="btn ghost" href="#rules">Read the rules</a>
+<form id="find" class="find"><label for="findid">Find a post by ID</label>
+<input id="findid" inputmode="numeric" placeholder="#42" autocomplete="off"><button class="btn ghost" type="submit">Go</button></form>
+</div>
+<div class="comm-filter"><input id="q" type="search" placeholder="Search posts" aria-label="Search posts"><span id="count" class="count"></span></div>
+<div id="chips" class="chips"></div>
+<p id="note" class="status"></p>
+<div id="posts" class="posts"></div>
+<section id="rules" class="rules"><h2>Rules</h2>
+<p>To post you need a free GitHub account. Press <strong>Post your work</strong>, fill in the form and submit. You get your Post ID right away,
+and a bot checks the program (it only reads it, it never runs it). If it is 100% HumanLang it shows up here within a few minutes.
+If something needs fixing the bot tells you what, and checks again when you edit your post.</p>
+<ol>{re.sub(r"</?(ol)>", "", rules)}</ol>
+</section>
+</section>
+<section id="detail" hidden></section>
 </div>"""
-    return page("Arcade - HumanLang", body, "arcade.html")
+    script = (f'<script>window.HL_COMMUNITY = {json.dumps(data).replace("</", "<\\/")};</script>\n'
+              '<script src="community-lib.js"></script>\n<script src="community.js"></script>')
+    return page("Community - HumanLang", body, "community.html", extra_body=script)
 
 
 def games_page(games):
@@ -352,7 +422,7 @@ def games_page(games):
 <section id="lobby">
 <h1>Games</h1>
 <p class="lead">Games written in HumanLang. Pick one and play it right here, nothing to install.
-Want to see how one works? Every game is a plain <code>.hum</code> file in the
+Want to see how one works? Press <strong>Inspect</strong> on any game to read its code, with every part explained. Every game is a plain <code>.hum</code> file in the
 <a href="https://github.com/notsabbir4/HumanLang/tree/main/games">games folder</a>.</p>
 <div class="game-grid" id="grid"></div>
 </section>
@@ -360,6 +430,7 @@ Want to see how one works? Every game is a plain <code>.hum</code> file in the
 <div class="stage-top">
 <button class="btn ghost" id="back" type="button">&larr; All games</button>
 <span class="grow"></span>
+<button class="btn ghost" id="inspect-btn" type="button" aria-expanded="false" aria-controls="inspect">Inspect</button>
 <button class="btn run" id="restart" type="button">Restart</button>
 </div>
 <img class="banner" id="gbanner" alt="" hidden>
@@ -371,12 +442,22 @@ Want to see how one works? Every game is a plain <code>.hum</code> file in the
 <option value="fast">Fast</option><option value="instant">Instant</option></select>
 <button class="btn ghost" id="skip" type="button" hidden>Skip ahead</button>
 </div>
+<div id="arcade-box" hidden>
+<div class="arcade-frame"><canvas id="arcade-screen" tabindex="0" aria-label="The game. Click it, then use the keyboard."></canvas></div>
+<p class="keys" id="arcade-keys"></p>
+</div>
 <pre id="screen" aria-live="polite"></pre>
 <p id="gstatus" class="gstatus"></p>
+<section id="inspect" class="inspect" hidden aria-label="Inspect: how this game was made">
+<h2>Inspect</h2>
+<p class="lead">This is the real program, written in HumanLang. Nothing is hidden: the game you just played is exactly this code.
+<a id="inspect-edit" href="playground.html" hidden>Open it in the Playground and change it.</a></p>
+<div id="inspect-body"></div>
+</section>
 </section>
 </div>
 """
-    script = (f'<script>window.HL_GAMES = {json.dumps(games)};</script>\n<script src="games.js"></script>')
+    script = (f'<script>window.HL_GAMES = {json.dumps(games)};</script>\n<script src="arcade.js"></script>\n<script src="games.js"></script>')
     return page("Games - HumanLang", body, "games.html", extra_body=script)
 
 
@@ -418,17 +499,16 @@ def main():
     for p in sorted(glob.glob(os.path.join(ROOT, "examples", "*.hum"))):
         name = os.path.basename(p)
         examples[name] = {"code": read(p), "inputs": answers.get(name, "")}
-    arcade = []
-    with open(os.path.join(ROOT, "arcade", "index.json"), encoding="utf-8") as f:
-        arcade = json.load(f)
-    for g in arcade:
-        examples[g["file"]] = {"code": read(os.path.join(ROOT, "arcade", g["file"])), "inputs": ""}
-
     games = []
     with open(os.path.join(ROOT, "games", "index.json"), encoding="utf-8") as f:
         for g in json.load(f):
             entry = {k: v for k, v in g.items() if k not in ("test_runs", "image")}
             entry["code"] = read(os.path.join(ROOT, "games", g["file"]))
+            if g.get("how"):
+                entry["inspect"] = inspect_html(entry["code"], g["how"], g["id"])
+            entry.pop("how", None)
+            if g.get("kind") == "arcade":
+                examples[g["file"]] = {"code": entry["code"], "inputs": ""}
             if g.get("image"):
                 entry["image"] = "game-" + g["id"] + os.path.splitext(g["image"])[1]
                 shutil.copy(os.path.join(ROOT, "games", g["image"]), os.path.join(out, entry["image"]))
@@ -442,7 +522,7 @@ def main():
     write(os.path.join(out, "changelog.html"), doc_page("What's new", read(os.path.join(ROOT, "CHANGELOG.md")), "changelog.html"))
     write(os.path.join(out, "playground.html"), playground_page(examples))
     write(os.path.join(out, "games.html"), games_page(games))
-    write(os.path.join(out, "arcade.html"), arcade_page(arcade))
+    write(os.path.join(out, "community.html"), community_page())
     write(os.path.join(out, ".nojekyll"), "")
     print(f"Built {len(os.listdir(out))} files in {out}")
 

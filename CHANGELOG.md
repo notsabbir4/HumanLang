@@ -16,9 +16,11 @@ written in plain words (sprites, tile maps, keys and a frame loop), runs in the 
   `move the camera to x, y` (scrolling levels), `play the sound "coin"` (11 built-in sounds, no files),
   `stop the game`, `frame number`, `game time`. The shapes and text of pages (`put a circle ...`) also draw in a game.
 - **Everywhere:** `for each n from 1 to 10` (a loop over whole numbers).
-- **Four original arcade games** in the `arcade` folder and on the new **Arcade** page: Planet Defenders, Maze Muncher,
+- **Four original arcade games** on the **Games** page (and in the `games` folder): Planet Defenders, Maze Muncher,
   Crate Climber and Sky Runner. Each has a test that plays it, and the platformer and the ladder game are checked to be
   winnable.
+- **Inspect:** every game on the Games page (the stories too) has an **Inspect** button: the real code with line
+  numbers, and a step-by-step explanation; press a step and its lines light up.
 - **Play and share:** the Playground runs a game in the Preview tab (about 60 pictures a second); `hl run game.hum`
   opens it in the browser; `hl build game.hum` saves `game.html` for any website (it needs the internet to start, to
   load the part that runs HL in the browser).
