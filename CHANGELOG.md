@@ -29,6 +29,13 @@ written in plain words (sprites, tile maps, keys and a frame loop), runs in the 
 - Editors: new words and snippets (`sprite`, `map`, `game`, `key`) in VS Code, and completion for the game words.
 - A heads-up when `set` inside a game part makes a private variable that hides one made outside (use `change`).
 
+- **Games page:** the four arcade games sit beside the story games, with pictures, a Play button and **Inspect**:
+  the real code next to a step-by-step "How it works" for every game.
+- **Community page:** share what you made with HumanLang. Every post gets its own **Post ID** the moment it is made,
+  you can find any post by its ID, and the Playground can run a post. A bot reads each post (it never runs it) and only
+  publishes programs that are 100% HumanLang; copies and rule-breaking lead to removal and a ban (see the rules on the
+  page). Official HumanLang examples are posted by the **HumanLang profile, marked with a blue tick**.
+
 ### Fixed
 - Pixel art: a colour written as a code in quotes (`where "a" is "#ff8800"`) now works.
 
