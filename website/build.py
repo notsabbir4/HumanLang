@@ -386,6 +386,7 @@ def community_page():
         "snapshot": community_snapshot(),
     }
     new_post = f"{REPO}/issues/new?template=community-post.yml"
+    rules_list = re.sub(r"</?(ol)>", "", rules)
     body = f"""
 <div class="community">
 <section id="browse">
@@ -406,12 +407,13 @@ and has its own <strong>Post ID</strong>. Run any post in the Playground, read i
 <p>To post you need a free GitHub account. Press <strong>Post your work</strong>, fill in the form and submit. You get your Post ID right away,
 and a bot checks the program (it only reads it, it never runs it). If it is 100% HumanLang it shows up here within a few minutes.
 If something needs fixing the bot tells you what, and checks again when you edit your post.</p>
-<ol>{re.sub(r"</?(ol)>", "", rules)}</ol>
+<ol>{rules_list}</ol>
 </section>
 </section>
 <section id="detail" hidden></section>
 </div>"""
-    script = (f'<script>window.HL_COMMUNITY = {json.dumps(data).replace("</", "<\\/")};</script>\n'
+    data_js = json.dumps(data).replace("</", "<\\/")
+    script = (f'<script>window.HL_COMMUNITY = {data_js};</script>\n'
               '<script src="community-lib.js"></script>\n<script src="community.js"></script>')
     return page("Community - HumanLang", body, "community.html", extra_body=script)
 
