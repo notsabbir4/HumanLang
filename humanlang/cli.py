@@ -23,6 +23,7 @@ Usage:
   hl build FILE.hum    run a program that shows a page, and save the page as FILE.html for the web
   hl build FILE.hum --out PAGE.html   ...saved under another name
   hl page FILE.hum     run a program that shows a page and print the page's HTML (used by editor previews)
+  (a program with 'play a game' opens as a playable game; hl build saves it as one web page)
   hl check FILE.hum    check a program for mistakes without running it
   hl format FILE.hum   tidy a program's spacing and indentation (--check to only report)
   hl lsp               start the language server (for editors)
@@ -136,6 +137,39 @@ def preview_page(page, name, open_browser=True):
     print("To save it for the web, type:  hl build " + name, file=sys.stderr)
 
 
+def game_out(interp, source, path, build, open_browser):
+    """The program is a game: save it as one web page, and (for `hl run`) open it."""
+    from .gamepage import game_to_html
+    page = game_to_html(source, interp.game["title"])
+    if build is not None:
+        where = build or os.path.splitext(path)[0] + ".html"
+    else:
+        folder = os.path.join(tempfile.gettempdir(), "humanlang-preview")
+        os.makedirs(folder, exist_ok=True)
+        where = os.path.join(folder, os.path.splitext(os.path.basename(path))[0] + ".html")
+    try:
+        with open(where, "w", encoding="utf-8", newline="\n") as f:
+            f.write(page)
+    except OSError as e:
+        print(f'I couldn\'t save the game as "{where}": {e.strerror}.', file=sys.stderr)
+        return 1
+    if build is not None:
+        print(f"Saved your game as {where}. Open that file in a browser, or put it on any website. (It needs the internet to start.)")
+        return 0
+    opened = None
+    if open_browser and not os.environ.get("HL_NO_OPEN"):
+        try:
+            opened = webbrowser.open("file:///" + where.replace(os.sep, "/").lstrip("/"))
+        except Exception:
+            opened = False
+    if opened:
+        print(f"Your game is open in the browser ({where}).", file=sys.stderr)
+    else:
+        print(f"Your game is ready. Open this file in a browser to play it:\n{where}", file=sys.stderr)
+    print("To save it for the web, type:  hl build " + path, file=sys.stderr)
+    return 0
+
+
 def run_file(path, check_only=False, trace=False, time_limit=0, max_output=None, build=None, open_browser=True):
     source = read_program(path)
     if source is None:
@@ -163,6 +197,8 @@ def run_file(path, check_only=False, trace=False, time_limit=0, max_output=None,
                 interp.set_time_limit(time_limit)  # the clock starts when the program does, not while it is being read
             interp.run_statements(stmts, source)
             sys.stdout.flush()
+            if interp.game is not None:
+                return game_out(interp, source, path, build, open_browser)
             if interp.designs:
                 if len(interp.designs) > 1:
                     print(f"Your program showed {len(interp.designs)} pages; I'm using the last one.", file=sys.stderr)
@@ -249,7 +285,7 @@ def repl():
             continue
         buf = [line]
         words = line.split()
-        if words[0] in BLOCK_STARTERS or words[:3] == ["show", "a", "page"] or words[0] == "put":
+        if words[0] in BLOCK_STARTERS or words[:3] in (["make", "a", "sprite"], ["make", "a", "map"], ["play", "a", "game"]) or words[:3] == ["show", "a", "page"] or words[0] == "put":
             try:
                 while True:
                     more = input("... ")

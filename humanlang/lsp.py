@@ -28,6 +28,11 @@ KEYWORDS = sorted(set(STATEMENT_WORDS) | {
     "show a page", "titled", "called", "where", "put a box", "put a row", "put a text", "put a heading",
     "put a button", "put an input", "put a drawing", "put a circle", "put an oval", "put a rectangle",
     "put a square", "put a triangle", "put a line", "put a polygon", "put pixel art",
+    "make a sprite", "make a map", "play a game", "titled", "when the game starts", "every frame", "every",
+    "seconds", "when the key", "is pressed", "when the mouse is clicked", "draw the sprite", "draw the map",
+    "move the camera to", "play the sound", "stop the game", "change the tile", "key", "is down", "mouse x",
+    "mouse y", "tile at", "tile in column", "how many columns in", "how many rows in", "touches", "frame number",
+    "game time", "facing left", "flipped", "frame", "tile size", "pixel size", "for each", "from", "size",
     "background", "colour", "padding", "space between", "columns", "rounded", "shadow", "width", "height", "radius",
     "border colour", "pixel size", "centered", "bold", "italic", "underlined", "align", "hint",
 })

@@ -40,7 +40,10 @@ BUILTINS = ["list of", "empty list", "empty record", "record with", "field", "ke
             "the date today", "the time now"]
 DESIGN_KINDS = ["box", "row", "text", "heading", "button", "input", "drawing", "circle", "oval", "rectangle",
                 "square", "triangle", "line", "polygon", "pixel art"]
-DESIGN = ["show a page", "titled", "called", "where"] + [
+DESIGN = ["show a page", "titled", "called", "where", "make a sprite", "make a map", "play a game", "when the game starts",
+          "every frame", "when the key", "is pressed", "when the mouse is clicked", "draw the sprite", "draw the map",
+          "move the camera to", "play the sound", "stop the game", "change the tile", "touches", "facing left",
+          "is down", "frame number", "game time"] + [
     f"put {'an' if k[0] in 'aeiou' else 'a'} {k}" for k in DESIGN_KINDS] + ["put some"]
 CONSTANTS = ["yes", "no", "nothing", "problem_line", "problem_kind", "problem"]
 
@@ -137,7 +140,7 @@ def render_markdown(text):
 
 # ---- page template -----------------------------------------------------------
 NAV = [("index.html", "Home"), ("tutorial.html", "Tutorial"), ("reference.html", "Reference"),
-       ("playground.html", "Playground"), ("games.html", "Games"), ("editors.html", "Editors"),
+       ("playground.html", "Playground"), ("games.html", "Games"), ("arcade.html", "Arcade"), ("editors.html", "Editors"),
        ("install.html", "Download")]
 REPO = "https://github.com/notsabbir4/HumanLang"
 LATEST = REPO + "/releases/latest/download/"
@@ -307,7 +310,7 @@ def playground_page(examples):
 <span class="grow"></span><span id="took"></span>
 </div>
 <pre id="out" aria-live="polite"></pre>
-<div id="prepane" hidden><div id="pnote" hidden></div><iframe id="preview" sandbox="" title="Preview of your page"></iframe></div>
+<div id="prepane" hidden><div id="pnote" hidden></div><iframe id="preview" sandbox="" title="Preview of your page"></iframe><div id="gamebox" hidden><canvas id="screen" tabindex="0" aria-label="The game. Click it, then use the keyboard."></canvas></div></div>
 <div id="inpane" hidden><p>Optional. If your program uses <code>ask</code>, type all its answers here, one per line, and it will not stop to ask.</p>
 <textarea id="inputs" spellcheck="false" aria-label="Answers, one per line"></textarea></div>
 </section>
@@ -317,8 +320,30 @@ def playground_page(examples):
 """
     words = {"k": CONTROL + STATEMENT + DESIGN, "o": OPERATORS, "f": BUILTINS, "v": CONSTANTS}
     script = (f'<script>window.HL_EXAMPLES = {json.dumps(examples)}; window.HL_WORDS = {json.dumps(words)};</script>\n'
-              '<script src="playground.js"></script>')
+              '<script src="arcade.js"></script><script src="playground.js"></script>')
     return page("Playground - HumanLang", body, "playground.html", extra_body=script, main_class="ide-page")
+
+
+def arcade_page(arcade):
+    cards = "".join(
+        f'<a class="game-card" href="playground.html#example={html.escape(g["file"])}">'
+        f'<strong>{html.escape(g["title"])}</strong><span>{html.escape(g["blurb"])}</span>'
+        f'<em>{html.escape(g["keys"])}</em></a>' for g in arcade)
+    body = f"""
+<div class="games">
+<h1>Arcade</h1>
+<p class="lead">Old-school 2D arcade games, written in HumanLang. Press a card to open it in the Playground and play it
+right away (the first time takes a few seconds to load). Read the code next to the game, change it, press Run again.</p>
+<div class="game-grid">{cards}</div>
+<h2>Make your own</h2>
+<p>A game is a few sprites, maybe a tile map, and three or four short parts: <em>when the game starts</em>,
+<em>every frame</em>, <em>when the key ... is pressed</em>. The
+<a href="tutorial.html">tutorial</a> has a chapter for it, and the <a href="reference.html">reference</a> lists every word.
+To keep a finished game, type <code>hl build mygame.hum</code>: you get one web page you can put on any website.</p>
+<p>All art, names and levels here are original. HumanLang can make games in the style of the old arcade classics:
+scrolling platformers, maze chasers, shoot-em-ups, ladder climbers.</p>
+</div>"""
+    return page("Arcade - HumanLang", body, "arcade.html")
 
 
 def games_page(games):
@@ -377,6 +402,7 @@ def main():
     for f in glob.glob(os.path.join(HERE, "static", "*")):
         if os.path.isfile(f):
             shutil.copy(f, out)
+    shutil.copy(os.path.join(ROOT, "humanlang", "arcade.js"), out)
     for name in ("logo.png", "icon-32.png", "icon-180.png", "social-preview.png"):
         shutil.copy(os.path.join(ROOT, "assets", name), out)
     shutil.copy(os.path.join(ROOT, "assets", "icon.ico"), os.path.join(out, "favicon.ico"))
@@ -392,6 +418,11 @@ def main():
     for p in sorted(glob.glob(os.path.join(ROOT, "examples", "*.hum"))):
         name = os.path.basename(p)
         examples[name] = {"code": read(p), "inputs": answers.get(name, "")}
+    arcade = []
+    with open(os.path.join(ROOT, "arcade", "index.json"), encoding="utf-8") as f:
+        arcade = json.load(f)
+    for g in arcade:
+        examples[g["file"]] = {"code": read(os.path.join(ROOT, "arcade", g["file"])), "inputs": ""}
 
     games = []
     with open(os.path.join(ROOT, "games", "index.json"), encoding="utf-8") as f:
@@ -411,6 +442,7 @@ def main():
     write(os.path.join(out, "changelog.html"), doc_page("What's new", read(os.path.join(ROOT, "CHANGELOG.md")), "changelog.html"))
     write(os.path.join(out, "playground.html"), playground_page(examples))
     write(os.path.join(out, "games.html"), games_page(games))
+    write(os.path.join(out, "arcade.html"), arcade_page(arcade))
     write(os.path.join(out, ".nojekyll"), "")
     print(f"Built {len(os.listdir(out))} files in {out}")
 

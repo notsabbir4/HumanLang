@@ -6,6 +6,7 @@ from .errors import HLError, suggest
 from .hints import for_word
 from .lexer import Line, tokenize
 from .design import DesignParser, EXAMPLES as DESIGN_EXAMPLES
+from .game import GameParser
 
 STATEMENT_WORDS = ["say", "set", "change", "add", "subtract", "remove", "ask", "if",
                    "repeat", "for", "define", "give", "stop", "skip", "use", "try", "write"]
@@ -66,7 +67,7 @@ EXAMPLES = {
 VALUE_WORDS = ("yes", "no", "nothing", "list", "item")
 
 
-class Parser(DesignParser):
+class Parser(DesignParser, GameParser):
     def __init__(self, lines=None):
         self.lines = lines or []
         self.pos = 0
@@ -324,8 +325,17 @@ class Parser(DesignParser):
         if w == "show" and "show" not in self.declared and self.word("a", 1) and self.word("page", 2):
             self.i = 1
             return self.st_page()
+        for word, test, handler in (
+                ("make", self.word("a", 1) and (self.word("sprite", 2) or self.word("map", 2)), "st_make"),
+                ("play", (self.word("a", 1) and self.word("game", 2)) or (self.word("the", 1) and self.word("sound", 2)), "st_play"),
+                ("draw", self.word("the", 1) and (self.word("sprite", 2) or self.word("map", 2)), "st_draw"),
+                ("move", self.word("the", 1) and self.word("camera", 2), "st_move"),
+                ("change", (self.word("tile", 1) and (self.word("in", 2) or self.word("at", 2))) or (self.word("the", 1) and self.word("tile", 2)), "st_changetile")):
+            if w == word and word not in self.declared and test:
+                self.i = 1
+                return getattr(self, handler)()
         if w == "put" and "put" not in self.declared:
-            if not self.in_design and not self.in_function:
+            if not self.in_design and not self.in_function and not self.in_game:
                 self.example = DESIGN_EXAMPLES["page"]
                 self.fail('"put" only works inside a page',
                           hint='Start a page first, then indent what goes on it:\nshow a page\n    put a button "Click me"')
@@ -489,8 +499,14 @@ class Parser(DesignParser):
         line, lvl = self.lineno, self.level
         self.expect("each")
         name = self.name()
-        self.expect("in")
-        seq = self.expr()
+        if self.accept("from"):  # for each number from 1 to 10
+            self.example = "for each number from 1 to 10"
+            first = self.arith()
+            self.expect("to")
+            seq = ("range", first, self.arith())
+        else:
+            self.expect("in")
+            seq = self.expr()
         self.end()
         return ("for", line, name, seq, self.loop_body(lvl))
 
@@ -533,6 +549,11 @@ class Parser(DesignParser):
         return (kind, line)
 
     def st_stop(self):
+        if self.words("the", "game"):
+            line = self.lineno
+            self.i += 2
+            self.end()
+            return ("stopgame", line)
         if self.words("the", "program"):
             line = self.lineno
             self.i += 2
@@ -749,6 +770,10 @@ class Parser(DesignParser):
                 return e
             self.fail(f'I expected a value here but found "{t.value}"')
         w = t.value
+        if w in ("key", "mouse", "tile", "how", "the", "frame", "game"):
+            node = self.game_factor()
+            if node is not None:
+                return node
         if w in ("yes", "no"):
             self.i += 1
             return ("lit", w == "yes")

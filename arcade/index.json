@@ -1,0 +1,6 @@
+[
+  {"file": "planet_defenders.hum", "title": "Planet Defenders", "blurb": "Shoot the marching invaders before they reach the ground.", "keys": "Left/Right move, Space shoots"},
+  {"file": "maze_muncher.hum", "title": "Maze Muncher", "blurb": "Eat every dot, dodge the ghosts, grab a big dot to turn the tables.", "keys": "Arrow keys steer"},
+  {"file": "crate_climber.hum", "title": "Crate Climber", "blurb": "Climb the ladders to the star while barrels roll down.", "keys": "Left/Right walk, Up/Down climb, Space jumps"},
+  {"file": "sky_runner.hum", "title": "Sky Runner", "blurb": "A side-scrolling platformer: coins, pits and beetles to stomp.", "keys": "Left/Right run, Up or Space jumps"}
+]

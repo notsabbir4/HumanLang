@@ -1154,7 +1154,184 @@ show a page titled "Three balls"
 3. Draw your own pixel-art face, 8 squares wide.
 4. Use `repeat` or `for each` to draw ten circles in a row.
 
-## 14. Where next
+
+## 14. Games: sprites, keys and a game loop
+
+HL can make 2D arcade games: shooters, mazes, platformers, ladder climbers. A game is made of a few simple pieces:
+
+1. **Sprites**: small pictures made of squares (like the pixel art in chapter 13).
+2. **Maps**: a grid of tiles, for walls, floors and coins.
+3. **A game**: the screen size, and the parts that say what happens: when the game starts, on every frame, when a key is pressed.
+
+A game "frame" is one picture. The computer draws about 60 of them every second, and your `every frame` part runs once
+for each one. That is how things move: change a number a little, draw again, and the picture moves.
+
+Here is the smallest game that moves something. Use the arrow keys.
+
+```hum-game
+make a sprite called ship
+    where "g" is lightgreen and "d" is darkgreen
+    "....g...."
+    "...ggg..."
+    ".ggggggg."
+    "ggggggggg"
+    "gdgdgdgdg"
+
+set x to 140
+
+play a game titled "My first game" with size 320 by 240 and background black
+    every frame
+        if key "left" is down
+            change x to x - 3
+        if key "right" is down
+            change x to x + 3
+        draw the sprite ship at x, 200
+```
+
+Run it in the Playground (the Preview tab shows the game, click it first so it hears your keys), or save it as
+`ship.hum` and type `hl run ship.hum`: the game opens in your browser.
+
+Four things to remember:
+
+- **Sprites** are made like pixel art: a `where` line says what each letter is, then one text per row. A dot means
+  "nothing". `with pixel size 4` makes every square 4 dots wide (4 is the default).
+- **`draw the sprite ship at x, y`** puts a sprite on the screen. `x` is across, `y` is down from the top left.
+- **Use `change`, not `set`,** to change a number you made before the game. (`set` inside a game part makes a new
+  little variable that is forgotten when the part ends.)
+- **Keys** are written in quotes: `"left"`, `"right"`, `"up"`, `"down"`, `"space"`, `"enter"`, `"a"` to `"z"`, `"0"` to `"9"`.
+
+### The parts of a game
+
+```hum-game
+set score to 0
+
+play a game titled "Parts" with size 200 by 120 and background navy
+    when the game starts
+        change score to 100
+    every frame
+        put a text "Score {score}" at 8, 8 with colour white
+    every 2 seconds
+        add 1 to score
+    when the key "space" is pressed
+        add 10 to score
+        play the sound "coin"
+```
+
+| Part | When it runs |
+|---|---|
+| `when the game starts` | once, before the first picture |
+| `every frame` | about 60 times a second |
+| `every 2 seconds` | every 2 seconds (any number) |
+| `when the key "space" is pressed` | once each time the key goes down |
+| `when the mouse is clicked` | each click on the game (`mouse x` and `mouse y` say where) |
+
+Inside a part you can use everything from the other chapters: `if`, `repeat`, lists, your own functions. A function can
+`draw` too, if a game part calls it. `put a text`, `put a circle`, `put a rectangle` and the other shapes from chapter 13
+work in a game as well: they are drawn in the frame. Text always stays on the screen (good for a score); sprites and
+shapes move when the camera moves.
+
+### Animation and turning
+
+A sprite can have several **frames**, like a flip book. Write all the rows, one frame after another, and say how many:
+
+```hum-game
+make a sprite called walker with 2 frames
+    where "o" is orange
+    ".oo."
+    "oooo"
+    "o..o"
+    ".oo."
+    "oooo"
+    ".oo."
+
+set x to 10
+
+play a game titled "Walk" with size 160 by 80 and background black
+    every frame
+        change x to x + 1
+        if x is greater than 150
+            change x to 0
+        set pose to 1 + (frame number divided evenly by 10) mod 2
+        draw the sprite walker at x, 30 frame pose
+```
+
+`frame number` counts the pictures so far. `divided evenly by` rounds down, so `pose` flips between 1 and 2 every ten
+pictures. To turn a sprite around, add `facing left` (always) or `facing left when goes_left` (only when a yes/no
+variable says so).
+
+### Maps: walls, floors and coins
+
+A **map** is a grid of tiles. It works like a sprite, but each letter is one tile, and a tile can be a colour or a
+sprite you made before. `tile size` says how many dots wide each tile is.
+
+```hum-game
+make a sprite called coin
+    where "y" is yellow
+    "...yy..."
+    "..yyyy.."
+    ".yyyyyy."
+    ".yyyyyy."
+    ".yyyyyy."
+    ".yyyyyy."
+    "..yyyy.."
+    "...yy..."
+
+make a map called level with tile size 16
+    where "#" is blue and "c" is the sprite coin
+    "##########"
+    "#c..c..c.#"
+    "#........#"
+    "##########"
+
+set px to 20
+set score to 0
+
+play a game titled "Coins" with size 160 by 64 and background black
+    every frame
+        if key "right" is down
+            change px to px + 2
+        if key "left" is down
+            change px to px - 2
+        draw the map level
+        put a circle at px, 24 with radius 6 and colour red
+        if tile at px, 24 of level is "c"
+            change tile at px, 24 of level to "."
+            add 1 to score
+            play the sound "coin"
+        put a text "Coins {score}" at 6, 4 with size small and colour white
+```
+
+- `tile at x, y of level` is the letter on the map at that spot of the screen (it is empty text outside the map).
+- `tile in column 3, row 2 of level` is the same by tile number (the first column and row are number 1).
+- `change tile at x, y of level to "."` and `change tile in column 3, row 2 of level to "."` change one tile.
+  The new letter must be in the map's `where` line (a dot is always allowed).
+- `how many columns in level` and `how many rows in level` tell the size.
+
+### Hitting things, the camera and sound
+
+- `the sprite ship at x, y touches the sprite alien at a, b` is `yes` when the two pictures overlap.
+- `move the camera to 100, 0` slides the view, so a level can be much wider than the screen. Text stays put.
+- `play the sound "coin"` plays a short sound. Sounds: `jump`, `coin`, `hit`, `shoot`, `explosion`, `powerup`, `win`,
+  `lose`, `beep`, `blip`, `step`.
+- `stop the game` ends the game (the last picture stays).
+- `game time` is the seconds since the game began.
+
+### Sharing a game
+
+`hl build mygame.hum` saves the whole game as one web page, `mygame.html`. Put that file on any website or send it to
+a friend: it opens in any browser. (It needs the internet when it starts, to load the part that runs HL in the browser.)
+
+The **Arcade** page on the website has four full games: Planet Defenders, Maze Muncher, Crate Climber and Sky Runner.
+Their code is in the `arcade` folder. Read them, change a number, and see what happens: that is the fastest way to learn.
+
+### Try it
+
+1. Add a second sprite and make it drop from the top of the screen, one pixel more every frame. Use
+   `the sprite ... touches the sprite ...` to catch it with your ship.
+2. Add `play the sound "hit"` when it lands.
+3. Make the game end with `stop the game` after 10 catches.
+
+## 15. Where next
 
 - The **Reference** lists every word HL understands, in one place.
 - `hl format myfile.hum` tidies your spacing and indentation.

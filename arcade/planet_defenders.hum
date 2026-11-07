@@ -1,0 +1,201 @@
+note: PLANET DEFENDERS - a shoot-the-invaders arcade game, made with HumanLang.
+note: Move with the left and right arrow keys. Shoot with the space bar. Press Enter to play again.
+
+make a sprite called cannon with pixel size 3
+    where "g" is lightgreen and "d" is darkgreen
+    ".....g....."
+    "....ggg...."
+    "..ggggggg.."
+    "ggggggggggg"
+    "gdgdgdgdgdg"
+
+make a sprite called crab with pixel size 2 and 2 frames
+    where "p" is violet and "w" is white
+    "..p.....p.."
+    "...p...p..."
+    "..ppppppp.."
+    ".pp.ppp.pp."
+    "ppppppppppp"
+    "p.ppppppp.p"
+    "p.p.....p.p"
+    "...pp.pp..."
+    "..p.....p.."
+    "...p...p..."
+    "..ppppppp.."
+    ".pp.ppp.pp."
+    "ppppppppppp"
+    "ppppppppppp"
+    ".p.......p."
+    "p.........p"
+
+make a sprite called bug with pixel size 2 and 2 frames
+    where "o" is orange
+    "...oooo..."
+    ".oooooooo."
+    "oooooooooo"
+    "oo.oo.oo.o"
+    "oooooooooo"
+    "..oo..oo.."
+    ".oo.oo.oo."
+    "oo......oo"
+    "...oooo..."
+    ".oooooooo."
+    "oooooooooo"
+    "oo.oo.oo.o"
+    "oooooooooo"
+    "..o.oo.o.."
+    ".o......o."
+    "..o....o.."
+
+make a sprite called boom with pixel size 2
+    where "y" is yellow
+    "y..y..y..y"
+    ".y..yy..y."
+    "..y....y.."
+    "yy..yy..yy"
+    "..y....y.."
+    ".y..yy..y."
+    "y..y..y..y"
+
+set columns to 8
+set rows to 4
+set alive to empty list
+set px to 150
+set shot_y to -1
+set shot_x to 0
+set bomb_y to -1
+set bomb_x to 0
+set gx to 20
+set gy to 30
+set heading to 1
+set score to 0
+set lives to 3
+set mode to "play"
+set wait to 0
+
+define start_over
+    change alive to empty list
+    repeat 32 times
+        add 1 to alive
+    change px to 150
+    change shot_y to -1
+    change bomb_y to -1
+    change gx to 20
+    change gy to 30
+    change heading to 1
+    change score to 0
+    change lives to 3
+    change mode to "play"
+
+define alien_x with col
+    give back gx + (col - 1) * 26
+
+define alien_y with row
+    give back gy + (row - 1) * 20
+
+define aliens_left
+    set n to 0
+    for each a in alive
+        change n to n + a
+    give back n
+
+define lowest_alien
+    set low to 0
+    for each row from 1 to rows
+        for each col from 1 to columns
+            if item ((row - 1) * columns + col) of alive is 1
+                change low to alien_y with row
+    give back low
+
+play a game titled "Planet Defenders" with size 320 by 240 and background black
+    when the game starts
+        start_over
+    every frame
+        if mode is "play"
+            if key "left" is down and px is greater than 4
+                change px to px - 3
+            if key "right" is down and px is less than 300
+                change px to px + 3
+            note: the invaders march sideways, then down
+            set speed to 0.4 + (32 - aliens_left) * 0.04
+            change gx to gx + heading * speed
+            if gx is greater than 80 or gx is less than 8
+                change heading to 0 - heading
+                change gy to gy + 8
+            note: the cannon's shot
+            if shot_y is at least 0
+                change shot_y to shot_y - 6
+                if shot_y is less than 0
+                    change shot_y to -1
+            note: the bomb
+            if bomb_y is at least 0
+                change bomb_y to bomb_y + 3
+                if bomb_y is greater than 240
+                    change bomb_y to -1
+                if bomb_y is greater than 200 and bomb_x is greater than px - 4 and bomb_x is less than px + 36
+                    change bomb_y to -1
+                    subtract 1 from lives
+                    play the sound "explosion"
+                    if lives is 0
+                        change mode to "lost"
+                        play the sound "lose"
+            otherwise if random number from 1 to 40 is 1
+                set col to random number from 1 to columns
+                set found to 0
+                for each row from 1 to rows
+                    if item ((row - 1) * columns + col) of alive is 1
+                        change found to row
+                if found is greater than 0
+                    change bomb_x to alien_x with col
+                    change bomb_x to bomb_x + 10
+                    change bomb_y to alien_y with found
+            note: did the shot hit an invader?
+            if shot_y is at least 0
+                for each row from 1 to rows
+                    for each col from 1 to columns
+                        set spot to (row - 1) * columns + col
+                        if item spot of alive is 1 and shot_y is at least 0
+                            set ax to alien_x with col
+                            set ay to alien_y with row
+                            if shot_x is greater than ax - 2 and shot_x is less than ax + 22 and shot_y is greater than ay and shot_y is less than ay + 14
+                                change item spot of alive to 0
+                                change shot_y to -1
+                                add 10 to score
+                                play the sound "hit"
+            if aliens_left is 0
+                change mode to "won"
+                play the sound "win"
+            if aliens_left is greater than 0 and lowest_alien is greater than 190
+                change mode to "lost"
+                play the sound "lose"
+        note: ---- drawing ----
+        set pose to 1 + (frame number divided evenly by 20) mod 2
+        for each row from 1 to rows
+            for each col from 1 to columns
+                if item ((row - 1) * columns + col) of alive is 1
+                    if row is 1
+                        draw the sprite bug at alien_x with col, alien_y with row frame pose
+                    otherwise
+                        draw the sprite crab at alien_x with col, alien_y with row frame pose
+        draw the sprite cannon at px, 210
+        if shot_y is at least 0
+            put a rectangle at shot_x, shot_y with width 2 and height 8 and colour white
+        if bomb_y is at least 0
+            put a rectangle at bomb_x, bomb_y with width 3 and height 8 and colour red
+        put a text "SCORE {score}" at 6, 4 with size small and colour white
+        put a text "LIVES {lives}" at 250, 4 with size small and colour white
+        put a line from 0, 232 to 320, 232 with colour green
+        if mode is "won"
+            put a text "YOU SAVED THE PLANET!" at 60, 110 with colour yellow
+            put a text "Press Enter to play again" at 70, 135 with size small and colour white
+        if mode is "lost"
+            put a text "GAME OVER" at 110, 110 with colour red
+            put a text "Press Enter to play again" at 70, 135 with size small and colour white
+    when the key "space" is pressed
+        if mode is "play" and shot_y is less than 0
+            change shot_x to px + 15
+            change shot_y to 205
+            play the sound "shoot"
+    when the key "enter" is pressed
+        if mode is not "play"
+            start_over

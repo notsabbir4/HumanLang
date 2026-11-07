@@ -1,5 +1,39 @@
 # Changelog
 
+## 0.5.1 - 2026-11-07
+HumanLang can now make **2D arcade games**: platformers, maze chasers, shoot-em-ups, ladder climbers. A game is
+written in plain words (sprites, tile maps, keys and a frame loop), runs in the Playground, opens in your browser with
+`hl run`, and saves as one web page with `hl build`.
+
+### New
+- **Sprites:** `make a sprite called ship`, then `where` letters and one line of text per row of squares (like pixel
+  art). `with 2 frames` makes a flip-book; `draw the sprite ship at x, y frame 2 facing left` draws one.
+- **Maps:** `make a map called level with tile size 16`. A tile is a colour or a sprite. `tile at x, y of level`,
+  `tile in column 3, row 2 of level`, `change tile at x, y of level to "."`, `how many columns in level`.
+- **The game:** `play a game titled "T" with size 320 by 240 and background black`, with parts `when the game starts`,
+  `every frame`, `every 2 seconds`, `when the key "space" is pressed` and `when the mouse is clicked`.
+- **Inside a game:** `key "left" is down`, `mouse x`, `the sprite A at x, y touches the sprite B at x, y`,
+  `move the camera to x, y` (scrolling levels), `play the sound "coin"` (11 built-in sounds, no files),
+  `stop the game`, `frame number`, `game time`. The shapes and text of pages (`put a circle ...`) also draw in a game.
+- **Everywhere:** `for each n from 1 to 10` (a loop over whole numbers).
+- **Four original arcade games** in the `arcade` folder and on the new **Arcade** page: Planet Defenders, Maze Muncher,
+  Crate Climber and Sky Runner. Each has a test that plays it, and the platformer and the ladder game are checked to be
+  winnable.
+- **Play and share:** the Playground runs a game in the Preview tab (about 60 pictures a second); `hl run game.hum`
+  opens it in the browser; `hl build game.hum` saves `game.html` for any website (it needs the internet to start, to
+  load the part that runs HL in the browser).
+- Tutorial chapter 14 "Games: sprites, keys and a game loop" (the old chapter 14 is now 15) and a reference section,
+  with every example played by the docs tests.
+- Editors: new words and snippets (`sprite`, `map`, `game`, `key`) in VS Code, and completion for the game words.
+- A heads-up when `set` inside a game part makes a private variable that hides one made outside (use `change`).
+
+### Fixed
+- Pixel art: a colour written as a code in quotes (`where "a" is "#ff8800"`) now works.
+
+### Good to know
+- The Windows, macOS and Linux programs now carry HumanLang's own files so `hl build` works for games there too.
+- Not yet: touch controls for phones, sound files, and games that ask questions with `ask`.
+
 ## 0.4.1 - 2026-11-06
 
 HumanLang can now **design**. Until now a program could only print words. Now it can show a page with text, buttons,

@@ -5,6 +5,7 @@ Block kinds (the word after the three backticks):
   hum-error     must stop with an error; the `output` block after it shows what is printed
   hum-random    must run without error; output varies, so none is compared
   hum-page      must run without error and show a page (a design); no output block needed
+  hum-game      must run, hold a game, and play 120 frames (with keys pressed) without error; no output block needed
   hum-fragment  shown only (needs a real person or file); not run
   input         lines typed in answer to `ask`, for the block before it
   output        expected result of the block before it
@@ -20,7 +21,7 @@ from humanlang.errors import HLError  # noqa: E402
 from humanlang.interpreter import Interpreter  # noqa: E402
 
 FENCE = re.compile(r"^```([\w-]*)[ \t]*\n(.*?)^```[ \t]*$", re.S | re.M)
-RUNNABLE = ("hum", "hum-error", "hum-random", "hum-page")
+RUNNABLE = ("hum", "hum-error", "hum-random", "hum-page", "hum-game")
 
 
 class Example:
@@ -84,6 +85,21 @@ def shows_a_page(ex):
         finally:
             os.chdir(old)
     return bool(interp.designs)
+
+
+def plays_a_game(ex):
+    """Does this example hold a game that plays 120 frames without a mistake? (Used for `hum-game` blocks.)"""
+    interp = Interpreter(out=lambda _t: None, inp=lambda _p: "")
+    keys = ["left", "right", "up", "down", "space", "enter"]
+    try:
+        interp.run(ex.code)
+        if interp.game is None:
+            return False
+        for i in range(120):
+            interp.game_frame(down=[keys[(i // 10) % 6]], pressed=[keys[(i // 5) % 6]] if i % 5 == 0 else [])
+    except HLError:
+        return False
+    return True
 
 
 def transcript(ex):

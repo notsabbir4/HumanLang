@@ -12,6 +12,7 @@ import unicodedata
 from decimal import Decimal
 
 from .designrun import DesignRun
+from .gamerun import GameRun
 from .errors import HLError, suggest
 from .hints import for_word
 from .lexer import lex
@@ -183,9 +184,10 @@ class Source:
         self.name, self.lines, self.path = name, lines, path
 
 
-class Interpreter(DesignRun):
+class Interpreter(DesignRun, GameRun):
     def __init__(self, out=None, inp=None):
         self.design_init()
+        self.game_init()
         self.out = out or sys.stdout.write
         self.inp = inp or input
         self.globals = Env()
@@ -920,6 +922,16 @@ class Interpreter(DesignRun):
     # ---- expressions -----------------------------------------------------
     def ev(self, n, env):
         return self._ev[n[0]](n, env)
+
+    def e_range(self, n, env):
+        a, b = self.ev(n[1], env), self.ev(n[2], env)
+        for v in (a, b):
+            if not is_num(v) or v != int(v):
+                raise self.err(f'"for each ... from A to B" needs whole numbers, but got {self.show(v)}.', "Example: for each number from 1 to 10")
+        a, b = int(a), int(b)
+        if b - a + 1 > self.max_items:
+            raise self.err(f"That is more than {self.max_items} numbers to go through.")
+        return list(range(a, b + 1))
 
     def e_lit(self, n, env):
         return n[1]

@@ -1,0 +1,317 @@
+use math
+
+note: CRATE CLIMBER - climb the tiers to the star while barrels roll down at you.
+note: Left and right walk. Up and down climb a ladder. Space jumps (hop over the barrels!).
+
+make a sprite called climber with pixel size 2 and 2 frames
+    where "y" is yellow and "s" is skin and "b" is blue and "k" is brown
+    ".yyyy."
+    ".sskk."
+    "..ss.."
+    ".yyyy."
+    "yybbyy"
+    "ss..ss"
+    ".b..b."
+    "kk..kk"
+    ".yyyy."
+    ".sskk."
+    "..ss.."
+    ".yyyy."
+    "yybbyy"
+    "ss..ss"
+    "..bb.."
+    ".kk.kk"
+
+make a sprite called climbing with pixel size 2 and 2 frames
+    where "y" is yellow and "s" is skin and "b" is blue
+    ".yyyy."
+    ".ssss."
+    "..ss.."
+    "syyyy."
+    "sybbys"
+    ".ybby."
+    ".b..b."
+    ".b..b."
+    ".yyyy."
+    ".ssss."
+    "..ss.."
+    ".yyyys"
+    "sybbyy"
+    "sybby."
+    ".b..b."
+    "b....b"
+
+make a sprite called barrel with pixel size 2 and 2 frames
+    where "o" is "#b5651d" and "d" is "#6b3a0f"
+    "..oooo.."
+    ".oddddo."
+    "oodoodoo"
+    "oodoodoo"
+    ".oddddo."
+    "..oooo.."
+    "..oooo.."
+    ".oodood."
+    "oddoodoo"
+    "oddoodoo"
+    ".oodood."
+    "..oooo.."
+
+make a sprite called girder with pixel size 2
+    where "r" is "#d6402c" and "d" is "#8c1f12"
+    "rrrrrrrr"
+    "rddrrddr"
+    "dddddddd"
+    "rrrrrrrr"
+    "........"
+    "........"
+    "........"
+    "........"
+
+make a sprite called ladder with pixel size 2
+    where "c" is cyan
+    "c......c"
+    "cccccccc"
+    "c......c"
+    "c......c"
+    "cccccccc"
+    "c......c"
+    "c......c"
+    "cccccccc"
+
+make a sprite called ladder_top with pixel size 2
+    where "r" is "#d6402c" and "d" is "#8c1f12" and "c" is cyan
+    "rrrrrrrr"
+    "rddrrddr"
+    "dddddddd"
+    "cccccccc"
+    "c......c"
+    "c......c"
+    "cccccccc"
+    "c......c"
+
+make a sprite called star with pixel size 2 and 2 frames
+    where "y" is yellow and "o" is orange
+    "...yy..."
+    "...yy..."
+    "yyyyyyyy"
+    ".yyoyyy."
+    "..yyyy.."
+    "..yyyy.."
+    ".yy..yy."
+    ".y....y."
+    "...yy..."
+    "..yyyy.."
+    "yyyyyyyy"
+    ".yyoyyy."
+    "..yyyy.."
+    "...yy..."
+    "..y..y.."
+    ".y....y."
+
+make a map called tiers with tile size 16
+    where "#" is the sprite girder and "H" is the sprite ladder_top and "h" is the sprite ladder
+    "...................."
+    "...................."
+    "..##H###############"
+    "....h..............."
+    "....h..............."
+    "################H#.."
+    "................h..."
+    "................h..."
+    "..#H################"
+    "...h................"
+    "...h................"
+    "###############H##.."
+    "...............h...."
+    "...............h...."
+    "####################"
+
+set px to 8
+set py to 208
+set vy to 0
+set climbing to no
+set on_ground to yes
+set facing_left to no
+set bx to empty list
+set by to empty list
+set bdir to empty list
+set bfall to empty list
+set bpaid to empty list
+set spawn_in to 90
+set score to 0
+set lives to 3
+set mode to "play"
+set walking to 0
+
+define reset_hero
+    change px to 8
+    change py to 208
+    change vy to 0
+    change climbing to no
+    change bx to empty list
+    change by to empty list
+    change bdir to empty list
+    change bfall to empty list
+    change bpaid to empty list
+    change spawn_in to 90
+
+define start_over
+    reset_hero
+    change score to 0
+    change lives to 3
+    change mode to "play"
+
+define girder_at with x and y
+    set t to tile at x, y of tiers
+    give back t is "#"
+
+define hurt
+    subtract 1 from lives
+    play the sound "explosion"
+    if lives is 0
+        change mode to "lost"
+        play the sound "lose"
+    otherwise
+        reset_hero
+
+define remove_barrel with i
+    remove item i from bx
+    remove item i from by
+    remove item i from bdir
+    remove item i from bfall
+    remove item i from bpaid
+
+play a game titled "Crate Climber" with size 320 by 240 and background black
+    when the game starts
+        start_over
+    every frame
+        if mode is "play"
+            set centre to tile at px + 6, py + 8 of tiers
+            set below to tile at px + 6, py + 17 of tiers
+            note: grab a ladder
+            if not climbing
+                if key "up" is down and (centre is "h" or centre is "H")
+                    change climbing to yes
+                if key "down" is down and (below is "H" or centre is "h")
+                    change climbing to yes
+                if climbing
+                    change px to floor of ((px + 6) / 16) * 16 + 2
+                    change vy to 0
+            if climbing
+                if key "up" is down
+                    change py to py - 1.5
+                if key "down" is down
+                    change py to py + 1.5
+                set feet to tile at px + 6, py + 16 of tiers
+                set feet_in to (py + 16) mod 16
+                set mid to tile at px + 6, py + 8 of tiers
+                if (feet is "H" or feet is "#") and feet_in is less than 3 and key "up" is down
+                    change py to floor of ((py + 16) / 16) * 16 - 16
+                    change climbing to no
+                    change on_ground to yes
+                otherwise if feet is "#" and key "down" is down
+                    change py to floor of ((py + 16) / 16) * 16 - 16
+                    change climbing to no
+                    change on_ground to yes
+                otherwise if mid is "." and below is "."
+                    change climbing to no
+            otherwise
+                note: walking and falling
+                set want to 0
+                if key "left" is down
+                    change want to -1.6
+                    change facing_left to yes
+                if key "right" is down
+                    change want to 1.6
+                    change facing_left to no
+                set nx to px + want
+                if nx is at least 0 and nx is at most 308
+                    change px to nx
+                change vy to vy + 0.45
+                set ny to py + vy
+                set a to tile at px + 2, ny + 16 of tiers
+                set b to tile at px + 9, ny + 16 of tiers
+                set was_above to (py + 16) is at most (floor of ((ny + 16) / 16) * 16 + 2)
+                change on_ground to no
+                if vy is greater than 0 and was_above and (a is "#" or a is "H" or b is "#" or b is "H")
+                    change py to floor of ((ny + 16) / 16) * 16 - 16
+                    change vy to 0
+                    change on_ground to yes
+                otherwise
+                    change py to ny
+            note: barrels
+            change spawn_in to spawn_in - 1
+            if spawn_in is at most 0
+                add 300 to bx
+                add 20 to by
+                add -1 to bdir
+                add no to bfall
+                add no to bpaid
+                change spawn_in to 140
+            set i to 1
+            repeat while i is at most how many items in bx
+                set x to item i of bx
+                set y to item i of by
+                set d to item i of bdir
+                set under to tile at x + 6, y + 13 of tiers
+                if under is "#" or under is "H"
+                    if item i of bfall
+                        change item i of bdir to 0 - d
+                        change d to 0 - d
+                        change item i of bfall to no
+                    change item i of bx to x + d * 1.3
+                    change y to floor of ((y + 13) / 16) * 16 - 12
+                    change item i of by to y
+                otherwise
+                    change item i of by to y + 2
+                    change item i of bfall to yes
+                set gone to (item i of by is greater than 250) or (item i of bx is less than -16) or (item i of bx is greater than 336)
+                if gone
+                    remove_barrel with i
+                otherwise
+                    set e to item i of bx
+                    set f to item i of by
+                    if e is greater than px - 12 and e is less than px + 12 and f is greater than py - 12 and f is less than py + 16
+                        hurt
+                        change i to 9999
+                    otherwise if not on_ground and not climbing and absolute value of (e - px) is less than 10 and f is greater than py + 10 and f is less than py + 36 and not item i of bpaid
+                        change item i of bpaid to yes
+                        add 100 to score
+                        play the sound "coin"
+                    change i to i + 1
+            note: the star at the top
+            if py is less than 40 and px is less than 110
+                change mode to "won"
+                add 500 to score
+                play the sound "win"
+        note: ---- drawing ----
+        draw the map tiers
+        set beat to 1 + (frame number divided evenly by 8) mod 2
+        draw the sprite star at 70, 16 frame beat
+        for each i from 1 to how many items in bx
+            draw the sprite barrel at item i of bx, item i of by frame beat
+        if climbing
+            draw the sprite climbing at px, py frame beat
+        otherwise
+            set frame_to_use to 1
+            if on_ground and (key "left" is down or key "right" is down)
+                change frame_to_use to beat
+            draw the sprite climber at px, py frame frame_to_use facing left when facing_left
+        put a text "SCORE {score}" at 6, 2 with size small and colour white
+        put a text "LIVES {lives}" at 250, 2 with size small and colour white
+        if mode is "won"
+            put a rectangle at 50, 100 with width 220 and height 56 and colour black and border colour yellow
+            put a text "YOU REACHED THE STAR!" at 64, 108 with colour yellow
+            put a text "Press Enter to play again" at 72, 132 with size small and colour white
+        if mode is "lost"
+            put a rectangle at 50, 100 with width 220 and height 56 and colour black and border colour red
+            put a text "GAME OVER" at 112, 108 with colour red
+            put a text "Press Enter to play again" at 72, 132 with size small and colour white
+    when the key "space" is pressed
+        if mode is "play" and on_ground and not climbing
+            change vy to -5
+            change on_ground to no
+            play the sound "jump"
+    when the key "enter" is pressed
+        if mode is not "play"
+            start_over

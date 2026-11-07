@@ -1,0 +1,265 @@
+note: SKY RUNNER - a side-scrolling platformer made with HumanLang.
+note: Left and right arrows run. Up arrow or space jumps. Stomp the beetles from above. Reach the flag!
+use math
+
+make a sprite called hero with pixel size 2 and 2 frames
+    where "r" is green and "s" is skin and "b" is purple and "k" is brown
+    ".rrrr."
+    ".sskk."
+    "..ss.."
+    ".rrrr."
+    "rrbbrr"
+    "ssbbss"
+    ".b..b."
+    "kk..kk"
+    ".rrrr."
+    ".sskk."
+    "..ss.."
+    ".rrrr."
+    "rrbbrr"
+    "ssbbss"
+    "..bb.."
+    ".kk.kk"
+
+make a sprite called beetle with pixel size 2 and 2 frames
+    where "n" is brown and "w" is white and "k" is black
+    "..nnnn.."
+    ".nnnnnn."
+    "nwknnkwn"
+    "nnnnnnnn"
+    ".nnnnnn."
+    "..kkkk.."
+    ".kk..kk."
+    "kk....kk"
+    "..nnnn.."
+    ".nnnnnn."
+    "nwknnkwn"
+    "nnnnnnnn"
+    ".nnnnnn."
+    "..kkkk.."
+    "..kkkk.."
+    ".kk..kk."
+
+make a sprite called ground with pixel size 2
+    where "g" is "#3fa34d" and "d" is "#8a5a2b" and "e" is "#6f4521"
+    "gggggggg"
+    "gggggggg"
+    "dddddddd"
+    "dedddedd"
+    "dddddddd"
+    "dddeddde"
+    "dddddddd"
+    "eddddedd"
+
+make a sprite called brick with pixel size 2
+    where "o" is "#c8602b" and "l" is "#f0c9a0"
+    "oooollll"
+    "oooollll"
+    "oooollll"
+    "llllllll"
+    "llloooo."
+    "llloooo."
+    "llloooo."
+    "llllllll"
+
+make a sprite called coin with pixel size 2
+    where "y" is yellow and "o" is orange
+    "...yy..."
+    "..yyyy.."
+    ".yyooyy."
+    ".yyooyy."
+    ".yyooyy."
+    ".yyooyy."
+    "..yyyy.."
+    "...yy..."
+
+make a sprite called flag with pixel size 2
+    where "w" is white and "r" is red and "p" is gray
+    "...p...."
+    "...pww.."
+    "...pwrw."
+    "...pww.."
+    "...p...."
+    "...p...."
+    "...p...."
+    "...p...."
+
+make a map called level with tile size 16
+    where "#" is the sprite ground and "B" is the sprite brick and "c" is the sprite coin and "F" is the sprite flag
+    "................................................................"
+    "................................................................"
+    "................................................................"
+    "................................................................"
+    "................................................................"
+    ".............................c...............cc................."
+    "...............ccc..........BBB.............BBB................."
+    "..............BBBB.....................................c........"
+    ".........cc..............c...............cc....................."
+    "........BBB.............BBB.............BBBB...................."
+    "...................................cc............cc......#..F..."
+    ".............................#...c.......................#..F..."
+    "............##...............#...........................#..F..."
+    "##################...#############....##########....############"
+    "##################...#############....##########....############"
+
+set coin_cols to list of 10, 11, 16, 17, 18, 26, 30, 42, 43, 46, 47, 56, 34, 36, 37, 50, 51
+set coin_rows to list of 9, 9, 7, 7, 7, 9, 6, 9, 9, 6, 6, 8, 12, 11, 11, 11, 11
+set px to 24
+set py to 150
+set vx to 0
+set vy to 0
+set on_ground to no
+set facing_left to no
+set ex to list of 200, 420, 700, 870
+set ey to list of 192, 192, 192, 192
+set edir to list of -1, -1, -1, -1
+set score to 0
+set lives to 3
+set mode to "play"
+set flip_time to 0
+
+define solid_at with x and y
+    set t to tile at x, y of level
+    give back t is "#" or t is "B"
+
+define reset_hero
+    change px to 24
+    change py to 150
+    change vx to 0
+    change vy to 0
+
+define start_over
+    reset_hero
+    change score to 0
+    change lives to 3
+    change mode to "play"
+    change ex to list of 200, 420, 700, 870
+    change ey to list of 192, 192, 192, 192
+    change edir to list of -1, -1, -1, -1
+    for each i from 1 to how many items in coin_cols
+        change tile in column (item i of coin_cols), row (item i of coin_rows) of level to "c"
+
+define hurt
+    subtract 1 from lives
+    play the sound "explosion"
+    if lives is 0
+        change mode to "lost"
+        play the sound "lose"
+    otherwise
+        reset_hero
+
+play a game titled "Sky Runner" with size 320 by 240 and background skyblue
+    when the game starts
+        start_over
+    every frame
+        if mode is "play"
+            note: running
+            set want to 0
+            if key "left" is down
+                change want to -2.2
+                change facing_left to yes
+            if key "right" is down
+                change want to 2.2
+                change facing_left to no
+            change vx to want
+            note: move sideways, then up and down, checking the four corners of the hero
+            set nx to px + vx
+            set a to solid_at with nx and (py + 1)
+            set b to solid_at with (nx + 11) and (py + 1)
+            set c to solid_at with nx and (py + 15)
+            set d to solid_at with (nx + 11) and (py + 15)
+            if not (a or b or c or d) and nx is at least 0
+                change px to nx
+            change vy to vy + 0.45
+            set ny to py + vy
+            set a to solid_at with (px + 1) and (ny + 16)
+            set b to solid_at with (px + 10) and (ny + 16)
+            set c to solid_at with (px + 1) and ny
+            set d to solid_at with (px + 10) and ny
+            change on_ground to no
+            if vy is greater than 0 and (a or b)
+                change py to floor of ((ny + 16) / 16) * 16 - 16
+                change vy to 0
+                change on_ground to yes
+            otherwise if vy is less than 0 and (c or d)
+                change vy to 0
+            otherwise
+                change py to ny
+            note: coins
+            set mid to tile at px + 6, py + 8 of level
+            if mid is "c"
+                change tile at px + 6, py + 8 of level to "."
+                add 10 to score
+                play the sound "coin"
+            note: beetles walk and turn around at edges
+            for each i from 1 to how many items in ex
+                set x to item i of ex
+                if x is greater than 0
+                    set dir to item i of edir
+                    set ahead to x + dir * 0.7
+                    set front to x + 4 + dir * 8
+                    set wall to solid_at with front and (item i of ey + 8)
+                    set floor_ahead to solid_at with front and (item i of ey + 17)
+                    if wall or not floor_ahead
+                        change item i of edir to 0 - dir
+                    otherwise
+                        change item i of ex to ahead
+                    note: touching the hero?
+                    set e to item i of ex
+                    if the sprite hero at px, py touches the sprite beetle at e, item i of ey
+                        if vy is greater than 1 and py + 16 - vy is at most item i of ey + 8
+                            change item i of ex to -1000
+                            change vy to -5
+                            add 20 to score
+                            play the sound "hit"
+                        otherwise
+                            hurt
+            note: fell into a pit?
+            if py is greater than 250
+                hurt
+            note: the flag!
+            if px is greater than 940
+                change mode to "won"
+                play the sound "win"
+        note: ---- the camera follows the hero ----
+        set cam to px - 140
+        if cam is less than 0
+            change cam to 0
+        if cam is greater than 704
+            change cam to 704
+        move the camera to cam, 0
+        note: a few clouds that drift slowly behind everything
+        put a circle at 60 + cam * 0.7, 40 with radius 12 and colour white
+        put a circle at 76 + cam * 0.7, 36 with radius 15 and colour white
+        put a circle at 92 + cam * 0.7, 42 with radius 11 and colour white
+        put a circle at 330 + cam * 0.7, 60 with radius 12 and colour white
+        put a circle at 348 + cam * 0.7, 55 with radius 16 and colour white
+        draw the map level
+        set walk to 1 + (frame number divided evenly by 8) mod 2
+        for each i from 1 to how many items in ex
+            if item i of ex is greater than 0
+                draw the sprite beetle at item i of ex, item i of ey frame walk
+        if on_ground is no or vx is 0
+            set walk to 1
+        draw the sprite hero at px, py frame walk facing left when facing_left
+        put a text "COINS {score}" at 6, 4 with size small and colour black
+        put a text "LIVES {lives}" at 250, 4 with size small and colour black
+        if mode is "won"
+            put a rectangle at 50, 95 with width 220 and height 56 and colour black and border colour yellow
+            put a text "YOU REACHED THE FLAG!" at 66, 104 with colour yellow
+            put a text "Press Enter to play again" at 74, 128 with size small and colour white
+        if mode is "lost"
+            put a rectangle at 50, 95 with width 220 and height 56 and colour black and border colour red
+            put a text "GAME OVER" at 112, 104 with colour red
+            put a text "Press Enter to play again" at 74, 128 with size small and colour white
+    when the key "up" is pressed
+        if mode is "play" and on_ground
+            change vy to -7.6
+            play the sound "jump"
+    when the key "space" is pressed
+        if mode is "play" and on_ground
+            change vy to -7.6
+            play the sound "jump"
+    when the key "enter" is pressed
+        if mode is not "play"
+            start_over

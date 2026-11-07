@@ -11,7 +11,8 @@ it was made before the function was written, or the function reads x before givi
 
 STATEMENTS = {"say", "set", "change", "changeitem", "add", "subtract", "remove", "addplace", "subtractplace",
               "removeplace", "ask", "if", "while", "times", "for", "define", "give", "stop", "skip", "use",
-              "write", "append", "try", "callstmt", "fail", "exit", "setfield", "changefield", "removeat", "include", "module", "writecsv", "page", "put"}
+              "write", "append", "try", "callstmt", "fail", "exit", "setfield", "changefield", "removeat", "include", "module", "writecsv", "page", "put",
+              "sprite", "map", "game", "drawsprite", "drawmap", "camera", "sound", "settile", "stopgame"}
 
 
 def lint(stmts, known=None):
@@ -41,6 +42,8 @@ def _blocks(s):
         return [s[4]]
     if kind == "put":
         return [s[8]] if s[8] else []
+    if kind == "game":
+        return [h[2] for h in s[6]]
     return []
 
 
@@ -113,6 +116,12 @@ def _top(stmts, everywhere, known, warnings):
     for s in stmts:
         if s[0] == "define":
             _function(s, known, everywhere, warnings, set())
+            continue
+        if s[0] == "game":  # a part of a game is like a function: "set" there makes a private variable
+            for kind, _arg, body, _line in s[6]:
+                label = {"start": "when the game starts", "frame": "every frame", "every": "every ... seconds",
+                         "key": "when the key ... is pressed", "click": "when the mouse is clicked"}[kind]
+                _scan(body, set(known), label, warnings, set(), set())
             continue
         own = _own_name(s)
         if own:

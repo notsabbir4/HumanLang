@@ -132,5 +132,47 @@
       "    \"${4:r}${4:r}\""
     ],
     "description": "Pixel art: each letter is a colour"
+  },
+  "make a sprite": {
+    "prefix": "sprite",
+    "body": [
+      "make a sprite called ${1:hero}",
+      "    where \"${2:g}\" is ${3:green}",
+      "    \"..${2:g}..\"",
+      "    \"${2:g}${2:g}${2:g}${2:g}${2:g}\"",
+      "$0"
+    ],
+    "description": "A picture for a game"
+  },
+  "make a map": {
+    "prefix": "map",
+    "body": [
+      "make a map called ${1:level} with tile size 16",
+      "    where \"#\" is ${2:blue}",
+      "    \"#####\"",
+      "    \"#...#\"",
+      "    \"#####\"",
+      "$0"
+    ],
+    "description": "A grid of tiles for a game"
+  },
+  "play a game": {
+    "prefix": "game",
+    "body": [
+      "play a game titled \"${1:My game}\" with size 320 by 240 and background ${2:black}",
+      "    when the game starts",
+      "        ${3:set score to 0}",
+      "    every frame",
+      "        $0"
+    ],
+    "description": "A game with a frame loop"
+  },
+  "when the key": {
+    "prefix": "key",
+    "body": [
+      "when the key \"${1:space}\" is pressed",
+      "    $0"
+    ],
+    "description": "A game part that runs on a key press"
   }
 }

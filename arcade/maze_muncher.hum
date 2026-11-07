@@ -1,0 +1,306 @@
+note: MAZE MUNCHER - eat every dot, dodge the ghosts, grab a big dot to turn the tables.
+note: Arrow keys steer. Press Enter to play again.
+
+use math
+
+make a sprite called dot with pixel size 2
+    where "y" is "#ffe9a8"
+    "........"
+    "........"
+    "........"
+    "...yy..."
+    "...yy..."
+    "........"
+    "........"
+    "........"
+
+make a sprite called bigdot with pixel size 2
+    where "y" is "#fff2c8"
+    "........"
+    "..yyyy.."
+    ".yyyyyy."
+    ".yyyyyy."
+    ".yyyyyy."
+    ".yyyyyy."
+    "..yyyy.."
+    "........"
+
+make a sprite called munch with pixel size 2 and 2 frames
+    where "y" is yellow
+    "..yyyy.."
+    ".yyyyyy."
+    "yyyyyyyy"
+    "yyyyyyyy"
+    "yyyyyyyy"
+    "yyyyyyyy"
+    ".yyyyyy."
+    "..yyyy.."
+    "..yyyy.."
+    ".yyyyyy."
+    "yyyyyy.."
+    "yyyy...."
+    "yyyyy..."
+    "yyyyyyy."
+    ".yyyyyy."
+    "..yyyy.."
+
+make a sprite called ghost with pixel size 2 and 2 frames
+    where "r" is "#ff5a5a" and "w" is white and "b" is blue
+    "..rrrr.."
+    ".rrrrrr."
+    "rwwrrwwr"
+    "rwbrrwbr"
+    "rrrrrrrr"
+    "rrrrrrrr"
+    "rrrrrrrr"
+    "r.rr.rr."
+    "..rrrr.."
+    ".rrrrrr."
+    "rwwrrwwr"
+    "rwbrrwbr"
+    "rrrrrrrr"
+    "rrrrrrrr"
+    "rrrrrrrr"
+    ".rr.rr.r"
+
+make a sprite called pinkghost with pixel size 2 and 2 frames
+    where "r" is "#ff9ad5" and "w" is white and "b" is blue
+    "..rrrr.."
+    ".rrrrrr."
+    "rwwrrwwr"
+    "rwbrrwbr"
+    "rrrrrrrr"
+    "rrrrrrrr"
+    "rrrrrrrr"
+    "r.rr.rr."
+    "..rrrr.."
+    ".rrrrrr."
+    "rwwrrwwr"
+    "rwbrrwbr"
+    "rrrrrrrr"
+    "rrrrrrrr"
+    "rrrrrrrr"
+    ".rr.rr.r"
+
+make a sprite called scared with pixel size 2 and 2 frames
+    where "b" is "#3a5bff" and "w" is white
+    "..bbbb.."
+    ".bbbbbb."
+    "bbbbbbbb"
+    "bwbbbwbb"
+    "bbbbbbbb"
+    "bwbwbwbb"
+    "bbbbbbbb"
+    "b.bb.bb."
+    "..bbbb.."
+    ".bbbbbb."
+    "bbbbbbbb"
+    "bwbbbwbb"
+    "bbbbbbbb"
+    "bbwbwbwb"
+    "bbbbbbbb"
+    ".bb.bb.b"
+
+make a map called maze with tile size 16
+    where "#" is "#1f2fd6" and "p" is the sprite dot and "O" is the sprite bigdot
+    "###################"
+    "#ppppppppppppppppp#"
+    "#p##p###p#p###p##p#"
+    "#Op.p...ppp...p.pO#"
+    "#p##p#p##p##p#p##p#"
+    "#pppp#ppppppp#pppp#"
+    "###.p#.##.##.#p.###"
+    "...pp.p.....p.pp..."
+    "###.p#.##.##.#p.###"
+    "#ppppppppppppppppp#"
+    "#p##p###ppp###p##p#"
+    "#pp.ppppppppppp.pp#"
+    "##p#p#p##p##p#p#p##"
+    "#ppppppppppppppppp#"
+    "###################"
+
+set pc to 10
+set pr to 14
+set pdx to 0
+set pdy to 0
+set wdx to 0
+set wdy to 0
+set gc to list of 10, 10
+set gr to list of 8, 8
+set gdx to list of 1, -1
+set gdy to list of 0, 0
+set tick to 0
+set scared_for to 0
+set score to 0
+set lives to 3
+set dots_left to 0
+set mode to "play"
+set dead_wait to 0
+
+define open_tile with c and r
+    set t to tile in column c, row r of maze
+    give back t is not "#" and t is not ""
+
+define count_dots
+    set n to 0
+    for each r from 1 to 15
+        for each c from 1 to 19
+            set t to tile in column c, row r of maze
+            if t is "p" or t is "O"
+                change n to n + 1
+    give back n
+
+define reset_positions
+    change pc to 10
+    change pr to 14
+    change pdx to 0
+    change pdy to 0
+    change wdx to 0
+    change wdy to 0
+    change gc to list of 8, 12
+    change gr to list of 8, 8
+    change gdx to list of 1, -1
+    change gdy to list of 0, 0
+    change tick to 0
+    change scared_for to 0
+
+define start_over
+    for each r from 1 to 15
+        for each c from 1 to 19
+            set t to tile in column c, row r of maze
+            if t is "." and (r is 4 or r is 12 or r is 7 or r is 9 or r is 11 or r is 6 or r is 5)
+                change tile in column c, row r of maze to "p"
+    change score to 0
+    change lives to 3
+    change mode to "play"
+    reset_positions
+    change dots_left to count_dots
+
+define pick_ghost_move with i
+    set best_dx to 0 - item i of gdx
+    set best_dy to 0 - item i of gdy
+    set best_score to 100000
+    set try_dx to list of 1, -1, 0, 0
+    set try_dy to list of 0, 0, 1, -1
+    for each k from 1 to 4
+        set ddx to item k of try_dx
+        set ddy to item k of try_dy
+        set nc to item i of gc + ddx
+        set nr to item i of gr + ddy
+        set going_back to ddx is 0 - item i of gdx and ddy is 0 - item i of gdy
+        set moving to item i of gdx is not 0 or item i of gdy is not 0
+        set free to open_tile with nc and nr
+        if free and not (going_back and moving)
+            set d to absolute value of (nc - pc) + absolute value of (nr - pr)
+            if scared_for is greater than 0
+                change d to 0 - d
+            change d to d + random number from 0 to 4
+            if d is less than best_score
+                change best_score to d
+                change best_dx to ddx
+                change best_dy to ddy
+    change item i of gdx to best_dx
+    change item i of gdy to best_dy
+
+play a game titled "Maze Muncher" with size 304 by 240 and background black
+    when the game starts
+        start_over
+    every frame
+        if mode is "play"
+            change tick to tick + 1
+            if tick is 8
+                change tick to 0
+                note: everyone arrives on their new tile
+                change pc to pc + pdx
+                change pr to pr + pdy
+                for each i from 1 to 2
+                    change item i of gc to item i of gc + item i of gdx
+                    change item i of gr to item i of gr + item i of gdy
+                set here to tile in column pc, row pr of maze
+                if here is "p"
+                    change tile in column pc, row pr of maze to "."
+                    add 10 to score
+                    subtract 1 from dots_left
+                    play the sound "blip"
+                if here is "O"
+                    change tile in column pc, row pr of maze to "."
+                    add 50 to score
+                    subtract 1 from dots_left
+                    change scared_for to 40
+                    play the sound "powerup"
+                if scared_for is greater than 0
+                    subtract 1 from scared_for
+                note: choose the next step
+                set turn_ok to open_tile with (pc + wdx) and (pr + wdy)
+                if turn_ok and (wdx is not 0 or wdy is not 0)
+                    change pdx to wdx
+                    change pdy to wdy
+                otherwise if not (open_tile with (pc + pdx) and (pr + pdy))
+                    change pdx to 0
+                    change pdy to 0
+                for each i from 1 to 2
+                    pick_ghost_move with i
+                note: did anyone touch?
+                for each i from 1 to 2
+                    if item i of gc is pc and item i of gr is pr
+                        if scared_for is greater than 0
+                            add 200 to score
+                            change item i of gc to 10
+                            change item i of gr to 8
+                            play the sound "coin"
+                        otherwise
+                            subtract 1 from lives
+                            play the sound "explosion"
+                            if lives is 0
+                                change mode to "lost"
+                                play the sound "lose"
+                            otherwise
+                                reset_positions
+                if dots_left is 0
+                    change mode to "won"
+                    play the sound "win"
+        note: ---- drawing ----
+        draw the map maze
+        set slide to tick * 2
+        set mx to (pc - 1) * 16 + pdx * slide
+        set my to (pr - 1) * 16 + pdy * slide
+        set mouth to 1 + (frame number divided evenly by 6) mod 2
+        if pdx is -1
+            draw the sprite munch at mx, my frame mouth facing left
+        otherwise
+            draw the sprite munch at mx, my frame mouth
+        set legs to 1 + (frame number divided evenly by 8) mod 2
+        for each i from 1 to 2
+            set gx to (item i of gc - 1) * 16 + item i of gdx * slide
+            set gy to (item i of gr - 1) * 16 + item i of gdy * slide
+            if scared_for is greater than 0
+                draw the sprite scared at gx, gy frame legs
+            otherwise if i is 1
+                draw the sprite ghost at gx, gy frame legs
+            otherwise
+                draw the sprite pinkghost at gx, gy frame legs
+        put a text "SCORE {score}" at 6, 2 with size small and colour white
+        put a text "LIVES {lives}" at 240, 2 with size small and colour white
+        if mode is "won"
+            put a rectangle at 40, 100 with width 224 and height 50 and colour black and border colour yellow
+            put a text "ALL EATEN! YOU WIN" at 62, 108 with colour yellow
+            put a text "Press Enter to play again" at 70, 130 with size small and colour white
+        if mode is "lost"
+            put a rectangle at 40, 100 with width 224 and height 50 and colour black and border colour red
+            put a text "GAME OVER" at 105, 108 with colour red
+            put a text "Press Enter to play again" at 70, 130 with size small and colour white
+    when the key "left" is pressed
+        change wdx to -1
+        change wdy to 0
+    when the key "right" is pressed
+        change wdx to 1
+        change wdy to 0
+    when the key "up" is pressed
+        change wdx to 0
+        change wdy to -1
+    when the key "down" is pressed
+        change wdx to 0
+        change wdy to 1
+    when the key "enter" is pressed
+        if mode is not "play"
+            start_over

@@ -61,6 +61,38 @@
     if (preview.srcdoc !== html) preview.srcdoc = html;
     pnote.hidden = true;
   }
+  // ---- games: a program that says "play a game" runs in the Preview tab, frame by frame ----
+  const hasGame = (text) => /^[ \t]*play a game\b/m.test(text);
+  const gamebox = $("gamebox"), screen = $("screen");
+  let arcade = null, frameWaiting = null;
+  function stopGame() { if (arcade) { arcade.stop(); arcade = null; } frameWaiting = null; }
+  function startGame() {
+    stopGame();
+    running = true; runBtn.disabled = true; stopBtn.disabled = false;
+    show("", false); took.textContent = ""; setStatus("Starting the game...");
+    worker.postMessage({ type: "gamestart", code: code.value });
+  }
+  function gameInfo(m) {
+    running = false; runBtn.disabled = false; stopBtn.disabled = true;
+    if (m.error) { show(m.error, true); setStatus("The game has an error"); showTab("console"); return; }
+    tabPreview.hidden = false; preview.hidden = true; gamebox.hidden = false; pnote.hidden = true;
+    const k = Math.max(1, Math.floor(Math.min(prepane.clientWidth - 16 || 600, 960) / m.info.w));
+    screen.style.width = m.info.w * k + "px"; screen.style.height = m.info.h * k + "px";
+    arcade = Arcade(screen, m.info, (input) => new Promise((resolve, reject) => {
+      frameWaiting = { resolve, reject };
+      worker.postMessage({ type: "gameframe", input });
+    }), {
+      onError: (msg) => { show(msg, true); showTab("console"); setStatus("The game stopped with an error"); },
+      onOver: () => setStatus("Game over (press Run to play again)"),
+    });
+    showTab("preview"); screen.focus(); arcade.start();
+    setStatus("Playing: click the game, then use the keys");
+  }
+  function gameFrame(m) {
+    const w = frameWaiting; frameWaiting = null; if (!w) return;
+    const f = JSON.parse(m.json);
+    if (f.error) w.reject(new Error(f.error)); else w.resolve(f);
+  }
   function liveSoon() {
     clearTimeout(liveTimer);
     if (!hasPage(code.value)) return;
@@ -90,6 +122,8 @@
     worker.onmessage = (e) => {
       const m = e.data;
       if (m.type === "ready") { ready = true; runBtn.disabled = false; setStatus("Ready (Ctrl+Enter to run)"); }
+      else if (m.type === "gameinfo") gameInfo(m);
+      else if (m.type === "gameframe") gameFrame(m);
       else if (m.type === "error") { setStatus("Could not load the playground: " + m.message); }
       else if (m.type === "result" && m.need !== undefined) {
         // the program asked a question: show it in the output box, let the person type next to it,
@@ -146,6 +180,8 @@
 
   function run(again) {
     if (!ready || running) return;
+    if (hasGame(code.value) && again !== true) { startGame(); return; }
+    stopGame(); gamebox.hidden = true; preview.hidden = false;
     running = true; runBtn.disabled = true; stopBtn.disabled = false;
     if (again !== true && !liveRun) { show("", false); startedAt = performance.now(); took.textContent = ""; showTab("console"); }
     else if (liveRun) { startedAt = performance.now(); took.textContent = ""; }
@@ -155,7 +191,7 @@
   }
 
   function stop() {
-    clearTimeout(slowTimer);
+    clearTimeout(slowTimer); stopGame();
     worker.terminate();
     show("Stopped.", false);
     startWorker();
@@ -204,9 +240,10 @@
   try {
     if (params.get("code")) {
       const o = document.createElement("option"); o.value = ""; o.textContent = "(your program)"; pick.insertBefore(o, pick.firstChild); pick.value = ""; code.value = decode(params.get("code")); inputs.value = params.get("in") ? decode(params.get("in")) : ""; }
+    else if (params.get("example") && examples[params.get("example")]) loadExample(params.get("example"));
     else loadExample("hello.hum");
   } catch (e) { loadExample("hello.hum"); }
   refresh();
   startWorker();
-  const firstRun = setInterval(() => { if (ready) { clearInterval(firstRun); if (hasPage(code.value)) { liveRun = false; run(); } } }, 200);
+  const firstRun = setInterval(() => { if (ready) { clearInterval(firstRun); if (hasPage(code.value) || hasGame(code.value)) { liveRun = false; run(); } } }, 200);
 })();

@@ -3,7 +3,7 @@ importScripts("config.js");
 const indexURL = new URL(self.HL_CONFIG.pyodideUrl, self.location.href).href;
 importScripts(indexURL + "pyodide.js");
 
-let run = null;
+let run = null, host = null;
 
 async function init() {
   const py = await loadPyodide({ indexURL });
@@ -13,10 +13,13 @@ async function init() {
   py.FS.writeFile("/hl/hl_runner.py", await (await fetch("hl_runner.py")).text());
   py.runPython("import sys; sys.path.insert(0, '/hl')");
   run = py.pyimport("hl_runner").run;
+  host = py.pyimport("humanlang.gamehost");
   postMessage({ type: "ready" });
 }
 
 onmessage = (e) => {
+  if (e.data.type === "gamestart" && host) { postMessage({ type: "gameinfo", ...JSON.parse(host.start(e.data.code)) }); return; }
+  if (e.data.type === "gameframe" && host) { postMessage({ type: "gameframe", json: host.frame(JSON.stringify(e.data.input)) }); return; }
   if (e.data.type !== "run" || !run) return;
   try {
     postMessage({ type: "result", ...JSON.parse(run(e.data.code, e.data.inputs, e.data.seed)) });

@@ -98,6 +98,8 @@ class DesignRun:
 
     def x_put(self, s, env):
         _, line, kind, content, name, pos, points, props, body, extra = s
+        if not self.design_stack and self.frame_cmds is not None:
+            return self.game_put(s, env)
         if not self.design_stack:
             raise self.err('"put" only works while a page is being built.',
                            "Put it inside: show a page ... (not inside a function that runs later).")

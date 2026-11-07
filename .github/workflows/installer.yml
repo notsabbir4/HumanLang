@@ -13,7 +13,7 @@ jobs:
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
       - run: python -m pip install . pyinstaller
-      - run: pyinstaller --onefile --name hl --icon packaging/icon.ico packaging/hl_entry.py
+      - run: python packaging/build_exe.py
       - name: Build the installer
         shell: pwsh
         run: |

@@ -62,7 +62,7 @@
       "name": "keyword.control.humanlang"
     },
     "statement": {
-      "match": "\\b(put a rectangle|put a pixel art|put a triangle|put a heading|put a drawing|put a polygon|put a button|put an input|put a circle|put a square|show a page|put an oval|put a text|put a line|put a box|put a row|put some|titled|called|where|say|set|change|add|subtract|remove|ask|save it as|use|write csv|write|with|to|from|by|places|place|decimals|decimal|as rows)\\b",
+      "match": "\\b(make a sprite|make a map|play a game|when the game starts|every frame|when the key|is pressed|when the mouse is clicked|draw the sprite|draw the map|move the camera to|play the sound|stop the game|change the tile|touches|facing left|is down|frame number|game time|put a rectangle|put a pixel art|put a triangle|put a heading|put a drawing|put a polygon|put a button|put an input|put a circle|put a square|show a page|put an oval|put a text|put a line|put a box|put a row|put some|titled|called|where|say|set|change|add|subtract|remove|ask|save it as|use|write csv|write|with|to|from|by|places|place|decimals|decimal|as rows)\\b",
       "name": "keyword.other.statement.humanlang"
     },
     "operator-word": {

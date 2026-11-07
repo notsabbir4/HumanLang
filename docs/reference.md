@@ -256,6 +256,56 @@ Each kind of thing accepts the looks that make sense for it, and HL lists them w
 **Colours** are names (`red`, `sky blue`, `light gray`), with `dark`, `light` or `pale` in front, a code like `"#ff8800"`,
 `nothing` for see-through, or a variable that holds one of these: `set c to "dark red"` then `with colour c`.
 
+## Games
+
+A program with `play a game` is a game. In the Playground it runs in the Preview tab, `hl run` opens it in the browser,
+`hl build FILE.hum` saves it as one web page (`FILE.html`, needs the internet to start). The tutorial (chapter 14) explains it step by step.
+
+```hum-game
+make a sprite called dot
+    where "y" is yellow
+    "yy"
+    "yy"
+
+set x to 0
+
+play a game titled "Dot" with size 120 by 60 and background black
+    every frame
+        change x to x + 1
+        draw the sprite dot at x, 20
+```
+
+| Phrase | What it does |
+|---|---|
+| `make a sprite called NAME` + `where` + rows | a picture; `with pixel size N` (default 4), `with N frames` (rows of all frames, one after another) |
+| `make a map called NAME` + `where` + rows | a grid of tiles; `with tile size N` (default 16); a letter can be a colour or `the sprite NAME` |
+| `play a game titled "T" with size W by H and background COLOUR` | the game; its parts are indented below |
+| `when the game starts` | a part that runs once |
+| `every frame` | a part that runs about 60 times a second |
+| `every N seconds` | a part that runs every N seconds |
+| `when the key "K" is pressed` | a part that runs once per key press |
+| `when the mouse is clicked` | a part that runs on each click |
+| `draw the sprite NAME at X, Y` | draws a sprite; add `frame N`, `facing left`, `flipped`, `facing left when YESNO` |
+| `draw the map NAME` | draws a map |
+| `put a circle / a rectangle / a text ...` | the shapes of a page also work in a game (see "Pages and drawings") |
+| `move the camera to X, Y` | slides the view (text stays on the screen) |
+| `play the sound "S"` | `jump coin hit shoot explosion powerup win lose beep blip step` |
+| `stop the game` | ends the game |
+| `change tile at X, Y of MAP to "L"` / `change tile in column C, row R of MAP to "L"` | changes a tile |
+
+| Question | Answer |
+|---|---|
+| `key "K" is down` | is the key held now? Keys: `left right up down space enter escape shift tab backspace`, `a` to `z`, `0` to `9` |
+| `mouse x`, `mouse y` | where the mouse is on the game |
+| `tile at X, Y of MAP`, `tile in column C, row R of MAP` | the tile's letter (empty text outside the map; columns and rows count from 1) |
+| `how many columns in MAP`, `how many rows in MAP` | the size of a map |
+| `the sprite A at X, Y touches the sprite B at X, Y` | do the two pictures overlap? |
+| `frame number`, `game time` | pictures drawn so far; seconds since the start |
+| `for each n from 1 to 10` | a loop over whole numbers (works everywhere, not only in games) |
+
+Good to know: use `change` (not `set`) inside a game part to update a number made outside it. A game frame may think for
+2 seconds at most, a game can have 200 sprites, and a frame can draw 20000 things. `ask` doesn't work in a game: use keys and the mouse.
+
 ## Heads-ups
 
 Some things run fine but probably don't do what you meant. HL still runs the program and prints a **Heads up** on the error stream (so the program's own output stays clean). `hl check` lists them and the editor shows them as warnings.

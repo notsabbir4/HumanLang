@@ -349,7 +349,7 @@ class DesignParser:
         return ("word", t.value)
 
     # -- pixel art ---------------------------------------------------------------------
-    def pixel_rows(self, lvl):
+    def pixel_rows(self, lvl, allow_sprites=False):
         rows, legend, first_row = [], {".": None, " ": None}, None
         if not (self.pos < len(self.lines) and self.lines[self.pos].indent > lvl):
             self.fail("Pixel art needs its rows, indented below it",
@@ -370,9 +370,20 @@ class DesignParser:
                     letter = t.value[0][1]
                     self.i += 1
                     self.expect("is")
-                    legend[letter] = self.colour_words("is")[1]
-                    if legend[letter] == "none":
-                        legend[letter] = None
+                    if allow_sprites and self.words("the", "sprite"):
+                        self.i += 2
+                        legend[letter] = ["sprite", self.name()]
+                    else:
+                        spec = self.colour_words("is")
+                        if spec[0] == "colourexpr" and spec[1][0] == "lit":  # a code in quotes, like "#ff8800"
+                            found = resolve_colour(spec[1][1])
+                            if found is None:
+                                msg, hint = colour_problem(spec[1][1])
+                                self.fail(msg, hint)
+                            spec = ("colour", found)
+                        if spec[0] != "colour":
+                            self.fail("In pixel art, each letter is a colour name like red, or a code in quotes like \"#ff8800\"")
+                        legend[letter] = None if spec[1] == "none" else spec[1]
                     t = self.peek()
                     if t is not None and t.kind == "OP" and t.value == ",":
                         self.i += 1
