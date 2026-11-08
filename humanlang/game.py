@@ -61,10 +61,12 @@ class GameParser:
         self.expect("a")
         t = self.peek()
         kind = t.value if t is not None and t.kind == "WORD" else None
-        if kind not in ("sprite", "map"):
+        if kind not in ("sprite", "map", "body"):
             self.example = EXAMPLES["sprite"]
-            self.fail('After "make a" I expected "sprite" or "map"')
+            self.fail('After "make a" I expected "sprite", "map" or "body"')
         self.i += 1
+        if kind == "body":
+            return self.make_body(line)
         self.example = EXAMPLES[kind]
         self.expect("called")
         name = self.name()
@@ -100,6 +102,12 @@ class GameParser:
     # -- play a game -------------------------------------------------------------------
     def st_play(self):
         line, lvl = self.lineno, self.level
+        if self.words("the", "music"):
+            self.i += 2
+            self.example = 'play the music "adventure"'
+            music = self.arith()
+            self.end()
+            return ("music", line, music)
         if self.words("the", "sound"):
             self.i += 2
             self.example = 'play the sound "coin"'
@@ -203,6 +211,21 @@ class GameParser:
         if not (self.in_game or self.in_function):
             self.fail('"draw" only works inside a game (in "every frame" or in a function a game uses)')
         self.expect("the")
+        if self.accept("picture"):
+            self.example = 'draw the picture "face.png" at 10, 20 with size 32 by 32'
+            name = self.arith()
+            self.expect("at")
+            x = self.arith()
+            self.comma("the spot")
+            y = self.arith()
+            size = None
+            if self.accept("with"):
+                self.expect("size")
+                w = self.arith()
+                self.expect("by")
+                size = (w, self.arith())
+            self.end()
+            return ("drawpicture", line, name, x, y, size)
         if self.accept("map"):
             name = self.name()
             self.end()
@@ -210,10 +233,15 @@ class GameParser:
         self.expect("sprite")
         name = self.name()
         self.expect("at")
-        x = self.arith()
-        self.comma("the spot")
-        y = self.arith()
         opts = {}
+        if self.words("the", "body"):
+            body = self.body_name()
+            x, y = ("bodyval", "x", body), ("bodyval", "y", body)
+            opts["flip"] = ("bodyval", "left", body)
+        else:
+            x = self.arith()
+            self.comma("the spot")
+            y = self.arith()
         self.joiner()
         while self.peek() is not None:
             if self.words("facing", "left") or self.words("facing", "right"):

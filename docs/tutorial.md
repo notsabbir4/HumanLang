@@ -1319,7 +1319,7 @@ play a game titled "Coins" with size 160 by 64 and background black
 ### Sharing a game
 
 `hl build mygame.hum` saves the whole game as one web page, `mygame.html`. Put that file on any website or send it to
-a friend: it opens in any browser. (It needs the internet when it starts, to load the part that runs HL in the browser.)
+a friend: it opens in any browser. It needs the internet when it starts, to load the part that runs HL in the browser. Want it to work with no internet at all? Type `hl build mygame.hum --offline`: the page carries everything it needs (a bigger file, around 18 MB).
 
 The **Games** page on the website has four full arcade games: Planet Defenders, Maze Muncher, Crate Climber and Sky Runner.
 Press **Inspect** on one to read its code with every part explained (the code is also in the `games` folder). Change a number,
@@ -1332,12 +1332,175 @@ run it, and see what happens: that is the fastest way to learn.
 2. Add `play the sound "hit"` when it lands.
 3. Make the game end with `stop the game` after 10 catches.
 
-## 15. Where next
+## 15. Calculating and remembering
+
+### Formulas from text
+
+`calculate` works out a formula written as text. It understands brackets and the order of operations (times before plus),
+so a calculator can take whatever the person types.
+
+```hum
+say calculate "2 * (3 + 4)"
+say calculate "2 + 3 * 4"
+say calculate "10 / 4"
+say calculate "sqrt(16) + 2^3"
+say calculate "50% * 80"
+```
+
+```output
+14
+14
+2.5
+12
+40
+```
+
+It knows `+ - * /`, brackets, powers (`^`), percent (`50%`), `!` (factorial), `pi`, and functions such as `sqrt`, `abs`, `round`,
+`floor`, `ceiling`, `min`, `max`, `sin`, `cos`, `tan` (in degrees) and `log`. It can only do maths, so it is safe to use on
+anything a person types. A formula that makes no sense is an error you can catch:
+
+```hum
+try
+    say calculate "2 +"
+if that fails
+    say "That is not a formula."
+```
+
+```output
+That is not a formula.
+```
+
+### Remembering between runs
+
+`remember` saves something so it is still there the next time the program runs. `recall` brings it back, and `forget` throws it away.
+On your computer it is saved in a `.hl-memory` folder next to your program. On a web page it is saved in the browser.
+
+```hum
+set visits to recall visits
+if visits is nothing
+    set visits to 0
+add 1 to visits
+remember visits
+say "You have been here {visits} time(s)."
+```
+
+```output
+You have been here 1 time(s).
+```
+
+Run it again on your computer and it says 2, then 3. You can remember numbers, text, yes/no, lists and records. To save something under
+another name, say `remember score as "high score"` and `recall "high score"`. Games use this for real high scores.
+
+## 16. Pages that react: buttons and text boxes
+
+A page can do things when it is used. Give each text box a name with `called`, then say what happens `when the button "..." is clicked`.
+Inside, `the number in amount` is what the person typed in the box (use `the text in amount` for words).
+
+```hum-page
+set total to 0
+
+show a page titled "Adder"
+    put a heading "Adder"
+    put an input called amount with hint "A number"
+    put a button "Add"
+    put a text "Total: {total}"
+
+when the button "Add" is clicked
+    change total to total + the number in amount
+```
+
+How it works: the program runs once and shows the page. Each click runs the matching `when` part, and then the page's own lines
+run **again** with the new values, so the page always shows the latest. That means a page can show a list that grows, with a
+`for each` loop inside it. Remember to use `change`, not `set`, to update a variable that was made earlier.
+
+(On this website the example above is only a picture. Open the Playground, paste it in and press Run, and the button works.)
+
+Other things you can listen for: `when the input amount changes` runs every time the person types in that box.
+
+Try making a unit converter (centimetres to inches), a to-do list that keeps its items with `remember`, or a calculator whose buttons
+add characters to a text and whose `=` button runs `calculate`. In the Playground press **Post to Community** to share it.
+
+## 17. Better games
+
+### Physics for platformers
+
+A **body** runs, jumps and falls for you and lands on the solid tiles of a map. You only say what the person pressed.
+
+```hum-game
+make a sprite called hero
+    where "g" is green
+    "gggg"
+    "gggg"
+    "gggg"
+    "gggg"
+
+make a map called level with tile size 16
+    where "#" is blue
+    "..........................."
+    "..........................."
+    "..........................."
+    "..........................."
+    "..........................."
+    "..........................."
+    "...........###............."
+    "..........................."
+    "###########################"
+
+make a body called hero at 20, 40 with size 8 by 8
+
+play a game titled "Physics" with size 200 by 144 and background black
+    every frame
+        make the body hero stop
+        if key "left" is down
+            make the body hero run left
+        if key "right" is down
+            make the body hero run right
+        if key "up" is down
+            make the body hero jump
+        update the body hero on the map level with solid "#"
+        draw the map level
+        draw the sprite hero at the body hero
+```
+
+- `make a body called NAME at X, Y with size W by H` (optional: `gravity`, `speed`, `jump` numbers).
+- `make the body NAME run left`, `run right`, `stop`, `jump` (only from the ground), `bounce` (jump in mid-air).
+- `update the body NAME on the map LEVEL with solid "#" and "B"` moves it one step. Tiles with those letters are solid.
+- `the x of the body NAME`, `the y of the body NAME`, `the body NAME is on the ground`, `the body NAME is falling`.
+- `move the body NAME to X, Y` puts it somewhere new (for starting over).
+- `draw the sprite hero at the body hero` draws it and turns it the way it runs.
+
+### Your own pictures, sounds and music
+
+Put picture files (png, jpg, gif, webp) and sound files (wav, mp3, ogg, m4a) in the same folder as your program, then use them by name.
+In the Playground, open the **Files** tab and add them there.
+
+```
+draw the picture "face.png" at 10, 20 with size 32 by 32
+play the sound "boom.wav"
+play the music "theme.mp3"
+stop the music
+```
+
+There are also three built-in tunes, no file needed: `play the music "adventure"`, `"chill"` and `"chase"`.
+
+### Phones and offline
+
+On a phone or tablet a game shows buttons on the screen for the keys it uses (arrows, A for space, B for enter). Nothing to add.
+`hl build mygame.hum --offline` saves a page that works with no internet; it works for live pages too.
+
+## 18. Finding mistakes: step through
+
+Type `hl debug myprogram.hum` to go through a program one line at a time. For each line you see what it does in plain words
+and which variables changed. Press Enter for the next line, `c` to run to the end, `v` to see every variable, `q` to quit.
+In the Playground press **Step through**: Back and Next walk the program, the current line is marked, and the variables that
+just changed are highlighted.
+
+## 19. Where next
 
 - The **Reference** lists every word HL understands, in one place.
 - `hl format myfile.hum` tidies your spacing and indentation.
 - Install the editor extension for coloured code, live error messages and a page preview.
-- Pages can't react to clicks yet. That is coming: the same words will make buttons do things.
+- Share what you made: press **Post to Community** in the Playground.
 - Stuck? Read the error message slowly, then check the line it shows. Most mistakes are a typo or a missing indent.
 
 Welcome to programming!

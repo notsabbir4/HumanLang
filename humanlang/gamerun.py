@@ -3,9 +3,11 @@ then a host (the browser engine, `hl play`, or a test) calls game_frame() again 
 Each call runs the game's handlers once and gives back what to draw: a list of plain commands.
 """
 import math
+import re
 
 from .errors import suggest
 from .game import SOUNDS
+from .assets import BUILTIN_MUSIC
 from .designrun import DRAWABLE
 from .render import size_px
 
@@ -25,6 +27,8 @@ class GameRun:
         self.cam = (0, 0)
         self.keys_down = set()
         self.mouse = (0, 0)
+        self.assets = {}  # file name -> "picture" / "audio" (set by the host before the program runs)
+        self.music_now = None
 
     # -- declaring ---------------------------------------------------------------------
     def x_sprite(self, s, env):
@@ -127,12 +131,49 @@ class GameRun:
         self.cam = (self.dnumber(x, env, "The camera's first number (across)"), self.dnumber(y, env, "The camera's second number (down)"))
 
     def x_sound(self, s, env):
-        name = self.fmt(self.ev(s[2], env)).lower()
-        if name not in SOUNDS:
-            hint = suggest(name, list(SOUNDS))
-            raise self.err(f'I don\'t have a sound called "{name}".', (hint + "  " if hint else "") + "Sounds: " + ", ".join(SOUNDS) + ".")
+        name = self.fmt(self.ev(s[2], env))
+        if self.assets.get(name) != "audio":
+            name = name.lower()
+            if name not in SOUNDS:
+                mine = [k for k, v in self.assets.items() if v == "audio"]
+                hint = suggest(name, list(SOUNDS) + mine)
+                raise self.err(f'I don\'t have a sound called "{name}".',
+                               (hint + "  " if hint else "") + "Sounds: " + ", ".join(SOUNDS) + (". Your files: " + ", ".join(mine) if mine else "") + ".")
         if self.frame_cmds is not None and len(self.sounds) < 30:
             self.sounds.append(name)
+
+    def x_music(self, s, env):
+        _, line, expr = s
+        if expr is None:
+            name = ""
+        else:
+            name = self.fmt(self.ev(expr, env))
+            if self.assets.get(name) != "audio" and name.lower() not in BUILTIN_MUSIC:
+                mine = [k for k, v in self.assets.items() if v == "audio"]
+                raise self.err(f'I don\'t have music called "{name}".',
+                               "Built-in tunes: " + ", ".join(BUILTIN_MUSIC) + (". Your files: " + ", ".join(mine) if mine else
+                                ". To use your own song, put the file next to your program (or upload it in the Playground).") + ".")
+            if self.assets.get(name) != "audio":
+                name = name.lower()
+        self.music_now = name  # sent to the screen with this frame
+
+    def x_drawpicture(self, s, env):
+        _, line, expr, x, y, size = s
+        self.needs_frame("draw")
+        name = self.fmt(self.ev(expr, env))
+        if self.assets.get(name) != "picture":
+            mine = [k for k, v in self.assets.items() if v == "picture"]
+            hint = suggest(name, mine) if mine else None
+            raise self.err(f'I don\'t have a picture called "{name}".',
+                           (hint + "  " if hint else "") + ("Your pictures: " + ", ".join(mine) + "." if mine else
+                            "Put the picture file (png, jpg, gif or webp) next to your program, or upload it in the Playground."))
+        px, py = self.dnumber(x, env, "The picture's first number (across)"), self.dnumber(y, env, "The picture's second number (down)")
+        w = h = None
+        if size is not None:
+            w, h = self.dnumber(size[0], env, "The picture's width"), self.dnumber(size[1], env, "The picture's height")
+            if w <= 0 or h <= 0:
+                raise self.err("A picture's size must be more than 0.")
+        self.push(["picture", name, px - self.cam[0], py - self.cam[1], w, h])
 
     def x_stopgame(self, s, env):
         if self.game is None:
@@ -225,7 +266,8 @@ class GameRun:
         return {"title": g["title"], "w": g["w"], "h": g["h"], "bg": g["bg"],
                 "sprites": {k: {"rows": v["rows"], "legend": v["legend"], "ps": v["ps"], "frames": v["frames"]}
                             for k, v in self.sprites.items()},
-                "maps": self.maps_snapshot(self.maps), "sounds": list(SOUNDS)}
+                "maps": self.maps_snapshot(self.maps), "sounds": list(SOUNDS),
+                "music": list(BUILTIN_MUSIC), "keys": sorted(set(re.findall(r'\bkey\s+"(\w+)"', "\n".join(self.source_lines or []))))}
 
     def maps_snapshot(self, names):
         return {k: {"rows": ["".join(r) for r in self.maps[k]["rows"]], "legend": self.maps[k]["legend"],
@@ -285,5 +327,8 @@ class GameRun:
         changed = self.maps_snapshot(self.changed_maps)
         self.changed_maps = set()
         out = {"cmds": self.frame_cmds, "sounds": self.sounds, "maps": changed, "over": g["over"]}
+        if self.music_now is not None:
+            out["music"] = self.music_now
+            self.music_now = None
         self.frame_cmds = None
         return out

@@ -13,6 +13,9 @@ from decimal import Decimal
 
 from .designrun import DesignRun
 from .gamerun import GameRun
+from .live import LiveRun
+from .physics import PhysicsRun
+from .memory import Memory, MemoryError_
 from .errors import HLError, suggest
 from .hints import for_word
 from .lexer import lex
@@ -184,9 +187,12 @@ class Source:
         self.name, self.lines, self.path = name, lines, path
 
 
-class Interpreter(DesignRun, GameRun):
-    def __init__(self, out=None, inp=None):
+class Interpreter(DesignRun, GameRun, LiveRun, PhysicsRun):
+    def __init__(self, out=None, inp=None, memory=None):
+        self.memory = memory or Memory()
         self.design_init()
+        self.live_init()
+        self.physics_init()
         self.game_init()
         self.out = out or sys.stdout.write
         self.inp = inp or input
@@ -203,6 +209,7 @@ class Interpreter(DesignRun, GameRun):
         self.deadline = None  # a time (time.monotonic) after which the program is stopped
         self.warnings = []
         self.nothing_from = {}  # variable name -> (function, line) for values that came back as nothing
+        self.on_step = None  # set to a function(line, text, env, statement) to watch every statement (the debugger)
         self.trace = None  # set to a function(line_number, text) to watch every statement run
         # look each statement/expression handler up once, not on every step
         self._ex = {k[2:]: getattr(self, k) for k in dir(self) if k.startswith("x_")}
@@ -423,12 +430,16 @@ class Interpreter(DesignRun, GameRun):
 
     # ---- statements ------------------------------------------------------
     def exec_block(self, stmts, env):
-        ex, trace = self._ex, self.trace
+        ex, trace, step = self._ex, self.trace, self.on_step
         for s in stmts:
             self.line = s[1]
-            if trace:
+            if trace or step:
                 lines = self.source.lines
-                trace(s[1], lines[s[1] - 1].strip() if s[1] <= len(lines) else "")
+                text = lines[s[1] - 1].strip() if s[1] <= len(lines) else ""
+                if trace:
+                    trace(s[1], text)
+                if step:
+                    step(s[1], text, env, s)
             ex[s[0]](s, env)
 
     def x_say(self, s, env):
@@ -922,6 +933,36 @@ class Interpreter(DesignRun, GameRun):
     # ---- expressions -----------------------------------------------------
     def ev(self, n, env):
         return self._ev[n[0]](n, env)
+
+    def x_remember(self, s, env):
+        _, line, value, key = s
+        name = self.fmt(self.ev(key, env))
+        try:
+            self.memory.remember(name, self.ev(value, env))
+        except MemoryError_ as e:
+            raise self.err(str(e))
+
+    def x_forget(self, s, env):
+        try:
+            self.memory.forget(self.fmt(self.ev(s[2], env)))
+        except MemoryError_ as e:
+            raise self.err(str(e))
+
+    def e_recall(self, n, env):
+        try:
+            return self.memory.recall(self.fmt(self.ev(n[1], env)))
+        except MemoryError_ as e:
+            raise self.err(str(e))
+
+    def e_calc(self, n, env):
+        from .formula import evaluate, FormulaError
+        v = self.ev(n[1], env)
+        if isinstance(v, bool) or not (isinstance(v, str) or is_num(v)):
+            raise self.err(f'"calculate" needs a formula in quotes, like "2 * (3 + 4)", but got {self.show(v)}.')
+        try:
+            return norm(evaluate(v if isinstance(v, str) else self.fmt(v)))
+        except FormulaError as e:
+            raise self.err(f'I can\'t calculate "{v}": {e.message}', e.hint)
 
     def e_range(self, n, env):
         a, b = self.ev(n[1], env), self.ev(n[2], env)

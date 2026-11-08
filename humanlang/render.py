@@ -244,7 +244,41 @@ def render(n):
     raise ValueError(k)
 
 
-def to_html(page):
+LIVE_JS = """
+(function(){
+var live=__LIVE__;
+function main(){return document.querySelector("main.hl-page");}
+function vals(){var o={};document.querySelectorAll("input.hl[id]").forEach(function(i){o[i.id]=i.value;});return o;}
+function send(m){if(window.hlSend){window.hlSend(m);}else{parent.postMessage({hl:"event",msg:m},"*");}}
+document.addEventListener("click",function(e){
+  var b=e.target.closest&&e.target.closest("button.hl");if(!b)return;
+  var t=b.textContent;if(live.click.indexOf(b.id)<0&&live.click.indexOf(t)<0)return;
+  send({type:"click",name:b.id||"",text:t,values:vals()});});
+document.addEventListener("input",function(e){
+  var i=e.target;if(!(i.matches&&i.matches("input.hl[id]"))||live.change.indexOf(i.id)<0)return;
+  send({type:"change",name:i.id,text:"",values:vals()});});
+window.hlUpdate=function(html){
+  var m=main(),old=vals(),a=document.activeElement,fid=a&&a.id,s=a&&a.selectionStart,e=a&&a.selectionEnd;
+  m.innerHTML=html;
+  Object.keys(old).forEach(function(k){var el=document.getElementById(k);if(el&&el.matches("input.hl"))el.value=old[k];});
+  if(fid){var f=document.getElementById(fid);if(f){f.focus();try{f.setSelectionRange(s,e);}catch(x){}}}
+};
+addEventListener("message",function(e){if(e.data&&e.data.hl==="update")window.hlUpdate(e.data.html);});
+})();
+"""
+
+
+def live_script(keys):
+    import json
+    return "<script>" + LIVE_JS.replace("__LIVE__", json.dumps(keys).replace("</", "<\\/")) + "</script>\n"
+
+
+def inner_html(page):
+    """Just what goes inside the page's <main>: used to update a live page."""
+    return render_children(page["children"])
+
+
+def to_html(page, live=None):
     p = page.get("props", {})
     title = page.get("title") or "HumanLang page"
     body_css = []
@@ -270,4 +304,4 @@ def to_html(page):
             f"<title>{esc(title)}</title>\n<style>{CSS}</style>\n</head>\n"
             f"<body{(' style=' + chr(34) + ';'.join(body_css) + chr(34)) if body_css else ''}>\n"
             f"<main class=\"hl-page\"{(' style=' + chr(34) + ';'.join(page_css) + chr(34)) if page_css else ''}>"
-            f"{render_children(page['children'])}</main>\n</body>\n</html>\n")
+            f"{render_children(page['children'])}</main>\n{live_script(live) if live else ''}</body>\n</html>\n")

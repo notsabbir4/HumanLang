@@ -7,6 +7,8 @@ from .hints import for_word
 from .lexer import Line, tokenize
 from .design import DesignParser, EXAMPLES as DESIGN_EXAMPLES
 from .game import GameParser
+from .live import LiveParser
+from .physics import PhysicsParser
 
 STATEMENT_WORDS = ["say", "set", "change", "add", "subtract", "remove", "ask", "if",
                    "repeat", "for", "define", "give", "stop", "skip", "use", "try", "write"]
@@ -67,7 +69,7 @@ EXAMPLES = {
 VALUE_WORDS = ("yes", "no", "nothing", "list", "item")
 
 
-class Parser(DesignParser, GameParser):
+class Parser(DesignParser, GameParser, LiveParser, PhysicsParser):
     def __init__(self, lines=None):
         self.lines = lines or []
         self.pos = 0
@@ -322,14 +324,22 @@ class Parser(DesignParser, GameParser):
             self.i = 1
             self.example = EXAMPLES["fail"]
             return self.st_fail()
+        if w == "when" and "when" not in self.declared and self.word("the", 1) and (self.word("button", 2) or self.word("input", 2) or self.word("box", 2)):
+            self.i = 1
+            return self.st_when()
         if w == "show" and "show" not in self.declared and self.word("a", 1) and self.word("page", 2):
             self.i = 1
             return self.st_page()
         for word, test, handler in (
-                ("make", self.word("a", 1) and (self.word("sprite", 2) or self.word("map", 2)), "st_make"),
-                ("play", (self.word("a", 1) and self.word("game", 2)) or (self.word("the", 1) and self.word("sound", 2)), "st_play"),
-                ("draw", self.word("the", 1) and (self.word("sprite", 2) or self.word("map", 2)), "st_draw"),
+                ("remember", self.peek(1) is not None, "st_remember"),
+                ("forget", self.peek(1) is not None, "st_forget"),
+                ("make", self.word("the", 1) and self.word("body", 2), "st_bodydo"),
+                ("update", self.word("the", 1) and self.word("body", 2), "st_update"),
+                ("make", self.word("a", 1) and (self.word("sprite", 2) or self.word("map", 2) or self.word("body", 2)), "st_make"),
+                ("play", (self.word("a", 1) and self.word("game", 2)) or (self.word("the", 1) and (self.word("sound", 2) or self.word("music", 2))), "st_play"),
+                ("draw", self.word("the", 1) and (self.word("sprite", 2) or self.word("map", 2) or self.word("picture", 2)), "st_draw"),
                 ("move", self.word("the", 1) and self.word("camera", 2), "st_move"),
+                ("move", self.word("the", 1) and self.word("body", 2), "st_bodymove"),
                 ("change", (self.word("tile", 1) and (self.word("in", 2) or self.word("at", 2))) or (self.word("the", 1) and self.word("tile", 2)), "st_changetile")):
             if w == word and word not in self.declared and test:
                 self.i = 1
@@ -548,6 +558,36 @@ class Parser(DesignParser, GameParser):
         self.end()
         return (kind, line)
 
+    def memory_key(self):
+        """The name something is remembered under: a bare word (high_score) or text in quotes ("high score")."""
+        t = self.peek()
+        if t is not None and t.kind == "STR":
+            self.i += 1
+            return self.string_node(t)
+        if t is not None and t.kind == "WORD":
+            self.i += 1
+            return ("lit", t.value)
+        self.fail('I expected the name to remember it under, like: remember score   or   remember score as "high score"')
+
+    def st_remember(self):
+        line = self.lineno
+        self.example = 'remember score   (or: remember score as "high score")'
+        value = self.expr()
+        key = None
+        if self.accept("as"):
+            key = self.memory_key()
+        elif value[0] != "var":
+            self.fail('When you remember something that is not a variable, say what to call it: remember 5 as "lucky number"')
+        self.end()
+        return ("remember", line, value, key if key is not None else ("lit", value[1]))
+
+    def st_forget(self):
+        line = self.lineno
+        self.example = "forget score"
+        key = self.memory_key()
+        self.end()
+        return ("forget", line, key)
+
     def st_stop(self):
         if self.words("the", "game"):
             line = self.lineno
@@ -559,6 +599,11 @@ class Parser(DesignParser, GameParser):
             self.i += 2
             self.end()
             return ("exit", line)
+        if self.words("the", "music"):
+            line = self.lineno
+            self.i += 2
+            self.end()
+            return ("music", line, None)
         return self._loop_word("stop")
 
     def st_skip(self):
@@ -770,8 +815,22 @@ class Parser(DesignParser, GameParser):
                 return e
             self.fail(f'I expected a value here but found "{t.value}"')
         w = t.value
+        if w == "recall" and "recall" not in self.declared and self.peek(1) is not None:
+            self.i += 1
+            return ("recall", self.memory_key())
+        if w == "calculate" and "calculate" not in self.declared and self.peek(1) is not None:
+            self.i += 1
+            self.example = 'set answer to calculate "2 * (3 + 4)"'
+            return ("calc", self.unary())
         if w in ("key", "mouse", "tile", "how", "the", "frame", "game"):
             node = self.game_factor()
+            if node is not None:
+                return node
+        if w == "the":
+            node = self.physics_factor()
+            if node is not None:
+                return node
+            node = self.live_factor()
             if node is not None:
                 return node
         if w in ("yes", "no"):

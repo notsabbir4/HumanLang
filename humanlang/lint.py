@@ -12,7 +12,7 @@ it was made before the function was written, or the function reads x before givi
 STATEMENTS = {"say", "set", "change", "changeitem", "add", "subtract", "remove", "addplace", "subtractplace",
               "removeplace", "ask", "if", "while", "times", "for", "define", "give", "stop", "skip", "use",
               "write", "append", "try", "callstmt", "fail", "exit", "setfield", "changefield", "removeat", "include", "module", "writecsv", "page", "put",
-              "sprite", "map", "game", "drawsprite", "drawmap", "camera", "sound", "settile", "stopgame"}
+              "sprite", "map", "game", "drawsprite", "drawmap", "camera", "sound", "settile", "stopgame", "when", "remember", "forget", "music", "drawpicture", "body", "bodydo", "bodymove", "update"}
 
 
 def lint(stmts, known=None):

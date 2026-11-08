@@ -24,7 +24,9 @@ class DesignRun:
 
     # -- values --------------------------------------------------------------------
     def dnumber(self, expr, env, what):
-        v = self.ev(expr, env)
+        v = self._ev[expr[0]](expr, env)
+        if type(v) is int and -MAX_NUMBER <= v <= MAX_NUMBER:  # the common case in games: a whole number
+            return v
         if isinstance(v, bool) or not isinstance(v, (int, float)) and not hasattr(v, "as_tuple"):
             raise self.err(f'{what} needs a number, but got {self.show(v)}.')
         x = float(v)
@@ -78,7 +80,7 @@ class DesignRun:
         return text
 
     # -- statements ------------------------------------------------------------------
-    def x_page(self, s, env):
+    def x_page(self, s, env, remember=True):
         _, line, title, props, body = s
         if self.design_stack:
             raise self.err("A page can't be inside another page.")
@@ -93,7 +95,9 @@ class DesignRun:
         finally:
             self.design_stack.pop()
         self.designs.append(page)
-        if self.on_design:
+        if remember:
+            self.live_page = (s, env)
+        if self.on_design and remember:
             self.on_design(page)
 
     def x_put(self, s, env):

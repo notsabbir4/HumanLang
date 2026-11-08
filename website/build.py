@@ -43,7 +43,7 @@ DESIGN_KINDS = ["box", "row", "text", "heading", "button", "input", "drawing", "
 DESIGN = ["show a page", "titled", "called", "where", "make a sprite", "make a map", "play a game", "when the game starts",
           "every frame", "when the key", "is pressed", "when the mouse is clicked", "draw the sprite", "draw the map",
           "move the camera to", "play the sound", "stop the game", "change the tile", "touches", "facing left",
-          "is down", "frame number", "game time"] + [
+          "is down", "frame number", "game time"] + ['remember', 'forget', 'recall', 'calculate', 'when the button', 'is clicked', 'when the input', 'changes', 'the text in', 'the number in', 'play the music', 'stop the music', 'draw the picture', 'make a body', 'make the body', 'update the body', 'move the body', 'run left', 'run right', 'bounce', 'is on the ground'] + [
     f"put {'an' if k[0] in 'aeiou' else 'a'} {k}" for k in DESIGN_KINDS] + ["put some"]
 CONSTANTS = ["yes", "no", "nothing", "problem_line", "problem_kind", "problem"]
 
@@ -289,8 +289,10 @@ def playground_page(examples):
 <select id="examples" aria-label="Example programs"></select>
 <button class="btn run" id="run" type="button" disabled>&#9654; Run</button>
 <button class="btn ghost" id="stop" type="button" disabled>Stop</button>
+<button class="btn ghost" id="stepbtn" type="button" disabled title="Go through the program one line at a time and see what each line does">Step through</button>
 <span class="grow"></span>
 <button class="btn ghost" id="share" type="button">Share link</button>
+<button class="btn ghost" id="postbtn" type="button" title="Open the Community post form with your program already filled in">Post to Community</button>
 <button class="btn ghost" id="theme" type="button" aria-label="Switch between light and dark">Light</button>
 </div>
 <div class="ide-main">
@@ -307,10 +309,24 @@ def playground_page(examples):
 <button class="tab on" id="tab-console" role="tab" type="button">Console</button>
 <button class="tab" id="tab-preview" role="tab" type="button" hidden>Preview</button>
 <button class="tab" id="tab-input" role="tab" type="button">Answers</button>
+<button class="tab" id="tab-steps" role="tab" type="button" hidden>Steps</button>
+<button class="tab" id="tab-files" role="tab" type="button">Files</button>
 <span class="grow"></span><span id="took"></span>
 </div>
 <pre id="out" aria-live="polite"></pre>
-<div id="prepane" hidden><div id="pnote" hidden></div><iframe id="preview" sandbox="" title="Preview of your page"></iframe><div id="gamebox" hidden><canvas id="screen" tabindex="0" aria-label="The game. Click it, then use the keyboard."></canvas></div></div>
+<div id="prepane" hidden><div id="pnote" hidden></div><iframe id="preview" sandbox="allow-scripts" title="Preview of your page"></iframe><div id="gamebox" hidden><canvas id="screen" tabindex="0" aria-label="The game. Click it, then use the keyboard."></canvas></div></div>
+<div id="stepspane" hidden>
+<div class="stepbar"><button class="btn ghost" id="stepback" type="button">&#9664; Back</button><button class="btn run" id="stepnext" type="button">Next &#9654;</button>
+<input type="range" id="steprange" min="0" max="0" value="0" aria-label="Step"><span id="stepcount"></span></div>
+<p id="stepsays"></p>
+<div class="stepgrid"><pre id="stepcode" aria-label="Your program, with the current line marked"></pre>
+<div><h4>What the variables hold</h4><table id="stepvars"></table><h4>Output so far</h4><pre id="stepout"></pre></div></div>
+</div>
+<div id="filespane" hidden><p>Add your own <b>pictures</b> (png, jpg, gif, webp) and <b>sounds or music</b> (wav, mp3, ogg, m4a) to use in a game.
+They stay in this browser only. Use them by name, for example <code>draw the picture "face.png" at 10, 10</code> or
+<code>play the music "theme.mp3"</code>. Up to 3 MB each.</p>
+<label class="btn ghost" id="addfiles-label">Add files<input type="file" id="addfiles" multiple accept="image/png,image/jpeg,image/gif,image/webp,audio/*,.wav,.mp3,.ogg,.m4a" hidden></label>
+<ul id="filelist" aria-live="polite"></ul><p id="filenote"></p></div>
 <div id="inpane" hidden><p>Optional. If your program uses <code>ask</code>, type all its answers here, one per line, and it will not stop to ask.</p>
 <textarea id="inputs" spellcheck="false" aria-label="Answers, one per line"></textarea></div>
 </section>
@@ -319,7 +335,7 @@ def playground_page(examples):
 </div>
 """
     words = {"k": CONTROL + STATEMENT + DESIGN, "o": OPERATORS, "f": BUILTINS, "v": CONSTANTS}
-    script = (f'<script>window.HL_EXAMPLES = {json.dumps(examples)}; window.HL_WORDS = {json.dumps(words)};</script>\n'
+    script = (f'<script>window.HL_REPO = {json.dumps(REPO)}; window.HL_EXAMPLES = {json.dumps(examples)}; window.HL_WORDS = {json.dumps(words)};</script>\n'
               '<script src="arcade.js"></script><script src="community-lib.js"></script><script src="playground.js"></script>')
     return page("Playground - HumanLang", body, "playground.html", extra_body=script, main_class="ide-page")
 

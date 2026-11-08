@@ -71,22 +71,27 @@ async function runInTerminal(sub) {
 // ---- design preview: a program that says "show a page" is drawn in a panel beside the editor ----
 let panel = null;
 let lastGoodHtml = null;
+let lastRuns = false;
 let previewDoc = null;
 let timer = null;
 let output = null;
 
-const showsAPage = (text) => /^[ \t]*show a page\b/m.test(text);
+const showsAPage = (text) => /^[ \t]*(show a page|play a game)\b/m.test(text);
 const escapeHtml = (t) => t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+// A game or a live page brings Python (Pyodide) with it, so it may load that one thing from the internet and run its own script.
+const SAFE_RUN = '<meta http-equiv="Content-Security-Policy" content="default-src \'none\'; style-src \'unsafe-inline\'; img-src data: blob:; media-src data: blob:; ' +
+  'script-src \'unsafe-inline\' \'unsafe-eval\' \'wasm-unsafe-eval\' https://cdn.jsdelivr.net; connect-src https://cdn.jsdelivr.net data: blob:; worker-src blob:;">';
 const SAFE = '<meta http-equiv="Content-Security-Policy" content="default-src \'none\'; style-src \'unsafe-inline\'; img-src data:;">';
 
 // Runs `hl page --json -` with the program on standard input. Resolves to {html, output, error}.
-function renderPage(text) {
+function renderPage(text, folder) {
   return new Promise((resolve) => {
     const { command, args } = hlCommand();
+    const dir = folder ? ["--dir", folder] : [];
     let out = "", err = "";
     let child;
     try {
-      child = spawn(command, [...args, "page", "--json", "-"], { windowsHide: true });
+      child = spawn(command, [...args, "page", "--json", ...dir, "-"], { windowsHide: true });
     } catch (e) {
       resolve({ html: null, output: "", error: 'I could not start "hl": ' + e.message });
       return;
@@ -108,15 +113,16 @@ function banner(message) {
     escapeHtml(message) + "</div>";
 }
 
-function withSafety(html, message) {
-  let page = html.replace("<head>", "<head>\n" + SAFE);
+function withSafety(html, message, runs) {
+  let page = html.replace("<head>", "<head>\n" + (runs ? SAFE_RUN : SAFE));
   if (message) page = page.replace(/<body[^>]*>/, (m) => m + banner(message));
   return page;
 }
 
 async function updatePreview() {
   if (!panel || !previewDoc) return;
-  const result = await renderPage(previewDoc.getText());
+  const fileDir = previewDoc.uri && previewDoc.uri.scheme === "file" ? require("path").dirname(previewDoc.uri.fsPath) : null;
+  const result = await renderPage(previewDoc.getText(), fileDir);
   if (!panel) return;
   if (result.output) {
     output = output || window.createOutputChannel("HumanLang");
@@ -124,10 +130,10 @@ async function updatePreview() {
     output.append(result.output);
   }
   if (result.html && !result.error) {
-    lastGoodHtml = result.html;
-    panel.webview.html = withSafety(result.html);
+    lastGoodHtml = result.html; lastRuns = result.kind === "game" || result.kind === "live";
+    panel.webview.html = withSafety(result.html, null, lastRuns);
   } else if (lastGoodHtml) {
-    panel.webview.html = withSafety(lastGoodHtml, "Showing your last working page. Fix this:\n" + (result.error || "This program doesn't show a page."));
+    panel.webview.html = withSafety(lastGoodHtml, "Showing your last working page. Fix this:\n" + (result.error || "This program doesn't show a page."), lastRuns);
   } else {
     panel.webview.html = withSafety("<!doctype html><html><head><meta charset=\"utf-8\"></head><body></body></html>",
       result.error || 'This program doesn\'t show a page yet. Start one with:  show a page titled "My page"');
@@ -142,7 +148,7 @@ function openPreview() {
   }
   previewDoc = editor.document;
   if (!panel) {
-    panel = window.createWebviewPanel("humanlangPreview", "HumanLang preview", { viewColumn: vscode.ViewColumn.Beside, preserveFocus: true }, { enableScripts: false });
+    panel = window.createWebviewPanel("humanlangPreview", "HumanLang preview", { viewColumn: vscode.ViewColumn.Beside, preserveFocus: true }, { enableScripts: true, retainContextWhenHidden: true });
     panel.onDidDispose(() => { panel = null; lastGoodHtml = null; });
   } else {
     panel.reveal(vscode.ViewColumn.Beside, true);

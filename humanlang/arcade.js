@@ -64,12 +64,53 @@
       blip: (c, t) => tone(c, t, "square", 440, 440, 0.05, 0.07),
       step: (c, t) => tone(c, t, "triangle", 110, 90, 0.04, 0.12),
     };
+    // ---- built-in background tunes: "C4" notes, one step each ("-" is a rest) ----
+    const NOTE = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
+    const freq = (n) => 440 * Math.pow(2, (NOTE[n[0]] + (n[1] === "#" ? 1 : 0) + 12 * (+n[n.length - 1] + 1) - 69) / 12);
+    const TUNES = {
+      adventure: { bpm: 150, lead: "E4 G4 A4 G4 E4 G4 C5 - D4 F4 A4 F4 D4 F4 B4 -", bass: "C3 - G3 - C3 - G3 - D3 - A3 - D3 - A3 -" },
+      chill: { bpm: 90, lead: "C4 - E4 - G4 - E4 - A3 - C4 - E4 - C4 -", bass: "C3 - - - - - - - A2 - - - - - - -" },
+      chase: { bpm: 180, lead: "A4 A4 C5 A4 E5 A4 C5 A4 G4 G4 B4 G4 D5 G4 B4 G4", bass: "A2 - A2 - A2 - A2 - G2 - G2 - G2 - G2 -" },
+    };
+    let timer = null, musicEl = null, uMuted = false;
+    function stopMusic() {
+      if (timer) { clearInterval(timer); timer = null; }
+      if (musicEl) { musicEl.pause(); musicEl = null; }
+    }
+    function playTune(name) {
+      const tune = TUNES[name]; if (!tune) return;
+      const lead = tune.lead.split(" "), bass = tune.bass.split(" "), step = 30 / tune.bpm;
+      let i = 0;
+      const tick = () => {
+        const c = ensure(); if (!c || uMuted) return;
+        const t = c.currentTime + 0.02;
+        if (lead[i % lead.length] !== "-") tone(c, t, "square", freq(lead[i % lead.length]), freq(lead[i % lead.length]), step * 0.9, 0.035);
+        if (bass[i % bass.length] !== "-") tone(c, t, "triangle", freq(bass[i % bass.length]), freq(bass[i % bass.length]), step * 1.8, 0.07);
+        i++;
+      };
+      tick(); timer = setInterval(tick, step * 1000);
+    }
     return {
       unlock: ensure,
-      play(name) {
+      play(name, files) {
+        if (files && files[name]) {
+          if (uMuted) return;
+          const a = new Audio(files[name]); a.volume = 0.8; const p = a.play(); if (p && p.catch) p.catch(() => {});
+          return;
+        }
         const c = ensure();
         if (c && bank[name]) bank[name](c, c.currentTime);
       },
+      music(name, files) {
+        stopMusic();
+        if (!name) return;
+        if (files && files[name]) {
+          musicEl = new Audio(files[name]); musicEl.loop = true; musicEl.volume = 0.5;
+          if (!uMuted) { const p = musicEl.play(); if (p && p.catch) p.catch(() => {}); }
+        } else playTune(name);
+      },
+      mute(m) { uMuted = m; if (musicEl) { if (m) musicEl.pause(); else { const p = musicEl.play(); if (p && p.catch) p.catch(() => {}); } } },
+      stopMusic,
     };
   }
 
@@ -100,6 +141,9 @@
     const sprites = {}, maps = {};
     for (const k in info.sprites) sprites[k] = buildSprite(info.sprites[k]);
     for (const k in info.maps) maps[k] = info.maps[k];
+    const files = opts.assets || {}, pictures = {};  // your own files: name -> data (or web address)
+    for (const k in files) if (/\.(png|jpe?g|gif|webp)$/i.test(k)) { const im = new Image(); im.src = files[k]; pictures[k] = im; }
+    let lastMusic = null;
     canvas.width = info.w; canvas.height = info.h;
     g.imageSmoothingEnabled = false;
 
@@ -123,6 +167,8 @@
       mouse = [Math.round((e.clientX - r.left) * info.w / r.width), Math.round((e.clientY - r.top) * info.h / r.height)];
     }
     function onClick(e) { onMouse(e); clicked = true; sound.unlock(); canvas.focus(); }
+
+    function onTouch(e) { const t = e.touches[0]; if (t) onClick({ clientX: t.clientX, clientY: t.clientY }); }
 
     function shape(n) {
       const p = n.props || {}, k = n.kind;
@@ -188,6 +234,11 @@
           else g.drawImage(img, x, y);
         } else if (op === "map") drawMap(c[1], Math.round(c[2]), Math.round(c[3]));
         else if (op === "shape") { g.save(); shape(c[1]); g.restore(); }
+        else if (op === "picture") {
+          const im = pictures[c[1]]; if (!im || !im.complete || !im.naturalWidth) continue;
+          const x = Math.round(c[2]), y = Math.round(c[3]);
+          if (c[4] != null) g.drawImage(im, x, y, c[4], c[5]); else g.drawImage(im, x, y);
+        }
       }
     }
 
@@ -203,7 +254,8 @@
         try {
           frame = await step(input);
           draw(frame);
-          if (!muted) for (const s of frame.sounds || []) sound.play(s);
+          if (!muted) for (const s of frame.sounds || []) sound.play(s, files);
+          if (frame.music !== undefined && frame.music !== lastMusic) { lastMusic = frame.music; sound.music(frame.music, files); }
           if (frame.over) { over = true; running = false; if (opts.onOver) opts.onOver(); }
         } catch (err) {
           running = false;
@@ -214,26 +266,67 @@
       if (running) root.requestAnimationFrame(tick);
     }
 
+    // ---- touch controls: on a phone or tablet, buttons on the screen press the keys the game uses ----
+    let pad = null;
+    function wantsTouch() {
+      if (opts.touch === false) return false;
+      if (opts.touch === true) return true;
+      return !!(root.matchMedia && root.matchMedia("(pointer: coarse)").matches);
+    }
+    function makePad() {
+      const doc = canvas.ownerDocument, used = info.keys && info.keys.length ? info.keys : ["left", "right", "up", "space"];
+      const want = (k) => used.indexOf(k) >= 0;
+      const LABEL = { left: "\u25C0", right: "\u25B6", up: "\u25B2", down: "\u25BC", space: "A", enter: "B" };
+      const el = doc.createElement("div");
+      el.className = "hl-touchpad";
+      el.style.cssText = "position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:space-between;align-items:flex-end;" +
+        "padding:10px 14px;pointer-events:none;z-index:50;touch-action:none;user-select:none;-webkit-user-select:none";
+      const left = doc.createElement("div"), right = doc.createElement("div");
+      left.style.cssText = right.style.cssText = "display:flex;gap:10px;align-items:flex-end;pointer-events:none";
+      function btn(k, side) {
+        const b = doc.createElement("button");
+        b.type = "button"; b.textContent = LABEL[k]; b.setAttribute("aria-label", k + " button");
+        b.style.cssText = "pointer-events:auto;touch-action:none;width:64px;height:64px;border-radius:32px;border:2px solid #ffffff88;" +
+          "background:#00000066;color:#fff;font:bold 22px system-ui,sans-serif;padding:0";
+        const press = (e) => { e.preventDefault(); sound.unlock(); if (!down.has(k)) { down.add(k); pressed.push(k); } b.style.background = "#ffffff55"; };
+        const release = (e) => { e.preventDefault(); down.delete(k); b.style.background = "#00000066"; };
+        b.addEventListener("pointerdown", press);
+        ["pointerup", "pointercancel", "pointerleave"].forEach((ev) => b.addEventListener(ev, release));
+        b.addEventListener("contextmenu", (e) => e.preventDefault());
+        side.appendChild(b);
+      }
+      ["left", "right", "down"].filter(want).forEach((k) => btn(k, left));
+      ["up", "enter", "space"].filter(want).forEach((k) => btn(k, right));
+      el.appendChild(left); el.appendChild(right);
+      doc.body.appendChild(el);
+      return el;
+    }
+
     const api = {
       start() {
         if (running) return;
+        if (!pad && wantsTouch()) pad = makePad();
         running = true; last = 0; acc = STEP;
         root.addEventListener("keydown", onKeyDown);
         root.addEventListener("keyup", onKeyUp);
         root.addEventListener("blur", onBlur);
         canvas.addEventListener("mousemove", onMouse);
         canvas.addEventListener("mousedown", onClick);
+        canvas.addEventListener("touchstart", onTouch, { passive: true });
         root.requestAnimationFrame(tick);
       },
       stop() {
         running = false;
+        if (pad) { pad.remove(); pad = null; }
+        sound.stopMusic();
         root.removeEventListener("keydown", onKeyDown);
         root.removeEventListener("keyup", onKeyUp);
         root.removeEventListener("blur", onBlur);
         canvas.removeEventListener("mousemove", onMouse);
         canvas.removeEventListener("mousedown", onClick);
+        canvas.removeEventListener("touchstart", onTouch);
       },
-      setMuted(m) { muted = !!m; },
+      setMuted(m) { muted = !!m; sound.mute(muted); },
       get over() { return over; },
     };
     return api;

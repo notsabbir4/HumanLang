@@ -5,6 +5,7 @@ import sys
 
 from humanlang.errors import HLError, format_warning
 from humanlang.interpreter import Interpreter
+from humanlang.memory import Memory
 from humanlang.render import to_html
 
 sys.setrecursionlimit(20000)
@@ -21,7 +22,7 @@ class NeedInput(BaseException):
         self.prompt = prompt
 
 
-def run(code, inputs, seed=None):
+def run(code, inputs, seed=None, store=None):
     if seed is not None:
         random.seed(seed)  # the page re-runs the program for every answer; a fixed seed keeps dice rolls the same each time
     out, plain, size, answers = [], [], [0], list(inputs)  # plain = what the program says, without the questions and answers
@@ -42,7 +43,8 @@ def run(code, inputs, seed=None):
         return answer
 
     err = None
-    interp = Interpreter(out=write, inp=ask)
+    memory = Memory(store)
+    interp = Interpreter(out=write, inp=ask, memory=memory)
     try:
         interp.run(code)
     except HLError as e:
@@ -53,4 +55,10 @@ def run(code, inputs, seed=None):
         err = "The program printed too much, so I stopped it."
     heads_up = [format_warning(w, code.splitlines()) for w in interp.warnings]
     page = to_html(interp.designs[-1]) if interp.designs else None  # a design: shown in the Preview tab
-    return json.dumps({"out": "".join(out), "plain": "".join(plain), "err": err, "warnings": heads_up, "page": page})
+    return json.dumps({"out": "".join(out), "plain": "".join(plain), "err": err, "warnings": heads_up, "page": page, "memory": memory.take_changes()})
+
+
+def debug(code, inputs):
+    """Step-by-step: every line that ran, what it does, and what the variables held (for the Steps tab)."""
+    from humanlang.debugger import record
+    return json.dumps(record(code, inputs=list(inputs)))

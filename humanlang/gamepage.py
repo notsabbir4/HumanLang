@@ -36,13 +36,18 @@ footer{font-size:12px;color:#6c7494}
 <div id="note">Loading the game... (the first time takes a few seconds)</div>
 <div><button id="mute">Sound: on</button> <button id="again" hidden>Play again</button></div>
 <footer>Made with HumanLang</footer>
-<script src="__PYODIDE__pyodide.js"></script>
+__PYLOAD__
 <script>__ARCADE__</script>
 <script>
 const FILES = __FILES__;
 const CODE = __CODE__;
+const ASSETS = __ASSETS__;
+const KINDS = {};
+for (const k in ASSETS) KINDS[k] = /^data:image/.test(ASSETS[k]) ? "picture" : "audio";
 const note = document.getElementById("note"), canvas = document.getElementById("screen");
 let game = null, py = null, muted = false;
+const MEMKEY = "hl-memory:" + document.title;
+function store() { try { return localStorage.getItem(MEMKEY) || ""; } catch (e) { return ""; } }
 function fit(info) {
   const k = Math.max(1, Math.floor(Math.min((innerWidth - 24) / info.w, (innerHeight - 140) / info.h)));
   canvas.style.width = info.w * k + "px"; canvas.style.height = info.h * k + "px";
@@ -59,7 +64,7 @@ async function boot() {
 }
 function begin(host) {
   if (game) game.stop();
-  const r = JSON.parse(host.start(CODE));
+  const r = JSON.parse(host.start(CODE, undefined, store(), JSON.stringify(KINDS)));
   if (r.error) return bad(r.error);
   document.title = r.info.title;
   fit(r.info); addEventListener("resize", () => fit(r.info));
@@ -67,9 +72,10 @@ function begin(host) {
   game = Arcade(canvas, r.info, async (input) => {
     const f = JSON.parse(host.frame(JSON.stringify(input)));
     if (f.error) throw new Error(f.error);
+    const mem = host.take_memory(); if (mem) { try { localStorage.setItem(MEMKEY, mem); } catch (e) {} }
     return f;
   }, {
-    muted,
+    muted, assets: ASSETS,
     onError: bad,
     onOver: () => { note.textContent = "Game over."; document.getElementById("again").hidden = false; },
   });
@@ -100,7 +106,24 @@ def safe(text):  # inside a <script>: nothing may close it early
     return text.replace("</", "<\\/").replace("<!--", "<\\!--")
 
 
-def game_to_html(code, title="HumanLang game"):
-    parts = {"__TITLE__": html.escape(title), "__PYODIDE__": PYODIDE, "__ARCADE__": safe(arcade_js()),
+def game_assets(folder, code):
+    """The pictures and sounds the game names in quotes and finds next to the program, as data inside the page."""
+    if not folder:
+        return {}
+    from .assets import data_urls, scan_folder
+    return data_urls(folder, scan_folder(folder, code))
+
+
+def pyload(offline, say=None):
+    """(the tag(s) that bring Pyodide in, where it lives)"""
+    if offline:
+        from .offline import inline_head
+        return inline_head(say), "./"
+    return f'<script src="{PYODIDE}pyodide.js"></script>', PYODIDE
+
+
+def game_to_html(code, title="HumanLang game", offline=False, say=None, folder=None):
+    load, where = pyload(offline, say)
+    parts = {"__TITLE__": html.escape(title), "__PYODIDE__": where, "__PYLOAD__": load, "__ASSETS__": safe(json.dumps(game_assets(folder, code))), "__ARCADE__": safe(arcade_js()),
              "__FILES__": safe(json.dumps(package_files())), "__CODE__": safe(json.dumps(code))}
     return re.sub("__[A-Z]+__", lambda m: parts.get(m.group(0), m.group(0)), TEMPLATE)

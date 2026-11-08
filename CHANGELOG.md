@@ -1,5 +1,32 @@
 # Changelog
 
+## 0.6.1 - 2026-11-08
+HumanLang can now build **real apps**: pages that react to clicks, formulas, saved data, your own pictures and music,
+platformer physics, a step-by-step debugger, and games and pages that work on phones and offline.
+
+### New
+- **Live pages:** `put an input called amount`, then `when the button "Add" is clicked` (or `when the input amount changes`).
+  `the number in amount` / `the text in amount` read a text box. After a click the page's own lines run again, so the page
+  always shows the latest values. Works in the Playground, in VS Code and in saved pages (`hl build`).
+- **Formulas from text:** `calculate "2 * (3 + 4)"`: brackets, order of operations, `^`, `%`, `!`, `pi`, `sqrt`, `sin`... Safe
+  for anything a person types.
+- **Remembering:** `remember score`, `remember 5 as "lucky"`, `recall score`, `forget score`. Saved in `.hl-memory` next to the
+  program, or in the browser (Playground, saved pages and games).
+- **Phones:** games show touch buttons on phones and tablets (only the keys the game uses).
+- **Offline:** `hl build FILE.hum --offline` packs Python for the browser inside the page (about 18 MB), so pages and games work
+  with no internet at all.
+- **Post to Community** button in the Playground: opens the GitHub post form with your title, category and code filled in.
+- **VS Code:** `Run` now plays a game (and runs live pages) in a panel beside the editor.
+- **Platformer physics:** `make a body called hero at 20, 40 with size 12 by 16`, `make the body hero run left / jump`,
+  `update the body hero on the map level with solid "#"`, `draw the sprite hero at the body hero`.
+- **Your own files:** pictures, sounds and music next to the program (Playground: the **Files** tab):
+  `draw the picture "face.png" at 10, 10 with size 32 by 32`, `play the sound "boom.wav"`, `play the music "theme.mp3"`,
+  `stop the music`. Three built-in background tunes: `adventure`, `chill`, `chase`.
+- **Debugger:** `hl debug FILE.hum` and the Playground's **Step through** button show every line in plain words, with the
+  variables that changed.
+- **Speed:** a faster path for whole-number maths in games (the four arcade games take under 1 ms a frame).
+- Tutorial chapters 15-18, reference sections, editor words.
+
 ## 0.5.1 - 2026-11-07
 HumanLang can now make **2D arcade games**: platformers, maze chasers, shoot-em-ups, ladder climbers. A game is
 written in plain words (sprites, tile maps, keys and a frame loop), runs in the Playground, opens in your browser with

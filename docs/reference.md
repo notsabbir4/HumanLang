@@ -256,6 +256,24 @@ Each kind of thing accepts the looks that make sense for it, and HL lists them w
 **Colours** are names (`red`, `sky blue`, `light gray`), with `dark`, `light` or `pale` in front, a code like `"#ff8800"`,
 `nothing` for see-through, or a variable that holds one of these: `set c to "dark red"` then `with colour c`.
 
+## Formulas, memory and live pages
+
+- `calculate "2 * (3 + 4)"` works out a formula in text (brackets, order of operations, `^`, `%`, `!`, `pi`, `e`, `sqrt abs round floor ceiling min max sin cos tan asin acos atan log ln exp root`). A bad formula is an error you can catch with `try`.
+- `remember score` saves a variable; `remember 5 as "lucky"` saves a value under a name; `recall score` / `recall "lucky"` brings it back (`nothing` if never saved); `forget score` throws it away. Saved in a `.hl-memory` folder next to the program, or in the browser.
+- `put an input called amount with hint "A number"` makes a text box with a name.
+- `when the button "Add" is clicked` and `when the input amount changes` run their lines when the person uses the page, then the page's lines run again.
+- `the text in amount` and `the number in amount` read a text box (only inside a `when` part, or in the page's lines).
+
+## Game extras
+
+- `make a body called hero at X, Y with size W by H` (optional `gravity`, `speed`, `jump`), `make the body hero run left / run right / stop / jump / bounce`, `update the body hero on the map level with solid "#" and "B"`, `move the body hero to X, Y`, `the x of the body hero`, `the y of the body hero`, `the horizontal speed of the body hero`, `the vertical speed of the body hero`, `the body hero is on the ground`, `the body hero is falling`, `draw the sprite hero at the body hero`.
+- `draw the picture "face.png" at X, Y with size W by H`, `play the sound "boom.wav"`, `play the music "theme.mp3"`, `stop the music`. Built-in tunes: `adventure`, `chill`, `chase`. Files sit next to the program (Playground: the Files tab): png jpg gif webp wav mp3 ogg m4a, up to 3 MB each.
+
+## Command line additions
+
+- `hl debug FILE.hum` steps through a program line by line.
+- `hl build FILE.hum --offline` saves a page or game that works with no internet.
+
 ## Games
 
 A program with `play a game` is a game. In the Playground it runs in the Preview tab, `hl run` opens it in the browser,

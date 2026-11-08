@@ -4,6 +4,8 @@
   const runBtn = $("run"), stopBtn = $("stop"), shareBtn = $("share"), pick = $("examples");
   const examples = window.HL_EXAMPLES;
   const hl = $("hl"), gutter = $("gutter"), pos = $("pos"), took = $("took"), themeBtn = $("theme");
+  const stepspane = $("stepspane"), tabSteps = $("tab-steps"), stepBtn = $("stepbtn");
+  const filespane = $("filespane"), tabFiles = $("tab-files");
   const tabConsole = $("tab-console"), tabInput = $("tab-input"), inpane = $("inpane");
   const tabPreview = $("tab-preview"), prepane = $("prepane"), preview = $("preview"), pnote = $("pnote");
   let pending = false, liveTimer = null, lastPage = null, liveRun = false;
@@ -48,11 +50,122 @@
   // ---- tabs and theme ----
   function showTab(name) {
     $("out").hidden = name !== "console"; inpane.hidden = name !== "input"; prepane.hidden = name !== "preview";
+    stepspane.hidden = name !== "steps"; tabSteps.className = "tab" + (name === "steps" ? " on" : "");
+    filespane.hidden = name !== "files"; tabFiles.className = "tab" + (name === "files" ? " on" : "");
     tabConsole.className = "tab" + (name === "console" ? " on" : "");
     tabInput.className = "tab" + (name === "input" ? " on" : "");
     tabPreview.className = "tab" + (name === "preview" ? " on" : "");
   }
-  tabConsole.onclick = () => showTab("console"); tabInput.onclick = () => showTab("input"); tabPreview.onclick = () => showTab("preview");
+  tabConsole.onclick = () => showTab("console"); tabInput.onclick = () => showTab("input"); tabPreview.onclick = () => showTab("preview"); tabFiles.onclick = () => showTab("files"); tabSteps.onclick = () => showTab("steps");
+
+  // ---- Post to Community: open the GitHub post form with the program filled in ----
+  $("postbtn").onclick = async () => {
+    const text = code.value;
+    if (!text.trim()) { setStatus("Write a program first, then post it."); return; }
+    const named = /^[ \t]*(?:play a game|show a page)\s+titled\s+"([^"{}]{1,60})"/m.exec(text);
+    const category = hasGame(text) ? "Games" : hasPage(text) ? "Design (pages and pictures)" : "Other";
+    const q = { template: "community-post.yml", title: "Post: " + (named ? named[1] : "My HumanLang program"), category,
+      description: "I made this with HumanLang. (Tell people what it does and how to use it.)" };
+    let note = "Opened the post form with your program filled in. Check it, then press Submit.";
+    const withCode = new URLSearchParams(Object.assign({}, q, { code: text })).toString();
+    let url;
+    if (withCode.length < 6000) url = (window.HL_REPO || "") + "/issues/new?" + withCode;
+    else {
+      url = (window.HL_REPO || "") + "/issues/new?" + new URLSearchParams(q).toString();
+      let copied = false;
+      try { await navigator.clipboard.writeText(text); copied = true; } catch (e) { /* no clipboard permission */ }
+      note = copied ? "Your program is long, so I copied it. Paste it into the code box of the form that opened."
+                    : "Your program is long. Copy it from the editor and paste it into the code box of the form that opened.";
+    }
+    window.open(url, "_blank", "noopener");
+    setStatus(note);
+  };
+
+  // ---- step through: record the run, then walk it line by line ----
+  let rec = null, at = 0;
+  function showStep() {
+    const n = rec.steps.length;
+    $("steprange").max = Math.max(0, n - 1); $("steprange").value = at;
+    $("stepcount").textContent = n ? "Step " + (at + 1) + " of " + n + (rec.truncated ? "+" : "") : "";
+    const st = rec.steps[at], prev = at ? rec.steps[at - 1].vars : {};
+    const cur = st ? st.line : 0;
+    const lines = code.value.split("\n"), box = $("stepcode"); box.textContent = "";
+    lines.forEach((t, i) => { const d = document.createElement("span"); d.className = "ln" + (i + 1 === cur ? " cur" : ""); d.textContent = (i + 1) + "  " + t; box.appendChild(d); });
+    const here = box.querySelector(".cur"); if (here) here.scrollIntoView({ block: "nearest" });
+    $("stepsays").textContent = st ? "Line " + st.line + ": " + st.says : (rec.error || "There is nothing to step through.");
+    const tb = $("stepvars"); tb.textContent = "";
+    const vars = st ? st.vars : {}, keys = Object.keys(vars);
+    if (!keys.length) { const r = tb.insertRow(); r.insertCell().textContent = "(none yet)"; }
+    keys.forEach((k) => { const r = tb.insertRow(), a = r.insertCell(), b = r.insertCell();
+      a.textContent = k; b.textContent = vars[k]; if (prev[k] !== vars[k]) b.className = "ch"; });
+    const upto = st ? st.out : rec.output.length;
+    $("stepout").textContent = at >= n - 1 && !rec.error ? rec.output : rec.output.slice(0, upto);
+    if (at >= n - 1 && rec.error) $("stepsays").textContent += (st ? "\n\n" : "") + rec.error;
+  }
+  const goStep = (k) => { if (!rec) return; at = Math.max(0, Math.min(rec.steps.length - 1, k)); showStep(); };
+  $("stepnext").onclick = () => goStep(at + 1); $("stepback").onclick = () => goStep(at - 1);
+  $("steprange").oninput = (e) => goStep(+e.target.value);
+  stepBtn.onclick = () => {
+    if (!ready || running) return;
+    setStatus("Recording the steps..."); running = true;
+    worker.postMessage({ type: "debug", code: code.value, inputs: inputs.value === "" ? [] : inputs.value.split("\n") });
+  };
+
+  // ---- your own files (pictures, sounds, music): kept in this browser's IndexedDB ----
+  const MAX_FILE = 3 * 1024 * 1024, MAX_TOTAL = 16 * 1024 * 1024, MAX_FILES = 24;
+  const KIND = (n) => /\.(png|jpe?g|gif|webp)$/i.test(n) ? "picture" : /\.(wav|mp3|ogg|m4a)$/i.test(n) ? "audio" : null;
+  let myFiles = {};  // name -> { kind, url (a data: address), size }
+  function dbOpen() {
+    return new Promise((res, rej) => {
+      let r; try { r = indexedDB.open("hl-files", 1); } catch (e) { rej(e); return; }
+      r.onupgradeneeded = () => r.result.createObjectStore("files");
+      r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+    });
+  }
+  async function dbDo(mode, fn) {
+    try {
+      const db = await dbOpen();
+      return await new Promise((res, rej) => { const tx = db.transaction("files", mode), st = tx.objectStore("files"), q = fn(st);
+        tx.oncomplete = () => res(q && q.result); tx.onerror = () => rej(tx.error); });
+    } catch (e) { return null; }
+  }
+  const fileNote = (t) => { $("filenote").textContent = t || ""; };
+  function renderFiles() {
+    const ul = $("filelist"); ul.textContent = "";
+    for (const name of Object.keys(myFiles)) {
+      const f = myFiles[name], li = document.createElement("li");
+      if (f.kind === "picture") { const im = document.createElement("img"); im.src = f.url; im.alt = ""; li.appendChild(im); }
+      else { const b = document.createElement("button"); b.type = "button"; b.className = "btn ghost"; b.textContent = "Play";
+        b.onclick = () => { const a = new Audio(f.url); a.play().catch(() => {}); }; li.appendChild(b); }
+      const nm = document.createElement("span"); nm.className = "nm"; nm.textContent = name; li.appendChild(nm);
+      const sz = document.createElement("span"); sz.className = "sz"; sz.textContent = Math.max(1, Math.round(f.size / 1024)) + " KB"; li.appendChild(sz);
+      const rm = document.createElement("button"); rm.type = "button"; rm.className = "btn ghost"; rm.textContent = "Remove";
+      rm.onclick = async () => { delete myFiles[name]; await dbDo("readwrite", (s) => s.delete(name)); renderFiles(); };
+      li.appendChild(rm); ul.appendChild(li);
+    }
+  }
+  const total = () => Object.values(myFiles).reduce((a, f) => a + f.size, 0);
+  $("addfiles").onchange = async (e) => {
+    const notes = [];
+    for (const file of Array.from(e.target.files)) {
+      const name = file.name.replace(/[^\w.\- ]/g, "_"), kind = KIND(name);
+      if (!kind) { notes.push(name + ": I can use png, jpg, gif, webp, wav, mp3, ogg and m4a files."); continue; }
+      if (file.size > MAX_FILE) { notes.push(name + " is bigger than 3 MB."); continue; }
+      if (!(name in myFiles) && Object.keys(myFiles).length >= MAX_FILES) { notes.push("You can add up to " + MAX_FILES + " files."); continue; }
+      if (total() - ((myFiles[name] || {}).size || 0) + file.size > MAX_TOTAL) { notes.push(name + ": that would be more than 16 MB in total."); continue; }
+      const url = await new Promise((res) => { const r = new FileReader(); r.onload = () => res(r.result); r.readAsDataURL(file); });
+      myFiles[name] = { kind, url, size: file.size };
+      await dbDo("readwrite", (s) => s.put(myFiles[name], name));
+    }
+    e.target.value = ""; fileNote(notes.join(" ")); renderFiles();
+  };
+  (async () => {
+    const db = await dbOpen().catch(() => null); if (!db) return;
+    const tx = db.transaction("files", "readonly"), st = tx.objectStore("files"), keys = st.getAllKeys(), vals = st.getAll();
+    tx.oncomplete = () => { keys.result.forEach((k, i) => { myFiles[k] = vals.result[i]; }); renderFiles(); };
+  })();
+  const fileKinds = () => JSON.stringify(Object.fromEntries(Object.entries(myFiles).map(([k, f]) => [k, f.kind])));
+  const fileUrls = () => Object.fromEntries(Object.entries(myFiles).map(([k, f]) => [k, f.url]));
 
   // ---- designs: a program that says "show a page" gets a live preview that follows the typing ----
   const hasPage = (text) => /^[ \t]*show a page\b/m.test(text);
@@ -62,6 +175,11 @@
     pnote.hidden = true;
   }
   // ---- games: a program that says "play a game" runs in the Preview tab, frame by frame ----
+  // what programs "remember" lives in this browser's storage
+  const MEM = "hl-memory";
+  const getStore = () => { try { return localStorage.getItem(MEM) || ""; } catch (e) { return ""; } };
+  const putStore = (json) => { try { localStorage.setItem(MEM, json); } catch (e) { /* storage blocked: it just won't be remembered */ } };
+  const hasLive = (text) => /^when the (button|input|box)\b/m.test(text) && hasPage(text);
   const hasGame = (text) => /^[ \t]*play a game\b/m.test(text);
   const gamebox = $("gamebox"), screen = $("screen");
   let arcade = null, frameWaiting = null;
@@ -70,7 +188,7 @@
     stopGame();
     running = true; runBtn.disabled = true; stopBtn.disabled = false;
     show("", false); took.textContent = ""; setStatus("Starting the game...");
-    worker.postMessage({ type: "gamestart", code: code.value });
+    worker.postMessage({ type: "gamestart", code: code.value, store: getStore(), assets: fileKinds() });
   }
   function gameInfo(m) {
     running = false; runBtn.disabled = false; stopBtn.disabled = true;
@@ -78,10 +196,11 @@
     tabPreview.hidden = false; preview.hidden = true; gamebox.hidden = false; pnote.hidden = true;
     const k = Math.max(1, Math.floor(Math.min(prepane.clientWidth - 16 || 600, 960) / m.info.w));
     screen.style.width = m.info.w * k + "px"; screen.style.height = m.info.h * k + "px";
-    arcade = Arcade(screen, m.info, (input) => new Promise((resolve, reject) => {
+    arcade = Arcade(screen, Object.assign(m.info), (input) => new Promise((resolve, reject) => {
       frameWaiting = { resolve, reject };
       worker.postMessage({ type: "gameframe", input });
     }), {
+      assets: fileUrls(),
       onError: (msg) => { show(msg, true); showTab("console"); setStatus("The game stopped with an error"); },
       onOver: () => setStatus("Game over (press Run to play again)"),
     });
@@ -121,7 +240,14 @@
     worker = new Worker("worker.js");
     worker.onmessage = (e) => {
       const m = e.data;
-      if (m.type === "ready") { ready = true; runBtn.disabled = false; setStatus("Ready (Ctrl+Enter to run)"); }
+      if (m.type === "ready") { ready = true; runBtn.disabled = false; stepBtn.disabled = false; setStatus("Ready (Ctrl+Enter to run)"); }
+      else if (m.type === "memory") putStore(m.json);
+      else if (m.type === "debugged") {
+        running = false; rec = { steps: m.steps || [], output: m.output || "", error: m.error || null, truncated: !!m.truncated };
+        at = 0; tabSteps.hidden = false; showTab("steps"); showStep(); setStatus("Use Next and Back to walk through your program");
+      }
+      else if (m.type === "livestarted") liveStarted(m);
+      else if (m.type === "liveupdate") liveUpdate(m);
       else if (m.type === "gameinfo") gameInfo(m);
       else if (m.type === "gameframe") gameFrame(m);
       else if (m.type === "error") { setStatus("Could not load the playground: " + m.message); }
@@ -135,6 +261,7 @@
       }
       else if (m.type === "result") {
         clearTimeout(slowTimer); running = false;
+        if (m.memory) putStore(m.memory);
         runBtn.disabled = false; stopBtn.disabled = true;
         took.textContent = Math.round(performance.now() - startedAt) + " ms";
         let text = m.plain !== undefined ? m.plain : (m.out || "");
@@ -162,6 +289,30 @@
     };
   }
 
+  // ---- live pages: clicks inside the preview come here, run in the worker, and the page is updated ----
+  function liveStarted(m) {
+    clearTimeout(slowTimer); running = false; runBtn.disabled = false; stopBtn.disabled = true;
+    took.textContent = Math.round(performance.now() - startedAt) + " ms";
+    if (m.error) { show(m.error, true); setStatus("Finished with an error"); showTab("console"); return; }
+    if (m.page) { preview.srcdoc = ""; showPage(m.page); if (!liveRun) showTab("preview"); }
+    show(m.out || "(the program printed nothing)", false);
+    if (m.warnings && m.warnings.length) {
+      const box = document.createElement("div"); box.className = "warn"; box.textContent = m.warnings.join("\n\n"); out.appendChild(box);
+    }
+    liveRun = false;
+    setStatus(m.live ? "Live page: click its buttons in the Preview tab" : "Finished");
+  }
+  function liveUpdate(m) {
+    if (m.error) { pnote.textContent = m.error; pnote.hidden = false; show(m.error, true); return; }
+    pnote.hidden = true;
+    if (m.out) show(m.out, false);
+    preview.contentWindow.postMessage({ hl: "update", html: m.html }, "*");
+  }
+  window.addEventListener("message", (e) => {
+    if (e.source === preview.contentWindow && e.data && e.data.hl === "event" && worker && ready)
+      worker.postMessage({ type: "liveevent", msg: e.data.msg });
+  });
+
   function askHere(before, question) {
     out.className = ""; out.textContent = before + question;
     const box = document.createElement("input");
@@ -181,13 +332,20 @@
   function run(again) {
     if (!ready || running) return;
     if (hasGame(code.value) && again !== true) { startGame(); return; }
+    if (hasLive(code.value) && again !== true) {
+      stopGame(); gamebox.hidden = true; preview.hidden = false; running = true; runBtn.disabled = true; stopBtn.disabled = false;
+      if (!liveRun) { show("", false); took.textContent = ""; showTab("console"); }
+      startedAt = performance.now(); setStatus("Running...");
+      worker.postMessage({ type: "livestart", code: code.value, store: getStore() });
+      return;
+    }
     stopGame(); gamebox.hidden = true; preview.hidden = false;
     running = true; runBtn.disabled = true; stopBtn.disabled = false;
     if (again !== true && !liveRun) { show("", false); startedAt = performance.now(); took.textContent = ""; showTab("console"); }
     else if (liveRun) { startedAt = performance.now(); took.textContent = ""; }
     setStatus("Running...");
     slowTimer = setTimeout(() => setStatus("Still running... press Stop if it is stuck in a loop."), 3000);
-    worker.postMessage({ type: "run", code: code.value, inputs: inputs.value === "" ? [] : inputs.value.split("\n") });
+    worker.postMessage({ type: "run", code: code.value, inputs: inputs.value === "" ? [] : inputs.value.split("\n"), store: getStore() });
   }
 
   function stop() {

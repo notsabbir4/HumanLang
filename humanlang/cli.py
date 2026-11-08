@@ -22,8 +22,10 @@ Usage:
   hl run --no-open FILE              (for a program that shows a page) don't open the browser
   hl build FILE.hum    run a program that shows a page, and save the page as FILE.html for the web
   hl build FILE.hum --out PAGE.html   ...saved under another name
+  hl build FILE.hum --offline         ...a page (or game) that works with no internet (a bigger file)
   hl page FILE.hum     run a program that shows a page and print the page's HTML (used by editor previews)
   (a program with 'play a game' opens as a playable game; hl build saves it as one web page)
+  hl debug FILE.hum    step through a program one line at a time, and see what each line does
   hl check FILE.hum    check a program for mistakes without running it
   hl format FILE.hum   tidy a program's spacing and indentation (--check to only report)
   hl lsp               start the language server (for editors)
@@ -31,7 +33,7 @@ Usage:
 """
 
 BLOCK_STARTERS = {"if", "repeat", "for", "define", "try"}
-VALUE_FLAGS = ("--time-limit", "--max-output", "--out")
+VALUE_FLAGS = ("--time-limit", "--max-output", "--out", "--dir")
 NUMBER_FLAGS = ("--time-limit", "--max-output")
 RUNNING = {}  # the interpreter that is running now, so Ctrl-C can say where the program was
 
@@ -137,10 +139,53 @@ def preview_page(page, name, open_browser=True):
     print("To save it for the web, type:  hl build " + name, file=sys.stderr)
 
 
-def game_out(interp, source, path, build, open_browser):
+def live_out(interp, source, path, build, open_browser, offline=False):
+    """The page has buttons that run code: it needs HumanLang inside the page, so it is built like a game."""
+    from .livepage import live_to_html
+    try:
+        text = live_to_html(interp.designs[-1], interp.live_keys(), source, offline, lambda t: print(t, file=sys.stderr))
+    except Exception as e:
+        if type(e).__name__ != "OfflineError":
+            raise
+        print(e, file=sys.stderr)
+        return 1
+    if build is not None:
+        where = build or os.path.splitext(path)[0] + ".html"
+    else:
+        folder = os.path.join(tempfile.gettempdir(), "humanlang-preview")
+        os.makedirs(folder, exist_ok=True)
+        where = os.path.join(folder, os.path.splitext(os.path.basename(path))[0] + ".html")
+    try:
+        with open(where, "w", encoding="utf-8", newline="\n") as f:
+            f.write(text)
+    except OSError as e:
+        print(f'I couldn\'t save the page as "{where}": {e.strerror}.', file=sys.stderr)
+        return 1
+    if build is not None:
+        print(f"Saved your live page as {where}. " + ("It works without internet." if offline else "(It needs the internet to start.)"))
+        return 0
+    opened = None
+    if open_browser and not os.environ.get("HL_NO_OPEN"):
+        try:
+            opened = webbrowser.open("file:///" + where.replace(os.sep, "/").lstrip("/"))
+        except Exception:
+            opened = False
+    print(f"Your live page is {'open in the browser' if opened else 'ready. Open this file in a browser'} ({where}).", file=sys.stderr)
+    print("To save it for the web, type:  hl build " + path, file=sys.stderr)
+    return 0
+
+
+def game_out(interp, source, path, build, open_browser, offline=False):
     """The program is a game: save it as one web page, and (for `hl run`) open it."""
     from .gamepage import game_to_html
-    page = game_to_html(source, interp.game["title"])
+    try:
+        page = game_to_html(source, interp.game["title"], offline, lambda t: print(t, file=sys.stderr),
+                            os.path.dirname(os.path.abspath(path)))
+    except Exception as e:
+        if type(e).__name__ != "OfflineError":
+            raise
+        print(e, file=sys.stderr)
+        return 1
     if build is not None:
         where = build or os.path.splitext(path)[0] + ".html"
     else:
@@ -154,7 +199,7 @@ def game_out(interp, source, path, build, open_browser):
         print(f'I couldn\'t save the game as "{where}": {e.strerror}.', file=sys.stderr)
         return 1
     if build is not None:
-        print(f"Saved your game as {where}. Open that file in a browser, or put it on any website. (It needs the internet to start.)")
+        print(f"Saved your game as {where}. Open that file in a browser, or put it on any website. " + ("It works without internet." if offline else "(It needs the internet to start.)"))
         return 0
     opened = None
     if open_browser and not os.environ.get("HL_NO_OPEN"):
@@ -170,11 +215,15 @@ def game_out(interp, source, path, build, open_browser):
     return 0
 
 
-def run_file(path, check_only=False, trace=False, time_limit=0, max_output=None, build=None, open_browser=True):
+def run_file(path, check_only=False, trace=False, time_limit=0, max_output=None, build=None, open_browser=True, offline=False):
     source = read_program(path)
     if source is None:
         return 1
-    interp = Interpreter()
+    from .memory import Memory
+    memory = Memory(path=os.path.join(os.path.dirname(os.path.abspath(path)), ".hl-memory", os.path.basename(path) + ".json"))
+    interp = Interpreter(memory=memory)
+    from .assets import scan_folder
+    interp.assets = scan_folder(os.path.dirname(os.path.abspath(path)), source)
     RUNNING["interp"] = interp
     if time_limit:
         interp.set_time_limit(time_limit)
@@ -198,10 +247,12 @@ def run_file(path, check_only=False, trace=False, time_limit=0, max_output=None,
             interp.run_statements(stmts, source)
             sys.stdout.flush()
             if interp.game is not None:
-                return game_out(interp, source, path, build, open_browser)
+                return game_out(interp, source, path, build, open_browser, offline)
             if interp.designs:
                 if len(interp.designs) > 1:
                     print(f"Your program showed {len(interp.designs)} pages; I'm using the last one.", file=sys.stderr)
+                if interp.live_handlers:
+                    return live_out(interp, source, path, build, open_browser, offline)
                 if build is not None:
                     where = build or os.path.splitext(path)[0] + ".html"
                     if write_page(interp.designs[-1], where):
@@ -218,10 +269,15 @@ def run_file(path, check_only=False, trace=False, time_limit=0, max_output=None,
         sys.stdout.flush()
         print(e.format(source.splitlines()), file=sys.stderr)
         return 1
+    finally:
+        try:
+            memory.save()
+        except OSError:
+            pass
     return 0
 
 
-def page_command(path, as_json):
+def page_command(path, as_json, folder=None):
     """Run a program and give back the page it shows (not opening any browser). `-` reads the program from standard input."""
     import json
     if path == "-":
@@ -250,9 +306,19 @@ def page_command(path, as_json):
         error = e.format(source.splitlines())
     except RecursionError:
         error = "This program calls itself too deeply."
+    kind = "page"
     page = to_html(interp.designs[-1]) if interp.designs else None
+    if not error and interp.game is not None:
+        # a game: the editor shows it as a playable page (it brings Python with it, so it needs the internet the first time)
+        from .gamepage import game_to_html
+        kind = "game"
+        page = game_to_html(source, interp.game["title"], folder=folder or (os.path.dirname(os.path.abspath(path)) if path else None))
+    elif not error and interp.designs and interp.live_handlers:
+        from .livepage import live_to_html
+        kind = "live"
+        page = live_to_html(interp.designs[-1], interp.live_keys(), source)
     if as_json:
-        sys.stdout.write(json.dumps({"html": page, "output": "".join(out), "error": error}))
+        sys.stdout.write(json.dumps({"html": page, "output": "".join(out), "error": error, "kind": kind}))
     elif page is not None:
         sys.stdout.write(page)
     if error and not as_json:
@@ -344,7 +410,7 @@ def main(argv=None):
             flags.append(name)
         else:
             rest.append(a)
-    if cmd not in ("run", "check", "format", "build", "page"):
+    if cmd not in ("run", "check", "format", "build", "page", "debug"):
         rest = argv
     numbers = {}
     for name, value in values.items():
@@ -362,8 +428,14 @@ def main(argv=None):
     if not rest:
         print(USAGE)
         return 1
+    if cmd == "debug":
+        source = read_program(rest[0])
+        if source is None:
+            return 1
+        from .debugger import walk
+        return run_big(lambda: walk(rest[0], source))
     if cmd == "page":
-        return run_big(lambda: page_command(rest[0], "--json" in flags))
+        return run_big(lambda: page_command(rest[0], "--json" in flags, values.get("--dir") or None))
     max_output = int(numbers["--max-output"]) if "--max-output" in numbers else None
     build = None
     if cmd == "build":
@@ -372,7 +444,8 @@ def main(argv=None):
             print("--out needs a file name, for example: --out page.html", file=sys.stderr)
             return 1
     return run_big(lambda: run_file(rest[0], cmd == "check", "--trace" in flags,
-                                    numbers.get("--time-limit", 0), max_output, build, "--no-open" not in flags))
+                                    numbers.get("--time-limit", 0), max_output, build, "--no-open" not in flags,
+                                    "--offline" in flags))
 
 
 if __name__ == "__main__":
