@@ -2,6 +2,7 @@
 import glob
 import json
 import os
+import random
 import shutil
 import subprocess
 import sys
@@ -283,6 +284,7 @@ class Showcase(unittest.TestCase):
         self.assertGreater(g["score"], 0)
 
     def pd2(self, level):
+        random.seed(level)                                      # the game uses chance: make every run the same
         it = make(load("planet_defenders_2.hum"))
         g = it.globals.vars
         for _ in range(25):
@@ -343,15 +345,23 @@ class Showcase(unittest.TestCase):
         for _ in range(10):
             it.game_frame()
         self.assertEqual(g["lives"], 2)                     # without it, a life is lost
-        g["bomb_wait"], g["ghost_t"], g["decoy_x"], g["px"] = 0, 300, 20, 250
         g["hurt_t"] = 0
-        xs = []
-        for _ in range(3000):
-            it.game_frame()
-            xs += [float(v) for v, y in zip(g["bx"], g["by"]) if y >= 0 and y < 118]
-            g["ghost_t"] = 300
-        self.assertTrue(xs)
-        self.assertLess(sum(xs) / len(xs), 200)             # aimed at the decoy on the left, not at the ship on the right
+
+        def mean_bomb_x(ghost):
+            """Where the aliens' bombs start, on average, while the ship sits far right (and may be invisible)."""
+            xs = []
+            for _ in range(3000):
+                g["bomb_wait"], g["px"], g["shield_t"], g["hurt_t"] = 0, 250, 0, 0
+                g["ghost_t"] = 300 if ghost else 0
+                g["decoy_x"] = 20                           # the game picks a new decoy every second: keep this one
+                g["lives"], g["aimed_pct"] = 3, 100             # always aim, so the only difference is what they aim at
+                it.game_frame()
+                xs += [float(v) for v, y in zip(g["bx"], g["by"]) if 0 <= y < 118]
+            self.assertTrue(xs)
+            return sum(xs) / len(xs)
+
+        seen, hidden = mean_bomb_x(False), mean_bomb_x(True)
+        self.assertLess(hidden, seen - 40)                  # invisible: bombs go toward the decoy on the left, not the ship
 
     def test_planet_defenders_2_one_life_on_impossible_then_home(self):
         it, g = self.pd2(4)
