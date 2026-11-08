@@ -1,0 +1,1114 @@
+note: PLANET DEFENDERS 2 - an endless shoot-the-invaders game, made with HumanLang 0.6.1.
+note: Home page, instructions, 4 difficulty levels, skills that drop and must be caught, music, best scores that are
+note: remembered, and it works on phones (drag your finger to steer, touching also fires).
+note: Keys: left/right move, space shoots (hold it), up/down choose in the menu, enter starts, pauses and goes back.
+
+use math
+
+note: ==================================================
+note: PLAYER SPACECRAFT - DETAILED INTERCEPTOR FIGHTER
+note: ==================================================
+
+make a sprite called cannon with pixel size 1
+    where "k" is "#080A12"
+    where "d" is "#2A3040"
+    where "g" is "#70798B"
+    where "s" is "#BEC4D2"
+    where "w" is "#F5F5F9"
+    where "r" is "#E21C24"
+    where "R" is "#700C17"
+    where "b" is "#0A69F5"
+    where "c" is "#2DCDFF"
+
+    "...........................k..........................."
+    "..........................Rr..........................."
+    ".........................drrrd........................."
+    ".........................ggrgg........................."
+    "........................dsssssd........................"
+    "........................dsgrgsd........................"
+    "........................gsssssg........................"
+    ".......................dgswgwsgd......................."
+    ".......................d.wsdswgd......................."
+    "........................gwsdswg........................"
+    "...............dd......ggwdddwggk.....kd..............."
+    "..............kgd.....ddsgddkgsdd.....dgk.............."
+    "...............gd.....RRsgdb.gsRR.....dgk.............."
+    "...............gd.....ggsdbsbdsgg.....dgk.............."
+    "..............kRR.....g.sdbgdks.g.....RRk.............."
+    "..............dgdk....d.gkgwbkggdd...kdgd.............."
+    ".............kgsgd..dgdgg.ssbdggdgd..dgsgk............."
+    ".............kdggk..gdssgdscbdgssdg...dgdk............."
+    ".............kkRRk..ddwsgdccbdgsw.dk.kRRkk............."
+    ".............k.gdk.kdsgdgdccbdgdgsdk.kdgdk............."
+    ".............kdsdk.gwwddsdbbbdsddwwgdkdsdk............."
+    "............ggdsdddsswddsgdbdgsddwssdddgdgd............"
+    "...........dgddgdddsRsgdssdbdssdgsRsdddgddgd..........."
+    "..........grrdddkddsswddswgdgwgddwssddkd.drrg.........."
+    "........dgrrRkdsdgsgwwddgswswsgddwsgsgdsdkRrrgd........"
+    "......Rgrrrsgkgdgwwggs.ddssrssd.gsggwwgdgkgsrrrgR......"
+    "....dggrrswwgddgwwsrkgwsdggrggkswgkrswwgddgwwsrrggR...."
+    "...drrrrwwsg.ddwwsrRdgsssdgRgdsssgdRrsww.d.gswwrrrrd..."
+    "..grrrwwsggwgddwsrRkddkgwdsgsdwgkddkRrswdd.wggswwrrrg.."
+    ".Rrrswsggswwgk.wrrdddddgwkgwgkwgdddddrrw.k.wwsggswsrrR."
+    ".Rrgwggsswsswgdwrrgdd.dgwdddddwsddddgrrwddwsswssggwgr.."
+    ".RrRgswwssrrwgdwrrdkdkdgwdddddwgdkdkdrrwdgwrrsswwsgRrR."
+    "krkgwwggswwwwgdwrrkk.kdgsdRrRdsgdkd.krrwdgwswwsggswgkrk"
+    "RrdggddddgsswgdwrdddgddgsdRrRdsgddgdddRw.gwssgddddggdrR"
+    "Rrdk......kdgdds.ddRgRdssdRrRdssdRgRddks.dgdk......kdrR"
+    "RRk..........kdkkddRRRkgsd.dddsgkRRRddkkdk..........kRR"
+    ".k............k..kkdggkkgdddddgkkdgdkk..k............k."
+    ".................kkd.dk.dddddd..kdg.k.................."
+    "..................kkggk.kdkkkdkkkggk..................."
+    "...................dggd..k.kkk.kdggdk.................."
+    "..................kbscb.........dcwbk.................."
+    "..................kbscd.........dcwb..................."
+    "...................dbbd.........dbbd..................."
+    "....................dk...........kd...................."
+
+note: ==================================================
+note: PURPLE CRAB ALIEN - TWO ANIMATION FRAMES
+note: ==================================================
+
+make a sprite called crab with pixel size 1 and 2 frames
+    where "k" is "#090817"
+    where "d" is "#302044"
+    where "p" is "#7625C9"
+    where "v" is "#B34BFF"
+    where "l" is "#D99AFF"
+    where "w" is "#F4E8FF"
+
+    "........kkkk........"
+    "......kkppppkk......"
+    ".....kppvvvvppk....."
+    "....kppvllllvppk...."
+    "...kppvlwwllvppk...."
+    "...kppvllllllvppk..."
+    "....kppvvvvvvppk...."
+    ".....kkppppppkk....."
+    "......kddppddk......"
+    ".....kddkppkddk....."
+    "....kddk....kddk...."
+    "...kddk......kddk..."
+    "..kkdk........kdk..."
+    "...kdk........kdk..."
+    "....kk........kk...."
+    "...................."
+
+    "........kkkk........"
+    "......kkppppkk......"
+    ".....kppvvvvppk....."
+    "....kppvllllvppk...."
+    "...kppvlwwllvppk...."
+    "...kppvllllllvppk..."
+    "....kppvvvvvvppk...."
+    ".....kkppppppkk....."
+    "......kddppddk......"
+    ".....kddkppkddk....."
+    "....kddk....kddk...."
+    "...kddk......kddk..."
+    "...kdk..........kdk."
+    "....kdk........kdk.."
+    ".....kk........kk..."
+    "...................."
+
+note: ==================================================
+note: ORANGE BUG ALIEN - TWO ANIMATION FRAMES
+note: ==================================================
+
+make a sprite called bug with pixel size 1 and 2 frames
+    where "k" is "#100A08"
+    where "d" is "#51200D"
+    where "o" is "#E66A13"
+    where "O" is "#FF9D24"
+    where "y" is "#FFE16A"
+    where "w" is "#FFFFFF"
+
+    "........kkkk........"
+    "......kkOOOkk......."
+    ".....kOOOOOOOk......"
+    "....kOOOyyOOOOk....."
+    "...kOOOywwyOOOk....."
+    "..kOOOyywwyyOOOk...."
+    ".kOOOOOOOOOOOOOk...."
+    "kddOOOOOOOOOOOOOddk."
+    "kddkOOOOOOOOOOOkddk."
+    ".kddkOOOOOOOOkddk..."
+    "..kddkkOOOOkkddk...."
+    "...kkddkkkkddkk....."
+    "....kk......kk......"
+    "...kddk....kddk....."
+    "..kddk......kddk...."
+    "...................."
+
+    "........kkkk........"
+    "......kkOOOkk......."
+    ".....kOOOOOOOk......"
+    "....kOOOyyOOOOk....."
+    "...kOOOywwyOOOk....."
+    "..kOOOyywwyyOOOk...."
+    ".kOOOOOOOOOOOOOk...."
+    "kddOOOOOOOOOOOOOddk."
+    "kddkOOOOOOOOOOOkddk."
+    ".kddkOOOOOOOOkddk..."
+    "..kddkkOOOOkkddk...."
+    "...kkddkkkkddkk....."
+    "......kk..kk........"
+    ".....kddk..kddk....."
+    "....kddk....kddk...."
+    "...................."
+
+note: ==================================================
+note: EXPLOSION SPRITE
+note: ==================================================
+
+make a sprite called boom with pixel size 1
+    where "r" is "#D51D16"
+    where "o" is "#FF651C"
+    where "O" is "#FFAB24"
+    where "y" is "#FFE65B"
+    where "w" is "#FFF5C7"
+
+    "........r........"
+    ".......rrr......."
+    "....r..oOo..r...."
+    "...rr.ooOoo.rr..."
+    "..rrooOOOOOorr..."
+    ".rroOOOyyyOOOorr."
+    "rrooOOyywyyOOoorr"
+    ".rOoOyywwwyyOoOr."
+    "..roOyywwwyyOor.."
+    ".rOoOyywwwyyOoOr."
+    "rrooOOyywyyOOoorr"
+    ".rroOOOyyyOOOorr."
+    "..rrooOOOOOorr..."
+    "...rr.ooOoo.rr..."
+    "....r..oOo..r...."
+    ".......rrr......."
+    "........r........"
+
+
+note: ==================================================
+note: SKILL ICONS AND THE BONUS UFO
+note: ==================================================
+
+make a sprite called icon_shield with pixel size 2
+    where "c" is "#2DCDFF"
+    where "w" is "#FFFFFF"
+    where "b" is "#0A69F5"
+
+    ".ccccccc."
+    "cwwwcbbbc"
+    "cwwcccbbc"
+    "cwccccbbc"
+    "cwccccbbc"
+    ".cbcccbc."
+    ".cbbcbbc."
+    "..cbbbc.."
+    "...ccc..."
+
+make a sprite called icon_power with pixel size 2
+    where "y" is "#FFE16A"
+    where "o" is "#FF9D24"
+
+    "....yyyy."
+    "...yyyo.."
+    "..yyyo..."
+    ".yyyyyyo."
+    "....yyo.."
+    "...yyo..."
+    "..yyo...."
+    "..yo....."
+    ".yo......"
+
+make a sprite called icon_ghost with pixel size 2
+    where "w" is "#E8E8FF"
+    where "k" is "#202040"
+
+    "..wwwww.."
+    ".wwwwwww."
+    "wwkwwwkww"
+    "wwkwwwkww"
+    "wwwwwwwww"
+    "wwwwkwwww"
+    "wwwwwwwww"
+    "wwwwwwwww"
+    "w.ww.ww.w"
+
+make a sprite called icon_heart with pixel size 2
+    where "r" is "#E21C24"
+    where "w" is "#FFFFFF"
+
+    ".rr...rr."
+    "rrrr.rrrr"
+    "rwrrrrrrr"
+    "rrrrrrrrr"
+    "rrrrrrrrr"
+    ".rrrrrrr."
+    "..rrrrr.."
+    "...rrr..."
+    "....r...."
+
+make a sprite called icon_slow with pixel size 2
+    where "b" is "#3A7BFF"
+    where "w" is "#FFFFFF"
+    where "k" is "#101030"
+
+    "..bbbbb.."
+    ".bwwwwwb."
+    "bwwwkwwwb"
+    "bwwwkwwwb"
+    "bwwwkkkwb"
+    "bwwwwwwwb"
+    "bwwwwwwwb"
+    ".bwwwwwb."
+    "..bbbbb.."
+
+make a sprite called icon_nova with pixel size 2
+    where "o" is "#FF651C"
+    where "y" is "#FFE65B"
+
+    "....o...."
+    "o...y...o"
+    ".o..y..o."
+    "..o.y.o.."
+    "...oyo..."
+    "oyyyyyyyo"
+    "...oyo..."
+    "..o.y.o.."
+    ".o..y..o."
+
+make a sprite called ufo with pixel size 2
+    where "r" is "#E21C24"
+    where "w" is "#FFFFFF"
+    where "g" is "#9AA3C0"
+    where "y" is "#FFE16A"
+
+    ".....rrrrrrr....."
+    "...rrrwwrwwrrr..."
+    ".rrrrrrrrrrrrrrr."
+    "ggggggggggggggggg"
+    ".ggyggygggygggyg."
+    "..gg.........gg.."
+
+
+note: ==================================================
+note: GAME SETTINGS FOR THE 4 DIFFICULTY LEVELS (item 1 = easy ... item 4 = impossible)
+note: ==================================================
+
+set level_names to list of "EASY", "MEDIUM", "HARD", "IMPOSSIBLE"
+set level_colours to list of "#4CE05A", "#FFD23F", "#FF8A1F", "#FF3B3B"
+set lives_for to list of 5, 3, 3, 1
+set drop_for to list of 40, 25, 12, 5
+set bomb_every_for to list of 55, 38, 26, 20
+set bomb_speed_for to list of 2, 3, 3, 3.5
+set max_bombs_for to list of 2, 3, 4, 5
+set aimed_for to list of 20, 40, 60, 80
+set speed_base_for to list of 0.28, 0.38, 0.5, 0.65
+set speed_grow_for to list of 0.03, 0.04, 0.05, 0.06
+
+note: ==================================================
+note: GAME VARIABLES
+note: ==================================================
+
+set mode to "home"
+set how_page to 1
+set level_pick to 2
+set bests to list of 0, 0, 0, 0
+set click_wait to 0
+set over_t to 0
+set new_best to no
+
+set columns to 8
+set rows to 4
+set alive to empty list
+set left to 32
+set gx to 26
+set gy to 36
+set heading to 1
+set wave to 1
+set wave_speed to 0.4
+set wave_t to 0
+set bomb_wait to 80
+
+set px to 132
+set target_x to -1
+set touch_t to 0
+set cool to 0
+set lives to 3
+set max_lives to 3
+set hurt_t to 0
+
+set score to 0
+set kills to 0
+set time_s to 0
+set drop_pct to 25
+set bomb_every to 38
+set bomb_spd to 3
+set max_bombs to 3
+set aimed_pct to 40
+
+set shield_t to 0
+set power_t to 0
+set ghost_t to 0
+set slow_t to 0
+set decoy_x to 60
+set nova_t to 0
+set got_name to ""
+set got_t to 0
+
+set sx to empty list
+set sy to empty list
+set bx to empty list
+set by to empty list
+set dx to empty list
+set dy to empty list
+set dk to empty list
+set ex to empty list
+set ey to empty list
+set et to empty list
+set stx to empty list
+set sty to empty list
+set sts to empty list
+
+set ufo_on to no
+set ufo_x to 0
+set ufo_dir to 2
+set ufo_timer to 900
+
+note: ==================================================
+note: SMALL HELPERS
+note: ==================================================
+
+define alien_x with col
+    give back gx + (col - 1) * 26
+
+define alien_y with row
+    give back gy + (row - 1) * 20
+
+define lowest_row_in with col
+    set low to 0
+    for each row from 1 to rows
+        if item ((row - 1) * columns + col) of alive is 1
+            change low to row
+    give back low
+
+define lowest_alien
+    set low to 0
+    for each col from 1 to columns
+        set r to lowest_row_in with col
+        if r is greater than 0
+            set y to (alien_y with r) + 16
+            if y is greater than low
+                change low to y
+    give back low
+
+define add_boom with x and y
+    for each i from 1 to 6
+        if item i of et is 0
+            change item i of ex to x
+            change item i of ey to y
+            change item i of et to 10
+            stop
+
+define add_shot with x and y
+    for each i from 1 to 12
+        if item i of sy is less than 0
+            change item i of sx to x
+            change item i of sy to y
+            stop
+
+define add_drop with x and y
+    set r to random number from 1 to 100
+    set kind to 1
+    if r is greater than 25
+        change kind to 2
+    if r is greater than 50
+        change kind to 3
+    if r is greater than 65
+        change kind to 4
+    if r is greater than 80
+        change kind to 5
+    if r is greater than 90
+        change kind to 6
+    if kind is 6 and lives is at least max_lives
+        change kind to 1
+    for each i from 1 to 5
+        if item i of dy is less than 0
+            change item i of dx to x
+            change item i of dy to y
+            change item i of dk to kind
+            stop
+
+note: ==================================================
+note: STARTING, WAVES AND ENDING
+note: ==================================================
+
+define new_wave
+    change alive to empty list
+    repeat 32 times
+        add 1 to alive
+    change left to 32
+    change gx to 26
+    change gy to 36
+    change bomb_wait to 80
+    set d to level_pick
+    set base to item d of speed_base_for
+    set grow to item d of speed_grow_for
+    note: v0.6.1: the speed of each wave comes from a formula that is worked out from text
+    change wave_speed to calculate "min(1.4, {base} + {wave} * {grow})"
+
+define music_for_level
+    if level_pick is at most 2
+        play the music "adventure"
+    otherwise
+        play the music "chase"
+
+define start_game
+    set d to level_pick
+    change lives to item d of lives_for
+    change max_lives to item d of lives_for
+    change drop_pct to item d of drop_for
+    change bomb_every to item d of bomb_every_for
+    change bomb_spd to item d of bomb_speed_for
+    change max_bombs to item d of max_bombs_for
+    change aimed_pct to item d of aimed_for
+    change score to 0
+    change kills to 0
+    change time_s to 0
+    change wave to 1
+    change wave_t to 100
+    change px to 132
+    change target_x to -1
+    change touch_t to 0
+    change cool to 0
+    change hurt_t to 0
+    change shield_t to 0
+    change power_t to 0
+    change ghost_t to 0
+    change slow_t to 0
+    change nova_t to 0
+    change got_t to 0
+    change ufo_on to no
+    change ufo_timer to 900
+    change heading to 1
+    change sx to empty list
+    change sy to empty list
+    repeat 12 times
+        add 0 to sx
+        add -1 to sy
+    change bx to empty list
+    change by to empty list
+    repeat 6 times
+        add 0 to bx
+        add -1 to by
+    change dx to empty list
+    change dy to empty list
+    change dk to empty list
+    repeat 5 times
+        add 0 to dx
+        add -1 to dy
+        add 1 to dk
+    change ex to empty list
+    change ey to empty list
+    change et to empty list
+    repeat 6 times
+        add 0 to ex
+        add 0 to ey
+        add 0 to et
+    new_wave
+    change mode to "play"
+    change click_wait to 20
+    remember level_pick as "pd2 level"
+    music_for_level
+
+define end_game
+    change mode to "over"
+    change over_t to 50
+    change nova_t to 0
+    set d to level_pick
+    change new_best to score is greater than item d of bests
+    if new_best
+        change item d of bests to score
+        remember score as "pd2 best {d}"
+    stop the music
+    play the sound "lose"
+
+define lose_life
+    subtract 1 from lives
+    change hurt_t to 100
+    add_boom with (px + 20) and 196
+    play the sound "explosion"
+    if lives is at most 0
+        end_game
+
+define go_home
+    change mode to "home"
+    change click_wait to 20
+    play the music "chill"
+
+define grab with kind
+    play the sound "powerup"
+    add 25 to score
+    change got_t to 80
+    if kind is 1
+        change shield_t to 300
+        change got_name to "SHIELD!"
+    if kind is 2
+        change power_t to 300
+        change got_name to "FULL POWER!"
+    if kind is 3
+        change ghost_t to 300
+        change got_name to "INVISIBLE!"
+        change decoy_x to random number from 20 to 300
+    if kind is 4
+        change slow_t to 300
+        change got_name to "TIME WARP!"
+    if kind is 5
+        change got_name to "NOVA!"
+        change nova_t to 12
+        play the sound "explosion"
+        for each spot from 1 to 32
+            if item spot of alive is 1
+                change item spot of alive to 0
+                subtract 1 from left
+                add 10 to score
+                add 1 to kills
+                if spot is at most 6
+                    add_boom with (alien_x with (1 + (spot - 1) mod 8)) and (alien_y with (1 + (floor of ((spot - 1) / 8))))
+    if kind is 6
+        change got_name to "EXTRA LIFE!"
+        if lives is less than max_lives
+            add 1 to lives
+
+define kill_alien with spot and col and row
+    change item spot of alive to 0
+    subtract 1 from left
+    add 10 + (rows - row) * 5 to score
+    add 1 to kills
+    set ax to alien_x with col
+    set ay to alien_y with row
+    add_boom with (ax + 2) and ay
+    play the sound "hit"
+    if random number from 1 to 100 is at most drop_pct
+        add_drop with (ax + 1) and ay
+
+define check_shot with i
+    set x to item i of sx
+    set y to item i of sy
+    note: the bonus UFO
+    if ufo_on and x is greater than ufo_x and x is less than ufo_x + 34 and y is greater than 14 and y is less than 32
+        change ufo_on to no
+        add 50 to score
+        add_boom with (ufo_x + 8) and 16
+        add_drop with (ufo_x + 8) and 26
+        play the sound "explosion"
+        change item i of sy to -1
+    otherwise
+        set relx to x - gx
+        set rely to y - gy
+        if relx is at least 0 and rely is at least 0
+            set col to 1 + (floor of (relx / 26))
+            set row to 1 + (floor of (rely / 20))
+            if col is at most columns and row is at most rows
+                if relx - (col - 1) * 26 is less than 22 and rely - (row - 1) * 20 is less than 17
+                    set spot to (row - 1) * columns + col
+                    if item spot of alive is 1
+                        kill_alien with spot and col and row
+                        change item i of sy to -1
+
+define shoot
+    if power_t is greater than 0
+        add_shot with (px + 14) and 184
+        add_shot with (px + 27) and 178
+        add_shot with (px + 40) and 184
+        change cool to 8
+    otherwise
+        add_shot with (px + 27) and 178
+        change cool to 14
+    play the sound "shoot"
+
+define drop_bomb
+    set tx to random number from 12 to 308
+    if random number from 1 to 100 is at most aimed_pct
+        change tx to px + 27
+        if ghost_t is greater than 0
+            note: invisible: the aliens fire at a made-up spot, not at the spacecraft
+            change tx to decoy_x
+    set best_col to 0
+    set best_row to 0
+    set best_gap to 9999
+    for each col from 1 to columns
+        set found to lowest_row_in with col
+        if found is greater than 0
+            set gap to (alien_x with col) + 10 - tx
+            if gap is less than 0
+                change gap to 0 - gap
+            if gap is less than best_gap
+                change best_gap to gap
+                change best_col to col
+                change best_row to found
+    if best_col is greater than 0
+        for each i from 1 to 6
+            if item i of by is less than 0
+                change item i of bx to (alien_x with best_col) + 9
+                change item i of by to (alien_y with best_row) + 14
+                stop
+
+note: ==================================================
+note: ONE FRAME OF PLAY
+note: ==================================================
+
+define update_play
+    note: timers
+    if shield_t is greater than 0
+        subtract 1 from shield_t
+    if power_t is greater than 0
+        subtract 1 from power_t
+    if ghost_t is greater than 0
+        subtract 1 from ghost_t
+        if (frame number mod 70) is 0
+            change decoy_x to random number from 20 to 300
+    if slow_t is greater than 0
+        subtract 1 from slow_t
+    if hurt_t is greater than 0
+        subtract 1 from hurt_t
+    if got_t is greater than 0
+        subtract 1 from got_t
+    if wave_t is greater than 0
+        subtract 1 from wave_t
+    if nova_t is greater than 0
+        subtract 1 from nova_t
+    if cool is greater than 0
+        subtract 1 from cool
+    if bomb_wait is greater than 0
+        subtract 1 from bomb_wait
+
+    note: steering: keys, or a finger / mouse dragged over the game
+    if key "left" is down
+        change px to px - 4
+        change target_x to -1
+    if key "right" is down
+        change px to px + 4
+        change target_x to -1
+    if target_x is at least 0
+        if target_x is greater than px + 5
+            change px to px + 5
+        otherwise if target_x is less than px - 5
+            change px to px - 5
+        otherwise
+            change px to target_x
+    if px is less than 0
+        change px to 0
+    if px is greater than 265
+        change px to 265
+
+    note: firing: hold space, or keep touching the screen
+    set wants to no
+    if key "space" is down
+        change wants to yes
+    if touch_t is greater than 0
+        subtract 1 from touch_t
+        change wants to yes
+    if wants and cool is 0
+        shoot
+
+    note: with the time warp skill, aliens and bombs only move every other frame
+    set tick to yes
+    if slow_t is greater than 0 and (frame number mod 2) is 1
+        change tick to no
+
+    note: the aliens march
+    if tick
+        change gx to gx + heading * wave_speed
+        if gx is greater than 100 or gx is less than 26
+            change heading to 0 - heading
+            change gy to gy + 8
+            if gx is greater than 100
+                change gx to 100
+            if gx is less than 26
+                change gx to 26
+
+    note: the player's shots
+    for each i from 1 to 12
+        if item i of sy is at least 0
+            change item i of sy to (item i of sy) - 7
+            if item i of sy is less than 0
+                change item i of sy to -1
+            otherwise
+                check_shot with i
+
+    note: bombs: they fall, then hit the shield, the spacecraft or the ground
+    set active to 0
+    for each i from 1 to 6
+        if item i of by is at least 0
+            add 1 to active
+            if tick
+                change item i of by to (item i of by) + bomb_spd
+            if item i of by is greater than 238
+                change item i of by to -1
+            otherwise if item i of by is greater than 190 and item i of bx is greater than px + 12 and item i of bx is less than px + 43
+                change item i of by to -1
+                if shield_t is greater than 0
+                    play the sound "blip"
+                    add_boom with (item i of bx) and 196
+                otherwise if hurt_t is 0
+                    lose_life
+    if mode is "play" and active is less than max_bombs and tick and bomb_wait is 0 and left is greater than 0
+        if random number from 1 to bomb_every is 1
+            drop_bomb
+
+    note: the bonus UFO
+    if ufo_on
+        change ufo_x to ufo_x + ufo_dir
+        if ufo_x is less than -40 or ufo_x is greater than 330
+            change ufo_on to no
+    otherwise
+        subtract 1 from ufo_timer
+        if ufo_timer is at most 0
+            change ufo_on to yes
+            change ufo_timer to random number from 900 to 1600
+            if random number from 1 to 2 is 1
+                change ufo_x to -34
+                change ufo_dir to 2
+            otherwise
+                change ufo_x to 320
+                change ufo_dir to -2
+
+    note: skills fall and have to be caught
+    for each i from 1 to 5
+        if item i of dy is at least 0
+            change item i of dy to (item i of dy) + 1
+            if (frame number mod 4) is 0
+                add 1 to item i of dy
+            if item i of dy is greater than 236
+                change item i of dy to -1
+            otherwise if item i of dx is greater than px - 12 and item i of dx is less than px + 47 and item i of dy is greater than 176
+                grab with (item i of dk)
+                change item i of dy to -1
+
+    note: explosions fade
+    for each i from 1 to 6
+        if item i of et is greater than 0
+            subtract 1 from item i of et
+
+    note: the aliens landed?
+    if mode is "play" and left is greater than 0 and (frame number mod 6) is 0 and lowest_alien is greater than 184
+        play the sound "lose"
+        change gy to 36
+        change gx to 26
+        for each i from 1 to 6
+            change item i of by to -1
+        if hurt_t is 0
+            lose_life
+
+    note: wave cleared: the next one comes at once, a little faster
+    if mode is "play" and left is 0
+        add 1 to wave
+        add 50 to score
+        new_wave
+        change wave_t to 90
+        play the sound "win"
+
+note: ==================================================
+note: DRAWING
+note: ==================================================
+
+define move_stars
+    if item 1 of stx is -1
+        change stx to empty list
+        change sty to empty list
+        change sts to empty list
+        repeat 30 times
+            add random number from 0 to 319 to stx
+            add random number from 0 to 239 to sty
+            add random number from 1 to 3 to sts
+    for each i from 1 to 30
+        change item i of sty to (item i of sty) + (item i of sts)
+        if item i of sty is greater than 239
+            change item i of sty to 0
+            change item i of stx to random number from 0 to 319
+        set shade to "#3A4260"
+        if item i of sts is 2
+            set shade to "#6A7396"
+        if item i of sts is 3
+            set shade to "#B8C0E0"
+        put a rectangle at (item i of stx), (item i of sty) with width 1 and height 1 and colour shade
+
+define centre_text with words and top and big and tint
+    put a text words at 160, top with size big and colour tint and bold and align center
+
+define draw_button with d and top
+    set c to item d of level_colours
+    set picked to d is level_pick
+    if picked
+        put a rectangle at 60, top with width 200 and height 28 and colour "#1B2036" and border 2 and border colour c
+    otherwise
+        put a rectangle at 60, top with width 200 and height 28 and colour "#0A0C14" and border 1 and border colour "#444C6E"
+    put a text (item d of level_names) at 72, top + 7 with size 13 and colour c and bold
+    put a text "BEST {item d of bests}" at 250, top + 9 with size 10 and colour "#9AA3C0" and align right
+
+define draw_home
+    set pose to 1 + ((frame number divided evenly by 20) mod 2)
+    draw the sprite bug at 16, 8 frame pose
+    draw the sprite bug at 284, 8 frame pose
+    put a text "PLANET DEFENDERS" at 150, 10 with size 21 and colour "#FFE16A" and bold and align center
+    put a text "2" at 262, 10 with size 21 and colour "#FF3B3B" and bold
+    put a text "THE ENDLESS INVASION" at 160, 38 with size 10 and colour "#2DCDFF" and align center
+    for each d from 1 to 4
+        draw_button with d and (56 + (d - 1) * 32)
+    put a rectangle at 100, 188 with width 120 and height 24 and colour "#0A0C14" and border 1 and border colour "#9AA3C0"
+    put a text "HOW TO PLAY" at 160, 194 with size 12 and colour white and bold and align center
+    put a text "Tap a level to start. Up / Down + Enter on a keyboard." at 160, 218 with size 9 and colour "#9AA3C0" and align center
+    put a text "HumanLang 0.6.1: music, saved scores, phone ready" at 160, 231 with size 8 and colour "#6C7494" and align center
+
+define page_footer
+    put a text "Enter or tap: next   ({how_page} of 3)" at 160, 226 with size 10 and colour "#9AA3C0" and align center
+
+define draw_how
+    if how_page is 1
+        centre_text with "HOW TO PLAY" and 8 and 18 and "#FFE16A"
+        set lines to list of "MOVE   Left / Right keys, or drag a finger.", "FIRE   Hold SPACE (phone: touch the screen).", "PAUSE  Enter (the B button on a phone).", "", "Aliens come in waves and NEVER stop.", "You score for every kill AND for every", "second you stay alive. Survive!", "", "A bomb hit costs a life. So does an alien", "reaching the ground.", "", "Shoot the UFO: it always drops a skill."
+        for each n from 1 to 12
+            put a text (item n of lines) at 14, 36 + (n - 1) * 15 with size 11 and colour white
+    otherwise if how_page is 2
+        centre_text with "SKILLS" and 5 and 14 and "#FFE16A"
+        draw the sprite icon_shield at 12, 28
+        draw the sprite icon_power at 12, 58
+        draw the sprite icon_ghost at 12, 88
+        draw the sprite icon_slow at 12, 118
+        draw the sprite icon_nova at 12, 148
+        draw the sprite icon_heart at 12, 178
+        set names to list of "SHIELD", "FULL POWER", "INVISIBLE", "TIME WARP", "NOVA", "EXTRA LIFE"
+        set tips to list of "Bombs can't hurt you for 5 seconds.", "3 guns fire at once for 5 seconds.", "Aliens can't see you: they fire elsewhere.", "Aliens and bombs slow down for 5 seconds.", "Destroys every alien on the screen.", "Gives you one more life."
+        for each n from 1 to 6
+            put a text (item n of names) at 42, 29 + (n - 1) * 30 with size 12 and colour "#2DCDFF" and bold
+            put a text (item n of tips) at 42, 44 + (n - 1) * 30 with size 10 and colour white
+        put a text "Skills fall slowly. Fly under one to catch it!" at 160, 211 with size 10 and colour "#FFE16A" and align center
+    otherwise
+        centre_text with "LEVELS" and 8 and 18 and "#FFE16A"
+        set tips to list of "5 lives. Slow aliens. Lots of skills.", "3 lives. Faster aliens. Some skills.", "3 lives. Fierce aliens. Few skills.", "ONE life. Deadly aliens. Rare skills."
+        for each d from 1 to 4
+            set c to item d of level_colours
+            put a text (item d of level_names) at 20, 40 + (d - 1) * 40 with size 14 and colour c and bold
+            put a text (item d of tips) at 20, 60 + (d - 1) * 40 with size 11 and colour white
+        put a text "Your best score on each level is remembered." at 160, 204 with size 10 and colour "#9AA3C0" and align center
+    page_footer
+
+define draw_hud
+    put a text "SCORE {score}" at 6, 3 with size 11 and colour white and bold
+    put a text "WAVE {wave}" at 160, 3 with size 11 and colour "#FFE16A" and bold and align center
+    set mins to floor of (time_s / 60)
+    set secs to time_s - mins * 60
+    set pad to ""
+    if secs is less than 10
+        set pad to "0"
+    put a text "TIME {mins}:{pad}{secs}" at 6, 16 with size 10 and colour "#9AA3C0"
+    put a text "LIVES" at 238, 3 with size 10 and colour white
+    for each n from 1 to lives
+        put a rectangle at 276 + (n - 1) * 8, 4 with width 6 and height 8 and colour "#E21C24"
+    set slot to 0
+    if shield_t is greater than 0
+        draw the sprite icon_shield at 2, 32 + slot * 24
+        put a rectangle at 2, 52 + slot * 24 with width shield_t / 17 and height 2 and colour "#2DCDFF"
+        add 1 to slot
+    if power_t is greater than 0
+        draw the sprite icon_power at 2, 32 + slot * 24
+        put a rectangle at 2, 52 + slot * 24 with width power_t / 17 and height 2 and colour "#FFE16A"
+        add 1 to slot
+    if ghost_t is greater than 0
+        draw the sprite icon_ghost at 2, 32 + slot * 24
+        put a rectangle at 2, 52 + slot * 24 with width ghost_t / 17 and height 2 and colour white
+        add 1 to slot
+    if slow_t is greater than 0
+        draw the sprite icon_slow at 2, 32 + slot * 24
+        put a rectangle at 2, 52 + slot * 24 with width slow_t / 17 and height 2 and colour "#3A7BFF"
+        add 1 to slot
+
+define draw_play
+    set pose to 1 + ((frame number divided evenly by 20) mod 2)
+    for each row from 1 to rows
+        set ay to gy + (row - 1) * 20
+        for each col from 1 to columns
+            if item ((row - 1) * columns + col) of alive is 1
+                set ax to gx + (col - 1) * 26
+                if row is 1
+                    draw the sprite bug at ax, ay frame pose
+                otherwise
+                    draw the sprite crab at ax, ay frame pose
+    if ufo_on
+        draw the sprite ufo at ufo_x, 18
+    for each i from 1 to 5
+        if item i of dy is at least 0
+            set k to item i of dk
+            if k is 1
+                draw the sprite icon_shield at (item i of dx), (item i of dy)
+            if k is 2
+                draw the sprite icon_power at (item i of dx), (item i of dy)
+            if k is 3
+                draw the sprite icon_ghost at (item i of dx), (item i of dy)
+            if k is 4
+                draw the sprite icon_slow at (item i of dx), (item i of dy)
+            if k is 5
+                draw the sprite icon_nova at (item i of dx), (item i of dy)
+            if k is 6
+                draw the sprite icon_heart at (item i of dx), (item i of dy)
+    for each i from 1 to 12
+        if item i of sy is at least 0
+            put a rectangle at (item i of sx), (item i of sy) with width 2 and height 8 and colour "#FFFFFF"
+    for each i from 1 to 6
+        if item i of by is at least 0
+            put a rectangle at (item i of bx), (item i of by) with width 3 and height 8 and colour "#FF3B3B"
+    set show_ship to yes
+    if hurt_t is greater than 0 and (frame number divided evenly by 4) mod 2 is 0
+        change show_ship to no
+    if ghost_t is greater than 0 and (frame number divided evenly by 3) mod 2 is 0
+        change show_ship to no
+    if show_ship
+        draw the sprite cannon at px, 188
+        if power_t is greater than 0
+            put a rectangle at px + 13, 182 with width 3 and height 6 and colour "#FFE16A"
+            put a rectangle at px + 39, 182 with width 3 and height 6 and colour "#FFE16A"
+    if shield_t is greater than 0
+        if shield_t is greater than 60 or (frame number divided evenly by 4) mod 2 is 0
+            put a circle at px + 27, 210 with radius 38 and colour nothing and border 2 and border colour "#2DCDFF"
+    for each i from 1 to 6
+        if item i of et is greater than 0
+            draw the sprite boom at (item i of ex), (item i of ey)
+    if nova_t is greater than 0
+        put a rectangle at 0, 0 with width 320 and height 240 and colour "#FFFFFF"
+    put a line from 0, 238 to 320, 238 with colour "#2E8B3A"
+    draw_hud
+    if got_t is greater than 0
+        centre_text with got_name and 168 and 14 and "#FFE16A"
+    if wave_t is greater than 0 and mode is "play"
+        centre_text with "WAVE {wave}" and 90 and 22 and "white"
+
+define draw_over
+    put a rectangle at 40, 40 with width 240 and height 150 and colour "#0A0C14" and border 2 and border colour "#FF3B3B"
+    centre_text with "GAME OVER" and 52 and 24 and "#FF3B3B"
+    set d to level_pick
+    set c to item d of level_colours
+    put a text (item d of level_names) at 160, 84 with size 11 and colour c and bold and align center
+    put a text "SCORE {score}" at 160, 102 with size 16 and colour white and bold and align center
+    set mins to floor of (time_s / 60)
+    set secs to time_s - mins * 60
+    set pad to ""
+    if secs is less than 10
+        set pad to "0"
+    put a text "SURVIVED {mins}:{pad}{secs}   WAVE {wave}   KILLS {kills}" at 160, 126 with size 10 and colour "#9AA3C0" and align center
+    if new_best
+        put a text "NEW BEST!" at 160, 144 with size 14 and colour "#FFE16A" and bold and align center
+    otherwise
+        put a text "BEST {item d of bests}" at 160, 146 with size 11 and colour "#FFE16A" and align center
+    put a text "Enter or tap: back to the menu" at 160, 170 with size 10 and colour white and align center
+
+note: ==================================================
+note: THE GAME
+note: ==================================================
+
+play a game titled "Planet Defenders 2" with size 320 by 240 and background black
+
+    when the game starts
+        change stx to list of -1
+        for each d from 1 to 4
+            set v to recall "pd2 best {d}"
+            if v is not nothing
+                change item d of bests to v
+        set lvl to recall "pd2 level"
+        if lvl is not nothing
+            change level_pick to lvl
+        play the music "chill"
+
+    every frame
+        move_stars
+        if click_wait is greater than 0
+            subtract 1 from click_wait
+        if mode is "home"
+            draw_home
+        otherwise if mode is "how"
+            draw_how
+        otherwise if mode is "play"
+            update_play
+            if mode is "play"
+                draw_play
+            otherwise
+                draw_play
+        otherwise if mode is "pause"
+            draw_play
+            put a rectangle at 70, 90 with width 180 and height 50 and colour "#0A0C14" and border 2 and border colour "#FFE16A"
+            centre_text with "PAUSED" and 98 and 18 and "#FFE16A"
+            put a text "Enter or tap to continue" at 160, 122 with size 10 and colour white and align center
+        otherwise if mode is "over"
+            draw_play
+            if over_t is greater than 0
+                subtract 1 from over_t
+            draw_over
+
+    every 1 seconds
+        if mode is "play"
+            add 1 to time_s
+            add 10 to score
+
+    when the key "up" is pressed
+        if mode is "home"
+            change level_pick to level_pick - 1
+            if level_pick is less than 1
+                change level_pick to 4
+
+    when the key "down" is pressed
+        if mode is "home"
+            change level_pick to level_pick + 1
+            if level_pick is greater than 4
+                change level_pick to 1
+
+    when the key "h" is pressed
+        if mode is "home"
+            change mode to "how"
+            change how_page to 1
+        otherwise if mode is not "play"
+            go_home
+
+    when the key "enter" is pressed
+        if mode is "home"
+            start_game
+        otherwise if mode is "how"
+            add 1 to how_page
+            if how_page is greater than 3
+                go_home
+        otherwise if mode is "play"
+            change mode to "pause"
+        otherwise if mode is "pause"
+            change mode to "play"
+        otherwise if mode is "over" and over_t is 0
+            go_home
+
+    when the key "space" is pressed
+        if mode is "home"
+            start_game
+
+    when the mouse is clicked
+        set mx to mouse x
+        set my to mouse y
+        if mode is "play"
+            change target_x to mx - 27
+            change touch_t to 25
+        otherwise if click_wait is 0
+            if mode is "home"
+                for each d from 1 to 4
+                    if mx is greater than 60 and mx is less than 260 and my is at least 56 + (d - 1) * 32 and my is less than 84 + (d - 1) * 32
+                        change level_pick to d
+                        start_game
+                if mx is greater than 100 and mx is less than 220 and my is at least 188 and my is less than 214
+                    change mode to "how"
+                    change how_page to 1
+                    change click_wait to 20
+            otherwise if mode is "how"
+                add 1 to how_page
+                change click_wait to 20
+                if how_page is greater than 3
+                    go_home
+            otherwise if mode is "pause"
+                change mode to "play"
+                change click_wait to 20
+            otherwise if mode is "over" and over_t is 0
+                go_home

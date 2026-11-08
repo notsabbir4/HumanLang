@@ -25,6 +25,12 @@ platformer physics, a step-by-step debugger, and games and pages that work on ph
 - **Debugger:** `hl debug FILE.hum` and the Playground's **Step through** button show every line in plain words, with the
   variables that changed.
 - **Speed:** a faster path for whole-number maths in games (the four arcade games take under 1 ms a frame).
+- **PLANET DEFENDERS 2** on the Games page: a full game with a home page, an instruction guide, four levels (easy, medium,
+  hard, impossible: fewer skills and one life), endless waves, score for every second you survive, skills that drop and must
+  be caught (shield, full power, invisible, time warp, nova, extra life), a bonus UFO, background music, saved best scores,
+  and phone play (drag to steer, touching fires). Inspect explains how it was made.
+- Games on a phone: a finger dragged over a game counts as clicks, the touch buttons fit narrow screens, the game fills a phone's
+  width, and text in a game can be centred (`align center`) or right-aligned.
 - Tutorial chapters 15-18, reference sections, editor words.
 
 ## 0.5.1 - 2026-11-07

@@ -21,11 +21,11 @@ def source_dir():
 
 TEMPLATE = """<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>__TITLE__</title>
 <style>
 html,body{margin:0;height:100%;background:#0b0d14;color:#e8eaf2;font:16px system-ui,sans-serif}
-body{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}
+body{touch-action:none;overscroll-behavior:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}
 #screen{display:block;image-rendering:pixelated;background:#000;outline:none;border-radius:4px;box-shadow:0 0 0 2px #2a2f45,0 12px 40px #0008}
 #note{min-height:1.4em;text-align:center;max-width:90vw;white-space:pre-wrap;color:#9aa3c0;font-size:14px}
 #note.bad{color:#ff9a9a;text-align:left;font-family:ui-monospace,Menlo,Consolas,monospace}
@@ -49,8 +49,10 @@ let game = null, py = null, muted = false;
 const MEMKEY = "hl-memory:" + document.title;
 function store() { try { return localStorage.getItem(MEMKEY) || ""; } catch (e) { return ""; } }
 function fit(info) {
-  const k = Math.max(1, Math.floor(Math.min((innerWidth - 24) / info.w, (innerHeight - 140) / info.h)));
-  canvas.style.width = info.w * k + "px"; canvas.style.height = info.h * k + "px";
+  const fitK = Math.min((innerWidth - 24) / info.w, (innerHeight - 140) / info.h);
+  const coarse = matchMedia("(pointer: coarse)").matches;  // phones: use all the width, even with a fractional zoom
+  const k = fitK >= 1 && !coarse ? Math.floor(fitK) : Math.max(0.3, fitK);  // whole-number zoom when it fits, a smaller picture on a small phone
+  canvas.style.width = Math.floor(info.w * k) + "px"; canvas.style.height = Math.floor(info.h * k) + "px";
 }
 function bad(text) { note.className = "bad"; note.textContent = text; }
 async function boot() {

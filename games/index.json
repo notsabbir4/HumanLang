@@ -290,6 +290,102 @@
     ]
   },
   {
+    "id": "planet-defenders-2",
+    "title": "PLANET DEFENDERS 2",
+    "subtitle": "Endless · v0.6.1",
+    "file": "planet_defenders_2.hum",
+    "kind": "arcade",
+    "tagline": "The invasion never stops. Catch skills, survive, beat your best.",
+    "blurb": "An endless shooter with a home page, instructions and four levels (easy, medium, hard, impossible). Aliens come in waves that never stop. Shoot them to make skills drop (shield, full power, invisible, time warp, nova, extra life), then fly under a skill to catch it. You score for every second you survive. Best scores are saved, there is music, and it plays on phones.",
+    "tags": [
+      "Arcade",
+      "Endless",
+      "Skills",
+      "4 levels",
+      "Music",
+      "Phone ready"
+    ],
+    "keys": "Left and Right move (or drag a finger), Space fires (touching fires on a phone), Enter pauses",
+    "image": "thumbs/planet-defenders-2.jpg",
+    "how": [
+      {
+        "title": "Notes and modules",
+        "at": "note: PLANET DEFENDERS 2",
+        "text": "`note:` lines are for people, not the computer. `use math` switches on the maths words (like `floor of`) that the game needs for working out which alien a shot hit."
+      },
+      {
+        "title": "Sprites: the pictures",
+        "at": "make a sprite called cannon",
+        "text": "Every picture is a sprite: a `where` line says what each letter means (hex colour codes like `\"#E21C24\"` work), then one line of quotes per row of squares. The aliens have 2 frames so they wiggle. The six skill icons and the bonus UFO are tiny sprites too."
+      },
+      {
+        "title": "Settings for 4 levels",
+        "at": "set level_names to",
+        "text": "Each difficulty is one item in a set of lists: item 1 is easy, item 4 is impossible. Lives, how often skills drop, how often aliens fire, how fast bombs fall and how well aliens aim all come from these lists. Change a number and the whole level changes."
+      },
+      {
+        "title": "The game's memory",
+        "at": "set mode to",
+        "text": "The game is a small machine with a `mode`: home, how, play, pause or over. Everything else it remembers is in variables and lists. A bomb that is not on screen has a `-1` in its slot, so a list of 6 numbers is the whole bomb system."
+      },
+      {
+        "title": "Helpers",
+        "at": "define alien_x with col",
+        "text": "A `define` teaches HL a new word. `alien_x with col` works out where a column of aliens is, so the rest of the game just says what it means."
+      },
+      {
+        "title": "Waves and formulas",
+        "at": "define new_wave",
+        "text": "When all the aliens are gone a new wave starts, a bit faster. The speed is worked out by `calculate`, a v0.6.1 word that solves a formula written as text, here `min(1.4, base + wave * grow)`."
+      },
+      {
+        "title": "Starting and remembering",
+        "at": "define start_game",
+        "text": "Starting a game copies the chosen level's numbers into variables. `remember level_pick as \"pd2 level\"` is another v0.6.1 word: it saves the level in your browser so the game opens on it next time."
+      },
+      {
+        "title": "Best scores",
+        "at": "define end_game",
+        "text": "When you lose, the score is compared with the saved best for that level. `remember score as \"pd2 best {d}\"` keeps it between visits, one best score for each difficulty. `stop the music` and a sound close the run."
+      },
+      {
+        "title": "Skills you must catch",
+        "at": "define grab with kind",
+        "text": "A skill does nothing until your spacecraft touches it. Each one sets a timer of 300 frames (5 seconds at 60 a second): shield, full power, invisible, time warp, nova (clears the screen) and an extra life."
+      },
+      {
+        "title": "Hitting aliens",
+        "at": "define check_shot with i",
+        "text": "Instead of comparing a shot with all 32 aliens, the game works out which column and row the shot is in with maths (`floor of`), then looks at just that one alien. That keeps it fast on old phones."
+      },
+      {
+        "title": "Shooting and full power",
+        "at": "define shoot",
+        "text": "Normally one shot leaves the middle gun. With full power, three shots leave at once, from the two wings and the middle. Holding space (or touching the screen on a phone) keeps firing."
+      },
+      {
+        "title": "How aliens aim",
+        "at": "define drop_bomb",
+        "text": "Each bomb picks a target. Often that is your spacecraft, so you cannot hide. While you are invisible the target is a made-up spot instead, so the aliens fire at nothing. The nearest column that still has an alien fires."
+      },
+      {
+        "title": "One frame of play",
+        "at": "define update_play",
+        "text": "Every frame runs this: timers count down, the spacecraft moves (keys, or towards where a finger touched), shots and bombs move, the UFO crosses the top, skills fall, and a cleared wave starts the next one."
+      },
+      {
+        "title": "The home page and instructions",
+        "at": "define draw_home",
+        "text": "Menus are drawn with the same `put a text` and `put a rectangle` as the game. Each level button shows its best score. The instruction pages are drawn the same way."
+      },
+      {
+        "title": "The game, its parts and the phone",
+        "at": "play a game titled",
+        "text": "The game has parts: when it starts, every frame, every second (that is where survival points come from), keys and mouse clicks. On a phone a finger counts as mouse clicks, so dragging steers and touching fires. The music (`play the music \"adventure\"`) is built in, no files needed."
+      }
+    ]
+  },
+  {
     "id": "maze-muncher",
     "title": "MAZE MUNCHER",
     "subtitle": "Arcade",

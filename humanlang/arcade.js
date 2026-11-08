@@ -82,7 +82,7 @@
       const lead = tune.lead.split(" "), bass = tune.bass.split(" "), step = 30 / tune.bpm;
       let i = 0;
       const tick = () => {
-        const c = ensure(); if (!c || uMuted) return;
+        const c = ensure(); if (!c || uMuted || c.state !== "running") return;
         const t = c.currentTime + 0.02;
         if (lead[i % lead.length] !== "-") tone(c, t, "square", freq(lead[i % lead.length]), freq(lead[i % lead.length]), step * 0.9, 0.035);
         if (bass[i % bass.length] !== "-") tone(c, t, "triangle", freq(bass[i % bass.length]), freq(bass[i % bass.length]), step * 1.8, 0.07);
@@ -168,7 +168,13 @@
     }
     function onClick(e) { onMouse(e); clicked = true; sound.unlock(); canvas.focus(); }
 
+    // a finger (or a held mouse button) dragged over the game counts as clicks where it is: that is how to steer by dragging
+    let dragging = false;
     function onTouch(e) { const t = e.touches[0]; if (t) onClick({ clientX: t.clientX, clientY: t.clientY }); }
+    function onTouchMove(e) { const t = e.touches[0]; if (t) onClick({ clientX: t.clientX, clientY: t.clientY }); }
+    function onMouseDown(e) { dragging = true; onClick(e); }
+    function onMouseDrag(e) { onMouse(e); if (dragging) clicked = true; }
+    function onMouseUp() { dragging = false; }
 
     function shape(n) {
       const p = n.props || {}, k = n.kind;
@@ -196,7 +202,9 @@
       } else if (k === "text") {
         const px = p.px || 18;
         g.font = `${p.italic ? "italic " : ""}${p.bold ? "bold " : ""}${px}px ${FONTS[p.font] || FONTS.monospace}`;
-        g.textBaseline = "top"; g.fillStyle = fill; g.fillText(n.text || "", n.at[0], n.at[1]);
+        g.textBaseline = "top"; g.fillStyle = fill;
+        g.textAlign = p.align === "center" || p.align === "centre" || p.centered ? "center" : p.align === "right" ? "right" : "left";  // "at" is the middle / the right end
+        g.fillText(n.text || "", n.at[0], n.at[1]);
         if (p.underlined) g.fillRect(n.at[0], n.at[1] + px * 1.1, g.measureText(n.text || "").width, Math.max(1, px / 12));
       } else if (k === "pixel art") {
         const ps = p["pixel size"] || 10;
@@ -283,11 +291,13 @@
         "padding:10px 14px;pointer-events:none;z-index:50;touch-action:none;user-select:none;-webkit-user-select:none";
       const left = doc.createElement("div"), right = doc.createElement("div");
       left.style.cssText = right.style.cssText = "display:flex;gap:10px;align-items:flex-end;pointer-events:none";
+      const count = ["left", "right", "down", "up", "enter", "space"].filter(want).length;
+      const size = Math.max(44, Math.min(64, Math.floor(((root.innerWidth || 360) - 28 - 10 * (count - 1)) / Math.max(1, count))));
       function btn(k, side) {
         const b = doc.createElement("button");
         b.type = "button"; b.textContent = LABEL[k]; b.setAttribute("aria-label", k + " button");
-        b.style.cssText = "pointer-events:auto;touch-action:none;width:64px;height:64px;border-radius:32px;border:2px solid #ffffff88;" +
-          "background:#00000066;color:#fff;font:bold 22px system-ui,sans-serif;padding:0";
+        b.style.cssText = "pointer-events:auto;touch-action:none;width:" + size + "px;height:" + size + "px;border-radius:" + size / 2 + "px;border:2px solid #ffffff88;" +
+          "background:#00000066;color:#fff;font:bold " + Math.round(size / 3) + "px system-ui,sans-serif;padding:0";
         const press = (e) => { e.preventDefault(); sound.unlock(); if (!down.has(k)) { down.add(k); pressed.push(k); } b.style.background = "#ffffff55"; };
         const release = (e) => { e.preventDefault(); down.delete(k); b.style.background = "#00000066"; };
         b.addEventListener("pointerdown", press);
@@ -310,8 +320,10 @@
         root.addEventListener("keydown", onKeyDown);
         root.addEventListener("keyup", onKeyUp);
         root.addEventListener("blur", onBlur);
-        canvas.addEventListener("mousemove", onMouse);
-        canvas.addEventListener("mousedown", onClick);
+        canvas.addEventListener("mousemove", onMouseDrag);
+        canvas.addEventListener("mousedown", onMouseDown);
+        root.addEventListener("mouseup", onMouseUp);
+        canvas.addEventListener("touchmove", onTouchMove, { passive: true });
         canvas.addEventListener("touchstart", onTouch, { passive: true });
         root.requestAnimationFrame(tick);
       },
@@ -322,8 +334,10 @@
         root.removeEventListener("keydown", onKeyDown);
         root.removeEventListener("keyup", onKeyUp);
         root.removeEventListener("blur", onBlur);
-        canvas.removeEventListener("mousemove", onMouse);
-        canvas.removeEventListener("mousedown", onClick);
+        canvas.removeEventListener("mousemove", onMouseDrag);
+        canvas.removeEventListener("mousedown", onMouseDown);
+        root.removeEventListener("mouseup", onMouseUp);
+        canvas.removeEventListener("touchmove", onTouchMove);
         canvas.removeEventListener("touchstart", onTouch);
       },
       setMuted(m) { muted = !!m; sound.mute(muted); },

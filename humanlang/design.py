@@ -55,7 +55,7 @@ ALLOWED = {
     "polygon": ("colour", "border", "border colour"),
     "pixel art": ("pixel size",),
 }
-TEXT_AT = ("colour", "size", "bold", "italic", "underlined", "font")  # a text placed at a spot in a drawing
+TEXT_AT = ("colour", "size", "bold", "italic", "underlined", "font", "align", "centered")  # a text placed at a spot in a drawing
 NEEDS = {"circle": ("radius",), "oval": ("width", "height"), "rectangle": ("width", "height"),
          "square": ("width",), "triangle": ("width", "height")}
 EXAMPLES = {

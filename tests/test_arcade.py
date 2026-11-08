@@ -211,8 +211,8 @@ class Showcase(unittest.TestCase):
         with open(os.path.join(ROOT, "games", "index.json"), encoding="utf-8") as f:
             return [g["file"] for g in json.load(f) if g.get("kind") == "arcade"]
 
-    def test_four_arcade_games_are_listed(self):
-        self.assertEqual(len(self.arcade_files()), 4)
+    def test_arcade_games_are_listed(self):
+        self.assertEqual(len(self.arcade_files()), 5)
 
     def test_every_game_explains_itself_for_inspect(self):
         sys.path.insert(0, os.path.join(ROOT, "website"))
@@ -281,6 +281,107 @@ class Showcase(unittest.TestCase):
         for i in range(2500):
             it.game_frame(down=["left" if (i // 50) % 2 else "right"], pressed=["space"] if i % 20 == 0 else [])
         self.assertGreater(g["score"], 0)
+
+    def pd2(self, level):
+        it = make(load("planet_defenders_2.hum"))
+        g = it.globals.vars
+        for _ in range(25):
+            it.game_frame()
+        self.assertEqual(g["mode"], "home")
+        it.game_frame(clicked=True, mouse=(150, 56 + (level - 1) * 32 + 10))   # tap the level's button
+        self.assertEqual(g["mode"], "play")
+        return it, g
+
+    def test_planet_defenders_2_levels(self):
+        lives = {1: 5, 2: 3, 3: 3, 4: 1}
+        drops = {1: 40, 2: 25, 3: 12, 4: 5}
+        for level in (1, 2, 3, 4):
+            it, g = self.pd2(level)
+            self.assertEqual(g["lives"], lives[level])      # impossible: only one life
+            self.assertEqual(g["drop_pct"], drops[level])   # harder levels drop fewer skills
+
+    def test_planet_defenders_2_never_ends_and_scores_time(self):
+        it, g = self.pd2(1)
+        for i in range(60 * 20):
+            it.game_frame(down=["space", "left" if (i // 60) % 2 else "right"])
+        self.assertGreaterEqual(g["time_s"], 19)
+        self.assertGreater(g["score"], g["kills"] * 10)     # the seconds you survive are worth points
+        self.assertGreaterEqual(g["wave"], 2)               # a cleared wave is followed by another
+
+    def test_planet_defenders_2_skills_must_be_caught(self):
+        it, g = self.pd2(2)
+        it.game_frame()
+        # a shield falls far from the spacecraft: it is not collected
+        g["px"] = 0
+        g["dx"][0], g["dy"][0], g["dk"][0] = 250, 100, 1
+        for _ in range(30):
+            it.game_frame()
+        self.assertEqual(g["shield_t"], 0)
+        # one falls onto the spacecraft: it is
+        g["dx"][1], g["dy"][1], g["dk"][1] = 20, 170, 2
+        for _ in range(12):
+            it.game_frame()
+        self.assertGreater(g["power_t"], 0)
+        self.assertLess(g["power_t"], 301)
+        # full power: three shots at once
+        g["cool"] = 0
+        before = sum(1 for v in g["sy"] if v >= 0)
+        it.game_frame(down=["space"])
+        self.assertEqual(sum(1 for v in g["sy"] if v >= 0) - before, 3)
+
+    def test_planet_defenders_2_shield_and_invisible(self):
+        it, g = self.pd2(2)
+        it.game_frame()
+        g["bomb_wait"] = 10 ** 6
+        g["shield_t"] = 300
+        g["bx"][0], g["by"][0] = g["px"] + 25, 185
+        for _ in range(10):
+            it.game_frame()
+        self.assertEqual(g["lives"], 3)                     # the shield took the bomb
+        g["shield_t"] = 0
+        g["bx"][0], g["by"][0] = g["px"] + 25, 185
+        for _ in range(10):
+            it.game_frame()
+        self.assertEqual(g["lives"], 2)                     # without it, a life is lost
+        g["bomb_wait"], g["ghost_t"], g["decoy_x"], g["px"] = 0, 300, 20, 250
+        g["hurt_t"] = 0
+        xs = []
+        for _ in range(3000):
+            it.game_frame()
+            xs += [float(v) for v, y in zip(g["bx"], g["by"]) if y >= 0 and y < 118]
+            g["ghost_t"] = 300
+        self.assertTrue(xs)
+        self.assertLess(sum(xs) / len(xs), 200)             # aimed at the decoy on the left, not at the ship on the right
+
+    def test_planet_defenders_2_one_life_on_impossible_then_home(self):
+        it, g = self.pd2(4)
+        it.game_frame()
+        g["bx"][0], g["by"][0] = g["px"] + 25, 185
+        for _ in range(4):
+            it.game_frame()
+        self.assertEqual(g["mode"], "over")
+        for _ in range(60):
+            it.game_frame()
+        it.game_frame(pressed=["enter"])
+        self.assertEqual(g["mode"], "home")
+
+    def test_planet_defenders_2_instructions_and_best_score(self):
+        it, g = self.pd2(1)
+        g["score"] = 777
+        g["lives"] = 1
+        g["bx"][0], g["by"][0] = g["px"] + 25, 185
+        for _ in range(3):
+            it.game_frame()
+        self.assertEqual(g["mode"], "over")
+        self.assertEqual(it.memory.recall("pd2 best 1"), 777)
+        for _ in range(60):
+            it.game_frame()
+        it.game_frame(pressed=["enter"])
+        it.game_frame(pressed=["h"])
+        self.assertEqual(g["mode"], "how")
+        for _ in range(3):
+            it.game_frame(pressed=["enter"])
+        self.assertEqual(g["mode"], "home")
 
     def test_maze_muncher_eats_dots(self):
         it = make(load("maze_muncher.hum"))
