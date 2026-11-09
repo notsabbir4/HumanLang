@@ -107,7 +107,8 @@
         "at": "note: FINAL STATISTICS",
         "text": "After the ending, the game prints your numbers. `if ally_alive ... otherwise ...` turns a yes/no flag back into words. Every ending prints a line starting with `ENDING:`, which is how the tests check that all four can be reached."
       }
-    ]
+    ],
+    "version": "0.4.1"
   },
   {
     "id": "project-orpheus",
@@ -224,7 +225,8 @@
         "at": "note: FINAL MISSION REPORT",
         "text": "The game finishes by showing your score and calling the function: `{rank_for with score}` inside a `say` line runs it and puts the rank into the sentence."
       }
-    ]
+    ],
+    "version": "0.4.1"
   },
   {
     "id": "planet-defenders",
@@ -287,7 +289,8 @@
         "at": "when the key \"space\" is pressed",
         "text": "`when the key ... is pressed` runs once when you press, not while you hold. Space fires only if there is no shot on screen. Enter starts over after you win or lose."
       }
-    ]
+    ],
+    "version": "0.5.1"
   },
   {
     "id": "planet-defenders-2",
@@ -383,7 +386,8 @@
         "at": "play a game titled",
         "text": "The game has parts: when it starts, every frame, every second (that is where survival points come from), keys and mouse clicks. On a phone a finger counts as mouse clicks, so dragging steers and touching fires. The music (`play the music \"adventure\"`) is built in, no files needed."
       }
-    ]
+    ],
+    "version": "0.6.1"
   },
   {
     "id": "maze-muncher",
@@ -441,7 +445,8 @@
         "at": "when the key \"left\" is pressed",
         "text": "Each arrow key only writes down the direction you want. The muncher turns at the next tile if that way is open, which makes corners easy."
       }
-    ]
+    ],
+    "version": "0.5.1"
   },
   {
     "id": "crate-climber",
@@ -499,7 +504,8 @@
         "at": "note: the star at the top",
         "text": "If a barrel is within 12 dots of you, `hurt` is called. If you are in the air above a barrel instead, you earn 100 points (once per barrel, remembered in `bpaid`). Reaching the star ends the game with a win."
       }
-    ]
+    ],
+    "version": "0.5.1"
   },
   {
     "id": "sky-runner",
@@ -557,6 +563,7 @@
         "at": "when the key \"up\" is pressed",
         "text": "The jump key only works when `on_ground` is yes. It sets `vy` to -7.6 and plays a sound. Space does the same, so you can use either."
       }
-    ]
+    ],
+    "version": "0.5.1"
   }
 ]

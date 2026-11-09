@@ -442,7 +442,7 @@ def games_page(games):
 <p class="lead">Games written in HumanLang. Pick one and play it right here, nothing to install.
 Want to see how one works? Press <strong>Inspect</strong> on any game to read its code, with every part explained. Every game is a plain <code>.hum</code> file in the
 <a href="https://github.com/notsabbir4/HumanLang/tree/main/games">games folder</a>.</p>
-<div class="game-grid" id="grid"></div>
+<div id="grid"></div>
 </section>
 <section id="stage" hidden>
 <div class="stage-top">

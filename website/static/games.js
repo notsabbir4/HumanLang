@@ -6,6 +6,17 @@
   let worker = null, ready = false, running = false, current = null, answers = [], waiting = false;
 
   // ---- the lobby: one card per game ----
+  // games are grouped by the HumanLang version they were made with, newest first (an old game stays as it was made)
+  const vkey = (v) => String(v || "0").split(".").map((n) => +n || 0);
+  const versions = [...new Set(games.map((g) => g.version || "older"))].sort((a, b) => {
+    const x = vkey(a), y = vkey(b); for (let i = 0; i < 4; i++) { if ((y[i] || 0) !== (x[i] || 0)) return (y[i] || 0) - (x[i] || 0); } return 0; });
+  const grids = {};
+  for (const v of versions) {
+    const sec = document.createElement("section"); sec.className = "ver-group";
+    const h = document.createElement("h2"); h.className = "ver"; h.textContent = v === "older" ? "Older games" : "Made with HumanLang " + v;
+    const grid = document.createElement("div"); grid.className = "game-grid";
+    sec.append(h, grid); $("grid").appendChild(sec); grids[v] = grid;
+  }
   for (const g of games) {
     const a = document.createElement("a");
     a.className = "game-card"; a.href = "#" + g.id;
@@ -25,7 +36,7 @@
     const ins = document.createElement("a"); ins.className = "inspect-link"; ins.href = "#" + g.id + "/inspect"; ins.textContent = "Inspect";
     ins.title = "See the code and how it works";
     wrap.append(a, ins);
-    $("grid").appendChild(wrap);
+    grids[g.version || "older"].appendChild(wrap);
   }
 
   function setStatus(text) { status.textContent = text; }

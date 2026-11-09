@@ -280,3 +280,7 @@ ol.listing .c{color:var(--com);font-style:italic}ol.listing .s{color:var(--str)}
 #stepspane h4{margin:0 0 6px;color:var(--muted);font-size:.8rem;text-transform:uppercase;letter-spacing:.04em}
 #stepvars{border-collapse:collapse;margin-bottom:14px;font:13px ui-monospace,Menlo,Consolas,monospace}
 #stepvars td{padding:3px 10px 3px 0}#stepvars td.ch{color:var(--accent);font-weight:700}
+
+.ver-group{margin:34px 0 0}
+h2.ver{margin:0;font-size:1.15rem;padding-bottom:8px;border-bottom:1px solid var(--line)}
+.ver-group .game-grid{margin:18px 0 0}
