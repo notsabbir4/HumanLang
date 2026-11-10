@@ -221,7 +221,7 @@
     }
     box = el("div", { class: "nmsgs", "aria-live": "polite" });
     drawer.appendChild(box);
-    addMsg("nina", "Nina here. Tell me what to build or fix. I can also review your code.");
+    addMsg("nina", "Nina here. Tell me what to build or fix. I can also review your code. (What you write to me, and code you let me read, is sent to an AI service. Never put passwords or private information in it.)");
     drawer.appendChild(el("div", { class: "ntools" },
       el("button", { class: "btn ghost", type: "button", text: "Review my code", onclick: () => { if (!busy) review(); } }),
       el("button", { class: "btn ghost", type: "button", text: "Save editor to project", onclick: async () => { if (!NAME_OK.test(current)) current = "main.hum"; await putFile(current, code.value); paintFiles(); addAct("✓ saved " + current); } })));
