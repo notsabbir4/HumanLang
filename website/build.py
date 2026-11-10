@@ -6,6 +6,7 @@
 Needs:  pip install markdown
 """
 import argparse
+import datetime
 import glob
 import html
 import json
@@ -143,6 +144,10 @@ NAV = [("index.html", "Home"), ("tutorial.html", "Tutorial"), ("reference.html",
        ("playground.html", "Playground"), ("games.html", "Games"), ("community.html", "Community"), ("editors.html", "Editors"),
        ("install.html", "Download")]
 REPO = "https://github.com/notsabbir4/HumanLang"
+# The website's accounts, shared coding and Nina live on a Supabase project. These two values are PUBLIC by design
+# (the publishable key can only do what the database's row rules allow); the secret keys never appear here.
+SUPABASE = {"url": "https://xfzfebklugcppbgxtahz.supabase.co", "key": "sb_publishable_fcriRm2B0njFO5Q3qEceeQ_nVn54xCb"}
+SITE = "https://notsabbir4.github.io/HumanLang/"
 LATEST = REPO + "/releases/latest/download/"
 
 
@@ -163,17 +168,19 @@ def page(title, body, active, extra_head="", extra_body="", main_class=""):
 <meta property="og:image" content="social-preview.png">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="style.css">
+<script>window.HL_SUPABASE = {json.dumps(SUPABASE)};</script>
 {extra_head}
 </head>
 <body>
 <header class="site"><div class="in"><a class="brand" href="index.html" aria-label="HumanLang home"><img src="logo.png" alt="HumanLang" width="181" height="46"></a>
-<nav class="main">{links}</nav></div></header>
+<nav class="main">{links}</nav><a class="acct" id="acct" href="account.html">Sign in</a></div></header>
 <main{(" class=" + main_class) if main_class else ""}>
 {body}
 </main>
 <footer><div class="fl"><a href="install.html">Download</a><a href="editors.html">Editors</a><a href="changelog.html">What&rsquo;s new</a>
 <a href="{REPO}">GitHub</a><a href="{REPO}/issues">Report a problem</a></div>
 HumanLang {__version__} &middot; MIT licensed &middot; code that reads like you talk</footer>
+<script src="account.js"></script>
 <script>
 function copyCode(b){{var t=b.parentNode.querySelector('code').innerText;
 (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(function(){{b.textContent='Copied';setTimeout(function(){{b.textContent='Copy'}},1500)}},function(){{b.textContent='Select + copy'}})}}
@@ -292,15 +299,18 @@ def playground_page(examples):
 <button class="btn ghost" id="stepbtn" type="button" disabled title="Go through the program one line at a time and see what each line does">Step through</button>
 <span class="grow"></span>
 <button class="btn ghost" id="share" type="button">Share link</button>
+<button class="btn ghost" id="collabbtn" type="button" title="Code on the same program with other people, live">Collaborate</button>
+<button class="btn ghost" id="ninabtn" type="button" title="Nina, the HumanLang coding assistant">Nina</button>
 <button class="btn ghost" id="postbtn" type="button" title="Open the Community post form with your program already filled in">Post to Community</button>
 <button class="btn ghost" id="theme" type="button" aria-label="Switch between light and dark">Light</button>
 </div>
 <div class="ide-main">
 <section class="ide-edit" aria-label="Your program">
-<div class="ide-tabs"><span class="tab on">main.hum</span></div>
+<div class="ide-tabs"><span class="tab on" id="filetab">main.hum</span><span id="collab-bar" hidden aria-live="polite"></span></div>
 <div class="ide-code">
 <pre class="gutter" id="gutter" aria-hidden="true">1</pre>
 <div class="ed"><pre class="hl" id="hl" aria-hidden="true"></pre>
+<div class="remote" id="remote" aria-hidden="true"></div>
 <textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" wrap="off" aria-label="HumanLang program"></textarea></div>
 </div>
 </section>
@@ -331,13 +341,59 @@ They stay in this browser only. Use them by name, for example <code>draw the pic
 <textarea id="inputs" spellcheck="false" aria-label="Answers, one per line"></textarea></div>
 </section>
 </div>
+<aside id="collab" class="drawer" hidden aria-label="Collaborate"></aside>
+<aside id="nina" class="drawer" hidden aria-label="Nina, the coding assistant"></aside>
 <div class="ide-status"><span id="status">Loading...</span><span class="grow"></span><span id="pos">Ln 1, Col 1</span><span>Spaces: 4</span><span>HumanLang</span></div>
 </div>
 """
     words = {"k": CONTROL + STATEMENT + DESIGN, "o": OPERATORS, "f": BUILTINS, "v": CONSTANTS}
     script = (f'<script>window.HL_REPO = {json.dumps(REPO)}; window.HL_EXAMPLES = {json.dumps(examples)}; window.HL_WORDS = {json.dumps(words)};</script>\n'
-              '<script src="arcade.js"></script><script src="community-lib.js"></script><script src="playground.js"></script>')
+              '<script src="arcade.js"></script><script src="community-lib.js"></script><script src="playground.js"></script>'
+              '<script src="collab-core.js"></script><script src="collab.js"></script><script src="nina.js"></script>')
     return page("Playground - HumanLang", body, "playground.html", extra_body=script, main_class="ide-page")
+
+
+def account_page():
+    body = """<section class="doc account">
+<h1>Your account</h1>
+<div id="acct-out" hidden>
+<p>Sign in with your GitHub account to <b>code together</b> with other people on the same program, talk to <b>Nina</b>,
+and have your own <b>profile</b>. We only get your public GitHub name and photo. We never see your GitHub password, and we cannot
+change anything on your GitHub.</p>
+<button class="btn run" id="signin" type="button">Sign in with GitHub</button>
+<p class="muted" id="acct-note"></p>
+</div>
+<div id="acct-in" hidden>
+<div class="profile-card" id="pcard"></div>
+<form id="pform" class="pform">
+<label>Display name <input id="p-name" maxlength="40" required></label>
+<label>About you <textarea id="p-bio" maxlength="280" rows="3" placeholder="What do you make with HumanLang?"></textarea></label>
+<label>Favourite thing in HumanLang <input id="p-fav" maxlength="60" placeholder="e.g. games, pages, calculate"></label>
+<fieldset><legend>Your colour (your cursor and name show in it when you code with others)</legend><div id="p-colours" class="swatches"></div></fieldset>
+<fieldset><legend>Your badge</legend><div id="p-badges" class="swatches"></div></fieldset>
+<label class="check"><input type="checkbox" id="p-photo"> Show my GitHub photo</label>
+<div class="row"><button class="btn run" type="submit">Save profile</button><span id="p-status" role="status"></span></div>
+</form>
+<h2>Your shared programs</h2>
+<ul id="rooms" class="rooms"><li class="muted">Loading...</li></ul>
+<p><button class="btn ghost" id="signout" type="button">Sign out</button></p>
+</div>
+</section>"""
+    return page("Account - HumanLang", body, "account.html", extra_body='<script src="account-page.js"></script>')
+
+
+def nina_knowledge():
+    """What Nina knows about HumanLang. Rebuilt with every website build, so she is always as current as the site."""
+    def clip(text, n):
+        return text if len(text) <= n else text[:n] + "\n...(shortened)"
+    changelog = read(os.path.join(ROOT, "CHANGELOG.md"))
+    return {
+        "version": __version__,
+        "built": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
+        "changelog": clip(changelog, 14000),
+        "reference": read(os.path.join(ROOT, "docs", "reference.md")),
+        "tutorial": clip(read(os.path.join(ROOT, "docs", "tutorial.md")), 45000),
+    }
 
 
 def inspect_html(code, how, game_id):
@@ -558,6 +614,8 @@ def main():
     write(os.path.join(out, "playground.html"), playground_page(examples))
     write(os.path.join(out, "games.html"), games_page(games))
     write(os.path.join(out, "community.html"), community_page())
+    write(os.path.join(out, "account.html"), account_page())
+    write(os.path.join(out, "nina-knowledge.json"), json.dumps(nina_knowledge()))
     write(os.path.join(out, ".nojekyll"), "")
     stamp_assets(out)
     print(f"Built {len(os.listdir(out))} files in {out}")

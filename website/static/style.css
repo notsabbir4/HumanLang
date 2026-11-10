@@ -284,3 +284,73 @@ ol.listing .c{color:var(--com);font-style:italic}ol.listing .s{color:var(--str)}
 .ver-group{margin:34px 0 0}
 h2.ver{margin:0;font-size:1.15rem;padding-bottom:8px;border-bottom:1px solid var(--line)}
 .ver-group .game-grid{margin:18px 0 0}
+
+/* ---- account chip, profile ---- */
+a.acct{margin-left:auto;display:inline-flex;align-items:center;gap:8px;padding:5px 12px;border:1px solid var(--line);border-radius:999px;color:var(--fg);text-decoration:none;font-size:.9rem}
+a.acct.in{padding:3px 12px 3px 4px}
+a.acct:hover{border-color:var(--accent)}
+.avatar{display:inline-flex;align-items:center;justify-content:center;border-radius:50%;overflow:hidden;flex:none;color:#fff;font-weight:700;font-size:.85em}
+.avatar img{width:100%;height:100%;object-fit:cover}
+.account .muted,.drawer .muted{color:var(--muted)}
+.profile-card{display:flex;gap:14px;align-items:flex-start;border:2px solid var(--line);border-radius:14px;padding:14px;margin:12px 0;background:var(--card)}
+.profile-card .pc-text{display:flex;flex-direction:column;gap:2px;min-width:0}
+.profile-card p{margin:6px 0 2px;word-break:break-word}
+.pform{display:flex;flex-direction:column;gap:12px;max-width:560px}
+.pform label{display:flex;flex-direction:column;gap:4px;font-weight:600}
+.pform label.check{flex-direction:row;align-items:center;gap:8px;font-weight:400}
+.pform input[type=text],.pform input:not([type]),.pform textarea{font:inherit;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg)}
+.pform fieldset{border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.pform legend{font-size:.85rem;color:var(--muted);padding:0 6px}
+.swatches{display:flex;flex-wrap:wrap;gap:8px}
+.sw{width:30px;height:30px;border-radius:50%;border:2px solid transparent;cursor:pointer;padding:0}
+.sw.on{border-color:var(--fg);box-shadow:0 0 0 2px var(--bg) inset}
+.sw.badge{width:auto;min-width:34px;border-radius:8px;background:var(--card);border-color:var(--line);color:var(--fg);padding:0 8px;font-size:1rem}
+.sw.badge.on{border-color:var(--accent)}
+.pform .row{display:flex;gap:12px;align-items:center}
+.rooms{list-style:none;padding:0;display:flex;flex-direction:column;gap:6px}
+.rooms li{display:flex;gap:10px;align-items:center}
+
+/* ---- Playground drawers (Collaborate, Nina) ---- */
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(400px,100vw);background:var(--bg);border-left:1px solid var(--line);z-index:30;display:flex;flex-direction:column;box-shadow:-8px 0 30px rgba(0,0,0,.25)}
+.drawer[hidden]{display:none}
+.drawer .dhead{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid var(--line)}
+.drawer .dbody{padding:14px;display:flex;flex-direction:column;gap:10px;overflow:auto;flex:1;min-height:0}
+.drawer input{font:inherit;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg)}
+.codebox{display:flex;gap:10px;align-items:center}
+.codebox code{font-size:1.2rem;letter-spacing:.15em;padding:6px 10px;background:var(--card);border-radius:8px}
+#collabbtn.on{border-color:var(--accent);color:var(--accent)}
+
+/* ---- who is here ---- */
+#collab-bar{display:flex;gap:8px;align-items:center;margin-left:auto;flex-wrap:wrap;font-size:.8rem}
+#collab-bar[hidden]{display:none}
+#collab-bar .who{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:999px;border:1px solid var(--c);background:color-mix(in srgb,var(--c) 14%,transparent)}
+#collab-bar .who i{width:8px;height:8px;border-radius:50%;background:var(--c)}
+#collab-bar .who small{color:var(--muted)}
+
+/* ---- other people's cursors and typing, drawn over the editor ---- */
+.ed .remote{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.rpeer{position:absolute;inset:0;margin:0;padding:14px 14px 14px 6px;font:inherit;tab-size:4;white-space:pre;overflow:hidden;color:transparent;letter-spacing:0;word-spacing:0}
+.rpeer mark{color:transparent;border-radius:2px}
+.rsel mark{background:color-mix(in srgb,var(--c) 28%,transparent)}
+.redit mark{background:color-mix(in srgb,var(--c) 38%,transparent);box-shadow:0 -2px 0 var(--c) inset}
+.rc{display:inline-block;width:0;height:1.25em;vertical-align:text-bottom;border-left:2px solid var(--c);position:relative}
+.rl{position:absolute;bottom:100%;left:-2px;font:600 11px/1 system-ui,sans-serif;font-style:normal;background:var(--c);color:#fff;padding:2px 5px;border-radius:4px 4px 4px 0;white-space:nowrap}
+
+/* ---- Nina ---- */
+#nina .nmsgs{flex:1;overflow:auto;padding:12px 14px;display:flex;flex-direction:column;gap:10px;min-height:0}
+#nina .m{max-width:92%;padding:8px 11px;border-radius:12px;line-height:1.45;word-break:break-word;white-space:pre-wrap}
+#nina .m.me{align-self:flex-end;background:var(--accent);color:#fff}
+#nina .m.nina{align-self:flex-start;background:var(--card);border:1px solid var(--line)}
+#nina .m pre{margin:6px 0;padding:8px;background:var(--bg);border-radius:8px;overflow:auto;font:12.5px/1.5 ui-monospace,Menlo,Consolas,monospace;white-space:pre}
+#nina .m code{font:12.5px ui-monospace,Menlo,Consolas,monospace}
+#nina .act{align-self:flex-start;font-size:.8rem;color:var(--muted);display:flex;gap:6px;align-items:center}
+#nina .src{font-size:.78rem;color:var(--muted)}
+#nina .src a{color:var(--accent)}
+#nina .nin{display:flex;gap:8px;padding:10px 14px;border-top:1px solid var(--line)}
+#nina .nin textarea{flex:1;font:inherit;padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--fg);resize:none;max-height:120px}
+#nina .ntools{display:flex;gap:8px;flex-wrap:wrap;padding:0 14px 8px}
+#nina .nfiles{border-top:1px solid var(--line);padding:8px 14px;font-size:.85rem;max-height:150px;overflow:auto}
+#nina .nfiles li{display:flex;gap:6px;align-items:center;justify-content:space-between}
+#nina .nfiles ul{list-style:none;margin:4px 0 0;padding:0}
+#ninabtn.on{border-color:var(--accent);color:var(--accent)}
+@media (max-width:700px){a.acct{margin-left:0}}

@@ -32,6 +32,14 @@ platformer physics, a step-by-step debugger, and games and pages that work on ph
 - Games on a phone: a finger dragged over a game counts as clicks, the touch buttons fit narrow screens, the game fills a phone's
   width, and text in a game can be centred (`align center`) or right-aligned.
 - Tutorial chapters 15-18, reference sections, editor words.
+- **Website accounts:** sign in with GitHub (Account page) and edit your profile: display name, about you, favourite thing,
+  your colour, a badge, and whether to show your GitHub photo.
+- **Code together, live:** in the Playground press **Collaborate**, start a shared program and send the code or link. Everyone
+  sees the same text, who is in the room, where each person's cursor is, and what they are typing, in their own colour.
+- **Nina**, the Playground's coding assistant (a woman, serious, works more than she talks, understands Bangla). She can
+  manage a whole project (create, read, change and delete files), check and run programs and fix what she finds, search the web
+  using official sources only, and rate your code out of 10 when you allow it (she looks at the code and its output, never your
+  idea, and is never fully satisfied). She is rebuilt with the website, so she always knows the latest HumanLang.
 
 ## 0.5.1 - 2026-11-07
 HumanLang can now make **2D arcade games**: platformers, maze chasers, shoot-em-ups, ladder climbers. A game is
