@@ -1,9 +1,12 @@
 // Nina: HumanLang's coding assistant. One call = one model turn. The browser runs the tools (files, run, check)
 // and calls again with the results; web search runs on Anthropic's side.
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import { GeminiError, geminiTurn } from "./gemini.ts";
 
 const KNOWLEDGE_URL = "https://notsabbir4.github.io/HumanLang/nina-knowledge.json";
-const DAILY_LIMIT = 300; // model turns per person per day
+// Two ways to run Nina: Claude (needs a paid API key) or Gemini (has a free tier). Claude is used if its key is set, else Gemini.
+// The free tier is small and shared by everyone, so each person gets fewer steps a day there.
+const GEMINI_MODEL = Deno.env.get("GEMINI_MODEL") ?? "gemini-flash-latest";
 const MAX_BODY = 600_000;
 const MAX_MESSAGES = 60;
 const MODEL = Deno.env.get("NINA_MODEL") ?? "claude-sonnet-5-5";
@@ -69,8 +72,9 @@ Deno.serve(async (req) => {
   const { data: auth } = await admin.auth.getUser(token);
   if (!auth?.user) return json({ error: "Sign in to talk to Nina." }, 401);
 
-  const key = Deno.env.get("ANTHROPIC_API_KEY");
-  if (!key) return json({ error: "Nina isn't switched on yet: the site owner has not added the API key." }, 503);
+  const claudeKey = Deno.env.get("ANTHROPIC_API_KEY"), geminiKey = Deno.env.get("GEMINI_API_KEY");
+  if (!claudeKey && !geminiKey) return json({ error: "Nina isn't switched on yet: the site owner has not added the API key." }, 503);
+  const DAILY_LIMIT = Number(Deno.env.get("NINA_DAILY_LIMIT")) || (claudeKey ? 300 : 60); // model steps per person per day
 
   const raw = await req.text();
   if (raw.length > MAX_BODY) return json({ error: "That conversation is too long. Start a new chat." }, 413);
@@ -93,6 +97,18 @@ Deno.serve(async (req) => {
     "=== TUTORIAL ===\n" + (k.tutorial ?? ""),
   ].join("\n\n");
 
+  if (!claudeKey) {
+    try {
+      const turn = await geminiTurn(geminiKey!, GEMINI_MODEL, persona + "\n\n" + kb, messages as any, TOOLS as any);
+      return json({ ...turn, remaining: Math.max(0, DAILY_LIMIT - (used as number)) });
+    } catch (e) {
+      if (e instanceof GeminiError && (e.status === 429 || /quota|rate/i.test(e.message))) {
+        return json({ error: "Nina is resting: the free limit for the whole site is used up for now. Try again in a little while." }, 429);
+      }
+      return json({ error: "Nina had a problem. Try again." }, 502);
+    }
+  }
+  const key = claudeKey;
   const r = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" },
