@@ -36,10 +36,10 @@ platformer physics, a step-by-step debugger, and games and pages that work on ph
   your colour, a badge, and whether to show your GitHub photo.
 - **Code together, live:** in the Playground press **Collaborate**, start a shared program and send the code or link. Everyone
   sees the same text, who is in the room, where each person's cursor is, and what they are typing, in their own colour.
-- **Nina**, the Playground's coding assistant (a woman, serious, works more than she talks, understands Bangla). She can
-  manage a whole project (create, read, change and delete files), check and run programs and fix what she finds, search the web
-  using official sources only, and rate your code out of 10 when you allow it (she looks at the code and its output, never your
-  idea, and is never fully satisfied). She is rebuilt with the website, so she always knows the latest HumanLang.
+- **Download and save:** the Playground has **Download .hum** (your program as a file) and **Save** (keeps it in your account;
+  sign in with GitHub). Saved programs are listed on the Account page, where you can open or delete them.
+- **Phone menu:** on a phone, every page link sits under a three-dot button; Sign in stays visible. The Playground's button
+  row scrolls sideways instead of piling up.
 
 ## 0.5.1 - 2026-11-07
 HumanLang can now make **2D arcade games**: platformers, maze chasers, shoot-em-ups, ladder climbers. A game is

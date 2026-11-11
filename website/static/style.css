@@ -310,7 +310,7 @@ a.acct:hover{border-color:var(--accent)}
 .rooms{list-style:none;padding:0;display:flex;flex-direction:column;gap:6px}
 .rooms li{display:flex;gap:10px;align-items:center}
 
-/* ---- Playground drawers (Collaborate, Nina) ---- */
+/* ---- Playground drawers (Collaborate) ---- */
 .drawer{position:fixed;top:0;right:0;bottom:0;width:min(400px,100vw);background:var(--bg);border-left:1px solid var(--line);z-index:30;display:flex;flex-direction:column;box-shadow:-8px 0 30px rgba(0,0,0,.25)}
 .drawer[hidden]{display:none}
 .drawer .dhead{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid var(--line)}
@@ -336,21 +336,36 @@ a.acct:hover{border-color:var(--accent)}
 .rc{display:inline-block;width:0;height:1.25em;vertical-align:text-bottom;border-left:2px solid var(--c);position:relative}
 .rl{position:absolute;bottom:100%;left:-2px;font:600 11px/1 system-ui,sans-serif;font-style:normal;background:var(--c);color:#fff;padding:2px 5px;border-radius:4px 4px 4px 0;white-space:nowrap}
 
-/* ---- Nina ---- */
-#nina .nmsgs{flex:1;overflow:auto;padding:12px 14px;display:flex;flex-direction:column;gap:10px;min-height:0}
-#nina .m{max-width:92%;padding:8px 11px;border-radius:12px;line-height:1.45;word-break:break-word;white-space:pre-wrap}
-#nina .m.me{align-self:flex-end;background:var(--accent);color:#fff}
-#nina .m.nina{align-self:flex-start;background:var(--card);border:1px solid var(--line)}
-#nina .m pre{margin:6px 0;padding:8px;background:var(--bg);border-radius:8px;overflow:auto;font:12.5px/1.5 ui-monospace,Menlo,Consolas,monospace;white-space:pre}
-#nina .m code{font:12.5px ui-monospace,Menlo,Consolas,monospace}
-#nina .act{align-self:flex-start;font-size:.8rem;color:var(--muted);display:flex;gap:6px;align-items:center}
-#nina .src{font-size:.78rem;color:var(--muted)}
-#nina .src a{color:var(--accent)}
-#nina .nin{display:flex;gap:8px;padding:10px 14px;border-top:1px solid var(--line)}
-#nina .nin textarea{flex:1;font:inherit;padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--fg);resize:none;max-height:120px}
-#nina .ntools{display:flex;gap:8px;flex-wrap:wrap;padding:0 14px 8px}
-#nina .nfiles{border-top:1px solid var(--line);padding:8px 14px;font-size:.85rem;max-height:150px;overflow:auto}
-#nina .nfiles li{display:flex;gap:6px;align-items:center;justify-content:space-between}
-#nina .nfiles ul{list-style:none;margin:4px 0 0;padding:0}
-#ninabtn.on{border-color:var(--accent);color:var(--accent)}
 @media (max-width:700px){a.acct{margin-left:0}}
+
+/* ---- phone menu: every page link sits under the three-dot button; Sign in stays visible ---- */
+.menubtn{display:none;width:40px;height:40px;border:1px solid var(--line);border-radius:10px;background:var(--card);cursor:pointer;padding:0;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.menubtn span{width:4px;height:4px;border-radius:50%;background:var(--fg);display:block}
+.menubtn:hover,header.site.open .menubtn{border-color:var(--accent)}
+@media (max-width:800px){
+  header.site .in{flex-wrap:nowrap;gap:10px;padding:8px 12px;position:relative}
+  header.site .brand img{height:36px;width:auto}
+  .menubtn{display:flex}
+  a.acct{margin-left:auto}
+  nav.main{display:none;position:absolute;top:100%;right:8px;left:8px;margin:6px 0 0;flex-direction:column;gap:2px;padding:8px;background:var(--bg);border:1px solid var(--line);border-radius:14px;box-shadow:0 14px 34px rgba(0,0,0,.25)}
+  header.site.open nav.main{display:flex}
+  nav.main a{padding:13px 14px;font-size:1.02rem}
+}
+
+dialog.askbox{border:1px solid var(--line);border-radius:14px;background:var(--bg);color:var(--fg);padding:18px;width:min(380px,92vw)}
+dialog.askbox::backdrop{background:rgba(0,0,0,.45)}
+dialog.askbox form{display:flex;flex-direction:column;gap:12px}
+dialog.askbox h3{margin:0}
+dialog.askbox label{display:flex;flex-direction:column;gap:6px;font-weight:600}
+dialog.askbox input{font:inherit;padding:9px 11px;border-radius:9px;border:1px solid var(--line);background:var(--card);color:var(--fg)}
+dialog.askbox .row{display:flex;gap:10px}
+ul.rooms li{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+ul.rooms li .del{margin-left:auto;color:#d6455d;font-size:.9rem}
+@media (max-width:800px){
+  .ide-top{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:8px 10px;gap:8px;scrollbar-width:none}
+  .ide-top::-webkit-scrollbar{display:none}
+  .ide-top .btn,.ide-top select{flex:none;white-space:nowrap}
+  .ide-top select{min-width:0;width:8.2em}
+  .ide-top .grow{display:none}
+  .ide-top .btn{padding:9px 14px}
+}

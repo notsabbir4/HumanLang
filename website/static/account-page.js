@@ -35,6 +35,20 @@
     });
   }
 
+  async function savedList(c) {
+    const ul = $("saved"); ul.textContent = "";
+    const { data, error } = await c.from("saved_programs").select("id,name,kind,updated_at").order("updated_at", { ascending: false }).limit(100);
+    if (error || !data || !data.length) { const li = document.createElement("li"); li.className = "muted"; li.textContent = error ? "Could not load them." : "Nothing saved yet."; ul.appendChild(li); return; }
+    data.forEach((r) => {
+      const li = document.createElement("li"), a = document.createElement("a");
+      a.href = "playground.html#saved=" + encodeURIComponent(r.id); a.textContent = r.name; li.appendChild(a);
+      const t = document.createElement("span"); t.className = "muted"; t.textContent = new Date(r.updated_at).toLocaleDateString(); li.appendChild(t);
+      const d = document.createElement("a"); d.href = "#"; d.textContent = "Delete"; d.className = "del";
+      d.onclick = async (e) => { e.preventDefault(); if (!confirm('Delete "' + r.name + '"? This cannot be undone.')) return; await c.from("saved_programs").delete().eq("id", r.id); savedList(c); };
+      li.appendChild(d); ul.appendChild(li);
+    });
+  }
+
   async function show() {
     if (!HLAccount.configured) { $("acct-out").hidden = false; $("signin").disabled = true; $("acct-note").textContent = "Accounts are not switched on for this site yet."; return; }
     let s = null;
@@ -50,7 +64,7 @@
     $("p-photo").checked = !!profile.avatar_url; $("p-photo").disabled = !profile.photo;
     colour = profile.colour; badge = profile.badge; swatches(); card();
     ["p-name", "p-bio", "p-fav", "p-photo"].forEach((id) => $(id).addEventListener("input", card));
-    const c = await HLAccount.client(); rooms(c);
+    const c = await HLAccount.client(); rooms(c); savedList(c);
   }
 
   $("signin").onclick = async () => { try { await HLAccount.signIn(); } catch (e) { $("acct-note").textContent = "Could not start sign-in: " + (e.message || e); } };

@@ -63,38 +63,3 @@ def debug(code, inputs):
     """Step-by-step: every line that ran, what it does, and what the variables held (for the Steps tab)."""
     from humanlang.debugger import record
     return json.dumps(record(code, inputs=list(inputs)))
-
-
-# ---- Nina's project: a folder of files a program can `use` ----
-PROJECT = "/proj"
-
-
-def _project(files_json):
-    import os
-    import re
-    import shutil
-    shutil.rmtree(PROJECT, ignore_errors=True)
-    os.makedirs(PROJECT, exist_ok=True)
-    for name, text in json.loads(files_json or "{}").items():
-        if re.fullmatch(r"[\w\- .]{1,60}", name) and isinstance(text, str):
-            with open(os.path.join(PROJECT, name), "w", encoding="utf-8", newline="\n") as f:
-                f.write(text)
-
-
-def project_check(code, files_json, name):
-    """Check a program for mistakes without running it: {"err": ..., "warnings": [...]}"""
-    import os
-    _project(files_json)
-    interp = Interpreter(out=lambda t: None)
-    err = None
-    try:
-        interp.check(code, os.path.join(PROJECT, name))
-    except HLError as e:
-        err = e.format(code.splitlines())
-    return json.dumps({"err": err, "warnings": [format_warning(w, code.splitlines()) for w in interp.warnings]})
-
-
-def project_run(code, inputs, files_json, name):
-    import os
-    _project(files_json)
-    return run(code, inputs, 1, None, os.path.join(PROJECT, name))

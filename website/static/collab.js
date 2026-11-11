@@ -156,7 +156,7 @@
     panel();
   }
 
-  btn.onclick = () => { drawer.hidden = !drawer.hidden; if (!drawer.hidden) { const n = $("nina"); if (n) n.hidden = true; panel(); } };
+  btn.onclick = () => { drawer.hidden = !drawer.hidden; if (!drawer.hidden) { panel(); } };
 
   async function init() {
     if (!window.HLAccount || !HLAccount.configured) return;
