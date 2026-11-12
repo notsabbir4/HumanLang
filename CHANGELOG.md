@@ -39,6 +39,9 @@ platformer physics, a step-by-step debugger, and games and pages that work on ph
   your colour, a badge, and whether to show your GitHub photo.
 - **Code together, live:** in the Playground press **Collaborate**, start a shared program and send the code or link. Everyone
   sees the same text, who is in the room, where each person's cursor is, and what they are typing, in their own colour.
+- **Tutorial courses:** the Tutorial page now asks you to choose a course: **Beginner+**, **Designer Go**, **Game Maker** or
+  **Master 2.0**. Each course is a few short lessons, one page each, with Back and Next and a progress bar (kept in your
+  browser only). You do not have to learn everything. All 19 chapters are still on one page for people who want them.
 - **Download and save:** the Playground has **Download .hum** (your program as a file) and **Save** (keeps it in your account;
   sign in with GitHub). Saved programs are listed on the Account page, where you can open or delete them.
 - **Phone menu:** on a phone, every page link sits under a three-dot button; Sign in stays visible. The Playground's button

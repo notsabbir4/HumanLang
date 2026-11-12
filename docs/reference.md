@@ -277,7 +277,7 @@ Each kind of thing accepts the looks that make sense for it, and HL lists them w
 ## Games
 
 A program with `play a game` is a game. In the Playground it runs in the Preview tab, `hl run` opens it in the browser,
-`hl build FILE.hum` saves it as one web page (`FILE.html`, needs the internet to start). The tutorial (chapter 14) explains it step by step.
+`hl build FILE.hum` saves it as one web page (`FILE.html`, needs the internet to start). The tutorial (the Game Maker course, or chapter 14) explains it step by step.
 
 ```hum-game
 make a sprite called dot

@@ -1,7 +1,7 @@
 # HumanLang Tutorial
 
 HumanLang (HL) is a programming language that reads like plain English. You don't need to know
-anything about programming to start. This tutorial takes about an hour, and every example in it
+anything about programming to start. On the website it is split into short courses: pick one at the top of the Tutorial page. This page has every chapter in one place, and every example in it
 really runs.
 
 **Two ways to follow along**
@@ -1159,7 +1159,7 @@ show a page titled "Three balls"
 
 HL can make 2D arcade games: shooters, mazes, platformers, ladder climbers. A game is made of a few simple pieces:
 
-1. **Sprites**: small pictures made of squares (like the pixel art in chapter 13).
+1. **Sprites**: small pictures made of squares (like the pixel art in the Design lesson).
 2. **Maps**: a grid of tiles, for walls, floors and coins.
 3. **A game**: the screen size, and the parts that say what happens: when the game starts, on every frame, when a key is pressed.
 
@@ -1226,7 +1226,7 @@ play a game titled "Parts" with size 200 by 120 and background navy
 | `when the mouse is clicked` | each click on the game (`mouse x` and `mouse y` say where) |
 
 Inside a part you can use everything from the other chapters: `if`, `repeat`, lists, your own functions. A function can
-`draw` too, if a game part calls it. `put a text`, `put a circle`, `put a rectangle` and the other shapes from chapter 13
+`draw` too, if a game part calls it. `put a text`, `put a circle`, `put a rectangle` and the other shapes from the Design lesson
 work in a game as well: they are drawn in the frame. Text always stays on the screen (good for a score); sprites and
 shapes move when the camera moves.
 

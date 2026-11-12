@@ -20,6 +20,7 @@ import markdown
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 sys.path.insert(0, ROOT)
+import courses  # noqa: E402
 from humanlang import __version__  # noqa: E402
 from humanlang.interpreter import Interpreter  # noqa: E402
 from humanlang.render import to_html  # noqa: E402
@@ -285,11 +286,11 @@ one meaning, so you can trust what you read.</p></div>
 {box("output", "What HL says", html.escape('Line 2: I don' + chr(39) + 't know "nmae".' + chr(10) + '    say "Hello {nmae}"' + chr(10) + 'Did you mean "name"?'), " error")}
 <h2>Made for learning</h2>
 <ul>
-<li>A one-hour <a href="tutorial.html">tutorial</a> where every example is tested to really run.</li>
+<li>Short <a href="tutorial.html">courses</a> (Beginner+, Designer Go, Game Maker, Master 2.0): pick what you want to make. Every example is tested to really run.</li>
 <li>A <a href="playground.html">playground</a> that works in your browser, nothing to install.</li>
 <li>A <a href="reference.html">reference</a> with every word HL knows.</li>
 <li>A one-click <a href="install.html">installer</a> for Windows, and one-line installs for Mac and Linux.</li>
-<li><b>Design:</b> make pages, buttons, drawings and pixel art in plain words, with a live preview. See the <a href="tutorial.html#13-design-pages-buttons-and-drawings">tutorial chapter</a>.</li>
+<li><b>Design:</b> make pages, buttons, drawings and pixel art in plain words, with a live preview. See the <a href="course-designer-go.html">Designer Go course</a>.</li>
 <li><a href="editors.html">Editor support</a>: colours, live error messages and a Run button in VS Code, and setup guides for other editors.</li>
 <li>A <a href="changelog.html">changelog</a> that says what is new in every version.</li>
 </ul>
@@ -603,7 +604,9 @@ def main():
             games.append(entry)
 
     write(os.path.join(out, "index.html"), index_page())
-    write(os.path.join(out, "tutorial.html"), doc_page("Tutorial", read(os.path.join(ROOT, "docs", "tutorial.md")), "tutorial.html"))
+    tutorial_md = read(os.path.join(ROOT, "docs", "tutorial.md"))
+    courses.build(out, tutorial_md, render_markdown, page, write)       # tutorial.html (pick a course), course-*.html, lesson-*.html
+    write(os.path.join(out, "tutorial-all.html"), doc_page("Tutorial: all chapters", tutorial_md, "tutorial.html"))
     write(os.path.join(out, "reference.html"), doc_page("Reference", read(os.path.join(ROOT, "docs", "reference.md")), "reference.html"))
     write(os.path.join(out, "install.html"), download_page())
     write(os.path.join(out, "editors.html"), doc_page("Editors", read(os.path.join(HERE, "editors_page.md")), "editors.html"))
