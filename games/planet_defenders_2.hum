@@ -1,4 +1,5 @@
 note: PLANET DEFENDERS 2 - an endless shoot-the-invaders game, made with HumanLang 0.6.1.
+note: Boss fights: XERON and the main boss OBLIVAR (who turns the sky blood red and drops the rare skill OBLIVAR-X).
 note: Home page, instructions, 4 difficulty levels, skills that drop and must be caught, music, best scores that are
 note: remembered, and it works on phones (drag your finger to steer, touching also fires).
 note: Keys: left/right move, space shoots (hold it), up/down choose in the menu, enter starts, pauses and goes back.
@@ -292,6 +293,366 @@ make a sprite called ufo with pixel size 2
 
 
 note: ==================================================
+note: THE BOSSES, AND OBLIVAR-X (the ship that XERON's big brother makes you into)
+note: ==================================================
+
+make a sprite called xeron with pixel size 2
+    where "C" is "#2A8FBF"
+    where "G" is "#34E08E"
+    where "R" is "#8E0F18"
+    where "S" is "#C5CCE0"
+    where "c" is "#5AD7FF"
+    where "d" is "#14503A"
+    where "g" is "#1F8A5B"
+    where "k" is "#0B1020"
+    where "o" is "#FF8A1F"
+    where "r" is "#FF2A2A"
+    where "s" is "#8D96AD"
+    where "w" is "#FFFFFF"
+    where "y" is "#FFD23F"
+
+    "..kykk....kkkkkkkk....kkyk.."
+    "...kSSk..kcccccccck..kSSk..."
+    "....kkSkkcccccccccckkSkk...."
+    "......kkcccccrrccccckk......"
+    "......kcccccrrrrccccck......"
+    "......kccccrwwwwrcccck......"
+    "......kccccrwwwwrcccck......"
+    "....kkgcCCCRRRRRRCCCcgkk...."
+    "..kkgggcCCCRRRRRRCCCcgggkk.."
+    ".kggggggggggRRRRggggggggggk."
+    "kGGGGGGGGGGGGGGGGGGGGGGGGGGk"
+    "kggSggSggSggggggggSggSggSggk"
+    "SSSddddddddddddddddddddddSSS"
+    "SSSddddddddddddddddddddddSSS"
+    "SSSddddddsssddddsssddddddSSS"
+    "SSSkkddddsssddddsssddddkkSSS"
+    "oook.kkkkoookkkkoookkkk.kooo"
+    "oyok....koyok..koyok....koyo"
+
+make a sprite called oblivar with pixel size 2
+    where "B" is "#6E0A14"
+    where "H" is "#8E7C52"
+    where "P" is "#8E55E8"
+    where "R" is "#9C0F1E"
+    where "b" is "#D01A30"
+    where "d" is "#2A1250"
+    where "f" is "#F2F2F2"
+    where "h" is "#D8C9A3"
+    where "k" is "#07040C"
+    where "m" is "#3C1A6E"
+    where "p" is "#5B2AA8"
+    where "r" is "#FF2A2A"
+    where "y" is "#FFD23F"
+
+    "k.....khkk................kkhk.....k"
+    "Bkk....kHhk..............khHk....kkB"
+    "Bbbk....kHhkk....kk....kkhHk....kbbB"
+    "kBbbkk..kHHhhkkkkyrkkkkhhHHk..kkbbBk"
+    "kBmmbbk..kHhhkpPprrpPpkhhHk..kbbmmBk"
+    "kBmmmbbk..kHkPPPPPPPPPPkHk..kbbmmmBk"
+    "kBBBBmbbkk.kPPPPPPPPPPPPk.kkbbmBBBBk"
+    ".kBmBBBmbbkPPPPPPPPPPPPPPkbbmBBBmBk."
+    ".kBmmmBBBbbpkkkPPPPPPkkkpbbBBBmmmBk."
+    ".kBmmmmmBBkkkrrPPPPPPrrkkkBBmmmmmBk."
+    "..kBmmmmmmprrrykppppkyrrrpmmmmmmBk.."
+    "..kBmmmmBBppkkppppppppkkppBBmmmmBk.."
+    ".kBBBBBBmmppppppppppppppppmmBBBBBBk."
+    ".kBmmmmmmmppppppppppppppppmmmmmmmBk."
+    "kBBkBBBmmmmppppppppppppppmmmmBBBkBBk"
+    "kBBBkkBmmmdddkfkfkkfkfkdddmmmBkkBBBk"
+    ".kkk.kBmmkBddkkkkkkkkkkddBkmmBk.kkk."
+    "....kBBmBBkkddfRRRRRRfddkkBBmBBk...."
+    "....kBmBBk..kddddddddddk..kBBmBk...."
+    "....kBBBk....kppppppppk....kBBBk...."
+    "....kBkk....kppppppppppk....kkBk...."
+    ".....k......kppppppppppk......k....."
+    "...........kppppppppppppk..........."
+    "...........kpppppkkpppppk..........."
+    "..........kpppppk..kpppppk.........."
+    "..........kppppk....kppppk.........."
+
+make a sprite called oblivarx with pixel size 1 and 2 frames
+    where "B" is "#6E0A14"
+    where "H" is "#8E7C52"
+    where "P" is "#8E55E8"
+    where "R" is "#9C0F1E"
+    where "S" is "#C5CCE0"
+    where "b" is "#D01A30"
+    where "d" is "#2A1250"
+    where "f" is "#F2F2F2"
+    where "h" is "#D8C9A3"
+    where "k" is "#07040C"
+    where "m" is "#3C1A6E"
+    where "o" is "#FF8A1F"
+    where "p" is "#5B2AA8"
+    where "r" is "#FF2A2A"
+    where "y" is "#FFD23F"
+
+    "...........................k..........................."
+    "..........................kpk.........................."
+    "...................k......kpk......k..................."
+    "..................kHk.....kpk.....kHk.................."
+    "...................kHk...kpppk...kHk..................."
+    "...................kHHk..kpppk..kHHk..................."
+    "....................kHhk.kpppk.khHk...................."
+    "....................kHHhkppPppkhHHk...................."
+    "kk...................kHkkppPppkkHk...................kk"
+    "Bbkkk.................kHkppPppkHk.................kkkbB"
+    "Bmbbbkkk...............kkpPPPpkk...............kkkbbbmB"
+    "Bmmmmbbbkkk............kppPPPppk............kkkbbbmmmmB"
+    "kBmmmmmmbbbkkk.........kppPPPppk.........kkkbbbmmmmmmBk"
+    "kBmmmmmmmmmbbbkkk......kppPPPppk......kkkbbbmmmmmmmmmBk"
+    "kBmmmmBBmmmmmmbbbkkk..kkkkPPPkkkk..kkkbbbmmmmmmBBmmmmBk"
+    "kBmmmmmBBBBmmmmmmbbbkkkrrrPPPrrrkkkbbbmmmmmmBBBBmmmmmBk"
+    "kBmmmmmmmmBBBmmmmmmmbbkkryPPPyrkkbbmmmmmmmBBBmmmmmmmmBk"
+    "kBmymmmmmmmmmBBBmmmmmmmkpPPPPPpkmmmmmmmBBBmmmmmmmmmymBk"
+    ".kBoommmmmmmmmmmBBBmmmmppPPPPPppmmmmBBBmmmmmmmmmmmooBk."
+    ".kBoommmmmmmmmmmmmBBBBmppPPPPPppmBBBBmmmmmmmmmmmmmooBk."
+    ".kBoommmmmmmmmmmmmmmmBBppPPPPPppBBmmmmmmmmmmmmmmmmooBk."
+    ".kBoommmmmmmmmmmmmmmmmmppPPPPPppmmmmmmmmmmmmmmmmmmooBk."
+    ".kBSSmmmmBBBBmmmmmmmmmmpfkkkkkfpmmmmmmmmmmBBBBmmmmSSBk."
+    "kmBSSmmmmmmmBBBBBBBBmmmpkkRRRkkpmmmBBBBBBBBmmmmmmmSSBmk"
+    "kBmSSmBBmmmmmmmmmmmBBBppkfkkkfkppBBBmmmmmmmmmmmBBmSSmBk"
+    "kBmSSBBBmmmmmmmmmmmmmmpppPPPPPpppmmmmmmmmmmmmmmBBBSSmBk"
+    "kBBSSkkBmmmmmmmmmmmmmmpdpPPPPPpdpmmmmmmmmmmmmmmBkkSSBBk"
+    "kBBSSkkBmmmmmBBBBBmmmmpddPPPPPddpmmmmBBBBBmmmmmBkkSSBBk"
+    ".kkSSkkBmmmmmmmmmBBBBBpddPPPPPddpBBBBBmmmmmmmmmBkkSSkk."
+    "..kSSk.kBmmmmkBmmmmmmmdddPPPPPdddmmmmmmmBkmmmmBk.kSSk.."
+    "..kSSk.kBmmmBBBmmmmmmmdddPPPPPdddmmmmmmmBBBmmmBk.kSSk.."
+    "...kk..kBmBBBkkBmmmmmmdddPPPPPdddmmmmmmBkkBBBmBk..kk..."
+    ".......kBBBkk.kBmmmmmmkddPPPPPddkmmmmmmBk.kkBBBk......."
+    ".......kBkk...kBmmmmmkkddPPPPPddkkmmmmmBk...kkBk......."
+    "........k......kBmmmk.kdddPPPdddk.kmmmBk......k........"
+    "...............kBmmk..kdddpPpdddk..kmmBk..............."
+    "...............kBmk...kdddpppdddk...kmBk..............."
+    "................kBk....kddpppddk....kBk................"
+    "................kBk....kkkkkkkkk....kBk................"
+    ".................k.....kkkkkkkkk.....k................."
+    ".......................kkoooookk......................."
+    ".......................kkoooookk......................."
+    ".......................kkoooookk......................."
+    "........................kkkkkkk........................"
+    "...........................k..........................."
+    "..........................kpk.........................."
+    "...................k......kpk......k..................."
+    "..................kHk.....kpk.....kHk.................."
+    "...................kHk...kpppk...kHk..................."
+    "...................kHHk..kpppk..kHHk..................."
+    "....................kHhk.kpppk.khHk...................."
+    "....................kHHhkppPppkhHHk...................."
+    "kk...................kHkkppPppkkHk...................kk"
+    "Bbkkk.................kHkppPppkHk.................kkkbB"
+    "Bmbbbkkk...............kkpPPPpkk...............kkkbbbmB"
+    "Bmmmmbbbkkk............kppPPPppk............kkkbbbmmmmB"
+    "kBmmmmmmbbbkkk.........kppPPPppk.........kkkbbbmmmmmmBk"
+    "kBmmmmmmmmmbbbkkk......kppPPPppk......kkkbbbmmmmmmmmmBk"
+    "kBmmmmBBmmmmmmbbbkkk..kkkkPPPkkkk..kkkbbbmmmmmmBBmmmmBk"
+    "kBmmmmmBBBBmmmmmmbbbkkkrrrPPPrrrkkkbbbmmmmmmBBBBmmmmmBk"
+    "kBmmmmmmmmBBBmmmmmmmbbkkryPPPyrkkbbmmmmmmmBBBmmmmmmmmBk"
+    "kBmymmmmmmmmmBBBmmmmmmmkpPPPPPpkmmmmmmmBBBmmmmmmmmmymBk"
+    ".kBoommmmmmmmmmmBBBmmmmppPPPPPppmmmmBBBmmmmmmmmmmmooBk."
+    ".kBoommmmmmmmmmmmmBBBBmppPPPPPppmBBBBmmmmmmmmmmmmmooBk."
+    ".kBoommmmmmmmmmmmmmmmBBppPPPPPppBBmmmmmmmmmmmmmmmmooBk."
+    ".kBoommmmmmmmmmmmmmmmmmppPPPPPppmmmmmmmmmmmmmmmmmmooBk."
+    ".kBSSmmmmBBBBmmmmmmmmmmpfkkkkkfpmmmmmmmmmmBBBBmmmmSSBk."
+    "kmBSSmmmmmmmBBBBBBBBmmmpkkRRRkkpmmmBBBBBBBBmmmmmmmSSBmk"
+    "kBmSSmBBmmmmmmmmmmmBBBppkfkkkfkppBBBmmmmmmmmmmmBBmSSmBk"
+    "kBmSSBBBmmmmmmmmmmmmmmpppPPPPPpppmmmmmmmmmmmmmmBBBSSmBk"
+    "kBBSSkkBmmmmmmmmmmmmmmpdpPPPPPpdpmmmmmmmmmmmmmmBkkSSBBk"
+    "kBBSSkkBmmmmmBBBBBmmmmpddPPPPPddpmmmmBBBBBmmmmmBkkSSBBk"
+    ".kkSSkkBmmmmmmmmmBBBBBpddPPPPPddpBBBBBmmmmmmmmmBkkSSkk."
+    "..kSSk.kBmmmmkBmmmmmmmdddPPPPPdddmmmmmmmBkmmmmBk.kSSk.."
+    "..kSSk.kBmmmBBBmmmmmmmdddPPPPPdddmmmmmmmBBBmmmBk.kSSk.."
+    "...kk..kBmBBBkkBmmmmmmdddPPPPPdddmmmmmmBkkBBBmBk..kk..."
+    ".......kBBBkk.kBmmmmmmkddPPPPPddkmmmmmmBk.kkBBBk......."
+    ".......kBkk...kBmmmmmkkddPPPPPddkkmmmmmBk...kkBk......."
+    "........k......kBmmmk.kdddPPPdddk.kmmmBk......k........"
+    "...............kBmmk..kdddpPpdddk..kmmBk..............."
+    "...............kBmk...kdddpppdddk...kmBk..............."
+    "................kBk....kddpppddk....kBk................"
+    "................kBk....kkkkkkkkk....kBk................"
+    ".................k.....kkkkkkkkk.....k................."
+    ".......................kkoooookk......................."
+    ".......................kkyyyyykk......................."
+    ".......................kkyyyyykk......................."
+    "........................kyyyyyk........................"
+
+make a sprite called morph with pixel size 1 and 3 frames
+    where "B" is "#6E0A14"
+    where "P" is "#8E55E8"
+    where "R" is "#9C0F1E"
+    where "S" is "#C5CCE0"
+    where "a" is "#2DCDFF"
+    where "b" is "#D01A30"
+    where "d" is "#2A1250"
+    where "f" is "#F2F2F2"
+    where "j" is "#E21C24"
+    where "k" is "#07040C"
+    where "m" is "#3C1A6E"
+    where "n" is "#0A69F5"
+    where "o" is "#FF8A1F"
+    where "p" is "#5B2AA8"
+    where "q" is "#700C17"
+    where "r" is "#FF2A2A"
+    where "t" is "#080A12"
+    where "u" is "#2A3040"
+    where "v" is "#70798B"
+    where "x" is "#BEC4D2"
+    where "y" is "#FFD23F"
+    where "z" is "#F5F5F9"
+
+    "...........................t..........................."
+    "..........................qj..........................."
+    ".........................ujjju........................."
+    ".........................vvjvv........................."
+    "........................uxxxxxu........................"
+    "........................uxvjvxu........................"
+    "........................vxxxxxv........................"
+    ".......................uvxzvzxvu......................."
+    ".......................u.zxuxzvu......................."
+    "........................vzxuxzv........................"
+    "...............uu......vvzuuuzvvt.....tu..............."
+    "..............tvu.....uuxvuutvxuu.....uvt.............."
+    "...............vu.....qqxvun.vxqq.....uvt.............."
+    "...............vu.....vvxunxnuxvv.....uvt.............."
+    "..............tqq.....v.xunvutx.v.....qqt.............."
+    "..............uvut....u.vtvzntvvuu...tuvu.............."
+    ".............tvxvu..uvuvv.xxnuvvuvu..uvxvt............."
+    ".............tuvvt..vuxxvuxanuvxxuv...uvut............."
+    ".............ttqqt..uuzxvuaanuvxz.ut.tqqtt............."
+    ".............t.vut.tuxvuvuaanuvuvxut.tuvut............."
+    ".............tuxut.vzzuuxunnnuxuuzzvutuxut............."
+    "............vvuxuuuxxzuuxvunuvxuuzxxuuuvuvu............"
+    "...........uvuuvuuuxqxvuxxunuxxuvxqxuuuvuuvu..........."
+    "..........vjjuuutuuxxzuuxzvuvzvuuzxxuutu.ujjv.........."
+    "........uvjjqtuxuvxvzzuuvxzxzxvuuzxvxvuxutqjjvu........"
+    "......qvjjjxvtvuvzzvvx.uuxxjxxu.vxvvzzvuvtvxjjjvq......"
+    "....uvvjjxzzvuuvzzxjtvzxuvvjvvtxzvtjxzzvuuvzzxjjvvq...."
+    "...ujjjjzzxv.uuzzxjquvxxxuvqvuxxxvuqjxzz.u.vxzzjjjju..."
+    "..vjjjzzxvvzvuuzxjqtuutvzuxvxuzvtuutqjxzuu.zvvxzzjjjv.."
+    ".qjjxzxvvxzzvt.zjjuuuuuvztvzvtzvuuuuujjz.t.zzxvvxzxjjq."
+    ".qjvzvvxxzxxzvuzjjvuu.uvzuuuuuzxuuuuvjjzuuzxxzxxvvzvj.."
+    ".qjqvxzzxxjjzvuzjjututuvzuuuuuzvututujjzuvzjjxxzzxvqjq."
+    "tjtvzzvvxzzzzvuzjjtt.tuvxuqjquxvutu.tjjzuvzxzzxvvxzvtjt"
+    ".......kBkk...kBmmmmmkkddPPPPPddkkmmmmmBk...kkBk......."
+    "........k......kBmmmk.kdddPPPdddk.kmmmBk......k........"
+    "...............kBmmk..kdddpPpdddk..kmmBk..............."
+    "...............kBmk...kdddpppdddk...kmBk..............."
+    "................kBk....kddpppddk....kBk................"
+    "................kBk....kkkkkkkkk....kBk................"
+    ".................k.....kkkkkkkkk.....k................."
+    ".......................kkoooookk......................."
+    ".......................kkoooookk......................."
+    ".......................kkoooookk......................."
+    "........................kkkkkkk........................"
+    "...........................t..........................."
+    "..........................qj..........................."
+    ".........................ujjju........................."
+    ".........................vvjvv........................."
+    "........................uxxxxxu........................"
+    "........................uxvjvxu........................"
+    "........................vxxxxxv........................"
+    ".......................uvxzvzxvu......................."
+    ".......................u.zxuxzvu......................."
+    "........................vzxuxzv........................"
+    "...............uu......vvzuuuzvvt.....tu..............."
+    "..............tvu.....uuxvuutvxuu.....uvt.............."
+    "...............vu.....qqxvun.vxqq.....uvt.............."
+    "...............vu.....vvxunxnuxvv.....uvt.............."
+    "..............tqq.....v.xunvutx.v.....qqt.............."
+    "..............uvut....u.vtvzntvvuu...tuvu.............."
+    ".............tvxvu..uvuvv.xxnuvvuvu..uvxvt............."
+    ".............tuvvt..vuxxvuxanuvxxuv...uvut............."
+    ".............ttqqt..uuzxvuaanuvxz.ut.tqqtt............."
+    ".............t.vut.tuxvuvuaanuvuvxut.tuvut............."
+    ".............tuxut.vzzuuxunnnuxuuzzvutuxut............."
+    "............vvuxuuuxxzuuxvunuvxuuzxxuuuvuvu............"
+    ".kBSSmmmmBBBBmmmmmmmmmmpfkkkkkfpmmmmmmmmmmBBBBmmmmSSBk."
+    "kmBSSmmmmmmmBBBBBBBBmmmpkkRRRkkpmmmBBBBBBBBmmmmmmmSSBmk"
+    "kBmSSmBBmmmmmmmmmmmBBBppkfkkkfkppBBBmmmmmmmmmmmBBmSSmBk"
+    "kBmSSBBBmmmmmmmmmmmmmmpppPPPPPpppmmmmmmmmmmmmmmBBBSSmBk"
+    "kBBSSkkBmmmmmmmmmmmmmmpdpPPPPPpdpmmmmmmmmmmmmmmBkkSSBBk"
+    "kBBSSkkBmmmmmBBBBBmmmmpddPPPPPddpmmmmBBBBBmmmmmBkkSSBBk"
+    ".kkSSkkBmmmmmmmmmBBBBBpddPPPPPddpBBBBBmmmmmmmmmBkkSSkk."
+    "..kSSk.kBmmmmkBmmmmmmmdddPPPPPdddmmmmmmmBkmmmmBk.kSSk.."
+    "..kSSk.kBmmmBBBmmmmmmmdddPPPPPdddmmmmmmmBBBmmmBk.kSSk.."
+    "...kk..kBmBBBkkBmmmmmmdddPPPPPdddmmmmmmBkkBBBmBk..kk..."
+    ".......kBBBkk.kBmmmmmmkddPPPPPddkmmmmmmBk.kkBBBk......."
+    ".......kBkk...kBmmmmmkkddPPPPPddkkmmmmmBk...kkBk......."
+    "........k......kBmmmk.kdddPPPdddk.kmmmBk......k........"
+    "...............kBmmk..kdddpPpdddk..kmmBk..............."
+    "...............kBmk...kdddpppdddk...kmBk..............."
+    "................kBk....kddpppddk....kBk................"
+    "................kBk....kkkkkkkkk....kBk................"
+    ".................k.....kkkkkkkkk.....k................."
+    ".......................kkoooookk......................."
+    ".......................kkoooookk......................."
+    ".......................kkoooookk......................."
+    "........................kkkkkkk........................"
+    "...........................t..........................."
+    "..........................qj..........................."
+    ".........................ujjju........................."
+    ".........................vvjvv........................."
+    "........................uxxxxxu........................"
+    "........................uxvjvxu........................"
+    "........................vxxxxxv........................"
+    ".......................uvxzvzxvu......................."
+    ".......................u.zxuxzvu......................."
+    "........................vzxuxzv........................"
+    "...............uu......vvzuuuzvvt.....tu..............."
+    "Bmmmmbbbkkk............kppPPPppk............kkkbbbmmmmB"
+    "kBmmmmmmbbbkkk.........kppPPPppk.........kkkbbbmmmmmmBk"
+    "kBmmmmmmmmmbbbkkk......kppPPPppk......kkkbbbmmmmmmmmmBk"
+    "kBmmmmBBmmmmmmbbbkkk..kkkkPPPkkkk..kkkbbbmmmmmmBBmmmmBk"
+    "kBmmmmmBBBBmmmmmmbbbkkkrrrPPPrrrkkkbbbmmmmmmBBBBmmmmmBk"
+    "kBmmmmmmmmBBBmmmmmmmbbkkryPPPyrkkbbmmmmmmmBBBmmmmmmmmBk"
+    "kBmymmmmmmmmmBBBmmmmmmmkpPPPPPpkmmmmmmmBBBmmmmmmmmmymBk"
+    ".kBoommmmmmmmmmmBBBmmmmppPPPPPppmmmmBBBmmmmmmmmmmmooBk."
+    ".kBoommmmmmmmmmmmmBBBBmppPPPPPppmBBBBmmmmmmmmmmmmmooBk."
+    ".kBoommmmmmmmmmmmmmmmBBppPPPPPppBBmmmmmmmmmmmmmmmmooBk."
+    ".kBoommmmmmmmmmmmmmmmmmppPPPPPppmmmmmmmmmmmmmmmmmmooBk."
+    ".kBSSmmmmBBBBmmmmmmmmmmpfkkkkkfpmmmmmmmmmmBBBBmmmmSSBk."
+    "kmBSSmmmmmmmBBBBBBBBmmmpkkRRRkkpmmmBBBBBBBBmmmmmmmSSBmk"
+    "kBmSSmBBmmmmmmmmmmmBBBppkfkkkfkppBBBmmmmmmmmmmmBBmSSmBk"
+    "kBmSSBBBmmmmmmmmmmmmmmpppPPPPPpppmmmmmmmmmmmmmmBBBSSmBk"
+    "kBBSSkkBmmmmmmmmmmmmmmpdpPPPPPpdpmmmmmmmmmmmmmmBkkSSBBk"
+    "kBBSSkkBmmmmmBBBBBmmmmpddPPPPPddpmmmmBBBBBmmmmmBkkSSBBk"
+    ".kkSSkkBmmmmmmmmmBBBBBpddPPPPPddpBBBBBmmmmmmmmmBkkSSkk."
+    "..kSSk.kBmmmmkBmmmmmmmdddPPPPPdddmmmmmmmBkmmmmBk.kSSk.."
+    "..kSSk.kBmmmBBBmmmmmmmdddPPPPPdddmmmmmmmBBBmmmBk.kSSk.."
+    "...kk..kBmBBBkkBmmmmmmdddPPPPPdddmmmmmmBkkBBBmBk..kk..."
+    ".......kBBBkk.kBmmmmmmkddPPPPPddkmmmmmmBk.kkBBBk......."
+    ".......kBkk...kBmmmmmkkddPPPPPddkkmmmmmBk...kkBk......."
+    "........k......kBmmmk.kdddPPPdddk.kmmmBk......k........"
+    "...............kBmmk..kdddpPpdddk..kmmBk..............."
+    "...............kBmk...kdddpppdddk...kmBk..............."
+    "................kBk....kddpppddk....kBk................"
+    "................kBk....kkkkkkkkk....kBk................"
+    ".................k.....kkkkkkkkk.....k................."
+    ".......................kkoooookk......................."
+    ".......................kkoooookk......................."
+    ".......................kkoooookk......................."
+    "........................kkkkkkk........................"
+
+make a sprite called icon_x with pixel size 2
+    where "f" is "#F2F2F2"
+    where "h" is "#D8C9A3"
+    where "k" is "#07040C"
+    where "p" is "#5B2AA8"
+    where "r" is "#FF2A2A"
+
+    "hk.....kh"
+    "k...k...k"
+    "..kkpkk.."
+    ".kpppppk."
+    "krrrprrrk"
+    "kpppppppk"
+    "kpppppppk"
+    ".kpfkfpk."
+    "..kkpkk.."
+
+note: ==================================================
 note: GAME SETTINGS FOR THE 4 DIFFICULTY LEVELS (item 1 = easy ... item 4 = impossible)
 note: ==================================================
 
@@ -305,6 +666,23 @@ set max_bombs_for to list of 2, 3, 4, 5
 set aimed_for to list of 20, 40, 60, 80
 set speed_base_for to list of 0.28, 0.38, 0.5, 0.65
 set speed_grow_for to list of 0.03, 0.04, 0.05, 0.06
+
+note: bosses: one number for each level. Harder levels = more health, faster shots, wider fans.
+set xeron_hp_for to list of 20, 34, 52, 76
+set oblivar_hp_for to list of 40, 66, 100, 140
+set xeron_fire_for to list of 75, 56, 42, 32
+set oblivar_fire_for to list of 62, 46, 34, 26
+set boss_speed_for to list of 0.7, 0.95, 1.25, 1.6
+set boss_bullet_for to list of 1.8, 2.3, 2.8, 3.3
+set xeron_fan_for to list of 1, 3, 3, 5
+set oblivar_fan_for to list of 3, 5, 5, 7
+set rain_for to list of 2, 3, 4, 6
+set xeron_pts_for to list of 300, 500, 800, 1200
+set oblivar_pts_for to list of 900, 1500, 2400, 3600
+note: the chance (in 100) that OBLIVAR drops OBLIVAR-X: it gets rarer on harder levels
+set x_drop_for to list of 45, 30, 18, 8
+note: the colours of the sky when it is turning blood red (0 = normal)
+set blood_sky to list of "#000000", "#1A0205", "#2A0307", "#3A040A", "#520610", "#6A0814"
 
 note: ==================================================
 note: GAME VARIABLES
@@ -355,6 +733,31 @@ set decoy_x to 60
 set nova_t to 0
 set got_name to ""
 set got_t to 0
+
+set boss_kind to 0
+set boss_x to 0
+set boss_y to -70
+set boss_w to 56
+set boss_h to 36
+set boss_dir to 1
+set boss_hp to 0
+set boss_max to 1
+set boss_warn to 0
+set boss_in to 0
+set boss_die to 0
+set boss_atk to 60
+set boss_cycle to 0
+set boss_flash to 0
+set bosses_beaten to 0
+set blood to 0
+set x_t to 0
+
+set kx to empty list
+set ky to empty list
+set kvx to empty list
+set kvy to empty list
+set drip_len to empty list
+set drip_max to empty list
 
 set sx to empty list
 set sy to empty list
@@ -411,7 +814,7 @@ define add_boom with x and y
             stop
 
 define add_shot with x and y
-    for each i from 1 to 12
+    for each i from 1 to 30
         if item i of sy is less than 0
             change item i of sx to x
             change item i of sy to y
@@ -438,6 +841,231 @@ define add_drop with x and y
             change item i of dy to y
             change item i of dk to kind
             stop
+
+define add_special_drop with x and y and kind
+    for each i from 1 to 5
+        if item i of dy is less than 0
+            change item i of dx to x
+            change item i of dy to y
+            change item i of dk to kind
+            stop
+
+note: ==================================================
+note: BOSSES
+note: ==================================================
+
+define clear_boss_bullets
+    for each i from 1 to 30
+        change item i of ky to -1
+
+define fire_bullet with x and y and vx and vy
+    for each i from 1 to 30
+        if item i of ky is less than 0
+            change item i of kx to x
+            change item i of ky to y
+            change item i of kvx to vx
+            change item i of kvy to vy
+            stop
+
+define aim_vx with x and y and spd
+    note: the sideways speed that makes a bullet land on the spacecraft (or on the decoy, when invisible)
+    set target to px + 27
+    if ghost_t is greater than 0
+        change target to decoy_x
+    set v to (target - x) / ((188 - y) / spd)
+    if v is greater than 2.2
+        change v to 2.2
+    if v is less than -2.2
+        change v to -2.2
+    give back v
+
+define boss_name
+    set n to "OBLIVAR"
+    if boss_kind is 1
+        change n to "XERON"
+    give back n
+
+define start_boss with kind
+    set d to level_pick
+    change boss_kind to kind
+    if kind is 1
+        change boss_hp to item d of xeron_hp_for
+        change boss_w to 56
+        change boss_h to 36
+    otherwise
+        change boss_hp to item d of oblivar_hp_for
+        change boss_w to 72
+        change boss_h to 52
+    change boss_max to boss_hp
+    change boss_x to (320 - boss_w) / 2
+    change boss_y to -70
+    change boss_dir to 1
+    if random number from 1 to 2 is 1
+        change boss_dir to -1
+    change boss_warn to 90
+    change boss_in to 60
+    change boss_die to 0
+    change boss_atk to 70
+    change boss_cycle to 0
+    change boss_flash to 0
+    change ufo_on to no
+    for each i from 1 to 6
+        change item i of by to -1
+    clear_boss_bullets
+    if kind is 1
+        play the music "boss"
+    otherwise
+        play the music "doom"
+    play the sound "lose"
+
+define boss_attack
+    set d to level_pick
+    set spd to item d of boss_bullet_for
+    set cx to boss_x + boss_w / 2
+    set low to boss_y + boss_h - 8
+    set rage to boss_kind is 2 and boss_hp is less than boss_max / 2
+    add 1 to boss_cycle
+    if boss_kind is 1
+        if (boss_cycle mod 2) is 1
+            note: XERON, move 1: a fan of shots aimed at you
+            set n to item d of xeron_fan_for
+            set base to aim_vx with cx and low and spd
+            for each k from 1 to n
+                fire_bullet with cx and low and (base + (k - (n + 1) / 2) * 0.55) and spd
+        otherwise
+            note: XERON, move 2: both side guns fire straight down (the centre gun too on the hard levels)
+            fire_bullet with (boss_x + 6) and low and 0 and spd
+            fire_bullet with (boss_x + boss_w - 6) and low and 0 and spd
+            if d is at least 3
+                fire_bullet with cx and low and (aim_vx with cx and low and spd) and spd
+    otherwise
+        set mode_move to boss_cycle mod 3
+        if mode_move is 1
+            note: OBLIVAR, move 1: a wide fan of fire
+            set n to item d of oblivar_fan_for
+            if rage
+                add 2 to n
+            set base to aim_vx with cx and low and spd
+            for each k from 1 to n
+                fire_bullet with cx and low and (base + (k - (n + 1) / 2) * 0.5) and spd
+        otherwise if mode_move is 2
+            note: OBLIVAR, move 2: three fast shots aimed at you
+            set fast to spd + 0.7
+            set base to aim_vx with cx and low and fast
+            fire_bullet with cx and low and (base - 0.45) and fast
+            fire_bullet with cx and low and base and fast
+            fire_bullet with cx and low and (base + 0.45) and fast
+        otherwise
+            note: OBLIVAR, move 3: it rains fire from the top of the sky
+            set rain to item d of rain_for
+            if rage
+                add 2 to rain
+            for each k from 1 to rain
+                fire_bullet with (random number from 10 to 310) and 4 and 0 and (spd + 0.4)
+
+define damage_boss with amount and hx and hy
+    subtract amount from boss_hp
+    change boss_flash to 4
+    add 5 to score
+    add_boom with (hx - 8) and (hy - 8)
+    play the sound "hit"
+    if boss_hp is at most 0
+        change boss_hp to 0
+        change boss_die to 110
+        clear_boss_bullets
+        play the sound "explosion"
+
+define boss_ready
+    set ok to boss_kind is greater than 0 and boss_warn is 0 and boss_in is 0 and boss_die is 0
+    give back ok
+
+define finish_boss
+    set d to level_pick
+    set mid to boss_x + boss_w / 2
+    set top to boss_y + 18
+    add 1 to bosses_beaten
+    if boss_kind is 1
+        add item d of xeron_pts_for to score
+        add_drop with (mid - 22) and top
+        add_drop with (mid + 14) and top
+    otherwise
+        add item d of oblivar_pts_for to score
+        add_drop with (mid - 26) and top
+        if random number from 1 to 100 is at most item d of x_drop_for
+            add_special_drop with (mid + 8) and top and 7
+        otherwise
+            add_drop with (mid + 14) and top
+    change boss_kind to 0
+    change boss_flash to 0
+    new_wave
+    change wave_t to 90
+    play the sound "win"
+    music_for_level
+
+define boss_update
+    note: a boss is on the screen: warning, flying in, fighting, or blowing up
+    set d to level_pick
+    set tk to yes
+    if slow_t is greater than 0 and (frame number mod 2) is 1
+        change tk to no
+    if boss_flash is greater than 0
+        subtract 1 from boss_flash
+    set top to 40
+    if boss_warn is greater than 0
+        subtract 1 from boss_warn
+        if boss_warn is 60
+            play the sound "lose"
+    otherwise if boss_in is greater than 0
+        subtract 1 from boss_in
+        change boss_y to boss_y + 2
+        if boss_y is greater than top or boss_in is 0
+            change boss_y to top
+            change boss_in to 0
+    otherwise if boss_die is greater than 0
+        subtract 1 from boss_die
+        if (boss_die mod 7) is 0
+            add_boom with (boss_x + random number from 0 to boss_w - 16) and (boss_y + random number from 0 to boss_h - 16)
+        if (boss_die mod 14) is 0
+            play the sound "explosion"
+        if boss_die is 0
+            finish_boss
+    otherwise
+        note: moving: side to side, a little faster when OBLIVAR is nearly beaten
+        if tk
+            set spd to item d of boss_speed_for
+            if boss_kind is 2 and boss_hp is less than boss_max / 2
+                change spd to spd * 1.4
+            change boss_x to boss_x + boss_dir * spd
+            if boss_x is less than 2
+                change boss_x to 2
+                change boss_dir to 1
+            if boss_x is greater than 318 - boss_w
+                change boss_x to 318 - boss_w
+                change boss_dir to -1
+            subtract 1 from boss_atk
+            if boss_atk is at most 0
+                boss_attack
+                if boss_kind is 1
+                    change boss_atk to item d of xeron_fire_for
+                otherwise
+                    change boss_atk to item d of oblivar_fire_for
+                    if boss_hp is less than boss_max / 2
+                        change boss_atk to floor of (boss_atk * 0.7)
+    note: the boss's bullets fall (they slow down with the time warp too)
+    for each i from 1 to 30
+        if item i of ky is at least 0
+            if tk
+                change item i of kx to (item i of kx) + (item i of kvx)
+                change item i of ky to (item i of ky) + (item i of kvy)
+            if item i of ky is greater than 238 or item i of kx is less than -6 or item i of kx is greater than 326
+                change item i of ky to -1
+            otherwise if item i of ky is greater than 188 and item i of kx is greater than px + 12 and item i of kx is less than px + 43
+                change item i of ky to -1
+                if shield_t is greater than 0 or x_t is greater than 0
+                    play the sound "blip"
+                    add_boom with (item i of kx) and 196
+                otherwise if hurt_t is 0
+                    lose_life
 
 note: ==================================================
 note: STARTING, WAVES AND ENDING
@@ -488,12 +1116,19 @@ define start_game
     change slow_t to 0
     change nova_t to 0
     change got_t to 0
+    change x_t to 0
+    change boss_kind to 0
+    change boss_warn to 0
+    change boss_in to 0
+    change boss_die to 0
+    change bosses_beaten to 0
+    change blood to 0
     change ufo_on to no
     change ufo_timer to 900
     change heading to 1
     change sx to empty list
     change sy to empty list
-    repeat 12 times
+    repeat 30 times
         add 0 to sx
         add -1 to sy
     change bx to empty list
@@ -501,6 +1136,15 @@ define start_game
     repeat 6 times
         add 0 to bx
         add -1 to by
+    change kx to empty list
+    change ky to empty list
+    change kvx to empty list
+    change kvy to empty list
+    repeat 30 times
+        add 0 to kx
+        add -1 to ky
+        add 0 to kvx
+        add 0 to kvy
     change dx to empty list
     change dy to empty list
     change dk to empty list
@@ -543,6 +1187,9 @@ define lose_life
 
 define go_home
     change mode to "home"
+    change boss_kind to 0
+    change blood to 0
+    change x_t to 0
     change click_wait to 20
     play the music "chill"
 
@@ -567,6 +1214,8 @@ define grab with kind
         change got_name to "NOVA!"
         change nova_t to 12
         play the sound "explosion"
+        if boss_ready
+            damage_boss with (floor of (boss_max / 5)) and (boss_x + boss_w / 2) and (boss_y + boss_h / 2)
         for each spot from 1 to 32
             if item spot of alive is 1
                 change item spot of alive to 0
@@ -575,6 +1224,14 @@ define grab with kind
                 add 1 to kills
                 if spot is at most 6
                     add_boom with (alien_x with (1 + (spot - 1) mod 8)) and (alien_y with (1 + (floor of ((spot - 1) / 8))))
+    if kind is 7
+        change got_name to "OBLIVAR-X!"
+        change got_t to 130
+        play the sound "explosion"
+        if x_t is 0
+            change x_t to 970
+        otherwise if x_t is less than 900
+            change x_t to 900
     if kind is 6
         change got_name to "EXTRA LIFE!"
         if lives is less than max_lives
@@ -595,8 +1252,13 @@ define kill_alien with spot and col and row
 define check_shot with i
     set x to item i of sx
     set y to item i of sy
-    note: the bonus UFO
-    if ufo_on and x is greater than ufo_x and x is less than ufo_x + 34 and y is greater than 14 and y is less than 32
+    if boss_ready and x is greater than boss_x and x is less than boss_x + boss_w and y is greater than boss_y and y is less than boss_y + boss_h
+        set dmg to 1
+        if x_t is greater than 0
+            change dmg to 2
+        damage_boss with dmg and x and y
+        change item i of sy to -1
+    otherwise if boss_kind is 0 and ufo_on and x is greater than ufo_x and x is less than ufo_x + 34 and y is greater than 14 and y is less than 32
         change ufo_on to no
         add 50 to score
         add_boom with (ufo_x + 8) and 16
@@ -614,10 +1276,22 @@ define check_shot with i
                     set spot to (row - 1) * columns + col
                     if item spot of alive is 1
                         kill_alien with spot and col and row
-                        change item i of sy to -1
+                        if x_t is 0
+                            change item i of sy to -1
 
 define shoot
-    if power_t is greater than 0
+    if x_t is greater than 900
+        note: OBLIVAR-X is still changing shape: no firing yet
+        change cool to 2
+    otherwise if x_t is greater than 0
+        note: OBLIVAR-X: five guns, fast
+        add_shot with (px + 27) and 178
+        add_shot with (px + 17) and 184
+        add_shot with (px + 37) and 184
+        add_shot with (px + 4) and 198
+        add_shot with (px + 50) and 198
+        change cool to 7
+    otherwise if power_t is greater than 0
         add_shot with (px + 14) and 184
         add_shot with (px + 27) and 178
         add_shot with (px + 40) and 184
@@ -678,6 +1352,20 @@ define update_play
         subtract 1 from wave_t
     if nova_t is greater than 0
         subtract 1 from nova_t
+    if x_t is greater than 0
+        subtract 1 from x_t
+        if x_t is 900
+            note: the change is finished: a shockwave wipes the bombs and shots away
+            play the sound "win"
+            change nova_t to 3
+            for each i from 1 to 6
+                change item i of by to -1
+            clear_boss_bullets
+        if x_t is 0
+            play the sound "blip"
+            add_boom with (px + 20) and 190
+    if boss_kind is greater than 0
+        boss_update
     if cool is greater than 0
         subtract 1 from cool
     if bomb_wait is greater than 0
@@ -729,7 +1417,7 @@ define update_play
                 change gx to 26
 
     note: the player's shots
-    for each i from 1 to 12
+    for each i from 1 to 30
         if item i of sy is at least 0
             change item i of sy to (item i of sy) - 7
             if item i of sy is less than 0
@@ -748,7 +1436,7 @@ define update_play
                 change item i of by to -1
             otherwise if item i of by is greater than 190 and item i of bx is greater than px + 12 and item i of bx is less than px + 43
                 change item i of by to -1
-                if shield_t is greater than 0
+                if shield_t is greater than 0 or x_t is greater than 0
                     play the sound "blip"
                     add_boom with (item i of bx) and 196
                 otherwise if hurt_t is 0
@@ -757,8 +1445,10 @@ define update_play
         if random number from 1 to bomb_every is 1
             drop_bomb
 
-    note: the bonus UFO
-    if ufo_on
+    note: the bonus UFO (it stays away while a boss is here)
+    if boss_kind is greater than 0
+        change ufo_on to no
+    otherwise if ufo_on
         change ufo_x to ufo_x + ufo_dir
         if ufo_x is less than -40 or ufo_x is greater than 330
             change ufo_on to no
@@ -802,18 +1492,55 @@ define update_play
             lose_life
 
     note: wave cleared: the next one comes at once, a little faster
-    if mode is "play" and left is 0
+    if mode is "play" and left is 0 and boss_kind is 0
         add 1 to wave
         add 50 to score
-        new_wave
-        change wave_t to 90
-        play the sound "win"
+        if ((wave - 1) mod 3) is 0
+            note: every third wave a boss comes: OBLIVAR 4 times in 10, XERON the other 6
+            if random number from 1 to 100 is at most 40
+                start_boss with 2
+            otherwise
+                start_boss with 1
+        otherwise
+            new_wave
+            change wave_t to 90
+            play the sound "win"
 
 note: ==================================================
 note: DRAWING
 note: ==================================================
 
+define draw_sky
+    note: the sky turns blood red while OBLIVAR is here (a step every 8 frames), and slowly heals afterwards
+    set want to 0
+    if boss_kind is 2
+        change want to 5
+    if (frame number mod 8) is 0
+        if blood is less than want
+            add 1 to blood
+        otherwise if blood is greater than want
+            subtract 1 from blood
+    if blood is greater than 0
+        set sky to item (blood + 1) of blood_sky
+        put a rectangle at 0, 0 with width 320 and height 240 and colour sky
+        for each i from 1 to 10
+            if boss_kind is 2 and blood is at least 3
+                if item i of drip_len is less than item i of drip_max
+                    change item i of drip_len to (item i of drip_len) + 0.4
+            otherwise if item i of drip_len is greater than 0
+                change item i of drip_len to (item i of drip_len) - 0.8
+            if item i of drip_len is greater than 0
+                set dxp to 8 + (i - 1) * 32
+                put a rectangle at dxp, 0 with width 4 and height (item i of drip_len) and colour "#8E0A16"
+                put a rectangle at dxp - 1, (item i of drip_len) with width 6 and height 5 and colour "#C01428"
+        if blood is at least 2
+            put a rectangle at 0, 0 with width 4 and height 240 and colour "#6E0812"
+            put a rectangle at 316, 0 with width 4 and height 240 and colour "#6E0812"
+        if blood is at least 4 and ((frame number divided evenly by 25) mod 2) is 0
+            put a rectangle at 0, 230 with width 320 and height 8 and colour "#7A0A14"
+
 define move_stars
+    draw_sky
     if item 1 of stx is -1
         change stx to empty list
         change sty to empty list
@@ -832,6 +1559,12 @@ define move_stars
             set shade to "#6A7396"
         if item i of sts is 3
             set shade to "#B8C0E0"
+        if blood is at least 2
+            set shade to "#6E1020"
+            if item i of sts is 2
+                set shade to "#B02438"
+            if item i of sts is 3
+                set shade to "#FF5A6E"
         put a rectangle at (item i of stx), (item i of sty) with width 1 and height 1 and colour shade
 
 define centre_text with words and top and big and tint
@@ -862,7 +1595,7 @@ define draw_home
     put a text "HumanLang 0.6.1: music, saved scores, phone ready" at 160, 231 with size 8 and colour "#6C7494" and align center
 
 define page_footer
-    put a text "Enter or tap: next   ({how_page} of 3)" at 160, 226 with size 10 and colour "#9AA3C0" and align center
+    put a text "Enter or tap: next   ({how_page} of 4)" at 160, 226 with size 10 and colour "#9AA3C0" and align center
 
 define draw_how
     if how_page is 1
@@ -884,19 +1617,41 @@ define draw_how
             put a text (item n of names) at 42, 29 + (n - 1) * 30 with size 12 and colour "#2DCDFF" and bold
             put a text (item n of tips) at 42, 44 + (n - 1) * 30 with size 10 and colour white
         put a text "Skills fall slowly. Fly under one to catch it!" at 160, 211 with size 10 and colour "#FFE16A" and align center
-    otherwise
+    otherwise if how_page is 3
         centre_text with "LEVELS" and 8 and 18 and "#FFE16A"
         set tips to list of "5 lives. Slow aliens. Lots of skills.", "3 lives. Faster aliens. Some skills.", "3 lives. Fierce aliens. Few skills.", "ONE life. Deadly aliens. Rare skills."
         for each d from 1 to 4
             set c to item d of level_colours
             put a text (item d of level_names) at 20, 40 + (d - 1) * 40 with size 14 and colour c and bold
             put a text (item d of tips) at 20, 60 + (d - 1) * 40 with size 11 and colour white
-        put a text "Your best score on each level is remembered." at 160, 204 with size 10 and colour "#9AA3C0" and align center
+        put a text "The level also decides how tough the bosses are." at 160, 194 with size 10 and colour "#9AA3C0" and align center
+        put a text "Your best score on each level is remembered." at 160, 208 with size 10 and colour "#9AA3C0" and align center
+    otherwise
+        centre_text with "BOSSES" and 4 and 16 and "#FF5A6E"
+        draw the sprite xeron at 8, 26
+        put a text "XERON" at 72, 28 with size 12 and colour "#34E08E" and bold
+        put a text "Fires fans of shots. Beat it: 2 skills." at 72, 44 with size 9 and colour white
+        draw the sprite oblivar at 4, 66
+        put a text "OBLIVAR" at 82, 68 with size 12 and colour "#FF2A2A" and bold
+        put a text "The MAIN boss: 4 boss fights in 10." at 82, 84 with size 9 and colour white
+        put a text "The sky turns blood red, the music" at 82, 96 with size 9 and colour white
+        put a text "changes. It can drop OBLIVAR-X!" at 82, 108 with size 9 and colour white
+        draw the sprite icon_x at 8, 128
+        put a text "OBLIVAR-X (rare)" at 34, 128 with size 11 and colour "#B58CFF" and bold
+        put a text "Your ship TRANSFORMS for 15 seconds:" at 34, 143 with size 9 and colour white
+        put a text "5 guns, shots go through aliens, double" at 34, 155 with size 9 and colour white
+        put a text "damage to bosses, bombs cannot hurt you." at 34, 167 with size 9 and colour white
+        put a text "A boss comes every 3 waves. Easy: weak boss," at 160, 188 with size 9 and colour "#FFE16A" and align center
+        put a text "more OBLIVAR-X. Impossible: very tough boss," at 160, 200 with size 9 and colour "#FFE16A" and align center
+        put a text "and OBLIVAR-X is very rare." at 160, 212 with size 9 and colour "#FFE16A" and align center
     page_footer
 
 define draw_hud
     put a text "SCORE {score}" at 6, 3 with size 11 and colour white and bold
-    put a text "WAVE {wave}" at 160, 3 with size 11 and colour "#FFE16A" and bold and align center
+    if boss_kind is greater than 0
+        put a text "BOSS" at 160, 3 with size 11 and colour "#FF5A6E" and bold and align center
+    otherwise
+        put a text "WAVE {wave}" at 160, 3 with size 11 and colour "#FFE16A" and bold and align center
     set mins to floor of (time_s / 60)
     set secs to time_s - mins * 60
     set pad to ""
@@ -923,6 +1678,31 @@ define draw_hud
         draw the sprite icon_slow at 2, 32 + slot * 24
         put a rectangle at 2, 52 + slot * 24 with width slow_t / 17 and height 2 and colour "#3A7BFF"
         add 1 to slot
+    if x_t is greater than 0
+        draw the sprite icon_x at 2, 32 + slot * 24
+        put a rectangle at 2, 52 + slot * 24 with width x_t / 55 and height 2 and colour "#B58CFF"
+        add 1 to slot
+
+define draw_boss
+    set show to yes
+    if boss_die is greater than 0 and ((frame number divided evenly by 3) mod 2) is 0
+        change show to no
+    set shake to 0
+    if boss_flash is greater than 0
+        change shake to ((boss_flash mod 2) * 4) - 2
+    if show
+        if boss_kind is 1
+            draw the sprite xeron at boss_x + shake, boss_y
+        otherwise
+            draw the sprite oblivar at boss_x + shake, boss_y
+    if boss_warn is 0
+        set tint to "#34E08E"
+        if boss_kind is 2
+            change tint to "#FF2A2A"
+        set nm to boss_name
+        put a text nm at 160, 17 with size 9 and colour tint and bold and align center
+        put a rectangle at 80, 27 with width 160 and height 6 and colour "#1B2036" and border 1 and border colour "#444C6E"
+        put a rectangle at 80, 27 with width floor of (160 * boss_hp / boss_max) and height 6 and colour tint
 
 define draw_play
     set pose to 1 + ((frame number divided evenly by 20) mod 2)
@@ -937,6 +1717,8 @@ define draw_play
                     draw the sprite crab at ax, ay frame pose
     if ufo_on
         draw the sprite ufo at ufo_x, 18
+    if boss_kind is greater than 0
+        draw_boss
     for each i from 1 to 5
         if item i of dy is at least 0
             set k to item i of dk
@@ -952,20 +1734,46 @@ define draw_play
                 draw the sprite icon_nova at (item i of dx), (item i of dy)
             if k is 6
                 draw the sprite icon_heart at (item i of dx), (item i of dy)
-    for each i from 1 to 12
+            if k is 7
+                draw the sprite icon_x at (item i of dx), (item i of dy)
+    for each i from 1 to 30
         if item i of sy is at least 0
             put a rectangle at (item i of sx), (item i of sy) with width 2 and height 8 and colour "#FFFFFF"
     for each i from 1 to 6
         if item i of by is at least 0
             put a rectangle at (item i of bx), (item i of by) with width 3 and height 8 and colour "#FF3B3B"
+    for each i from 1 to 30
+        if item i of ky is at least 0
+            if boss_kind is 1
+                put a rectangle at (item i of kx), (item i of ky) with width 4 and height 7 and colour "#7DFFB0"
+            otherwise
+                put a rectangle at (item i of kx) - 1, (item i of ky) with width 5 and height 8 and colour "#FF2A2A"
+                put a rectangle at (item i of kx), (item i of ky) + 2 with width 3 and height 3 and colour "#FFE16A"
     set show_ship to yes
     if hurt_t is greater than 0 and (frame number divided evenly by 4) mod 2 is 0
         change show_ship to no
     if ghost_t is greater than 0 and (frame number divided evenly by 3) mod 2 is 0
         change show_ship to no
     if show_ship
-        draw the sprite cannon at px, 188
-        if power_t is greater than 0
+        if x_t is greater than 900
+            note: the transformation: the ship changes shape from the bottom up, like a transformer
+            set m to 970 - x_t
+            if m is less than 14
+                draw the sprite cannon at px + (m mod 2) * 2 - 1, 188
+            otherwise if m is less than 56
+                draw the sprite morph at px, 188 frame (1 + floor of ((m - 14) / 14))
+            otherwise
+                draw the sprite oblivarx at px, 188 frame 1
+            if m is 56
+                change nova_t to 2
+            put a circle at px + 27, 210 with radius m * 1.4 and colour nothing and border 2 and border colour "#FF3B3B"
+        otherwise if x_t is greater than 0
+            draw the sprite oblivarx at px, 188 frame (1 + ((frame number divided evenly by 3) mod 2))
+            if x_t is greater than 60 or ((frame number divided evenly by 4) mod 2) is 0
+                put a circle at px + 27, 210 with radius 36 and colour nothing and border 1 and border colour "#B58CFF"
+        otherwise
+            draw the sprite cannon at px, 188
+        if power_t is greater than 0 and x_t is 0
             put a rectangle at px + 13, 182 with width 3 and height 6 and colour "#FFE16A"
             put a rectangle at px + 39, 182 with width 3 and height 6 and colour "#FFE16A"
     if shield_t is greater than 0
@@ -980,8 +1788,17 @@ define draw_play
     draw_hud
     if got_t is greater than 0
         centre_text with got_name and 168 and 14 and "#FFE16A"
-    if wave_t is greater than 0 and mode is "play"
+    if wave_t is greater than 0 and mode is "play" and boss_kind is 0
         centre_text with "WAVE {wave}" and 90 and 22 and "white"
+    if boss_warn is greater than 0
+        set flash to "#FF2A2A"
+        if ((frame number divided evenly by 6) mod 2) is 0
+            change flash to "white"
+        centre_text with "WARNING!" and 78 and 24 and flash
+        if boss_kind is 1
+            centre_text with "XERON IS COMING" and 108 and 12 and "#34E08E"
+        otherwise
+            centre_text with "OBLIVAR AWAKENS" and 108 and 12 and "#FF5A6E"
 
 define draw_over
     put a rectangle at 40, 40 with width 240 and height 150 and colour "#0A0C14" and border 2 and border colour "#FF3B3B"
@@ -996,6 +1813,7 @@ define draw_over
     if secs is less than 10
         set pad to "0"
     put a text "SURVIVED {mins}:{pad}{secs}   WAVE {wave}   KILLS {kills}" at 160, 126 with size 10 and colour "#9AA3C0" and align center
+    put a text "BOSSES BEATEN {bosses_beaten}" at 160, 157 with size 9 and colour "#FF8A8A" and align center
     if new_best
         put a text "NEW BEST!" at 160, 144 with size 14 and colour "#FFE16A" and bold and align center
     otherwise
@@ -1017,6 +1835,9 @@ play a game titled "Planet Defenders 2" with size 320 by 240 and background blac
         set lvl to recall "pd2 level"
         if lvl is not nothing
             change level_pick to lvl
+        repeat 10 times
+            add 0 to drip_len
+            add random number from 18 to 70 to drip_max
         play the music "chill"
 
     every frame
@@ -1073,7 +1894,7 @@ play a game titled "Planet Defenders 2" with size 320 by 240 and background blac
             start_game
         otherwise if mode is "how"
             add 1 to how_page
-            if how_page is greater than 3
+            if how_page is greater than 4
                 go_home
         otherwise if mode is "play"
             change mode to "pause"
@@ -1105,7 +1926,7 @@ play a game titled "Planet Defenders 2" with size 320 by 240 and background blac
             otherwise if mode is "how"
                 add 1 to how_page
                 change click_wait to 20
-                if how_page is greater than 3
+                if how_page is greater than 4
                     go_home
             otherwise if mode is "pause"
                 change mode to "play"

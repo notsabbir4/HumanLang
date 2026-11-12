@@ -1481,7 +1481,7 @@ play the music "theme.mp3"
 stop the music
 ```
 
-There are also three built-in tunes, no file needed: `play the music "adventure"`, `"chill"` and `"chase"`.
+There are also five built-in tunes, no file needed: `play the music "adventure"`, `"chill"`, `"chase"`, and two for boss fights, `"boss"` and `"doom"`.
 
 ### Phones and offline
 

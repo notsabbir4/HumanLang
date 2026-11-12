@@ -21,7 +21,7 @@ platformer physics, a step-by-step debugger, and games and pages that work on ph
   `update the body hero on the map level with solid "#"`, `draw the sprite hero at the body hero`.
 - **Your own files:** pictures, sounds and music next to the program (Playground: the **Files** tab):
   `draw the picture "face.png" at 10, 10 with size 32 by 32`, `play the sound "boom.wav"`, `play the music "theme.mp3"`,
-  `stop the music`. Three built-in background tunes: `adventure`, `chill`, `chase`.
+  `stop the music`. Five built-in background tunes: `adventure`, `chill`, `chase`, and `boss`, `doom` for boss fights.
 - **Debugger:** `hl debug FILE.hum` and the Playground's **Step through** button show every line in plain words, with the
   variables that changed.
 - **Speed:** a faster path for whole-number maths in games (the four arcade games take under 1 ms a frame).
@@ -29,6 +29,9 @@ platformer physics, a step-by-step debugger, and games and pages that work on ph
   hard, impossible: fewer skills and one life), endless waves, score for every second you survive, skills that drop and must
   be caught (shield, full power, invisible, time warp, nova, extra life), a bonus UFO, background music, saved best scores,
   and phone play (drag to steer, touching fires). Inspect explains how it was made.
+  **Boss fights:** every third wave XERON or the main boss OBLIVAR (4 fights in 10) comes, tougher on harder levels. OBLIVAR turns the
+  sky blood red, changes the music (new built-in tunes `boss` and `doom`) and can drop the rare skill **OBLIVAR-X**, which
+  transforms your ship into a new one (5 guns, piercing shots, double boss damage, bombs cannot hurt it).
 - Games on a phone: a finger dragged over a game counts as clicks, the touch buttons fit narrow screens, the game fills a phone's
   width, and text in a game can be centred (`align center`) or right-aligned.
 - Tutorial chapters 15-18, reference sections, editor words.

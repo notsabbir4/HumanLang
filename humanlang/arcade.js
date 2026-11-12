@@ -70,6 +70,8 @@
     const TUNES = {
       adventure: { bpm: 150, lead: "E4 G4 A4 G4 E4 G4 C5 - D4 F4 A4 F4 D4 F4 B4 -", bass: "C3 - G3 - C3 - G3 - D3 - A3 - D3 - A3 -" },
       chill: { bpm: 90, lead: "C4 - E4 - G4 - E4 - A3 - C4 - E4 - C4 -", bass: "C3 - - - - - - - A2 - - - - - - -" },
+      boss: { bpm: 190, lead: "A4 A4 E5 A4 D#5 A4 E5 A4 F5 F5 C5 F5 E5 D#5 E5 A4", bass: "A2 A2 A2 - A2 A2 E2 - F2 F2 F2 - F2 F2 E2 -" },
+      doom: { bpm: 112, lead: "E4 - - D#4 E4 - B3 - C4 - - B3 C4 - F#4 -", bass: "E2 - E2 - E2 - B1 - C2 - C2 - C2 - F#1 -" },
       chase: { bpm: 180, lead: "A4 A4 C5 A4 E5 A4 C5 A4 G4 G4 B4 G4 D5 G4 B4 G4", bass: "A2 - A2 - A2 - A2 - G2 - G2 - G2 - G2 -" },
     };
     let timer = null, musicEl = null, uMuted = false;

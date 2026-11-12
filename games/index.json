@@ -295,14 +295,15 @@
   {
     "id": "planet-defenders-2",
     "title": "PLANET DEFENDERS 2",
-    "subtitle": "Endless · v0.6.1",
+    "subtitle": "Endless · bosses · v0.6.1",
     "file": "planet_defenders_2.hum",
     "kind": "arcade",
     "tagline": "The invasion never stops. Catch skills, survive, beat your best.",
-    "blurb": "An endless shooter with a home page, instructions and four levels (easy, medium, hard, impossible). Aliens come in waves that never stop. Shoot them to make skills drop (shield, full power, invisible, time warp, nova, extra life), then fly under a skill to catch it. You score for every second you survive. Best scores are saved, there is music, and it plays on phones.",
+    "blurb": "An endless shooter with a home page, instructions and four levels (easy, medium, hard, impossible). Aliens come in waves that never stop. Every third wave a boss arrives: XERON, or the main boss OBLIVAR (4 fights in 10), who turns the sky blood red and changes the music. Bosses are weaker on easy and far tougher on impossible. Shoot aliens to make skills drop (shield, full power, invisible, time warp, nova, extra life), then fly under a skill to catch it. OBLIVAR can drop the rare skill OBLIVAR-X, which transforms your ship. You score for every second you survive. Best scores are saved, there is music, and it plays on phones.",
     "tags": [
       "Arcade",
       "Endless",
+      "Bosses",
       "Skills",
       "4 levels",
       "Music",
@@ -335,6 +336,11 @@
         "title": "Helpers",
         "at": "define alien_x with col",
         "text": "A `define` teaches HL a new word. `alien_x with col` works out where a column of aliens is, so the rest of the game just says what it means."
+      },
+      {
+        "at": "define clear_boss_bullets",
+        "title": "The two bosses",
+        "text": "Every third wave a boss comes instead of aliens: `start_boss with 1` is XERON and `start_boss with 2` is OBLIVAR, chosen with `random number from 1 to 100 is at most 40`, so OBLIVAR comes 4 times in 10. A boss is a small machine too: a warning (`boss_warn`), flying in (`boss_in`), fighting, then blowing up (`boss_die`). Lists like `xeron_hp_for` hold one number for each level, so a harder level means a tougher boss. `boss_attack` sends bullets with `fire_bullet`, and `aim_vx` works out the sideways speed that lands a bullet on your ship."
       },
       {
         "title": "Waves and formulas",
@@ -375,6 +381,11 @@
         "title": "One frame of play",
         "at": "define update_play",
         "text": "Every frame runs this: timers count down, the spacecraft moves (keys, or towards where a finger touched), shots and bombs move, the UFO crosses the top, skills fall, and a cleared wave starts the next one."
+      },
+      {
+        "at": "define draw_sky",
+        "title": "Blood sky and OBLIVAR-X",
+        "text": "While OBLIVAR is here, `draw_sky` raises `blood` to 5, one step every 8 frames. Each step paints the sky a redder colour from the `blood_sky` list, the stars turn red and blood drips down. When OBLIVAR is gone the sky heals. The rare skill OBLIVAR-X (kind 7 in `grab`) sets `x_t`: for the first 70 frames the ship changes shape, drawn from a sprite with 3 frames that swaps the cannon for the new body from the bottom up, then it fires 5 guns, its shots go through aliens, it hits bosses twice as hard and bombs cannot hurt it."
       },
       {
         "title": "The home page and instructions",

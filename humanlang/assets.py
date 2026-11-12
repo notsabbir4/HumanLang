@@ -2,7 +2,7 @@
 
     draw the picture "face.png" at 10, 20 with size 32 by 32
     play the sound "boom.wav"
-    play the music "theme.mp3"      (or a built-in tune: "adventure", "chill", "chase")
+    play the music "theme.mp3"      (or a built-in tune: "adventure", "chill", "chase", "boss", "doom")
     stop the music
 """
 import base64
@@ -10,7 +10,7 @@ import os
 
 PICTURES = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".gif": "image/gif", ".webp": "image/webp"}
 AUDIO = {".wav": "audio/wav", ".mp3": "audio/mpeg", ".ogg": "audio/ogg", ".m4a": "audio/mp4"}
-BUILTIN_MUSIC = ("adventure", "chill", "chase")
+BUILTIN_MUSIC = ("adventure", "chill", "chase", "boss", "doom")
 MAX_FILE = 3 * 1024 * 1024
 MAX_FILES = 24
 MAX_TOTAL = 16 * 1024 * 1024

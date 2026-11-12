@@ -389,9 +389,198 @@ class Showcase(unittest.TestCase):
         it.game_frame(pressed=["enter"])
         it.game_frame(pressed=["h"])
         self.assertEqual(g["mode"], "how")
-        for _ in range(3):
+        for _ in range(4):                                  # four pages: how to play, skills, levels, bosses
             it.game_frame(pressed=["enter"])
         self.assertEqual(g["mode"], "home")
+
+    # ---- Planet Defenders 2: the bosses XERON and OBLIVAR, and the skill OBLIVAR-X ----
+    def call_boss(self, g, it, kind=None):
+        """Clear the aliens of wave 3 so that a boss comes; with kind, keep going until that boss is the one."""
+        for _ in range(400):
+            g["boss_kind"], g["wave"], g["alive"], g["left"] = 0, 3, [0] * 32, 0
+            it.game_frame()
+            if g["boss_kind"] and (kind is None or int(g["boss_kind"]) == kind):
+                return
+        self.fail("the boss did not come")
+
+    def fight(self, g, it, frames, until_beaten=False):
+        """Fly under the boss and fire; returns the frames of the fight, one at a time."""
+        out = []
+        for _ in range(frames):
+            if until_beaten and not g["boss_kind"]:
+                break
+            if g["boss_kind"]:
+                g["px"] = max(0, min(265, int(float(g["boss_x"]) + float(g["boss_w"]) / 2 - 27)))
+            g["hurt_t"], g["lives"] = 0, g["max_lives"]
+            out.append(it.game_frame(down=["space"]))
+        return out
+
+    def test_pd2_a_boss_comes_every_third_wave(self):
+        it, g = self.pd2(2)
+        for wave in (1, 2):
+            g["wave"], g["alive"], g["left"] = wave, [0] * 32, 0
+            it.game_frame()
+            self.assertEqual(g["boss_kind"], 0)             # waves 1 and 2: just aliens
+            self.assertEqual(g["wave"], wave + 1)
+        self.call_boss(g, it)
+        self.assertIn(int(g["boss_kind"]), (1, 2))
+        self.assertGreater(g["boss_warn"], 0)               # a warning first
+
+    def test_pd2_oblivar_is_the_main_boss_but_comes_less_than_half_the_time(self):
+        it, g = self.pd2(2)
+        random.seed(5)
+        kinds = []
+        for _ in range(300):
+            self.call_boss(g, it)
+            kinds.append(int(g["boss_kind"]))
+        share = kinds.count(2) / len(kinds)
+        self.assertGreater(share, 0.32)
+        self.assertLess(share, 0.48)                        # 40 in 100
+
+    def test_pd2_boss_strength_comes_from_the_level(self):
+        hp = {1: [], 2: []}
+        for level in (1, 2, 3, 4):
+            it, g = self.pd2(level)
+            for kind in (1, 2):
+                self.call_boss(g, it, kind)
+                hp[kind].append(int(g["boss_hp"]))
+        for kind in (1, 2):
+            self.assertEqual(hp[kind], sorted(hp[kind]))    # easy < medium < hard < impossible
+            self.assertEqual(len(set(hp[kind])), 4)
+        self.assertEqual(hp[1], [20, 34, 52, 76])
+        self.assertEqual(hp[2], [40, 66, 100, 140])
+
+    def test_pd2_xeron_can_be_beaten_and_drops_two_skills(self):
+        it, g = self.pd2(1)
+        self.call_boss(g, it, 1)
+        self.fight(g, it, 2400, until_beaten=True)
+        self.assertEqual(g["boss_kind"], 0)
+        self.assertEqual(g["bosses_beaten"], 1)
+        self.assertEqual(g["wave"], 4)                      # the waves go on after a boss
+        self.assertGreaterEqual(sum(1 for v in g["dy"] if v >= 0), 2)
+
+    def test_pd2_oblivar_makes_the_sky_bloody_and_changes_the_music(self):
+        it, g = self.pd2(1)
+        self.call_boss(g, it, 1)
+        self.assertEqual(g["blood"], 0)                     # XERON: a normal sky
+        self.fight(g, it, 2400)
+        self.call_boss(g, it, 2)
+        frames = self.fight(g, it, 200)
+        self.assertEqual(g["blood"], 5)                     # OBLIVAR: blood red
+        music = [f["music"] for f in frames if "music" in f]
+        self.assertEqual(music, [])                         # (the tune started with the warning)
+        frames = self.fight(g, it, 3000)
+        self.assertEqual(g["boss_kind"], 0)
+        self.assertIn("adventure", [f["music"] for f in frames if "music" in f])   # the level's own tune comes back
+        for _ in range(120):
+            it.game_frame()
+        self.assertEqual(g["blood"], 0)                     # and the sky heals
+
+    def test_pd2_each_boss_has_its_own_tune(self):
+        for kind, tune in ((1, "boss"), (2, "doom")):
+            it, g = self.pd2(2)
+            g["boss_kind"], g["wave"], g["alive"], g["left"] = 0, 3, [0] * 32, 0
+            tunes = []
+            for _ in range(80):
+                g["boss_kind"], g["wave"], g["alive"], g["left"] = 0, 3, [0] * 32, 0
+                f = it.game_frame()
+                if g["boss_kind"] == kind:
+                    tunes = [f["music"]] if "music" in f else []
+                    break
+            self.assertEqual(tunes, [tune])
+
+    def test_pd2_boss_bullets_hurt_and_a_shield_stops_them(self):
+        it, g = self.pd2(2)
+        self.call_boss(g, it, 1)
+        for _ in range(100):
+            it.game_frame()
+        g["hurt_t"], g["shield_t"] = 0, 0
+        g["kx"][0], g["ky"][0], g["kvx"][0], g["kvy"][0] = g["px"] + 25, 186, 0, 2
+        for _ in range(3):
+            it.game_frame()
+        self.assertEqual(g["lives"], 2)
+        g["hurt_t"], g["shield_t"] = 0, 300
+        g["kx"][0], g["ky"][0], g["kvx"][0], g["kvy"][0] = g["px"] + 25, 186, 0, 2
+        for _ in range(3):
+            it.game_frame()
+        self.assertEqual(g["lives"], 2)
+
+    def test_pd2_oblivar_drops_oblivar_x_rarely_and_rarer_on_harder_levels(self):
+        rate = []
+        for level in (1, 2, 3, 4):
+            it, g = self.pd2(level)
+            random.seed(level)
+            got = 0
+            for _ in range(300):
+                self.call_boss(g, it, 2)
+                g["boss_warn"], g["boss_in"], g["boss_die"], g["boss_y"] = 0, 0, 1, 40
+                g["dy"] = [-1] * 5
+                it.game_frame()
+                got += any(g["dy"][i] >= 0 and g["dk"][i] == 7 for i in range(5))
+            rate.append(got / 300)
+        self.assertEqual(rate, sorted(rate, reverse=True))  # easy drops it most, impossible least
+        self.assertGreater(rate[0], 0.33)
+        self.assertLess(rate[3], 0.15)
+        # XERON never drops it
+        it, g = self.pd2(1)
+        for _ in range(100):
+            self.call_boss(g, it, 1)
+            g["boss_warn"], g["boss_in"], g["boss_die"], g["boss_y"] = 0, 0, 1, 40
+            g["dy"] = [-1] * 5
+            it.game_frame()
+            self.assertFalse(any(g["dy"][i] >= 0 and g["dk"][i] == 7 for i in range(5)))
+
+    def test_pd2_oblivar_x_transforms_the_ship(self):
+        it, g = self.pd2(2)
+        it.game_frame()
+        g["bomb_wait"] = 10 ** 6
+        g["px"] = 100
+        g["dx"][0], g["dy"][0], g["dk"][0] = 110, 180, 7   # the skill falls onto the ship
+        for _ in range(3):
+            it.game_frame()
+        self.assertGreater(g["x_t"], 900)                   # changing shape
+        before = sum(1 for v in g["sy"] if v >= 0)
+        for _ in range(40):
+            it.game_frame(down=["space"])
+        self.assertEqual(sum(1 for v in g["sy"] if v >= 0), before)   # no firing during the change
+        for _ in range(40):
+            it.game_frame()
+        self.assertLessEqual(g["x_t"], 900)                 # transformed
+        g["sy"] = [-1] * 30
+        g["cool"] = 0
+        it.game_frame(down=["space"])
+        self.assertEqual(sum(1 for v in g["sy"] if v >= 0), 5)        # five guns
+        g["bx"][0], g["by"][0] = g["px"] + 25, 190          # a bomb cannot hurt it
+        for _ in range(4):
+            it.game_frame()
+        self.assertEqual(g["lives"], 3)
+        for _ in range(900):
+            it.game_frame()
+        self.assertEqual(g["x_t"], 0)                       # and it changes back
+        g["cool"] = 0
+        g["sy"] = [-1] * 30
+        it.game_frame(down=["space"])
+        self.assertEqual(sum(1 for v in g["sy"] if v >= 0), 1)
+
+    def test_pd2_oblivar_x_hits_bosses_twice_as_hard(self):
+        damage = []
+        for x_on in (0, 1):
+            it, g = self.pd2(2)
+            self.call_boss(g, it, 1)
+            g["boss_warn"], g["boss_in"], g["boss_y"] = 0, 0, 40
+            g["x_t"] = 500 if x_on else 0
+            hp = float(g["boss_hp"])
+            g["sx"][0], g["sy"][0] = float(g["boss_x"]) + 20, float(g["boss_y"]) + 30
+            it.game_frame()
+            damage.append(hp - float(g["boss_hp"]))
+        self.assertEqual(damage, [1, 2])
+
+    def test_every_built_in_tune_exists_in_the_screen_code(self):
+        from humanlang.assets import BUILTIN_MUSIC
+        with open(os.path.join(ROOT, "humanlang", "arcade.js"), encoding="utf-8") as f:
+            js = f.read()
+        for name in BUILTIN_MUSIC:
+            self.assertIn(f"{name}: {{ bpm:", js)
 
     def test_maze_muncher_eats_dots(self):
         it = make(load("maze_muncher.hum"))
