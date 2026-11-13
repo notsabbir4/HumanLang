@@ -59,13 +59,17 @@ class CoursePages(unittest.TestCase):
         cls.out = tempfile.mkdtemp()
         written = {}
         courses.build(cls.out, MD, build.render_markdown, lambda title, body, active, main_class="": f"<main>{body}</main>",
-                      lambda path, text: (os.makedirs(os.path.dirname(path), exist_ok=True), open(path, "w", encoding="utf-8").write(text)))
+                      lambda path, text: (os.makedirs(os.path.dirname(path), exist_ok=True), open(path, "w", encoding="utf-8").write(text)),
+                      build.highlight)
 
     def test_pages_exist_and_links_work(self):
         files = set(os.listdir(self.out))
         self.assertIn("tutorial.html", files)
         for c in courses.COURSES:
             self.assertIn(courses.course_file(c), files)
+            if c.get("interactive"):            # one page, played by learn.js: no lesson pages
+                self.assertNotIn(courses.lesson_file(c, 1), files)
+                continue
             for k in range(1, len(c["lessons"]) + 1):
                 self.assertIn(courses.lesson_file(c, k), files)
         for f in files:
@@ -78,7 +82,7 @@ class CoursePages(unittest.TestCase):
                     self.assertIn(href, files, f"{f} links to missing {href}")
 
     def test_lessons_have_back_and_next(self):
-        c = courses.COURSES[0]; last = len(c["lessons"])
+        c = [x for x in courses.COURSES if not x.get("interactive")][0]; last = len(c["lessons"])
         def read(name):
             with open(os.path.join(self.out, name), encoding="utf-8") as fh:
                 return fh.read()
@@ -86,6 +90,16 @@ class CoursePages(unittest.TestCase):
         self.assertIn("Lesson 1 of", first); self.assertIn(f"Lesson {last} of", end)
         self.assertIn(courses.lesson_file(c, 2), first)
         self.assertIn(courses.course_file(c), end)
+
+    def test_interactive_course_page_carries_its_data_and_scripts(self):
+        c = [x for x in courses.COURSES if x.get("interactive")][0]
+        with open(os.path.join(self.out, courses.course_file(c)), encoding="utf-8") as fh:
+            text = fh.read()
+        for needle in ('id="learn"', 'id="learn-data"', "learn-core.js", "learn.js"):
+            self.assertIn(needle, text)
+        import json
+        raw = re.search(r'id="learn-data">(.*?)</script>', text, re.S).group(1)
+        self.assertEqual(len(json.loads(raw)["units"]), c["units"])
 
 
 if __name__ == "__main__":

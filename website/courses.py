@@ -12,10 +12,12 @@ COURSES = [
         "id": "beginner-plus", "name": "Beginner+", "emoji": "1",
         "tagline": "Never coded before? Start here.",
         "for": "Anyone. No experience needed.",
-        "time": "about 55 minutes",
+        "time": "about 60 minutes, like a game",
+        "interactive": True, "units": 10,
         "learn": ["Make the computer talk, ask questions and remember answers",
                   "Make decisions with if, and repeat things with loops",
-                  "Keep lists, write your own steps (functions), build a small program and fix its mistakes"],
+                  "Keep lists, write your own steps (functions), build a small program and fix its mistakes",
+                  "Finish with an exam, a grade (A+ to F) and a certificate"],
         "lessons": [1, 2, 3, 4, 5, 6, 7, 8, 12, 18],
         "next": ["designer-go", "game-maker", "master-2"],
     },
@@ -105,9 +107,9 @@ def _e(s):
 def picker(chapters_count):
     cards = ""
     for c in COURSES:
-        cards += (f'<a class="course" href="{course_file(c)}" data-course="{c["id"]}" data-total="{len(c["lessons"])}">'
+        cards += (f'<a class="course" href="{course_file(c)}" data-course="{c["id"]}" data-total="{c.get("units", len(c["lessons"]))}">'
                   f'<span class="cnum">{c["emoji"]}</span><h3>{_e(c["name"])}</h3><p class="ctag">{_e(c["tagline"])}</p>'
-                  f'<p class="cmeta">{len(c["lessons"])} lessons &middot; {_e(c["time"])}</p>'
+                  f'<p class="cmeta">{c["units"] if c.get("interactive") else len(c["lessons"])} {"interactive units" if c.get("interactive") else "lessons"} &middot; {_e(c["time"])}</p>'
                   f'<p class="cfor">{_e(c["for"])}</p>'
                   f'<span class="cprog" data-prog></span><span class="cgo">Start &rarr;</span></a>')
     return f"""<section class="coursehead">
@@ -180,7 +182,19 @@ def lesson(c, k, chapters, body_html):
     return title, layout
 
 
-def build(out, md_text, render_markdown, page, write):
+def app(c, data_json):
+    """The interactive course: one page, played by learn.js (the exercises are data, built from website/beginner.py)."""
+    learn = "".join(f"<li>{_e(x)}</li>" for x in c["learn"])
+    return f"""<nav class="crumbs"><a href="tutorial.html">All courses</a> &rsaquo; {_e(c["name"])}</nav>
+<div id="learn" class="learnapp"><noscript><p>This course needs JavaScript. You can read the same lessons as plain pages:
+<a href="tutorial-all.html">all chapters</a>.</p></noscript>
+<p class="tiny">Loading the course...</p></div>
+<script type="application/json" id="learn-data">{data_json}</script>
+<script src="learn-core.js"></script><script src="learn.js"></script>
+<script src="courses.js"></script>"""
+
+
+def build(out, md_text, render_markdown, page, write, highlight=None):
     import os
     intro, chapters = split(md_text)
     for c in COURSES:
@@ -192,6 +206,11 @@ def build(out, md_text, render_markdown, page, write):
     where_html, _ = render_markdown("### Where next\n\n" + chapters[19][1].replace("Welcome to programming!", "").strip())
     write(os.path.join(out, "tutorial.html"), page("Tutorial - HumanLang", picker(len(chapters)), "tutorial.html", main_class=""))
     for c in COURSES:
+        if c.get("interactive"):
+            import beginner
+            write(os.path.join(out, course_file(c)), page(f'{c["name"]} course - HumanLang',
+                  app(c, beginner.export_json(render_markdown, highlight)), "tutorial.html"))
+            continue
         write(os.path.join(out, course_file(c)), page(f'{c["name"]} course - HumanLang', overview(c, chapters, shared_html, where_html), "tutorial.html"))
         for k, n in enumerate(c["lessons"], 1):
             body_html, _ = render_markdown(chapters[n][1])

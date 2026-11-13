@@ -605,7 +605,7 @@ def main():
 
     write(os.path.join(out, "index.html"), index_page())
     tutorial_md = read(os.path.join(ROOT, "docs", "tutorial.md"))
-    courses.build(out, tutorial_md, render_markdown, page, write)       # tutorial.html (pick a course), course-*.html, lesson-*.html
+    courses.build(out, tutorial_md, render_markdown, page, write, highlight)       # tutorial.html (pick a course), course-*.html, lesson-*.html
     write(os.path.join(out, "tutorial-all.html"), doc_page("Tutorial: all chapters", tutorial_md, "tutorial.html"))
     write(os.path.join(out, "reference.html"), doc_page("Reference", read(os.path.join(ROOT, "docs", "reference.md")), "reference.html"))
     write(os.path.join(out, "install.html"), download_page())
