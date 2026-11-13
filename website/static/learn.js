@@ -420,21 +420,18 @@ const Snd = window.HLSound || { play() {}, isMuted: () => true, setMuted() {} };
     el.appendChild(h("p", { class: "tiny", text: "This certificate is made by the HumanLang website, in your browser. It shows what you did in the course. It is not an official qualification." }));
     show(el); draw();
   }
-  let logo = null;
-  function logoImg(then) {
-    if (logo) return then(logo);
-    const i = new Image(); i.onload = () => { logo = i; then(i); }; i.onerror = () => then(null); i.src = "logo.png";
-  }
   function certHtml(d) {
     const c = document.createElement("canvas"); c.id = "cert"; c.className = "certcanvas"; c.setAttribute("role", "img");
     c.setAttribute("aria-label", "Certificate for " + (d.name || "your name") + ", Beginner+, grade " + d.grade);
-    logoImg((img) => window.HLCertificate.draw(c, d, img));
+    c.width = window.HLCertificate.W; c.height = window.HLCertificate.H;
+    window.HLCertificate.ready((tpl) => { if (tpl) window.HLCertificate.draw(c, d, tpl); });
     return c;
   }
   function downloadPng(d) {
-    const c = document.createElement("canvas");
-    logoImg((img) => {
-      window.HLCertificate.draw(c, d, img);
+    window.HLCertificate.ready((tpl) => {
+      if (!tpl) return window.alert("The certificate picture could not load. Check your connection and try again.");
+      const c = document.createElement("canvas");
+      window.HLCertificate.draw(c, d, tpl);
       c.toBlob((b) => { const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = "humanlang-beginner-plus-certificate.png"; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); });
     });
   }

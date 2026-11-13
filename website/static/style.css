@@ -472,3 +472,6 @@ details.follow summary{cursor:pointer;font-weight:700}
 @media (max-width:560px){.unitcard{gap:10px;padding:12px}.go{display:none}.q{font-size:1.1rem}}
 .soundbtn{border:2px solid var(--line);background:var(--card);border-radius:99px;width:40px;height:40px;font-size:1.1rem;cursor:pointer;flex:none;line-height:1}
 .soundbtn:hover{border-color:var(--accent)}.lhtop{display:flex;align-items:center;justify-content:space-between;gap:12px}
+@font-face{font-family:"Playfair Display";font-weight:700;font-style:normal;font-display:swap;src:url(playfair-display-latin-700-normal.woff2) format("woff2")}
+@font-face{font-family:"Playfair Display";font-weight:700;font-style:italic;font-display:swap;src:url(playfair-display-latin-700-italic.woff2) format("woff2")}
+@font-face{font-family:"Playfair Display";font-weight:800;font-style:normal;font-display:swap;src:url(playfair-display-latin-800-normal.woff2) format("woff2")}

@@ -573,7 +573,7 @@ def main():
         if os.path.isfile(f):
             shutil.copy(f, out)
     shutil.copy(os.path.join(ROOT, "humanlang", "arcade.js"), out)
-    for name in ("logo.png", "icon-32.png", "icon-180.png", "social-preview.png"):
+    for name in ("logo.png", "certificate-template.jpg", "icon-32.png", "icon-180.png", "social-preview.png"):
         shutil.copy(os.path.join(ROOT, "assets", name), out)
     shutil.copy(os.path.join(ROOT, "assets", "icon.ico"), os.path.join(out, "favicon.ico"))
     write(os.path.join(out, "config.js"),
