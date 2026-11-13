@@ -80,4 +80,9 @@ More: [ROADMAP.md](ROADMAP.md) &middot; [docs/versioning.md](docs/versioning.md)
 `python tools/bump_version.py 0.1.2`, fill in the changelog, then `git tag v0.1.2 && git push --tags`.
 The release workflow builds programs for Windows, macOS and Linux and attaches them to the release.
 
-Licensed under the MIT License.
+## Licence
+
+HumanLang is **free to use** (the website, the Playground, the installers, the courses, the games), and everything you
+make with it is yours. It is **not free to copy**: please do not fork it to publish your own version, host your own copy,
+or reuse the name and logo. Releases up to v0.6.1 were published under MIT; later versions use the
+[HumanLang License](LICENSE). Want permission for something? Open an issue and ask.

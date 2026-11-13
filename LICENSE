@@ -1,21 +1,50 @@
-MIT License
+HumanLang License (free to use, not free to copy)
 
-Copyright (c) 2026 HumanLang contributors
+Copyright (c) 2026 Sabbir Ahmmed Shawon (GitHub: notsabbir4). All rights reserved.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+HumanLang (the language, its interpreter, this website, the Playground, the courses, the games and everything else in
+this repository) is free for everybody to USE. It is not free to COPY. Please read both parts.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+1. WHAT YOU MAY DO (free, no sign-up, no payment)
+   a. Use HumanLang: install it, run it, use the website and the Playground, take the courses, play the games.
+   b. Write your own programs, games and pages in HumanLang and do anything you like with them: share them, publish them,
+      sell them. What you create is yours. This licence puts no rule on your own programs.
+   c. Read the source code in this repository to learn from it.
+   d. Use GitHub's Fork button only to suggest a change to this project (a pull request). Such a fork must not be
+      published as a project of its own.
+   e. Quote short parts of the documentation or code, with credit and a link to this project, for review, teaching or
+      news.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+2. WHAT YOU MAY NOT DO without written permission from the copyright holder
+   a. Copy, fork or mirror this project (all or a substantial part) to publish, host or distribute it, in source or built form.
+   b. Make or publish a modified version, a derivative, a "port", a clone or a "new language" built from this code,
+      its documentation, its courses, its website, its games or its design.
+   c. Sell, rent, sublicense or give away copies of HumanLang or of its parts, or bundle them into another product.
+   d. Host your own copy of the website, the Playground or the courses.
+   e. Remove or change this licence, the copyright notice, or the credits.
+   f. Use the name "HumanLang", the abbreviation "HL" for a programming language, or the HumanLang logo, mascots,
+      certificate artwork or game artwork for another product, project or service, or in a way that suggests it comes from,
+      or is approved by, this project.
+   g. Use this project's code, text or artwork to train or build a competing programming language or learning course.
+
+3. VERSIONS ALREADY PUBLISHED UNDER MIT
+   Releases published on GitHub with tags v0.6.1 and earlier were published under the MIT License. People who already
+   have those releases may keep using them under the MIT License. This licence applies to everything published after
+   them (all later commits and releases), and to the name and artwork in every version.
+
+4. CONTRIBUTIONS
+   If you send a change to this project, you promise that it is yours to give, and you give the copyright holder a
+   permanent, worldwide, free licence to use, change, publish and relicense it as part of HumanLang. You keep your own
+   copyright in it.
+
+5. NO WARRANTY
+   HumanLang is provided "as is", without warranty of any kind. The copyright holder is not liable for any damage
+   that comes from using it.
+
+6. ENDING
+   If you break section 2 your permission under this licence ends. The copyright holder may ask for any copy to be
+   removed, including through GitHub's copyright (DMCA) process.
+
+7. QUESTIONS AND PERMISSION
+   Want to do something section 2 forbids (for example to teach with a copy in your school)? Ask first: open an issue
+   at https://github.com/notsabbir4/HumanLang or write to the owner. Permission must be given in writing.

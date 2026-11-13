@@ -181,7 +181,7 @@ def page(title, body, active, extra_head="", extra_body="", main_class=""):
 </main>
 <footer><div class="fl"><a href="install.html">Download</a><a href="editors.html">Editors</a><a href="changelog.html">What&rsquo;s new</a>
 <a href="{REPO}">GitHub</a><a href="{REPO}/issues">Report a problem</a></div>
-HumanLang {__version__} &middot; MIT licensed &middot; code that reads like you talk</footer>
+HumanLang {__version__} &middot; free to use &middot; <a href="https://github.com/notsabbir4/HumanLang/blob/main/LICENSE">licence</a> &middot; code that reads like you talk</footer>
 <script src="account.js"></script>
 <script>
 (function(){{var b=document.getElementById('menubtn'),h=b.closest('header');

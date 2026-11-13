@@ -1,5 +1,8 @@
 # Contributing to HumanLang
 
+HumanLang is free to use but not free to copy (see [LICENSE](LICENSE)). You are welcome to fork the repository to send a
+pull request, but not to publish your fork as a project of its own. By sending a change you agree to section 4 of the licence.
+
 Thank you for helping! HL has one job: be easy for beginners. Every change is judged against that.
 
 ## Set up
