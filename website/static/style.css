@@ -470,3 +470,5 @@ details.follow summary{cursor:pointer;font-weight:700}
 .certhold{margin:14px 0}.certcanvas{display:block;width:100%;height:auto;border-radius:6px;box-shadow:0 8px 24px rgba(0,0,0,.18)}
 @media print{@page{size:landscape;margin:8mm}body *{visibility:hidden}#cert{visibility:visible;position:absolute;left:0;top:0;width:100%;box-shadow:none}}
 @media (max-width:560px){.unitcard{gap:10px;padding:12px}.go{display:none}.q{font-size:1.1rem}}
+.soundbtn{border:2px solid var(--line);background:var(--card);border-radius:99px;width:40px;height:40px;font-size:1.1rem;cursor:pointer;flex:none;line-height:1}
+.soundbtn:hover{border-color:var(--accent)}.lhtop{display:flex;align-items:center;justify-content:space-between;gap:12px}

@@ -22,6 +22,10 @@ class LearnCore(unittest.TestCase):
             r = subprocess.run(["node", os.path.join(ROOT, "tests", "learn_core_test.js"), path], capture_output=True, text=True)
             self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
 
+    def test_sound(self):
+        r = subprocess.run(["node", os.path.join(ROOT, "tests", "learn_sound_test.js")], capture_output=True, text=True)
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+
 
 if __name__ == "__main__":
     unittest.main()

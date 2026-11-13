@@ -48,6 +48,8 @@ platformer physics, a step-by-step debugger, and games and pages that work on ph
   and **Practise my weak spots** builds new questions from the mistakes you make. A 25-question final exam gives a grade
   (**A+, A, A-, B, C, D, F**; F is a fail) and a **certificate** with your name, drawn as a proper certificate (PNG or print/PDF). Every answer in the course
   is checked by really running HumanLang in the tests. Progress stays in your browser.
+  **Sound effects:** a happy chime for a right answer, a low buzz for a wrong one, little taps, and short tunes when you finish a
+  part, pass a test or get your grade. Made in the browser (no sound files), with a mute button that is remembered.
 - **Download and save:** the Playground has **Download .hum** (your program as a file) and **Save** (keeps it in your account;
   sign in with GitHub). Saved programs are listed on the Account page, where you can open or delete them.
 - **Phone menu:** on a phone, every page link sits under a three-dot button; Sign in stays visible. The Playground's button

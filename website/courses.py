@@ -190,7 +190,7 @@ def app(c, data_json):
 <a href="tutorial-all.html">all chapters</a>.</p></noscript>
 <p class="tiny">Loading the course...</p></div>
 <script type="application/json" id="learn-data">{data_json}</script>
-<script src="learn-core.js"></script><script src="certificate.js"></script><script src="learn.js"></script>
+<script src="learn-core.js"></script><script src="certificate.js"></script><script src="learn-sound.js"></script><script src="learn.js"></script>
 <script src="courses.js"></script>"""
 
 

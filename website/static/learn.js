@@ -6,6 +6,7 @@
   const root = document.getElementById("learn");
   if (!root || !L) return;
   const data = JSON.parse(document.getElementById("learn-data").textContent);
+const Snd = window.HLSound || { play() {}, isMuted: () => true, setMuted() {} };
   const KEY = "hl-beginner", COURSE = "beginner-plus", PASS = 60;
   const unitsById = {}; data.units.forEach((u) => (unitsById[u.n] = u));
 
@@ -66,7 +67,7 @@
       const list = h("div", { class: "opts", role: "group" });
       const btns = order.map((i) => {
         const b = h("button", { type: "button", class: "opt" }, h("code", { text: ex.options[i].t === "" ? "(nothing)" : ex.options[i].t }));
-        b.addEventListener("click", () => { if (locked) return; btns.forEach((x) => x.classList.remove("sel")); b.classList.add("sel"); set(i); });
+        b.addEventListener("click", () => { if (locked) return; btns.forEach((x) => x.classList.remove("sel")); b.classList.add("sel"); Snd.play("tap"); set(i); });
         list.appendChild(b); return b;
       });
       wrap.appendChild(list);
@@ -100,7 +101,7 @@
         t.addEventListener("click", () => {
           if (locked) return;
           const i = placed.findIndex((p) => p.id === id);
-          if (i >= 0) { placed.splice(i, 1); pool.appendChild(t); } else { placed.push({ id, line }); done.appendChild(t); }
+          Snd.play("tap"); if (i >= 0) { placed.splice(i, 1); pool.appendChild(t); } else { placed.push({ id, line }); done.appendChild(t); }
           done.classList.toggle("has", placed.length > 0); refresh();
         });
         pool.appendChild(t); return t;
@@ -116,7 +117,7 @@
       const list = h("div", { class: "buglines" });
       const rows = ex.lines.map((line, i) => {
         const b = h("button", { type: "button", class: "bugline" }, h("span", { class: "gut", text: String(i + 1) }), h("code", { text: line || " " }));
-        b.addEventListener("click", () => { if (locked) return; rows.forEach((r) => r.classList.remove("sel")); b.classList.add("sel"); set(i + 1); });
+        b.addEventListener("click", () => { if (locked) return; rows.forEach((r) => r.classList.remove("sel")); b.classList.add("sel"); Snd.play("tap"); set(i + 1); });
         list.appendChild(b); return b;
       });
       wrap.appendChild(list);
@@ -147,7 +148,7 @@
     const main = h("button", { type: "button", class: "btn big pmain" });
     const quit = h("button", { type: "button", class: "pquit", "aria-label": "Leave this lesson", title: "Leave", text: "✕", onclick: () => { if (window.confirm("Leave? Your answers in this round will not be counted.")) cfg.onQuit(); } });
     const screen = h("div", { class: "player" },
-      h("div", { class: "ptop" }, quit, h("div", { class: "pbar" }, bar), count),
+      h("div", { class: "ptop" }, quit, h("div", { class: "pbar" }, bar), count, soundBtn()),
       body, h("div", { class: "pfoot" }, banner, main));
     show(screen);
     document.onkeydown = (e) => { if (e.key === "Enter" && !e.shiftKey && e.target.tagName !== "TEXTAREA" && !main.disabled && e.target.tagName !== "BUTTON") { e.preventDefault(); main.click(); } };
@@ -179,6 +180,7 @@
         if (!fb) { pos++; return next(); }
         view.lock(res);
         const good = res.ok;
+        Snd.play(good ? "right" : "wrong");
         banner.className = "banner " + (good ? "good" : "bad");
         banner.innerHTML = "";
         banner.appendChild(h("b", { text: good ? ["Correct!", "Nice!", "Yes!", "Well done!"][Math.floor(Math.random() * 4)] : "Not quite" }));
@@ -190,7 +192,7 @@
           if (cfg.requeue && (requeued[ex.id] || 0) < 2) { requeued[ex.id] = (requeued[ex.id] || 0) + 1; queue.push(ex); }
         }
         main.textContent = "Continue"; main.className = "btn big pmain " + (good ? "good" : "bad");
-        main.onclick = () => { pos++; next(); }; main.focus();
+        main.onclick = () => { Snd.play("next"); pos++; next(); }; main.focus();
       };
     }
 
@@ -216,6 +218,12 @@
     const ul = h("ul"); tips.slice(0, 5).forEach((t) => ul.appendChild(h("li", { text: t }))); box.appendChild(ul);
     return box;
   }
+  function soundBtn() {
+    const b = h("button", { type: "button", class: "soundbtn", "aria-label": "Sound effects" });
+    const paint = () => { const off = Snd.isMuted(); b.textContent = off ? "🔇" : "🔊"; b.title = off ? "Sound is off. Tap to turn it on" : "Sound is on. Tap to turn it off"; b.setAttribute("aria-pressed", String(!off)); };
+    b.addEventListener("click", () => { Snd.setMuted(!Snd.isMuted()); paint(); Snd.play("tap"); });
+    paint(); return b;
+  }
   function btnRow() { const r = h("div", { class: "btnrow" }); for (let i = 0; i < arguments.length; i++) if (arguments[i]) r.appendChild(arguments[i]); return r; }
   const btn = (text, fn, cls) => h("button", { type: "button", class: "btn " + (cls || ""), text, onclick: fn });
 
@@ -225,7 +233,7 @@
     const weak = L.weakSkills(S.stats, 5);
     const doneN = data.units.filter(unitDone).length;
     const el = h("div", { class: "learn" });
-    el.appendChild(h("div", { class: "lhead" }, h("h1", { text: "Beginner+" }),
+    el.appendChild(h("div", { class: "lhead" }, h("div", { class: "lhtop" }, h("h1", { text: "Beginner+" }), soundBtn()),
       h("p", { class: "lead", text: "Short lessons, quick questions, and a test after every unit. Your mistakes decide what you practise next. At the end you get a grade and a certificate." }),
       h("div", { class: "pbar wide", role: "progressbar", "aria-valuemin": 0, "aria-valuemax": data.units.length, "aria-valuenow": doneN }, h("i", { style: "width:" + pctOf(doneN, data.units.length) + "%" })),
       h("p", { class: "tiny", text: doneN + " of " + data.units.length + " units passed" })));
@@ -307,6 +315,7 @@
     });
   }
   function partDone(u, pi, r, extra) {
+    Snd.play(r.pct === 100 ? "perfect" : "part");
     const last = pi === u.parts.length - 1;
     const el = h("div", { class: "learn center" }, h("h2", { text: extra ? "Better!" : r.pct === 100 ? "Perfect!" : "Part complete" }),
       h("p", { class: "bigscore", text: r.right + " / " + r.total }), h("p", { class: "tiny", text: "right the first time" }), mistakeBlock(r.miss),
@@ -321,6 +330,7 @@
       onDone: (r) => {
         const st = unitState(u.n); st.test = Math.max(st.test == null ? -1 : st.test, r.pct); save();
         const pass = r.pct >= PASS, weak = L.weakSkills(S.stats, 4);
+        Snd.play(!pass ? "fail" : r.pct === 100 ? "perfect" : "pass");
         const el = h("div", { class: "learn center" }, h("h2", { text: pass ? (r.pct === 100 ? "Perfect test!" : "Unit " + u.n + " passed") : "Not quite there yet" }),
           h("p", { class: "bigscore", text: r.pct + "%" }), h("p", { class: "tiny", text: r.right + " of " + r.total + " right" }),
           h("p", { class: "lead", text: pass ? (weak.length ? "Good. A little practice on your weak spots will make you even stronger." : "You are doing very well.") : "You need " + PASS + "% to pass. Practise your mistakes, then try the test again." }),
@@ -349,6 +359,7 @@
       onDone: (r) => {
         save();
         const weak = L.weakSkills(S.stats, 4);
+        Snd.play(weak.length ? "part" : "pass");
         const el = h("div", { class: "learn center" }, h("h2", { text: weak.length ? "Good work" : "Weak spots fixed!" }),
           h("p", { class: "bigscore", text: r.right + " / " + r.total }), h("p", { class: "tiny", text: "right the first time" }),
           h("p", { class: "lead", text: weak.length ? "Still to practise: " + weak.map(skillName).join(", ") + "." : "Nothing is weak right now. Nice." }), mistakeBlock(r.miss),
@@ -376,6 +387,7 @@
         if (S.exam.score == null || score >= S.exam.score) { S.exam.date = null; S.exam.best = r.pct; S.exam.score = score; S.exam.grade = grade; }
         save();
         const pass = L.passed(grade);
+        Snd.play(pass ? "grade" : "fail");
         const el = h("div", { class: "learn center" }, h("h2", { text: pass ? "You passed!" : "Not passed this time" }),
           h("div", { class: "grade g" + grade.replace("+", "p").replace("-", "m") }, h("span", { text: grade })),
           h("p", { class: "bigscore", text: score + "%" }), h("p", { class: "tiny", text: "Exam " + r.pct + "% (" + r.right + " of " + r.total + ") · unit tests average " + Math.round(unitBest.reduce((a, b) => a + (b || 0), 0) / unitBest.length) + "%" }),
