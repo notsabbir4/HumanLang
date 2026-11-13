@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.6.1.1 - 2026-11-13
+- **New licence:** HumanLang is still **free to use** (the website, Playground, installers, courses and games), and what you make
+  with it is yours. From this version it is **not free to copy**: the new [HumanLang License](https://github.com/notsabbir4/HumanLang/blob/main/LICENSE)
+  does not allow publishing copies, forks or modified versions, or using the HumanLang name and logo for something else.
+  Releases up to 0.6.1 stay under the MIT License they were published with.
+- Website footer and README now say "free to use" and link the licence.
+
 ## 0.6.1 - 2026-11-13
 HumanLang can now build **real apps**: pages that react to clicks, formulas, saved data, your own pictures and music,
 platformer physics, a step-by-step debugger, and games and pages that work on phones and offline.
