@@ -15,7 +15,41 @@ const Snd = window.HLSound || { play() {}, isMuted: () => true, setMuted() {} };
   let S = fresh();
   try { const x = JSON.parse(localStorage.getItem(KEY) || "null"); if (x && x.v === 1) S = Object.assign(fresh(), x); } catch (e) { /* no saving: fine */ }
   function unitState(n) { return S.units[n] || (S.units[n] = { parts: [], test: null }); }
-  function save() {
+  // ---- keeping progress in the account (only when signed in; otherwise this browser keeps it) ------------
+  let syncState = "off", syncTimer = null, view = null;            // off | in | saving | saved | error
+  const hasSession = () => { try { for (let i = 0; i < localStorage.length; i++) if (/^sb-.*-auth-token$/.test(localStorage.key(i))) return true; } catch (e) { /* no storage */ } return false; };
+  function paintSync() {
+    document.querySelectorAll(".syncnote").forEach((n) => {
+      n.textContent = "";
+      if (syncState === "off") {
+        if (window.HLAccount && HLAccount.configured) { n.appendChild(h("a", { href: "account.html", text: "Sign in" })); n.appendChild(document.createTextNode(" to keep your progress on all your devices.")); }
+      } else n.textContent = { in: "Signed in. Your progress is kept in your account.", saving: "Saving to your account...", saved: "✓ Saved to your account", error: "Could not reach your account. Your progress is safe in this browser." }[syncState] || "";
+    });
+  }
+  async function account() {
+    if (!window.HLAccount || !HLAccount.configured || !hasSession()) return null;
+    try { const sess = await HLAccount.session(); return sess ? { c: await HLAccount.client(), uid: sess.user.id } : null; } catch (e) { return null; }
+  }
+  async function push() {
+    const a = await account(); if (!a) return;
+    syncState = "saving"; paintSync();
+    const { error } = await a.c.from("course_progress").upsert({ user_id: a.uid, course: COURSE, data: S, updated_at: new Date().toISOString() }, { onConflict: "user_id,course" });
+    syncState = error ? "error" : "saved"; paintSync();
+  }
+  function pushSoon() { if (syncState === "off") return; clearTimeout(syncTimer); syncTimer = setTimeout(push, 2500); }
+  async function pull() {
+    const a = await account(); if (!a) return;
+    syncState = "saving"; paintSync();
+    const { data: row, error } = await a.c.from("course_progress").select("data").eq("course", COURSE).maybeSingle();
+    if (error) { syncState = "error"; paintSync(); return; }
+    S = Object.assign(fresh(), L.merge(S, row && row.data));       // the best of this browser and the account
+    S.v = 1; save(true); syncState = "in";
+    await push();
+    if (view === pathScreen) pathScreen();
+  }
+
+  function save(skipPush) {
+    if (!skipPush) pushSoon();
     try {
       localStorage.setItem(KEY, JSON.stringify(S));
       const all = JSON.parse(localStorage.getItem("hl-progress") || "{}") || {};
@@ -229,7 +263,7 @@ const Snd = window.HLSound || { play() {}, isMuted: () => true, setMuted() {} };
 
   // ---- screens --------------------------------------------------------------------------------------------
   function pathScreen() {
-    document.onkeydown = null;
+    view = pathScreen; document.onkeydown = null;
     const weak = L.weakSkills(S.stats, 5);
     const doneN = data.units.filter(unitDone).length;
     const el = h("div", { class: "learn" });
@@ -263,9 +297,10 @@ const Snd = window.HLSound || { play() {}, isMuted: () => true, setMuted() {} };
         h("span", { class: "go", text: ok ? (ex.tries ? "Again" : "Start") : "Locked" }))));
     el.appendChild(path);
     if (ex.grade && L.passed(ex.grade)) el.appendChild(h("div", { class: "certcard" }, h("div", {}, h("b", { text: "You passed with grade " + ex.grade + "." }), h("p", { class: "tiny", text: "Your certificate is ready." })), btnRow(btn("See my certificate", certScreen, "good"))));
+    el.appendChild(h("p", { class: "tiny syncnote", "aria-live": "polite" }));
     el.appendChild(h("p", { class: "tiny foot" }, h("a", { href: "tutorial-all.html", text: "Read all chapters as plain pages" }), " · ",
-      h("a", { href: "#", text: "Start over", onclick: (e) => { e.preventDefault(); if (window.confirm("Delete all your progress in Beginner+?")) { S = fresh(); save(); pathScreen(); } } })));
-    show(el);
+      h("a", { href: "#", text: "Start over", onclick: (e) => { e.preventDefault(); if (window.confirm("Delete all your progress in Beginner+?" + (syncState === "off" ? "" : " This also clears it in your account."))) { S = fresh(); save(); if (syncState !== "off") push(); pathScreen(); } } })));
+    show(el); paintSync();
   }
 
   function unitScreen(u) {
@@ -437,4 +472,5 @@ const Snd = window.HLSound || { play() {}, isMuted: () => true, setMuted() {} };
   }
 
   pathScreen();
+  if (hasSession()) { syncState = "in"; paintSync(); pull(); }
 })();

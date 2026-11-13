@@ -138,5 +138,36 @@
   }
   const passed = (grade) => grade !== "F";
 
-  return { norm, check, newStats, record, weakSkills, practice, extra, unitTest, examQuestions, letter, finalScore, passed, shuffle, allExercises };
+  // ---- keeping progress in step between this browser and the account ----------------------------------
+  const answers = (st) => Object.keys((st && st.skills) || {}).reduce((n, k) => n + st.skills[k].right + st.skills[k].wrong, 0);
+  // two saved copies of the same person's progress become one that has the best of both
+  function merge(a, b) {
+    if (!a) return b; if (!b) return a;
+    const out = { v: 1, units: {}, seen: [] };
+    Object.keys(Object.assign({}, a.units, b.units)).forEach((n) => {
+      const x = (a.units || {})[n] || { parts: [], test: null }, y = (b.units || {})[n] || { parts: [], test: null };
+      const parts = [], len = Math.max(x.parts.length, y.parts.length);
+      for (let i = 0; i < len; i++) parts[i] = !!(x.parts[i] || y.parts[i]);
+      const t = [x.test, y.test].filter((v) => v != null);
+      out.units[n] = { parts, test: t.length ? Math.max.apply(null, t) : null };
+    });
+    const ea = a.exam || {}, eb = b.exam || {};
+    const pick = (eb.score != null && (ea.score == null || eb.score > ea.score)) ? eb : ea;
+    out.exam = Object.assign({ best: null, grade: null, score: null, date: null }, pick, { tries: Math.max(ea.tries || 0, eb.tries || 0) });
+    out.stats = answers(b.stats) > answers(a.stats) ? b.stats : (a.stats || b.stats);
+    out.name = (a.name || "").trim() ? a.name : (b.name || "");
+    out.seen = (a.seen || []).concat(b.seen || []).slice(-80);
+    return out;
+  }
+  // the few facts the Home page and Account page show
+  function summary(st, totalUnits, pass) {
+    pass = pass == null ? 60 : pass;
+    const units = (st && st.units) || {}, passed = Object.keys(units).filter((n) => units[n].test != null && units[n].test >= pass).length;
+    let next = 1; while (next <= totalUnits && units[next] && units[next].test != null && units[next].test >= pass) next++;
+    const started = !!st && (Object.keys(units).some((n) => (units[n].parts || []).some(Boolean) || units[n].test != null) || !!(st.exam && st.exam.tries));
+    const ex = (st && st.exam) || {};
+    return { started, passed, total: totalUnits, next: Math.min(next, totalUnits), allPassed: passed >= totalUnits, grade: ex.grade || null, score: ex.score == null ? null : ex.score, certificate: !!(ex.grade && ex.grade !== "F") };
+  }
+
+  return { merge, summary, norm, check, newStats, record, weakSkills, practice, extra, unitTest, examQuestions, letter, finalScore, passed, shuffle, allExercises };
 });

@@ -56,4 +56,22 @@ assert.ok(L.unitTest(data.units[0]).length >= 5);
 const exam = L.examQuestions(data);
 assert.strictEqual(exam.length, 25); assert.strictEqual(new Set(exam.map((e) => e.id)).size, 25);
 data.units.forEach((u) => assert.ok(exam.filter((e) => e.id.startsWith("u" + u.n + "b")).length >= 2, "unit " + u.n + " is in the exam"));
+
+// merging progress from two places keeps the best of both
+const A = { v: 1, units: { 1: { parts: [true, false, false], test: 70 }, 2: { parts: [true, true, true], test: null } }, exam: { best: null, tries: 0, grade: null, score: null }, name: "Ana",
+            stats: { skills: { if: { right: 1, wrong: 0, need: 0 } }, tags: {} }, seen: ["a"] };
+const B = { v: 1, units: { 1: { parts: [true, true, false], test: 55 }, 3: { parts: [true], test: 90 } }, exam: { best: 80, tries: 1, grade: "B", score: 82, date: "d" }, name: "",
+            stats: { skills: { if: { right: 5, wrong: 2, need: 3 } }, tags: {} }, seen: ["b"] };
+const M = L.merge(A, B);
+assert.deepStrictEqual(M.units[1], { parts: [true, true, false], test: 70 });
+assert.deepStrictEqual(M.units[2].parts, [true, true, true]); assert.strictEqual(M.units[3].test, 90);
+assert.strictEqual(M.exam.grade, "B"); assert.strictEqual(M.exam.tries, 1); assert.strictEqual(M.name, "Ana");
+assert.strictEqual(M.stats.skills.if.right, 5); assert.deepStrictEqual(M.seen, ["a", "b"]);
+assert.strictEqual(L.merge(null, B), B); assert.strictEqual(L.merge(A, null), A);
+assert.deepStrictEqual(L.merge(M, M).units, M.units);               // merging the same thing twice changes nothing
+// the facts shown on the Home and Account pages
+let su = L.summary(null, 10); assert.strictEqual(su.started, false); assert.strictEqual(su.next, 1);
+su = L.summary(M, 10); assert.strictEqual(su.started, true); assert.strictEqual(su.passed, 2); assert.strictEqual(su.next, 2); assert.strictEqual(su.certificate, true); assert.strictEqual(su.grade, "B");
+const allDone = { units: {}, exam: { grade: "A", score: 95, tries: 1 } }; for (let i = 1; i <= 10; i++) allDone.units[i] = { parts: [true], test: 100 };
+su = L.summary(allDone, 10); assert.strictEqual(su.allPassed, true); assert.strictEqual(su.next, 10);
 console.log("ok " + n);

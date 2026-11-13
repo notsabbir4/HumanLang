@@ -269,6 +269,7 @@ Write instructions in plain English sentences. Get error messages that actually 
 <a class="btn ghost" href="playground.html">Try it in your browser</a>
 <a class="btn ghost" href="tutorial.html">Start the tutorial</a></div>
 <p class="dl-small">Version {__version__} &middot; free &middot; Windows, Mac and Linux</p>
+<div id="home-course" class="homecourse" data-total="10" hidden></div>
 </div>
 <div>{box("code", "HumanLang", highlight(HERO_CODE), copy=True)}
 {box("output", "Output", html.escape("What is your name? Sam" + chr(10) + "How old are you? 15" + chr(10) + "Hi Sam, come back in 3 years."))}</div>
@@ -295,7 +296,7 @@ one meaning, so you can trust what you read.</p></div>
 <li>A <a href="changelog.html">changelog</a> that says what is new in every version.</li>
 </ul>
 """
-    return page("HumanLang - code that reads like you talk", body, "index.html")
+    return page("HumanLang - code that reads like you talk", body, "index.html", extra_body='<script src="learn-core.js"></script><script src="home-course.js"></script>')
 
 
 def playground_page(examples):
@@ -383,6 +384,8 @@ change anything on your GitHub.</p>
 <label class="check"><input type="checkbox" id="p-photo"> Show my GitHub photo</label>
 <div class="row"><button class="btn run" type="submit">Save profile</button><span id="p-status" role="status"></span></div>
 </form>
+<h2>Your courses</h2>
+<div id="courses" class="coursebox"><p class="muted">Loading...</p></div>
 <h2>Your saved programs</h2>
 <p class="muted">Save from the Playground with the <b>Save</b> button. Only you can see these.</p>
 <ul id="saved" class="rooms"><li class="muted">Loading...</li></ul>
@@ -391,7 +394,7 @@ change anything on your GitHub.</p>
 <p><button class="btn ghost" id="signout" type="button">Sign out</button></p>
 </div>
 </section>"""
-    return page("Account - HumanLang", body, "account.html", extra_body='<script src="account-page.js"></script>')
+    return page("Account - HumanLang", body, "account.html", extra_body='<script src="learn-core.js"></script><script src="account-page.js"></script>')
 
 
 def inspect_html(code, how, game_id):

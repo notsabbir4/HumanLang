@@ -50,6 +50,9 @@ platformer physics, a step-by-step debugger, and games and pages that work on ph
   is checked by really running HumanLang in the tests. Progress stays in your browser.
   **Sound effects:** a happy chime for a right answer, a low buzz for a wrong one, little taps, and short tunes when you finish a
   part, pass a test or get your grade. Made in the browser (no sound files), with a mute button that is remembered.
+  **Certificate:** your own certificate with your name, grade, date and score, as a PNG or to print. **Home page:** a
+  "Continue Beginner+" button that shows your progress. **Account:** when you are signed in, Beginner+ progress is kept in your
+  account (private to you), so it follows you to other devices, and your Account page shows it.
 - **Download and save:** the Playground has **Download .hum** (your program as a file) and **Save** (keeps it in your account;
   sign in with GitHub). Saved programs are listed on the Account page, where you can open or delete them.
 - **Phone menu:** on a phone, every page link sits under a three-dot button; Sign in stays visible. The Playground's button

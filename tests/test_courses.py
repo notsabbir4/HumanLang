@@ -101,6 +101,14 @@ class CoursePages(unittest.TestCase):
         raw = re.search(r'id="learn-data">(.*?)</script>', text, re.S).group(1)
         self.assertEqual(len(json.loads(raw)["units"]), c["units"])
 
+    def test_home_and_account_pages_have_the_course_progress_parts(self):
+        import build
+        home, acct = build.index_page(), build.account_page()
+        for needle in ('id="home-course"', "home-course.js", "learn-core.js"):
+            self.assertIn(needle, home)
+        for needle in ('id="courses"', "learn-core.js", "account-page.js"):
+            self.assertIn(needle, acct)
+
 
 if __name__ == "__main__":
     unittest.main()
