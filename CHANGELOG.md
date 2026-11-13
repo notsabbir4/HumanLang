@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.6.1 - 2026-11-08
+## 0.6.1 - 2026-11-13
 HumanLang can now build **real apps**: pages that react to clicks, formulas, saved data, your own pictures and music,
 platformer physics, a step-by-step debugger, and games and pages that work on phones and offline.
 
@@ -47,7 +47,7 @@ platformer physics, a step-by-step debugger, and games and pages that work on ph
   right and show a tip for that exact kind of mistake. A part that goes badly gets extra practice, every unit ends with a test,
   and **Practise my weak spots** builds new questions from the mistakes you make. A 25-question final exam gives a grade
   (**A+, A, A-, B, C, D, F**; F is a fail) and a **certificate** with your name, drawn as a proper certificate (PNG or print/PDF). Every answer in the course
-  is checked by really running HumanLang in the tests. Progress stays in your browser.
+  is checked by really running HumanLang in the tests.
   **Sound effects:** a happy chime for a right answer, a low buzz for a wrong one, little taps, and short tunes when you finish a
   part, pass a test or get your grade. Made in the browser (no sound files), with a mute button that is remembered.
   **Certificate:** your own certificate with your name, grade, date and score, as a PNG or to print. **Home page:** a
