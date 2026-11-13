@@ -467,11 +467,6 @@ details.follow summary{cursor:pointer;font-weight:700}
 .grade{width:120px;height:120px;border-radius:50%;margin:10px auto;display:grid;place-items:center;font-size:3rem;font-weight:900;background:#58a700;color:#fff}
 .gF{background:#d33}.gD{background:#e08a00}.gC{background:#c9a227}
 .namefield{display:flex;flex-direction:column;gap:6px;margin:12px 0}
-.cert{border:10px double #2b6cb0;background:#fbf8ef;color:#1d2433;text-align:center;padding:28px 16px;border-radius:6px;margin:14px 0;font-family:Georgia,serif}
-.cert p{margin:.3em 0}.cert .c1{font:800 1.1rem system-ui;letter-spacing:.12em;color:#2b6cb0}.cert .c2{font-style:italic;color:#5d6678}
-.cert .cname{font-size:2.2rem;font-weight:700;border-bottom:3px solid #c9a227;display:inline-block;padding:0 24px;max-width:100%;overflow-wrap:anywhere}
-.cert .ccourse{font:800 1.7rem system-ui}.cert .cgrade{display:flex;flex-direction:column;align-items:center;margin:10px 0}
-.cert .cl{font:700 .8rem system-ui;letter-spacing:.2em;color:#5d6678}.cert .cg{font-size:4.2rem;font-weight:700;color:#2f7d32;line-height:1}.cert .cs{font:600 1rem system-ui;color:#5d6678}
-.cert .c3{font:.85rem system-ui;color:#5d6678}
-@media print{body *{visibility:hidden}#cert,#cert *{visibility:visible}#cert{position:absolute;left:0;top:0;width:100%;box-sizing:border-box}}
+.certhold{margin:14px 0}.certcanvas{display:block;width:100%;height:auto;border-radius:6px;box-shadow:0 8px 24px rgba(0,0,0,.18)}
+@media print{@page{size:landscape;margin:8mm}body *{visibility:hidden}#cert{visibility:visible;position:absolute;left:0;top:0;width:100%;box-shadow:none}}
 @media (max-width:560px){.unitcard{gap:10px;padding:12px}.go{display:none}.q{font-size:1.1rem}}

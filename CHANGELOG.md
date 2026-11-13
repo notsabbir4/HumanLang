@@ -46,7 +46,7 @@ platformer physics, a step-by-step debugger, and games and pages that work on ph
   fill the gap, put lines in order, find the bug, write a line, follow a variable). Wrong answers come back until you get them
   right and show a tip for that exact kind of mistake. A part that goes badly gets extra practice, every unit ends with a test,
   and **Practise my weak spots** builds new questions from the mistakes you make. A 25-question final exam gives a grade
-  (**A+, A, A-, B, C, D, F**; F is a fail) and a **certificate** with your name (PNG or print/PDF). Every answer in the course
+  (**A+, A, A-, B, C, D, F**; F is a fail) and a **certificate** with your name, drawn as a proper certificate (PNG or print/PDF). Every answer in the course
   is checked by really running HumanLang in the tests. Progress stays in your browser.
 - **Download and save:** the Playground has **Download .hum** (your program as a file) and **Save** (keeps it in your account;
   sign in with GitHub). Saved programs are listed on the Account page, where you can open or delete them.
