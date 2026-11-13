@@ -1,7 +1,7 @@
 /* The Beginner+ certificate. The design is the picture assets/certificate-template.jpg (made by the project owner).
    This file only fills its blank spaces: the name, the grade, the date, and a small score line. It is drawn on a canvas
    (1672 x 941); the page shows this canvas, the PNG download is this canvas, and printing prints it.
-   d = {name, grade, score, exam, units, date}.  Optional: d.signature = an <img> to put on the signature line. */
+   d = {name, grade, score, exam, units, date}.  The signature is the picture assets/certificate-signature.png. */
 (function (root) {
   "use strict";
   const W = 1672, H = 941, INK = "#0e2347", FONT = "'Playfair Display', Georgia, 'Times New Roman', serif";
@@ -15,7 +15,7 @@
     return size + 2;
   }
 
-  function draw(canvas, d, tpl) {
+  function draw(canvas, d, tpl, sig) {
     canvas.width = W; canvas.height = H;
     const g = canvas.getContext("2d");
     g.drawImage(tpl, 0, 0, W, H);
@@ -41,21 +41,23 @@
     g.textAlign = "center"; g.fillStyle = "#5a4a25"; g.font = "600 21px " + FONT;
     g.fillText("Final score " + d.score + "%   ·   Final exam " + d.exam + "%   ·   Unit tests " + d.units + "%", 836, 768);
 
-    // 5. the signature (left empty until the owner gives a signature image)
-    if (d.signature) { const s = d.signature, h = 76, w = (h * s.naturalWidth) / s.naturalHeight; g.drawImage(s, 1334 - w / 2, 818 - h, w, h); }
+    // 5. the signature picture (it has its own line and "HumanLang Team"), replacing the plain ones in the template
+    if (sig) {
+      wipe(g, tpl, 1140, 812, 380, 52, 765);
+      const w = 340, h = (w * sig.naturalHeight) / sig.naturalWidth;
+      g.drawImage(sig, 1342 - w / 2, 730, w, h);
+    }
     return canvas;
   }
 
-  // load the template and the fonts, then call back with the template image (null if it could not load)
+  // load the pictures and the fonts, then call back with (template, signature); the template is null if it could not load
   let cached = null;
   function ready(then, base) {
-    if (cached) return then(cached);
+    if (cached) return then(cached[0], cached[1]);
     const fonts = ["700 40px 'Playfair Display'", "italic 700 40px 'Playfair Display'", "800 40px 'Playfair Display'"];
     const waits = fonts.map((f) => (document.fonts && document.fonts.load ? document.fonts.load(f).catch(() => null) : null));
-    const img = new Image();
-    const gotImg = new Promise((res) => { img.onload = () => res(img); img.onerror = () => res(null); });
-    img.src = (base || "") + "certificate-template.jpg";
-    Promise.all(waits.concat([gotImg])).then((r) => { cached = r[r.length - 1]; then(cached); });
+    const load = (src) => new Promise((res) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => res(null); i.src = (base || "") + src; });
+    Promise.all([load("certificate-template.jpg"), load("certificate-signature.png")].concat(waits)).then((r) => { cached = [r[0], r[1]]; then(r[0], r[1]); });
   }
 
   root.HLCertificate = { draw, ready, W, H };

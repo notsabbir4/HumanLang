@@ -424,14 +424,14 @@ const Snd = window.HLSound || { play() {}, isMuted: () => true, setMuted() {} };
     const c = document.createElement("canvas"); c.id = "cert"; c.className = "certcanvas"; c.setAttribute("role", "img");
     c.setAttribute("aria-label", "Certificate for " + (d.name || "your name") + ", Beginner+, grade " + d.grade);
     c.width = window.HLCertificate.W; c.height = window.HLCertificate.H;
-    window.HLCertificate.ready((tpl) => { if (tpl) window.HLCertificate.draw(c, d, tpl); });
+    window.HLCertificate.ready((tpl, sig) => { if (tpl) window.HLCertificate.draw(c, d, tpl, sig); });
     return c;
   }
   function downloadPng(d) {
-    window.HLCertificate.ready((tpl) => {
+    window.HLCertificate.ready((tpl, sig) => {
       if (!tpl) return window.alert("The certificate picture could not load. Check your connection and try again.");
       const c = document.createElement("canvas");
-      window.HLCertificate.draw(c, d, tpl);
+      window.HLCertificate.draw(c, d, tpl, sig);
       c.toBlob((b) => { const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = "humanlang-beginner-plus-certificate.png"; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); });
     });
   }
