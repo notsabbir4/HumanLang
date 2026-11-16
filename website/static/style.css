@@ -479,3 +479,70 @@ details.follow summary{cursor:pointer;font-weight:700}
 .hc-link:hover{background:rgba(88,167,0,.16)}.hc-link span{color:var(--muted);font-size:.9rem}.hc-link .pbar{margin-top:6px;height:10px;flex:none}
 .coursebox .ccard{border:2px solid var(--line);border-radius:14px;padding:12px 16px;max-width:440px}.coursebox .ccard .btn{display:inline-block;margin-top:6px}
 .syncnote{margin-top:4px}
+
+/* ---- the courses: motion and the mascot ---- */
+/* buttons that press down (a shadow instead of a thicker border, so nothing around them ever jumps) */
+.unitcard,.opt,.tile,.bugline{border-bottom-width:2px;box-shadow:0 4px 0 var(--line);transform:translateY(0);transition:transform .16s cubic-bezier(.2,.9,.3,1.2),box-shadow .16s ease,border-color .2s ease,background-color .25s ease,opacity .25s ease}
+.unitcard:hover:not(:disabled),.opt:hover:not(:disabled),.tile:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 6px 0 var(--line)}
+.unitcard:active:not(:disabled),.opt:active:not(:disabled),.tile:active:not(:disabled),.bugline:active:not(:disabled){transform:translateY(3px);box-shadow:0 1px 0 var(--line);transition-duration:.06s}
+.opt.sel,.bugline.sel{box-shadow:0 4px 0 var(--accent);animation:pop .26s cubic-bezier(.3,1.5,.5,1)}
+.opt.good,.bugline.good{box-shadow:0 4px 0 #58a700;animation:goodpop .5s cubic-bezier(.3,1.5,.5,1)}
+.opt.bad,.bugline.bad{box-shadow:0 4px 0 #d33;animation:shake .42s cubic-bezier(.36,.07,.19,.97)}
+.upath .unow .unitcard{box-shadow:0 4px 0 #58a700;animation:ring 2.4s ease-in-out infinite}
+.bugline{box-shadow:0 2px 0 var(--line)}
+.btn.big.pmain{transition:transform .14s cubic-bezier(.2,.9,.3,1.2),background-color .25s,opacity .25s,box-shadow .14s}
+.btn.big.pmain:active:not(:disabled){transform:translateY(2px)}
+@keyframes pop{0%{transform:scale(.97)}60%{transform:scale(1.025)}100%{transform:scale(1)}}
+@keyframes goodpop{0%{transform:scale(1)}35%{transform:scale(1.045)}100%{transform:scale(1)}}
+@keyframes shake{10%,90%{transform:translateX(-2px)}20%,80%{transform:translateX(4px)}30%,50%,70%{transform:translateX(-6px)}40%,60%{transform:translateX(6px)}}
+@keyframes ring{0%,100%{box-shadow:0 4px 0 #58a700,0 0 0 0 rgba(88,167,0,.35)}50%{box-shadow:0 4px 0 #58a700,0 0 0 8px rgba(88,167,0,0)}}
+/* a screen and the things on it come in smoothly */
+.learn.enter,.player.enter{animation:rise .42s cubic-bezier(.22,1,.36,1) both}
+.stag{animation:rise .5s cubic-bezier(.22,1,.36,1) both;animation-delay:calc(var(--i,0) * 55ms)}
+.pbody .ex{animation:slidein .38s cubic-bezier(.22,1,.36,1) both}
+.pbody .teach{animation:none}
+@keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@keyframes slidein{from{opacity:0;transform:translateX(26px)}to{opacity:1;transform:none}}
+/* the progress bar fills smoothly and shines */
+.pbar i{transition:width .65s cubic-bezier(.22,1,.36,1);position:relative;overflow:hidden}
+.pbar i::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.45) 50%,transparent 70%);transform:translateX(-100%);animation:shine 2.8s ease-in-out infinite}
+@keyframes shine{0%,55%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+/* the answer banner slides up from the bottom */
+.banner.good,.banner.bad{display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px;animation:bannerup .4s cubic-bezier(.22,1,.36,1) both}
+.banner.good>*:not(.bm),.banner.bad>*:not(.bm):not(b){flex-basis:100%}
+.banner b{font-size:1.1rem}
+@keyframes bannerup{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+/* the mascot */
+.mascot{display:block;height:auto;user-select:none;-webkit-user-drag:none}
+.mascot.big{width:150px;max-height:150px;object-fit:contain;margin:0 auto 6px;animation:mascotin .7s cubic-bezier(.3,1.6,.45,1) both}
+.mascot.mid{width:64px;max-height:64px;object-fit:contain;flex:none}
+.mascot.bm{width:56px;height:56px;object-fit:contain;flex:none;animation:mascotin .55s cubic-bezier(.3,1.7,.45,1) both}
+.mascot.float{animation:float 3.2s ease-in-out infinite}
+.mascot.teachm{width:68px;height:68px;object-fit:contain;flex:none;animation:mascotin .6s cubic-bezier(.3,1.6,.45,1) both}
+.mascot.kindm{display:inline-block;width:34px;height:34px;object-fit:contain;vertical-align:middle;margin-left:8px;animation:wiggle 2.6s ease-in-out infinite}
+.mascot.peekm{position:absolute;right:92px;top:-26px;width:52px;height:52px;object-fit:contain;pointer-events:none}
+.mascot.snooze{position:fixed;right:14px;bottom:92px;width:74px;height:74px;object-fit:contain;animation:rise .5s ease both,float 3.6s ease-in-out .5s infinite;z-index:30;pointer-events:none}
+@keyframes mascotin{0%{opacity:0;transform:scale(.4) rotate(-10deg)}70%{transform:scale(1.08) rotate(3deg)}100%{opacity:1;transform:none}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes wiggle{0%,86%,100%{transform:rotate(0)}90%{transform:rotate(-12deg)}94%{transform:rotate(10deg)}98%{transform:rotate(-6deg)}}
+.lhead{position:relative}
+.lmas{display:flex;align-items:center;gap:14px}.lmas .mascot{width:96px;max-height:96px;object-fit:contain;flex:none}.lmas .lead{margin:0}
+.certtop{display:flex;align-items:center;gap:12px}.certtop h1{margin:0}
+.teachtop{display:flex;align-items:center;gap:12px;margin-bottom:4px}.teachtop .kind{margin:0}
+.weak{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px}.weak .btnrow{flex-basis:100%;margin:6px 0 0}
+.certcard .mascot{margin-right:4px}.certcard{justify-content:flex-start}.certcard .btnrow{margin:0 0 0 auto}
+.upath li.exam{position:relative}
+.confetti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:60}
+.grade{animation:gradepop .9s cubic-bezier(.3,1.6,.45,1) both;box-shadow:0 0 0 0 rgba(88,167,0,.5)}
+@keyframes gradepop{0%{transform:scale(.2) rotate(-40deg);opacity:0}70%{transform:scale(1.12) rotate(6deg);opacity:1}100%{transform:none;box-shadow:0 0 0 18px rgba(88,167,0,0)}}
+/* a picture of the page, shown inside a question */
+.pageview{margin:10px 0}.pageview iframe{width:100%;height:220px;border:0;background:#fff;border-radius:8px;display:block}
+.banner .pageview{flex-basis:100%;background:rgba(255,255,255,.55);color:var(--fg)}.banner .pageview iframe{height:170px}
+.teach .box.result iframe{width:100%;height:240px;border:0;background:#fff;border-radius:8px}
+.teach a[href^="playground.html"]{display:inline-block;margin:2px 0 12px;font-weight:700}
+/* big screens: a little more room for the mascot; small screens: keep things tidy */
+@media (max-width:560px){.mascot.peekm{right:12px}.lmas .mascot{width:72px}.mascot.snooze{bottom:100px;width:60px;height:60px}}
+@media (prefers-reduced-motion:reduce){
+  .learn.enter,.player.enter,.stag,.pbody .ex,.opt.sel,.opt.good,.opt.bad,.bugline.sel,.bugline.good,.bugline.bad,.upath .unow .unitcard,.pbar i::after,.banner.good,.banner.bad,.mascot,.grade{animation:none!important}
+  .unitcard,.opt,.tile,.bugline,.pbar i,.btn.big.pmain{transition:none!important}
+}

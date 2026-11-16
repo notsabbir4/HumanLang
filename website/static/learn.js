@@ -6,8 +6,10 @@
   const root = document.getElementById("learn");
   if (!root || !L) return;
   const data = JSON.parse(document.getElementById("learn-data").textContent);
-const Snd = window.HLSound || { play() {}, isMuted: () => true, setMuted() {} };
-  const KEY = "hl-beginner", COURSE = "beginner-plus", PASS = 60;
+  const Snd = window.HLSound || { play() {}, isMuted: () => true, setMuted() {} };
+  const CC = data.course || { id: "beginner-plus", name: "Beginner+", key: "hl-beginner", exam: 25, lead: "" };
+  const KEY = CC.key, COURSE = CC.id, PASS = 60, EXAM = CC.exam || 25;
+  const REDUCED = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
   const unitsById = {}; data.units.forEach((u) => (unitsById[u.n] = u));
 
   // ---- saving ---------------------------------------------------------------------------------------
@@ -51,6 +53,7 @@ const Snd = window.HLSound || { play() {}, isMuted: () => true, setMuted() {} };
   function save(skipPush) {
     if (!skipPush) pushSoon();
     try {
+      S.t = Date.now();
       localStorage.setItem(KEY, JSON.stringify(S));
       const all = JSON.parse(localStorage.getItem("hl-progress") || "{}") || {};
       all[COURSE] = data.units.filter((u) => (unitState(u.n).test || 0) >= PASS).map((u) => u.n);
@@ -75,13 +78,61 @@ const Snd = window.HLSound || { play() {}, isMuted: () => true, setMuted() {} };
   const textBox = (text, cls, label) => { const b = h("div", { class: "box " + cls }); if (label) b.appendChild(h("span", { class: "tag", text: label })); const p = h("pre"); p.appendChild(h("code", { text })); b.appendChild(p); return b; };
   const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;");
   const skillName = (s) => data.skills[s] || s;
-  function show(node) { root.innerHTML = ""; root.appendChild(node); window.scrollTo(0, 0); }
+  // the mascot: one picture for each feeling (website/static/mascot/<feeling>.png)
+  const mascot = (name, cls) => h("img", { class: "mascot m-" + name + (cls ? " " + cls : ""), src: "mascot/" + name + ".png", alt: "", "aria-hidden": "true", draggable: "false", width: 160, height: 160 });
+  const pickOf = (list) => list[Math.floor(Math.random() * list.length)];
+  function show(node) {
+    root.innerHTML = ""; root.appendChild(node); window.scrollTo(0, 0);
+    node.classList.add("enter");
+    // things on the screen come in one after the other
+    node.querySelectorAll(".upath > li, .gradetable > li, .mistakes li, .weak, .certcard, .teach > *").forEach((el, i) => { el.style.setProperty("--i", Math.min(i, 12)); el.classList.add("stag"); });
+    node.querySelectorAll(".bigscore[data-n]").forEach((el) => countUp(el));
+  }
+  // a number that counts up to its value
+  function countUp(el) {
+    const to = parseInt(el.getAttribute("data-n"), 10), suffix = el.getAttribute("data-suffix") || "", of = el.getAttribute("data-of");
+    const fmt = (v) => (of ? v + " / " + of : v + suffix);
+    if (REDUCED || !to) { el.textContent = fmt(to); return; }
+    const t0 = performance.now(), dur = Math.min(900, 250 + to * 12);
+    const step = (t) => { const k = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - k, 3); el.textContent = fmt(Math.round(to * e)); if (k < 1) requestAnimationFrame(step); };
+    el.textContent = fmt(0); requestAnimationFrame(step);
+  }
+  // a little confetti, drawn once on top of the page (not for people who asked for less motion)
+  function confetti(amount) {
+    if (REDUCED || !document.createElement("canvas").getContext) return;
+    const c = document.createElement("canvas"); c.className = "confetti"; c.setAttribute("aria-hidden", "true");
+    const w = (c.width = window.innerWidth), hgt = (c.height = window.innerHeight), g = c.getContext("2d");
+    document.body.appendChild(c);
+    const colors = ["#58a700", "#1cb0f6", "#ffc800", "#ff4b4b", "#ce82ff", "#ff9600"];
+    const n = amount || 110, bits = [];
+    for (let i = 0; i < n; i++) bits.push({ x: w / 2 + (Math.random() - 0.5) * w * 0.3, y: hgt * 0.35, vx: (Math.random() - 0.5) * 13, vy: -Math.random() * 13 - 4, r: Math.random() * 6.3, vr: (Math.random() - 0.5) * 0.4, s: 5 + Math.random() * 6, c: colors[i % colors.length] });
+    const t0 = performance.now();
+    (function frame(t) {
+      const age = t - t0; g.clearRect(0, 0, w, hgt);
+      bits.forEach((b) => { b.vy += 0.34; b.x += b.vx; b.y += b.vy; b.r += b.vr; b.vx *= 0.99; g.save(); g.translate(b.x, b.y); g.rotate(b.r); g.globalAlpha = Math.max(0, 1 - age / 2600); g.fillStyle = b.c; g.fillRect(-b.s / 2, -b.s / 3, b.s, b.s * 0.66); g.restore(); });
+      if (age < 2600) requestAnimationFrame(frame); else c.remove();
+    })(t0);
+  }
+  // move things smoothly: remember where each tile is, make the change, then glide every tile from the old place to the new one
+  function flip(items, change) {
+    const before = new Map(items.map((el) => [el, el.getBoundingClientRect()]));
+    change();
+    if (REDUCED || !items[0] || !items[0].animate) return;
+    items.forEach((el) => {
+      const a = before.get(el), b = el.getBoundingClientRect(), dx = a.left - b.left, dy = a.top - b.top;
+      if (!dx && !dy) return;
+      el.animate([{ transform: "translate(" + dx + "px," + dy + "px) scale(1.03)", zIndex: 5 }, { transform: "none", zIndex: 5 }], { duration: 300, easing: "cubic-bezier(.2,.9,.25,1)" });
+    });
+  }
+  const bigScore = (text, n, of, suffix) => h("p", { class: "bigscore", text, "data-n": n, "data-of": of != null ? of : false, "data-suffix": suffix || false });
   const pctOf = (a, b) => (b ? Math.round((100 * a) / b) : 0);
 
   // ---- one exercise on the screen ---------------------------------------------------------------------
   // returns {node, get(), ready(), lock(result)}; onChange tells the player the answer may be ready
+  const pageFrame = (doc, label) => h("div", { class: "box result pageview" }, h("span", { class: "tag", text: label || "What it looks like" }),
+    h("iframe", { sandbox: "", title: "The page", srcdoc: doc, loading: "lazy" }));
   function renderEx(ex, onChange, onEnter) {
-    const wrap = h("div", { class: "ex" });
+    const wrap = h("div", { class: "ex", "data-id": ex.id || "" });
     let ans = null, locked = false;
     const set = (v) => { ans = v; onChange(); };
     const q = (t) => wrap.appendChild(h("p", { class: "q", text: t }));
@@ -90,12 +141,13 @@ const Snd = window.HLSound || { play() {}, isMuted: () => true, setMuted() {} };
     let lock = () => { locked = true; };
     let ready = () => ans !== null && ans !== "";
     const KIND = { predict: "What will it show?", trace: "Follow the program", choose: "Question", type: "Type the output", fill: "Fill the gap", order: "Put in order", bug: "Find the bug", write: "Write a line" };
-    wrap.appendChild(h("p", { class: "kind", text: KIND[ex.kind] }));
+    wrap.appendChild(h("p", { class: "kind" }, KIND[ex.kind], ex.kind === "bug" ? mascot("angry", "kindm") : null));
 
     if (ex.options) {
       if (ex.kind === "trace") q(ex.q || "After the last line has run, what is inside " + ex.var + "?");
       else q(ex.q || (ex.error ? "What does HL say?" : ex.kind === "choose" ? "" : "What does this program show?"));
       if (ex.html) wrap.appendChild(codeBox(ex.html));
+      if (ex.page && (ex.kind === "predict" || ex.kind === "choose" || ex.kind === "trace")) wrap.appendChild(pageFrame(ex.page));
       inputBox();
       const order = L.shuffle(ex.options.map((o, i) => i));
       const list = h("div", { class: "opts", role: "group" });
@@ -135,8 +187,9 @@ const Snd = window.HLSound || { play() {}, isMuted: () => true, setMuted() {} };
         t.addEventListener("click", () => {
           if (locked) return;
           const i = placed.findIndex((p) => p.id === id);
-          Snd.play("tap"); if (i >= 0) { placed.splice(i, 1); pool.appendChild(t); } else { placed.push({ id, line }); done.appendChild(t); }
-          done.classList.toggle("has", placed.length > 0); refresh();
+          Snd.play("tap");
+          flip(tiles, () => { if (i >= 0) { placed.splice(i, 1); pool.appendChild(t); } else { placed.push({ id, line }); done.appendChild(t); } done.classList.toggle("has", placed.length > 0); });
+          refresh();
         });
         pool.appendChild(t); return t;
       });
@@ -173,25 +226,28 @@ const Snd = window.HLSound || { play() {}, isMuted: () => true, setMuted() {} };
   // ---- the player: a list of exercises, one at a time -------------------------------------------------
   // cfg: {title, items, requeue, feedback, teach, onDone(summary), onQuit}
   function play(cfg) {
-    let queue = cfg.items.slice(), pos = 0, firstTry = {}, requeued = {}, right = 0, miss = [], answered = {};
+    let queue = cfg.items.slice(), pos = 0, firstTry = {}, requeued = {}, right = 0, miss = [], answered = {}, streak = 0, slump = 0, idleT = null;
     const total = cfg.items.length;
     const fb = cfg.feedback !== false;
     const bar = h("i"), count = h("span", { class: "pcount" });
     const body = h("div", { class: "pbody" });
     const banner = h("div", { class: "banner", "aria-live": "polite" });
     const main = h("button", { type: "button", class: "btn big pmain" });
-    const quit = h("button", { type: "button", class: "pquit", "aria-label": "Leave this lesson", title: "Leave", text: "✕", onclick: () => { if (window.confirm("Leave? Your answers in this round will not be counted.")) cfg.onQuit(); } });
+    const quit = h("button", { type: "button", class: "pquit", "aria-label": "Leave this lesson", title: "Leave", text: "✕", onclick: () => { if (window.confirm("Leave? Your answers in this round will not be counted.")) { clearTimeout(idleT); cfg.onQuit(); } } });
     const screen = h("div", { class: "player" },
       h("div", { class: "ptop" }, quit, h("div", { class: "pbar" }, bar), count, soundBtn()),
       body, h("div", { class: "pfoot" }, banner, main));
     show(screen);
+    // if nobody touches anything for a while, the mascot falls asleep (and wakes up on the next touch)
+    const wake = () => { const z = screen.querySelector(".snooze"); if (z) z.remove(); clearTimeout(idleT); idleT = setTimeout(() => { if (screen.isConnected && !screen.querySelector(".snooze")) screen.appendChild(mascot("sleepy", "snooze")); }, 45000); };
+    ["pointerdown", "keydown", "input"].forEach((ev) => screen.addEventListener(ev, wake)); wake();
     document.onkeydown = (e) => { if (e.key === "Enter" && !e.shiftKey && e.target.tagName !== "TEXTAREA" && !main.disabled && e.target.tagName !== "BUTTON") { e.preventDefault(); main.click(); } };
     const progress = () => { const n = Object.keys(answered).length; bar.style.width = pctOf(n, total) + "%"; count.textContent = n + " / " + total; };
 
     function teachCard(then) {
       body.innerHTML = ""; banner.className = "banner"; banner.innerHTML = "";
       const card = h("div", { class: "teach", html: cfg.teach });
-      body.appendChild(h("p", { class: "kind", text: cfg.title })); body.appendChild(card);
+      body.appendChild(h("div", { class: "teachtop" }, mascot(cfg.mascot || "idea", "teachm"), h("p", { class: "kind", text: cfg.title }))); body.appendChild(card);
       main.textContent = "Got it! Let's practise"; main.disabled = false; main.onclick = then; bar.style.width = "0%"; count.textContent = "0 / " + total;
       window.scrollTo(0, 0); main.focus();
     }
@@ -215,9 +271,12 @@ const Snd = window.HLSound || { play() {}, isMuted: () => true, setMuted() {} };
         view.lock(res);
         const good = res.ok;
         Snd.play(good ? "right" : "wrong");
+        if (good) { streak++; slump = 0; } else { slump++; streak = 0; }
         banner.className = "banner " + (good ? "good" : "bad");
         banner.innerHTML = "";
-        banner.appendChild(h("b", { text: good ? ["Correct!", "Nice!", "Yes!", "Well done!"][Math.floor(Math.random() * 4)] : "Not quite" }));
+        const face = good ? (streak >= 5 ? "cool" : streak >= 3 ? "cheer" : pickOf(["thumbs", "goodjob", "point"])) : (slump >= 3 ? "dizzy" : slump === 2 ? "confused" : pickOf(["oops", "sad"]));
+        banner.appendChild(mascot(face, "bm"));
+        banner.appendChild(h("b", { text: good ? (streak >= 3 ? streak + " in a row!" : pickOf(["Correct!", "Nice!", "Yes!", "Well done!"])) : "Not quite" }));
         if (!good) {
           banner.appendChild(h("div", { class: "ans" }, h("span", { text: "Answer: " }), h("code", { text: res.right == null || res.right === "" ? "(nothing)" : res.right })));
           banner.appendChild(h("p", { text: ex.why }));
@@ -225,12 +284,14 @@ const Snd = window.HLSound || { play() {}, isMuted: () => true, setMuted() {} };
           if (tip && tip !== ex.why) banner.appendChild(h("p", { class: "tip", text: "Tip: " + tip }));
           if (cfg.requeue && (requeued[ex.id] || 0) < 2) { requeued[ex.id] = (requeued[ex.id] || 0) + 1; queue.push(ex); }
         }
+        if (good && ex.page && (ex.kind === "fill" || ex.kind === "write" || ex.kind === "order")) banner.appendChild(pageFrame(ex.page, "Your page"));
         main.textContent = "Continue"; main.className = "btn big pmain " + (good ? "good" : "bad");
         main.onclick = () => { Snd.play("next"); pos++; next(); }; main.focus();
       };
     }
 
     function finish() {
+      clearTimeout(idleT);
       cfg.onDone({ right, total, pct: pctOf(right, total), miss });
     }
     if (cfg.teach) teachCard(next); else next();
@@ -267,12 +328,13 @@ const Snd = window.HLSound || { play() {}, isMuted: () => true, setMuted() {} };
     const weak = L.weakSkills(S.stats, 5);
     const doneN = data.units.filter(unitDone).length;
     const el = h("div", { class: "learn" });
-    el.appendChild(h("div", { class: "lhead" }, h("div", { class: "lhtop" }, h("h1", { text: "Beginner+" }), soundBtn()),
-      h("p", { class: "lead", text: "Short lessons, quick questions, and a test after every unit. Your mistakes decide what you practise next. At the end you get a grade and a certificate." }),
+    el.appendChild(h("div", { class: "lhead" }, h("div", { class: "lhtop" }, h("h1", { text: CC.name }), soundBtn()),
+      h("div", { class: "lmas" }, mascot(allUnitsDone() && S.exam.grade ? "party" : doneN ? "thumbs" : "run", "float"),
+        h("p", { class: "lead", text: CC.lead })),
       h("div", { class: "pbar wide", role: "progressbar", "aria-valuemin": 0, "aria-valuemax": data.units.length, "aria-valuenow": doneN }, h("i", { style: "width:" + pctOf(doneN, data.units.length) + "%" })),
       h("p", { class: "tiny", text: doneN + " of " + data.units.length + " units passed" })));
     if (weak.length) {
-      el.appendChild(h("div", { class: "weak" }, h("b", { text: "Your weak spots: " }), h("span", { text: weak.map(skillName).join(", ") }),
+      el.appendChild(h("div", { class: "weak" }, mascot("confused", "mid"), h("b", { text: "Your weak spots: " }), h("span", { text: weak.map(skillName).join(", ") }),
         btnRow(btn("Practise my weak spots", startPractice, "good"))));
     }
     const path = h("ol", { class: "upath" });
@@ -289,25 +351,25 @@ const Snd = window.HLSound || { play() {}, isMuted: () => true, setMuted() {} };
           stat, h("span", { class: "go", text: nextUnit === u ? "Start" : done ? "Review" : "Open" }))));
     });
     const ok = allUnitsDone(), ex = S.exam;
-    path.appendChild(h("li", { class: "exam" + (ok ? "" : " locked") },
+    path.appendChild(h("li", { class: "exam" + (ok ? "" : " locked") }, ok ? null : mascot("peek", "peekm"),
       h("button", { type: "button", class: "unitcard", disabled: !ok, onclick: examIntro },
         h("span", { class: "un", text: "★" }),
-        h("span", { class: "ut" }, h("b", { text: "Final exam" }), h("small", { text: ok ? "25 questions from the whole course. It gives you your grade and certificate." : "Pass every unit test (" + PASS + "% or more) to open the exam." })),
+        h("span", { class: "ut" }, h("b", { text: "Final exam" }), h("small", { text: ok ? EXAM + " questions from the whole course. It gives you your grade and certificate." : "Pass every unit test (" + PASS + "% or more) to open the exam." })),
         ex.grade ? h("span", { class: "badge " + (L.passed(ex.grade) ? "ok" : ""), text: ex.grade + " · " + ex.score + "%" }) : null,
         h("span", { class: "go", text: ok ? (ex.tries ? "Again" : "Start") : "Locked" }))));
     el.appendChild(path);
-    if (ex.grade && L.passed(ex.grade)) el.appendChild(h("div", { class: "certcard" }, h("div", {}, h("b", { text: "You passed with grade " + ex.grade + "." }), h("p", { class: "tiny", text: "Your certificate is ready." })), btnRow(btn("See my certificate", certScreen, "good"))));
+    if (ex.grade && L.passed(ex.grade)) el.appendChild(h("div", { class: "certcard" }, mascot("hearteyes", "mid"), h("div", {}, h("b", { text: "You passed with grade " + ex.grade + "." }), h("p", { class: "tiny", text: "Your certificate is ready." })), btnRow(btn("See my certificate", certScreen, "good"))));
     el.appendChild(h("p", { class: "tiny syncnote", "aria-live": "polite" }));
     el.appendChild(h("p", { class: "tiny foot" }, h("a", { href: "tutorial-all.html", text: "Read all chapters as plain pages" }), " · ",
-      h("a", { href: "#", text: "Start over", onclick: (e) => { e.preventDefault(); if (window.confirm("Delete all your progress in Beginner+?" + (syncState === "off" ? "" : " This also clears it in your account."))) { S = fresh(); save(); if (syncState !== "off") push(); pathScreen(); } } })));
+      h("a", { href: "#", text: "Start over", onclick: (e) => { e.preventDefault(); if (window.confirm("Delete all your progress in " + CC.name + "?" + (syncState === "off" ? "" : " This also clears it in your account."))) { S = fresh(); save(); if (syncState !== "off") push(); pathScreen(); } } })));
     show(el); paintSync();
   }
 
   function unitScreen(u) {
     const st = unitState(u.n), el = h("div", { class: "learn" });
-    el.appendChild(h("nav", { class: "crumbs" }, h("a", { href: "#", text: "Beginner+", onclick: (e) => { e.preventDefault(); pathScreen(); } }), " › Unit " + u.n));
+    el.appendChild(h("nav", { class: "crumbs" }, h("a", { href: "#", text: CC.name, onclick: (e) => { e.preventDefault(); pathScreen(); } }), " › Unit " + u.n));
     el.appendChild(h("h1", { text: "Unit " + u.n + ": " + u.title }));
-    el.appendChild(h("p", { class: "lead", text: u.blurb }));
+    el.appendChild(h("div", { class: "lmas" }, mascot("run", "float"), h("p", { class: "lead", text: u.blurb })));
     const list = h("ol", { class: "upath parts" });
     let firstOpen = u.parts.findIndex((p, i) => !st.parts[i]);
     u.parts.forEach((p, i) => {
@@ -331,7 +393,7 @@ const Snd = window.HLSound || { play() {}, isMuted: () => true, setMuted() {} };
   function partRun(u, pi) {
     const part = u.parts[pi];
     play({
-      title: "Unit " + u.n + ": " + part.title, teach: part.teach, items: part.ex, requeue: true,
+      title: "Unit " + u.n + ": " + part.title, teach: part.teach, items: part.ex, requeue: true, mascot: ["idea", "point", "code"][pi % 3],
       onQuit: () => unitScreen(u),
       onDone: (r) => {
         const st = unitState(u.n); st.parts[pi] = true; save();
@@ -339,7 +401,7 @@ const Snd = window.HLSound || { play() {}, isMuted: () => true, setMuted() {} };
         if (r.pct < 67) {
           const more = L.extra(data, part, 3, []);
           if (more.length) {
-            const el = h("div", { class: "learn center" }, h("h2", { text: "Let's practise that a little more" }),
+            const el = h("div", { class: "learn center" }, mascot("idea", "big"), h("h2", { text: "Let's practise that a little more" }),
               h("p", { class: "lead", text: "You got " + r.right + " of " + r.total + " right the first time. That is fine. A few more questions on the same ideas will make it stick." }),
               mistakeBlock(r.miss), btnRow(btn("Practise", () => play({ title: "Extra practice", items: more, requeue: true, onQuit: () => unitScreen(u), onDone: (r2) => partDone(u, pi, r2, true) }), "big good")));
             return show(el);
@@ -352,8 +414,9 @@ const Snd = window.HLSound || { play() {}, isMuted: () => true, setMuted() {} };
   function partDone(u, pi, r, extra) {
     Snd.play(r.pct === 100 ? "perfect" : "part");
     const last = pi === u.parts.length - 1;
-    const el = h("div", { class: "learn center" }, h("h2", { text: extra ? "Better!" : r.pct === 100 ? "Perfect!" : "Part complete" }),
-      h("p", { class: "bigscore", text: r.right + " / " + r.total }), h("p", { class: "tiny", text: "right the first time" }), mistakeBlock(r.miss),
+    if (r.pct === 100) confetti(70);
+    const el = h("div", { class: "learn center" }, mascot(r.pct === 100 ? "party" : r.pct >= 67 || extra ? "goodjob" : "idea", "big"), h("h2", { text: extra ? "Better!" : r.pct === 100 ? "Perfect!" : "Part complete" }),
+      bigScore(r.right + " / " + r.total, r.right, r.total), h("p", { class: "tiny", text: "right the first time" }), mistakeBlock(r.miss),
       btnRow(last ? btn("On to the unit test", () => testRun(u), "big good") : btn("Next part", () => partRun(u, pi + 1), "big good"), btn("Back to the unit", () => unitScreen(u), "ghost")));
     show(el);
   }
@@ -366,8 +429,9 @@ const Snd = window.HLSound || { play() {}, isMuted: () => true, setMuted() {} };
         const st = unitState(u.n); st.test = Math.max(st.test == null ? -1 : st.test, r.pct); save();
         const pass = r.pct >= PASS, weak = L.weakSkills(S.stats, 4);
         Snd.play(!pass ? "fail" : r.pct === 100 ? "perfect" : "pass");
-        const el = h("div", { class: "learn center" }, h("h2", { text: pass ? (r.pct === 100 ? "Perfect test!" : "Unit " + u.n + " passed") : "Not quite there yet" }),
-          h("p", { class: "bigscore", text: r.pct + "%" }), h("p", { class: "tiny", text: r.right + " of " + r.total + " right" }),
+        if (pass) confetti(r.pct === 100 ? 120 : 60);
+        const el = h("div", { class: "learn center" }, mascot(!pass ? "sad" : r.pct === 100 ? "party" : "jump", "big"), h("h2", { text: pass ? (r.pct === 100 ? "Perfect test!" : "Unit " + u.n + " passed") : "Not quite there yet" }),
+          bigScore(r.pct + "%", r.pct, null, "%"), h("p", { class: "tiny", text: r.right + " of " + r.total + " right" }),
           h("p", { class: "lead", text: pass ? (weak.length ? "Good. A little practice on your weak spots will make you even stronger." : "You are doing very well.") : "You need " + PASS + "% to pass. Practise your mistakes, then try the test again." }),
           mistakeBlock(r.miss));
         const nx = unitsById[u.n + 1];
@@ -395,8 +459,9 @@ const Snd = window.HLSound || { play() {}, isMuted: () => true, setMuted() {} };
         save();
         const weak = L.weakSkills(S.stats, 4);
         Snd.play(weak.length ? "part" : "pass");
-        const el = h("div", { class: "learn center" }, h("h2", { text: weak.length ? "Good work" : "Weak spots fixed!" }),
-          h("p", { class: "bigscore", text: r.right + " / " + r.total }), h("p", { class: "tiny", text: "right the first time" }),
+        if (!weak.length) confetti(60);
+        const el = h("div", { class: "learn center" }, mascot(weak.length ? "code" : "cool", "big"), h("h2", { text: weak.length ? "Good work" : "Weak spots fixed!" }),
+          bigScore(r.right + " / " + r.total, r.right, r.total), h("p", { class: "tiny", text: "right the first time" }),
           h("p", { class: "lead", text: weak.length ? "Still to practise: " + weak.map(skillName).join(", ") + "." : "Nothing is weak right now. Nice." }), mistakeBlock(r.miss),
           btnRow(weak.length ? btn("More practice", startPractice, "big good") : null, btn("Back to the path", pathScreen, weak.length ? "ghost" : "big good")));
         show(el);
@@ -405,14 +470,14 @@ const Snd = window.HLSound || { play() {}, isMuted: () => true, setMuted() {} };
   }
 
   function examIntro() {
-    const el = h("div", { class: "learn center" }, h("h1", { text: "Final exam" }),
-      h("p", { class: "lead", text: "25 questions from the whole course. There is no feedback until the end, so take your time. Your grade is 60% this exam and 40% your unit tests." }),
+    const el = h("div", { class: "learn center" }, mascot("wow", "big"), h("h1", { text: "Final exam" }),
+      h("p", { class: "lead", text: EXAM + " questions from the whole course. There is no feedback until the end, so take your time. Your grade is 60% this exam and 40% your unit tests." }),
       h("ul", { class: "gradetable" }, ...[["A+", "97 – 100"], ["A", "93 – 96"], ["A-", "90 – 92"], ["B", "80 – 89"], ["C", "70 – 79"], ["D", "60 – 69"], ["F", "below 60: fail"]].map((g) => h("li", {}, h("b", { text: g[0] }), " " + g[1]))),
       btnRow(btn("Start the exam", examRun, "big good"), btn("Not yet", pathScreen, "ghost")));
     show(el);
   }
   function examRun() {
-    const items = L.examQuestions(data, null, S.exam.lastIds || []);
+    const items = L.examQuestions(data, null, S.exam.lastIds || [], EXAM);
     play({
       title: "Final exam", items, requeue: false, feedback: false, onQuit: pathScreen,
       onDone: (r) => {
@@ -423,9 +488,10 @@ const Snd = window.HLSound || { play() {}, isMuted: () => true, setMuted() {} };
         save();
         const pass = L.passed(grade);
         Snd.play(pass ? "grade" : "fail");
-        const el = h("div", { class: "learn center" }, h("h2", { text: pass ? "You passed!" : "Not passed this time" }),
+        if (pass) { confetti(160); setTimeout(() => confetti(90), 700); }
+        const el = h("div", { class: "learn center" }, mascot(pass ? (score >= 93 ? "party" : "cheer") : "sleepy", "big"), h("h2", { text: pass ? "You passed!" : "Not passed this time" }),
           h("div", { class: "grade g" + grade.replace("+", "p").replace("-", "m") }, h("span", { text: grade })),
-          h("p", { class: "bigscore", text: score + "%" }), h("p", { class: "tiny", text: "Exam " + r.pct + "% (" + r.right + " of " + r.total + ") · unit tests average " + Math.round(unitBest.reduce((a, b) => a + (b || 0), 0) / unitBest.length) + "%" }),
+          bigScore(score + "%", score, null, "%"), h("p", { class: "tiny", text: "Exam " + r.pct + "% (" + r.right + " of " + r.total + ") · unit tests average " + Math.round(unitBest.reduce((a, b) => a + (b || 0), 0) / unitBest.length) + "%" }),
           h("p", { class: "lead", text: pass ? "Well done. Your certificate is ready." : "Below 60% is a fail, but nothing is lost. Practise your weak spots, then take the exam again with new questions." }),
           mistakeBlock(r.miss),
           btnRow(pass ? btn("Get my certificate", certScreen, "big good") : btn("Practise my mistakes", startPractice, "big good"), btn(pass ? "Try for a better grade" : "Take the exam again", examIntro, "ghost"), btn("Back to the path", pathScreen, "ghost")));
@@ -437,19 +503,19 @@ const Snd = window.HLSound || { play() {}, isMuted: () => true, setMuted() {} };
   // ---- the certificate ----------------------------------------------------------------------------------------
   function certData() {
     const ex = S.exam, unitBest = data.units.map((u) => unitState(u.n).test || 0);
-    return { name: S.name.trim(), grade: ex.grade, score: ex.score, exam: ex.best, units: Math.round(unitBest.reduce((a, b) => a + b, 0) / unitBest.length), date: S.exam.date || new Date().toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" }) };
+    return { course: CC.name, name: S.name.trim(), grade: ex.grade, score: ex.score, exam: ex.best, units: Math.round(unitBest.reduce((a, b) => a + b, 0) / unitBest.length), date: S.exam.date || new Date().toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" }) };
   }
   function certScreen() {
     if (!S.exam.grade || !L.passed(S.exam.grade)) return pathScreen();
     if (!S.exam.date) { S.exam.date = new Date().toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" }); save(); }
     const el = h("div", { class: "learn" });
-    el.appendChild(h("nav", { class: "crumbs" }, h("a", { href: "#", text: "Beginner+", onclick: (e) => { e.preventDefault(); pathScreen(); } }), " › Certificate"));
+    el.appendChild(h("nav", { class: "crumbs" }, h("a", { href: "#", text: CC.name, onclick: (e) => { e.preventDefault(); pathScreen(); } }), " › Certificate"));
     const name = h("input", { type: "text", class: "writeline", maxlength: 40, placeholder: "Your name", "aria-label": "Your name", value: S.name });
     const holder = h("div", { class: "certhold" });
     const draw = () => { holder.innerHTML = ""; const d = certData(); holder.appendChild(certHtml(d)); dl.disabled = pr.disabled = !d.name; };
     const dl = btn("Download certificate (PNG)", () => downloadPng(certData()), "good"), pr = btn("Print / save as PDF", () => window.print());
     name.addEventListener("input", () => { S.name = name.value; save(); draw(); });
-    el.appendChild(h("h1", { text: "Your certificate" }));
+    el.appendChild(h("div", { class: "certtop" }, mascot("love", "mid"), h("h1", { text: "Your certificate" })));
     el.appendChild(h("label", { class: "namefield" }, h("span", { text: "Type your name as it should appear:" }), name));
     el.appendChild(holder); el.appendChild(btnRow(dl, pr, btn("Back", pathScreen, "ghost")));
     el.appendChild(h("p", { class: "tiny", text: "This certificate is made by the HumanLang website, in your browser. It shows what you did in the course. It is not an official qualification." }));
@@ -457,7 +523,7 @@ const Snd = window.HLSound || { play() {}, isMuted: () => true, setMuted() {} };
   }
   function certHtml(d) {
     const c = document.createElement("canvas"); c.id = "cert"; c.className = "certcanvas"; c.setAttribute("role", "img");
-    c.setAttribute("aria-label", "Certificate for " + (d.name || "your name") + ", Beginner+, grade " + d.grade);
+    c.setAttribute("aria-label", "Certificate for " + (d.name || "your name") + ", " + CC.name + ", grade " + d.grade);
     c.width = window.HLCertificate.W; c.height = window.HLCertificate.H;
     window.HLCertificate.ready((tpl, sig) => { if (tpl) window.HLCertificate.draw(c, d, tpl, sig); });
     return c;
@@ -467,7 +533,7 @@ const Snd = window.HLSound || { play() {}, isMuted: () => true, setMuted() {} };
       if (!tpl) return window.alert("The certificate picture could not load. Check your connection and try again.");
       const c = document.createElement("canvas");
       window.HLCertificate.draw(c, d, tpl, sig);
-      c.toBlob((b) => { const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = "humanlang-beginner-plus-certificate.png"; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); });
+      c.toBlob((b) => { const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = "humanlang-" + COURSE + "-certificate.png"; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); });
     });
   }
 

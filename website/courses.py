@@ -13,7 +13,7 @@ COURSES = [
         "tagline": "Never coded before? Start here.",
         "for": "Anyone. No experience needed.",
         "time": "about 60 minutes, like a game",
-        "interactive": True, "units": 10,
+        "interactive": True, "units": 10, "module": "beginner",
         "learn": ["Make the computer talk, ask questions and remember answers",
                   "Make decisions with if, and repeat things with loops",
                   "Keep lists, write your own steps (functions), build a small program and fix its mistakes",
@@ -26,6 +26,7 @@ COURSES = [
         "tagline": "Make pages, buttons and pixel art in plain words.",
         "for": "People who want to make things that look good.",
         "time": "about 60 minutes",
+        "interactive": True, "units": 6, "module": "designer",
         "learn": ["Build web pages with headings, pictures, buttons and text boxes",
                   "Draw shapes and pixel-art sprites",
                   "Make pages that react when someone clicks or types"],
@@ -37,6 +38,7 @@ COURSES = [
         "tagline": "Sprites, keys and a game loop: make your own 2D game.",
         "for": "People who want to make games.",
         "time": "about 70 minutes",
+        "interactive": True, "units": 6, "module": "gamemaker",
         "learn": ["Draw sprites and maps, and move things with the keys",
                   "Use physics for platformers, your own pictures, sounds and music",
                   "Make a game that works on phones too"],
@@ -48,6 +50,7 @@ COURSES = [
         "tagline": "You know the basics. Go deep.",
         "for": "People who finished Beginner+, or already know variables, if, loops and lists.",
         "time": "about 50 minutes",
+        "interactive": True, "units": 6, "module": "master",
         "learn": ["Write your own functions and split a program into files",
                   "Handle mistakes without crashing, and read spreadsheets",
                   "Calculate formulas, remember things between runs, and step through a program"],
@@ -115,7 +118,7 @@ def picker(chapters_count):
     return f"""<section class="coursehead">
 <h1>Choose your course</h1>
 <p class="lead">You do not need to learn everything. Pick the course that fits what you want to make.
-Each course is a few short lessons, one page each.</p>
+Every course is a game-like path: short lessons, quick questions, a test after each unit, a grade and a certificate.</p>
 <p class="cnote">Not sure? Take <b>Beginner+</b>. You can always take another course later.</p>
 </section>
 <div class="courses">{cards}</div>
@@ -183,7 +186,7 @@ def lesson(c, k, chapters, body_html):
 
 
 def app(c, data_json):
-    """The interactive course: one page, played by learn.js (the exercises are data, built from website/beginner.py)."""
+    """The interactive course: one page, played by learn.js (the exercises are data, built from the course's own module: beginner.py, designer.py, gamemaker.py, master.py)."""
     learn = "".join(f"<li>{_e(x)}</li>" for x in c["learn"])
     return f"""<nav class="crumbs"><a href="tutorial.html">All courses</a> &rsaquo; {_e(c["name"])}</nav>
 <div id="learn" class="learnapp"><noscript><p>This course needs JavaScript. You can read the same lessons as plain pages:
@@ -207,9 +210,9 @@ def build(out, md_text, render_markdown, page, write, highlight=None):
     write(os.path.join(out, "tutorial.html"), page("Tutorial - HumanLang", picker(len(chapters)), "tutorial.html", main_class=""))
     for c in COURSES:
         if c.get("interactive"):
-            import beginner
+            mod = __import__(c["module"])
             write(os.path.join(out, course_file(c)), page(f'{c["name"]} course - HumanLang',
-                  app(c, beginner.export_json(render_markdown, highlight)), "tutorial.html"))
+                  app(c, mod.export_json(render_markdown, highlight)), "tutorial.html"))
             continue
         write(os.path.join(out, course_file(c)), page(f'{c["name"]} course - HumanLang', overview(c, chapters, shared_html, where_html), "tutorial.html"))
         for k, n in enumerate(c["lessons"], 1):

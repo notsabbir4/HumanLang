@@ -575,6 +575,8 @@ def main():
     for f in glob.glob(os.path.join(HERE, "static", "*")):
         if os.path.isfile(f):
             shutil.copy(f, out)
+    if os.path.isdir(os.path.join(HERE, "static", "mascot")):
+        shutil.copytree(os.path.join(HERE, "static", "mascot"), os.path.join(out, "mascot"))
     shutil.copy(os.path.join(ROOT, "humanlang", "arcade.js"), out)
     for name in ("logo.png", "certificate-template.jpg", "certificate-signature.png", "icon-32.png", "icon-180.png", "social-preview.png"):
         shutil.copy(os.path.join(ROOT, "assets", name), out)

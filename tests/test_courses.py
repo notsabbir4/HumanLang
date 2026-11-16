@@ -81,15 +81,31 @@ class CoursePages(unittest.TestCase):
                 if href.startswith(("lesson-", "course-")):
                     self.assertIn(href, files, f"{f} links to missing {href}")
 
-    def test_lessons_have_back_and_next(self):
-        c = [x for x in courses.COURSES if not x.get("interactive")][0]; last = len(c["lessons"])
-        def read(name):
-            with open(os.path.join(self.out, name), encoding="utf-8") as fh:
-                return fh.read()
-        first, end = read(courses.lesson_file(c, 1)), read(courses.lesson_file(c, last))
-        self.assertIn("Lesson 1 of", first); self.assertIn(f"Lesson {last} of", end)
-        self.assertIn(courses.lesson_file(c, 2), first)
-        self.assertIn(courses.course_file(c), end)
+    def test_every_course_is_interactive_and_has_a_page_with_its_own_data(self):
+        import json
+        for c in courses.COURSES:
+            self.assertTrue(c.get("interactive"), c["id"])
+            with open(os.path.join(self.out, courses.course_file(c)), encoding="utf-8") as fh:
+                text = fh.read()
+            data = json.loads(re.search(r'id="learn-data">(.*?)</script>', text, re.S).group(1))
+            self.assertEqual(data["course"]["id"], c["id"])
+            self.assertEqual(data["course"]["name"], c["name"])
+            self.assertEqual(len(data["units"]), c["units"])
+            for needle in ("learn-core.js", "certificate.js", "learn-sound.js", "learn.js"):
+                self.assertIn(needle, text)
+
+    def test_the_mascot_pictures_exist(self):
+        """All 20 reactions are in website/static/mascot, and every picture the course code asks for is one of them."""
+        here = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "website", "static")
+        have = {f[:-4] for f in os.listdir(os.path.join(here, "mascot")) if f.endswith(".png")}
+        self.assertEqual(len(have), 20, sorted(have))
+        with open(os.path.join(here, "learn.js"), encoding="utf-8") as fh:
+            js = fh.read()
+        asked = set(re.findall(r'mascot\("([a-z]+)"', js))
+        for line in re.findall(r"const face = .*", js) + re.findall(r"pickOf\(\[[^\]]*\]\)", js):
+            asked |= set(re.findall(r'"([a-z]+)"', line))
+        self.assertGreaterEqual(len(asked), 12)
+        self.assertEqual(sorted(asked - have), [], "learn.js asks for pictures that do not exist")
 
     def test_interactive_course_page_carries_its_data_and_scripts(self):
         c = [x for x in courses.COURSES if x.get("interactive")][0]

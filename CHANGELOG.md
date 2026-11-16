@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.6.2 - 2026-11-16
+**All four courses are interactive now**, and the mascot is in them.
+- **Designer Go, Game Maker and Master 2.0** are interactive like Beginner+: 6 units each with short lessons, quick questions
+  (predict, fill the gap, put in order, find the bug, write a line, follow the program, follow a game frame by frame), a test after
+  every unit, extra practice from your own mistakes, a 20-question final exam, a grade (A+ to F) and a certificate with the course
+  name. Every answer is checked by really running HumanLang. Pages you build in Designer Go are shown right in the question.
+- **The HL mascot** reacts to what you do, using the 20 reaction pictures: a thumbs up or "Good job!" for a right answer, "cool"
+  for a streak, a sad or dizzy face for mistakes, a party for a perfect round, and it falls asleep if you stop for a while.
+- **Smoother, livelier screens:** screens and cards glide in one after another, buttons press down and bounce back, answers pop
+  or shake, put-in-order tiles glide to their new place, numbers count up, the progress bar fills smoothly, and there is
+  confetti for good results. People who ask their device for less motion get none of it.
+- **Home and Account:** the Home button continues the course you used last. The Account page shows all four courses, and your
+  progress in every course is kept in your account when you are signed in.
+- Course pages are now one page each (the old lesson-by-lesson pages for these three courses are gone; "Read all chapters" still works).
+
 ## 0.6.1.1 - 2026-11-13
 - **New licence:** HumanLang is still **free to use** (the website, Playground, installers, courses and games), and what you make
   with it is yours. From this version it is **not free to copy**: the new [HumanLang License](https://github.com/notsabbir4/HumanLang/blob/main/LICENSE)

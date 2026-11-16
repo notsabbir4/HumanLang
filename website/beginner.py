@@ -4,16 +4,17 @@ extra practice built from the mistakes a person makes, a final exam, a grade (A+
 Every exercise here is CHECKED BY RUNNING IT in HumanLang (tests/test_beginner.py): the right answer really is what HL prints,
 a fill-in-the-blank really works, a puzzle has exactly one right order, a bug really is on the line we say.
 The page is built from this data (website/courses.py) and played by website/static/learn.js.
+The shared parts (how an exercise is written, how it is checked and exported) are in website/coursekit.py.
 """
-import json
 import os
-import re
 import sys
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, ROOT)
-from humanlang.errors import HLError  # noqa: E402
-from humanlang.interpreter import Interpreter  # noqa: E402
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from coursekit import B, C, F, K, O, P, T, W, export_json as _export_json, part, run, unit  # noqa: E402,F401
+
+COURSE = {"id": "beginner-plus", "name": "Beginner+", "key": "hl-beginner", "exam": 25,
+          "lead": "Short lessons, quick questions, and a test after every unit. Your mistakes decide what you practise next. At the end you get a grade and a certificate."}
+
 
 # ---- what a person can be good or bad at ------------------------------------------------------
 SKILLS = {
@@ -89,86 +90,6 @@ TAGS = {
     "other": ("project", "Read the lines again slowly and follow what each one does."),
 }
 
-
-def run(code, inputs=()):
-    """(output_text, error_text_or_None) exactly as the terminal would show them."""
-    out, answers = [], list(inputs)
-
-    def inp(prompt):
-        if not answers:
-            raise EOFError
-        a = answers.pop(0)
-        out.append(prompt + a + "\n")
-        return a
-
-    interp = Interpreter(out=out.append, inp=inp)
-    err = None
-    try:
-        interp.run(code)
-    except HLError as e:
-        err = e.format(code.splitlines())
-    return "".join(out), err
-
-
-# ---- how an exercise is written -----------------------------------------------------------------
-def _opts(right, wrong):
-    o = [{"t": right, "ok": True}]
-    for w in wrong:
-        t, tag = (w, "other") if isinstance(w, str) else w
-        o.append({"t": t, "ok": False, "tag": tag})
-    return o
-
-
-def P(code, right, wrong, skill, why, inputs=(), error=False, q=None):
-    """Predict: what does this program print? (error=True: what does HL say?)"""
-    return {"kind": "predict", "code": code, "inputs": list(inputs), "error": error, "skill": skill, "why": why, "q": q,
-            "options": _opts(right, wrong)}
-
-
-def T(code, skill, why, inputs=(), q=None):
-    """Type what the program prints (the answer is worked out by really running it)."""
-    return {"kind": "type", "code": code, "inputs": list(inputs), "skill": skill, "why": why, "q": q}
-
-
-def F(code, accept, skill, why, wrong=(), inputs=(), q=None):
-    """Fill the gap (___) so the program works."""
-    return {"kind": "fill", "code": code, "accept": list(accept), "inputs": list(inputs), "skill": skill, "why": why,
-            "wrong": list(wrong), "q": q}
-
-
-def O(lines, skill, why, inputs=(), q=None):
-    """Put the lines in order."""
-    return {"kind": "order", "lines": list(lines), "inputs": list(inputs), "skill": skill, "why": why, "q": q}
-
-
-def B(code, bad, skill, why, fix, goal=None, inputs=(), q=None):
-    """Tap the line that has the mistake. fix = the corrected line. goal = what it should print (when the bug is silent)."""
-    return {"kind": "bug", "code": code, "bad": bad, "fix": fix, "goal": goal, "inputs": list(inputs), "skill": skill,
-            "why": why, "q": q}
-
-
-def W(task, accept, skill, why, wrong=(), ctx="", goal=None, inputs=()):
-    """Write one line of HumanLang."""
-    return {"kind": "write", "task": task, "accept": list(accept), "ctx": ctx, "goal": goal, "inputs": list(inputs), "skill": skill,
-            "why": why, "wrong": list(wrong)}
-
-
-def K(code, var, right, wrong, skill, why):
-    """Trace: after the last line has run, what is in a variable? (this is what Step through shows you)"""
-    return {"kind": "trace", "code": code, "var": var, "inputs": [], "skill": skill, "why": why, "options": _opts(right, wrong)}
-
-
-def C(q, right, wrong, skill, why, code=None):
-    """A plain multiple-choice question (with an optional program to look at)."""
-    return {"kind": "choose", "q": q, "code": code, "inputs": [], "skill": skill, "why": why, "options": _opts(right, wrong)}
-
-
-def part(title, teach, *ex):
-    return {"title": title, "teach": teach.strip("\n") + "\n", "ex": list(ex)}
-
-
-def unit(n, title, blurb, parts, bank):
-    return {"n": n, "title": title, "blurb": blurb, "parts": parts, "bank": bank}
 
 
 # =====================================================================================================
@@ -890,57 +811,6 @@ Stepping is the best way to understand what a program really does. After each li
 UNITS = [U1, U2, U3, U4, U5, U6, U7, U8, U9, U10]
 
 
-# =====================================================================================================
-# What the web page gets (the page itself has no HumanLang inside: every answer below was worked out here, by running it)
-# =====================================================================================================
-_BLOCK = re.compile(r"```(hum|hum-error)\n(.*?)```(\s*```input\n(.*?)```)?", re.S)
-
-
-def _expand(md):
-    """Teach text: after every example, add what HL really prints (or says)."""
-    def sub(m):
-        kind, body, given = m.group(1), m.group(2), m.group(4)
-        out, err = run(body, inputs=given.split("\n")[:-1] if given else ["Sam", "20", "20", "20"])
-        text = (err if kind == "hum-error" else out).rstrip("\n")
-        res = f"```{kind}\n{body}```\n"
-        if given:
-            res += f"\n```input\n{given}```\n"
-        if text:
-            res += f"\n```output\n{text}\n```\n"
-        return res
-    return _BLOCK.sub(sub, md)
-
-
-def _ex(e, eid, highlight):
-    d = dict(e)
-    d["id"] = eid
-    if e.get("code"):
-        d["html"] = highlight(e["code"])
-    if e["kind"] == "type":
-        d["answer"] = run(e["code"], e["inputs"])[0].rstrip("\n")
-    if e["kind"] == "write" and e.get("ctx"):
-        d["ctx_html"] = highlight(e["ctx"])
-    if e["kind"] == "bug":
-        d["lines"] = e["code"].split("\n")
-    if e["kind"] == "order":
-        d["goal_out"] = run("\n".join(e["lines"]), e["inputs"])[0].rstrip("\n")
-    d["wrong"] = [[w[0], w[1]] for w in e.get("wrong", [])]
-    return d
-
-
-def export(render_markdown, highlight):
-    units = []
-    for u in UNITS:
-        n = u["n"]
-        parts = []
-        for pi, p in enumerate(u["parts"], 1):
-            html_, _ = render_markdown(_expand(p["teach"]))
-            parts.append({"title": p["title"], "teach": html_,
-                          "ex": [_ex(e, f"u{n}p{pi}e{i}", highlight) for i, e in enumerate(p["ex"], 1)]})
-        units.append({"n": n, "title": u["title"], "blurb": u["blurb"], "parts": parts,
-                      "bank": [_ex(e, f"u{n}b{i}", highlight) for i, e in enumerate(u["bank"], 1)]})
-    return {"units": units, "skills": SKILLS, "tags": {k: v[1] for k, v in TAGS.items()}, "tagSkill": {k: v[0] for k, v in TAGS.items()}}
-
-
 def export_json(render_markdown, highlight):
-    return json.dumps(export(render_markdown, highlight), ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
+    import sys as _s
+    return _export_json(_s.modules[__name__], render_markdown, highlight)

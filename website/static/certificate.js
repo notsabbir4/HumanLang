@@ -21,6 +21,22 @@
     g.drawImage(tpl, 0, 0, W, H);
     g.textBaseline = "alphabetic"; g.fillStyle = INK;
 
+    // 0. the course name on the plaque (the template says "Beginner+"; other courses paint over it with the plaque's own texture)
+    const course = d.course || "Beginner+";
+    if (course !== "Beginner+") {
+      for (let x = 560, k = 0; x < 1118; x += 76, k++) {            // a clean strip of the plaque, repeated and mirrored so no seam shows
+        g.save(); g.beginPath(); g.rect(x, 503, 76, 82); g.clip();
+        if (k % 2) { g.translate(x + 76, 0); g.scale(-1, 1); g.drawImage(tpl, 482, 503, 76, 82, 0, 503, 76, 82); }
+        else g.drawImage(tpl, 482, 503, 76, 82, x, 503, 76, 82);
+        g.restore();
+      }
+    }
+    if (course !== "Beginner+") {
+      g.textAlign = "center"; g.fillStyle = "#f6f0d8"; g.shadowColor = "rgba(0,0,0,.35)"; g.shadowBlur = 3; g.shadowOffsetY = 2;
+      fit(g, course, 700, "normal", 74, 640, 36); g.fillText(course, 836, 560);
+      g.shadowColor = "transparent"; g.shadowBlur = 0; g.shadowOffsetY = 0; g.fillStyle = INK;
+    }
+
     // 1. the name: sits on the long line under "THIS CERTIFICATE IS PROUDLY PRESENTED TO"
     wipe(g, tpl, 326, 402, 1020, 16, 344);
     const name = (d.name || "").trim() || "Your name";

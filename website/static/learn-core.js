@@ -109,13 +109,13 @@
 
   function unitTest(unit, rnd) { return shuffle(unit.bank, rnd).slice(0, 8); }
 
-  // 25 questions: every unit gets a fair share (2 or 3), taken from the banks
-  function examQuestions(data, rnd, avoid) {
-    avoid = avoid || [];
+  // the exam: every unit gets a fair share, taken from the banks (25 questions by default)
+  function examQuestions(data, rnd, avoid, size) {
+    avoid = avoid || []; size = size || 25;
     const per = data.units.map((u) => shuffle(u.bank.filter((e) => avoid.indexOf(e.id) < 0).concat(u.bank.filter((e) => avoid.indexOf(e.id) >= 0)), rnd));
     const out = [];
-    for (let round = 0; out.length < 25 && round < 4; round++) {
-      per.forEach((q) => { if (out.length < 25 && q[round]) out.push(q[round]); });
+    for (let round = 0; out.length < size && round < 12; round++) {
+      per.forEach((q) => { if (out.length < size && q[round]) out.push(q[round]); });
     }
     return shuffle(out, rnd);
   }
@@ -157,6 +157,7 @@
     out.stats = answers(b.stats) > answers(a.stats) ? b.stats : (a.stats || b.stats);
     out.name = (a.name || "").trim() ? a.name : (b.name || "");
     out.seen = (a.seen || []).concat(b.seen || []).slice(-80);
+    out.t = Math.max(a.t || 0, b.t || 0);
     return out;
   }
   // the few facts the Home page and Account page show
@@ -169,5 +170,7 @@
     return { started, passed, total: totalUnits, next: Math.min(next, totalUnits), allPassed: passed >= totalUnits, grade: ex.grade || null, score: ex.score == null ? null : ex.score, certificate: !!(ex.grade && ex.grade !== "F") };
   }
 
-  return { merge, summary, norm, check, newStats, record, weakSkills, practice, extra, unitTest, examQuestions, letter, finalScore, passed, shuffle, allExercises };
+  // the interactive courses: where each keeps its progress in this browser, how many units it has, and its page
+  const COURSES = [{"id": "beginner-plus", "name": "Beginner+", "key": "hl-beginner", "units": 10, "file": "course-beginner-plus.html"}, {"id": "designer-go", "name": "Designer Go", "key": "hl-designer-go", "units": 6, "file": "course-designer-go.html"}, {"id": "game-maker", "name": "Game Maker", "key": "hl-game-maker", "units": 6, "file": "course-game-maker.html"}, {"id": "master-2", "name": "Master 2.0", "key": "hl-master-2", "units": 6, "file": "course-master-2.html"}];
+  return { COURSES, merge, summary, norm, check, newStats, record, weakSkills, practice, extra, unitTest, examQuestions, letter, finalScore, passed, shuffle, allExercises };
 });
