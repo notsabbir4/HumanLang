@@ -299,7 +299,7 @@
     "file": "planet_defenders_2.hum",
     "kind": "arcade",
     "tagline": "The invasion never stops. Catch skills, survive, beat your best.",
-    "blurb": "An endless shooter with a home page, instructions and four levels (easy, medium, hard, impossible). Aliens come in waves that never stop. Every third wave a boss arrives: XERON, or the main boss OBLIVAR (4 fights in 10), who turns the sky blood red and changes the music. Bosses are weaker on easy and far tougher on impossible. Shoot aliens to make skills drop (shield, full power, invisible, time warp, nova, extra life), then fly under a skill to catch it. OBLIVAR can drop the rare skill OBLIVAR-X, which transforms your ship. You score for every second you survive. Best scores are saved, there is music, and it plays on phones.",
+    "blurb": "An endless shooter with a home page, instructions and four levels (easy, medium, hard, impossible). Aliens come in waves that never stop. Every third wave a boss arrives: XERON, or the main boss OBLIVAR (4 fights in 10), who turns the sky blood red and changes the music. Every boss fight is long on every level, but bosses hit much harder on harder levels, and every boss attack has a way through or a way to dodge it. Shoot aliens to make skills drop (shield, full power, invisible, time warp, nova, health pack), then fly under a skill to catch it. OBLIVAR can drop the rare skill OBLIVAR-X, which transforms your ship and turns your red health bar purple. You score for every second you survive. Best scores are saved, there is music, and it plays on phones.",
     "tags": [
       "Arcade",
       "Endless",
@@ -340,7 +340,7 @@
       {
         "at": "define clear_boss_bullets",
         "title": "The two bosses",
-        "text": "Every third wave a boss comes instead of aliens: `start_boss with 1` is XERON and `start_boss with 2` is OBLIVAR, chosen with `random number from 1 to 100 is at most 40`, so OBLIVAR comes 4 times in 10. A boss is a small machine too: a warning (`boss_warn`), flying in (`boss_in`), fighting, then blowing up (`boss_die`). Lists like `xeron_hp_for` hold one number for each level, so a harder level means a tougher boss. `boss_attack` sends bullets with `fire_bullet`, and `aim_vx` works out the sideways speed that lands a bullet on your ship."
+        "text": "Every third wave a boss comes instead of aliens: `start_boss with 1` is XERON and `start_boss with 2` is OBLIVAR, chosen with `random number from 1 to 100 is at most 40`, so OBLIVAR comes 4 times in 10. A boss is a small machine too: a warning (`boss_warn`), flying in (`boss_in`), fighting, then blowing up (`boss_die`). Lists like `boss_dmg_for` hold one number for each level, so a harder level means harder hits (the bosses always last long). Every boss has several attacks, picked with `pick_move`, and each one has a way through: `curtain` is a wall of fire with a hole, `start_beams` shows flashing warning lines first, `start_dive` locks onto a red column, and the OBLIVAR fan leaves a gap right where you stand. `boss_attack` sends bullets with `fire_bullet`, and `aim_vx` works out the sideways speed that lands a bullet on your ship."
       },
       {
         "title": "Waves and formulas",
@@ -360,7 +360,7 @@
       {
         "title": "Skills you must catch",
         "at": "define grab with kind",
-        "text": "A skill does nothing until your spacecraft touches it. Each one sets a timer of 300 frames (5 seconds at 60 a second): shield, full power, invisible, time warp, nova (clears the screen) and an extra life."
+        "text": "A skill does nothing until your spacecraft touches it. Each one sets a timer of 300 frames (5 seconds at 60 a second): shield, full power, invisible, time warp, nova (clears the screen) and a health pack that heals 35 of your 100-point health bar. OBLIVAR-X fills a purple health bar that takes the hits first."
       },
       {
         "title": "Hitting aliens",

@@ -13,6 +13,12 @@
   confetti for good results. People who ask their device for less motion get none of it.
 - **Home and Account:** the Home button continues the course you used last. The Account page shows all four courses, and your
   progress in every course is kept in your account when you are signed in.
+- **PLANET DEFENDERS 2 update:** bosses last long on every level (XERON 90, OBLIVAR 220 hits) and only hit harder on harder levels.
+  A **health bar** replaces the lives: red as blood, and with OBLIVAR-X it turns **purple**, in the style of OBLIVAR, takes the
+  hits first and heals you a little. The extra-life skill is now a health pack (and bosses drop two while you fight them). Every boss
+  has several attacks, and each one has a way through, with a hint on the screen: XERON uses a fan of shots, twin guns, a wall of
+  fire with a hole and a diving attack (a red column shows where it will land); OBLIVAR uses a fan with a gap where you stand, fast
+  shots, fire rain, laser beams (flashing warning lines first) and a faster wall of fire.
 - Course pages are now one page each (the old lesson-by-lesson pages for these three courses are gone; "Read all chapters" still works).
 
 ## 0.6.1.1 - 2026-11-13

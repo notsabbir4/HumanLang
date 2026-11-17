@@ -235,19 +235,20 @@ make a sprite called icon_ghost with pixel size 2
     "wwwwwwwww"
     "w.ww.ww.w"
 
-make a sprite called icon_heart with pixel size 2
+make a sprite called icon_health with pixel size 2
     where "r" is "#E21C24"
     where "w" is "#FFFFFF"
+    where "g" is "#9AA3C0"
 
-    ".rr...rr."
-    "rrrr.rrrr"
-    "rwrrrrrrr"
-    "rrrrrrrrr"
-    "rrrrrrrrr"
-    ".rrrrrrr."
-    "..rrrrr.."
-    "...rrr..."
-    "....r...."
+    "ggggggggg"
+    "gwwwrwwwg"
+    "gwwwrwwwg"
+    "gwwwrwwwg"
+    "grrrrrrrg"
+    "gwwwrwwwg"
+    "gwwwrwwwg"
+    "gwwwrwwwg"
+    "ggggggggg"
 
 make a sprite called icon_slow with pixel size 2
     where "b" is "#3A7BFF"
@@ -701,7 +702,10 @@ note: ==================================================
 
 set level_names to list of "EASY", "MEDIUM", "HARD", "IMPOSSIBLE"
 set level_colours to list of "#4CE05A", "#FFD23F", "#FF8A1F", "#FF3B3B"
-set lives_for to list of 5, 3, 3, 1
+note: v0.6.2: the health bar is 100 for everybody. The level decides how HARD things hit you.
+set hit_dmg_for to list of 20, 30, 40, 50
+note: how much a boss shot takes off your bar (a laser beam does 1.5 times, a boss dive 2 times)
+set boss_dmg_for to list of 8, 14, 20, 30
 set drop_for to list of 40, 25, 12, 5
 set bomb_every_for to list of 55, 38, 26, 20
 set bomb_speed_for to list of 2, 3, 3, 3.5
@@ -710,9 +714,10 @@ set aimed_for to list of 20, 40, 60, 80
 set speed_base_for to list of 0.28, 0.38, 0.5, 0.65
 set speed_grow_for to list of 0.03, 0.04, 0.05, 0.06
 
-note: bosses: one number for each level. Harder levels = more health, faster shots, wider fans.
-set xeron_hp_for to list of 20, 34, 52, 76
-set oblivar_hp_for to list of 40, 66, 100, 140
+note: bosses: one number for each level. Every boss lasts LONG on every level (same health). Harder levels = harder hits,
+note: faster shots and wider fans.
+set xeron_hp_for to list of 90, 90, 90, 90
+set oblivar_hp_for to list of 220, 220, 220, 220
 set xeron_fire_for to list of 75, 56, 42, 32
 set oblivar_fire_for to list of 62, 46, 34, 26
 set boss_speed_for to list of 0.7, 0.95, 1.25, 1.6
@@ -755,8 +760,10 @@ set px to 132
 set target_x to -1
 set touch_t to 0
 set cool to 0
-set lives to 3
-set max_lives to 3
+set hp to 100
+set hp_max to 100
+set xhp to 0
+set xhp_max to 100
 set hurt_t to 0
 
 set score to 0
@@ -791,6 +798,18 @@ set boss_die to 0
 set boss_atk to 60
 set boss_cycle to 0
 set boss_flash to 0
+set boss_move to 0
+set boss_pause to 0
+set boss_gifts to 0
+set dive_phase to 0
+set dive_t to 0
+set beam_phase to 0
+set beam_t to 0
+set beam_a to -100
+set beam_b to -100
+set beam_c to -100
+set hint to ""
+set hint_t to 0
 set bosses_beaten to 0
 set blood to 0
 set x_t to 0
@@ -876,7 +895,7 @@ define add_drop with x and y
         change kind to 5
     if r is greater than 90
         change kind to 6
-    if kind is 6 and lives is at least max_lives
+    if kind is 6 and hp is at least hp_max
         change kind to 1
     for each i from 1 to 5
         if item i of dy is less than 0
@@ -922,6 +941,128 @@ define aim_vx with x and y and spd
         change v to -2.2
     give back v
 
+define reset_boss_moves
+    if dive_phase is greater than 0
+        change boss_y to 40
+    change dive_phase to 0
+    change beam_phase to 0
+    change boss_pause to 0
+
+define show_hint with words
+    change hint to words
+    change hint_t to 110
+
+define pick_move with count
+    note: a new attack each time, never the same one twice in a row
+    set m to random number from 1 to count
+    if m is boss_move
+        set m to (m mod count) + 1
+    change boss_move to m
+    give back m
+
+define curtain with spd and gap
+    note: a wall of fire across the whole sky with a HOLE in it: fly through the hole
+    set hole to random number from 1 to 16 - gap
+    for each c from 0 to 16
+        if c is less than hole or c is at least hole + gap
+            fire_bullet with (8 + c * 18) and 34 and 0 and spd
+
+define start_beams
+    note: laser beams: thin warning lines first, then the beams. Stand between them or away from them.
+    set me to px + 27
+    set off to 80 + random number from 0 to 40
+    set b to me + off
+    if b is greater than 300
+        set b to me - off
+    change beam_a to me
+    change beam_b to b
+    change beam_c to -100
+    set c to me - (b - me)
+    if boss_hp is less than boss_max / 2 and c is greater than 20 and c is less than 300
+        change beam_c to c
+    change beam_phase to 1
+    change beam_t to 55
+
+define start_dive
+    note: the boss follows you, locks on, then plunges down that column. Step aside.
+    change dive_phase to 1
+    change dive_t to 70
+
+define dive_contact
+    note: the boss body hits the spacecraft if it is right above it
+    if hurt_t is 0 and boss_y + boss_h is greater than 190 and boss_x + boss_w is greater than px + 8 and boss_x is less than px + 46
+        if shield_t is greater than 0 or x_t is greater than 900
+            play the sound "blip"
+        otherwise
+            hurt_player with (2 * item level_pick of boss_dmg_for)
+
+define boss_dive_step
+    if dive_phase is 1
+        note: first it follows you, for the last half second it stays where it is (the red column shows where it will fall)
+        subtract 1 from dive_t
+        if dive_t is greater than 34
+            set want to px + 27 - boss_w / 2
+            if boss_x is less than want - 3
+                change boss_x to boss_x + 3
+            if boss_x is greater than want + 3
+                change boss_x to boss_x - 3
+            if boss_x is less than 2
+                change boss_x to 2
+            if boss_x is greater than 318 - boss_w
+                change boss_x to 318 - boss_w
+        if dive_t is at most 0
+            change dive_phase to 2
+            play the sound "lose"
+    otherwise if dive_phase is 2
+        change boss_y to boss_y + 6
+        if boss_y is at least 156
+            change boss_y to 156
+            change dive_phase to 3
+            change dive_t to 14
+        dive_contact
+    otherwise
+        if dive_t is greater than 0
+            subtract 1 from dive_t
+            dive_contact
+        otherwise
+            change boss_y to boss_y - 3
+            if boss_y is at most 40
+                change boss_y to 40
+                change dive_phase to 0
+                change boss_atk to 45
+
+define beam_hits with cx
+    set hit to no
+    if cx is greater than 0 and px + 45 is greater than cx - 11 and px + 10 is less than cx + 11
+        change hit to yes
+    give back hit
+
+define beam_step
+    subtract 1 from beam_t
+    if beam_phase is 1
+        if beam_t is at most 0
+            change beam_phase to 2
+            change beam_t to 28
+            play the sound "explosion"
+    otherwise
+        if hurt_t is 0 and ((beam_hits with beam_a) or (beam_hits with beam_b) or (beam_hits with beam_c))
+            if shield_t is greater than 0 or x_t is greater than 900
+                play the sound "blip"
+            otherwise
+                hurt_player with (floor of (1.5 * item level_pick of boss_dmg_for))
+        if beam_t is at most 0
+            change beam_phase to 0
+            change beam_a to -100
+            change beam_b to -100
+            change beam_c to -100
+
+define aim_exact with x and y and spd
+    note: the sideways speed that lands exactly on the spacecraft, however far away it is (used by the fan with the gap)
+    set target to px + 27
+    if ghost_t is greater than 0
+        change target to decoy_x
+    give back (target - x) / ((188 - y) / spd)
+
 define boss_name
     set n to "OBLIVAR"
     if boss_kind is 1
@@ -951,6 +1092,11 @@ define start_boss with kind
     change boss_atk to 70
     change boss_cycle to 0
     change boss_flash to 0
+    change boss_move to 0
+    change boss_pause to 0
+    change boss_gifts to 0
+    change hint_t to 0
+    reset_boss_moves
     change ufo_on to no
     for each i from 1 to 6
         change item i of by to -1
@@ -968,43 +1114,70 @@ define boss_attack
     set low to boss_y + boss_h - 8
     set rage to boss_kind is 2 and boss_hp is less than boss_max / 2
     add 1 to boss_cycle
+    change boss_pause to 0
     if boss_kind is 1
-        if (boss_cycle mod 2) is 1
-            note: XERON, move 1: a fan of shots aimed at you
+        set which to pick_move with 4
+        if which is 1
+            note: XERON, attack 1: a fan of shots aimed at you. Dodge: step out of the fan.
+            show_hint with "FAN OF SHOTS: STEP ASIDE!"
             set n to item d of xeron_fan_for
             set base to aim_vx with cx and low and spd
             for each k from 1 to n
                 fire_bullet with cx and low and (base + (k - (n + 1) / 2) * 0.55) and spd
-        otherwise
-            note: XERON, move 2: both side guns fire straight down (the centre gun too on the hard levels)
+        otherwise if which is 2
+            note: XERON, attack 2: both side guns fire straight down. Dodge: stay between the lines (or outside).
+            show_hint with "TWIN GUNS: STAY BETWEEN THE LINES!"
             fire_bullet with (boss_x + 6) and low and 0 and spd
             fire_bullet with (boss_x + boss_w - 6) and low and 0 and spd
             if d is at least 3
                 fire_bullet with cx and low and (aim_vx with cx and low and spd) and spd
+        otherwise if which is 3
+            note: XERON, attack 3: a wall of fire with a hole. Dodge: fly through the hole.
+            show_hint with "WALL OF FIRE: FLY THROUGH THE HOLE!"
+            curtain with spd and 3
+            change boss_pause to 40
+        otherwise
+            show_hint with "DIVE ATTACK: STEP OUT OF THE RED COLUMN!"
+            start_dive
     otherwise
-        set mode_move to boss_cycle mod 3
-        if mode_move is 1
-            note: OBLIVAR, move 1: a wide fan of fire
+        set which to pick_move with 5
+        if which is 1
+            note: OBLIVAR, attack 1: a wide fan of fire with a HOLE in the middle, right where you are. Dodge: just stay still.
+            show_hint with "FAN OF FIRE: STAND IN THE GAP!"
             set n to item d of oblivar_fan_for
             if rage
                 add 2 to n
-            set base to aim_vx with cx and low and spd
+            set base to aim_exact with cx and low and spd
+            set spread to 24 * spd / (188 - low)
             for each k from 1 to n
-                fire_bullet with cx and low and (base + (k - (n + 1) / 2) * 0.5) and spd
-        otherwise if mode_move is 2
-            note: OBLIVAR, move 2: three fast shots aimed at you
+                if k is not (n + 1) / 2
+                    fire_bullet with cx and low and (base + (k - (n + 1) / 2) * spread) and spd
+        otherwise if which is 2
+            note: OBLIVAR, attack 2: three fast shots aimed at you. Dodge: step aside.
+            show_hint with "FAST SHOTS: STEP ASIDE!"
             set fast to spd + 0.7
             set base to aim_vx with cx and low and fast
             fire_bullet with cx and low and (base - 0.45) and fast
             fire_bullet with cx and low and base and fast
             fire_bullet with cx and low and (base + 0.45) and fast
-        otherwise
-            note: OBLIVAR, move 3: it rains fire from the top of the sky
+        otherwise if which is 3
+            note: OBLIVAR, attack 3: it rains fire from the top of the sky. Dodge: weave between the drops.
+            show_hint with "FIRE RAIN: WEAVE BETWEEN THE DROPS!"
             set rain to item d of rain_for
             if rage
                 add 2 to rain
             for each k from 1 to rain
                 fire_bullet with (random number from 10 to 310) and 4 and 0 and (spd + 0.4)
+        otherwise if which is 4
+            note: OBLIVAR, attack 4: laser beams. Dodge: stand away from the flashing lines, or between them.
+            show_hint with "LASER BEAMS: LEAVE THE FLASHING LINES!"
+            start_beams
+            change boss_pause to 70
+        otherwise
+            note: OBLIVAR, attack 5: a wall of fire with a hole, a little faster than XERON's. Dodge: fly through the hole.
+            show_hint with "WALL OF FIRE: FLY THROUGH THE HOLE!"
+            curtain with (spd + 0.2) and 3
+            change boss_pause to 40
 
 define damage_boss with amount and hx and hy
     subtract amount from boss_hp
@@ -1016,7 +1189,13 @@ define damage_boss with amount and hx and hy
         change boss_hp to 0
         change boss_die to 110
         clear_boss_bullets
+        reset_boss_moves
         play the sound "explosion"
+    otherwise if boss_gifts is less than 2 and boss_hp is at most boss_max * (2 - boss_gifts) / 3
+        note: the fights are long: at two thirds and at one third the boss drops a health pack
+        add 1 to boss_gifts
+        add_special_drop with (boss_x + boss_w / 2 - 9) and (boss_y + boss_h) and 6
+        show_hint with "A HEALTH PACK IS FALLING: CATCH IT!"
 
 define boss_ready
     set ok to boss_kind is greater than 0 and boss_warn is 0 and boss_in is 0 and boss_die is 0
@@ -1075,25 +1254,32 @@ define boss_update
     otherwise
         note: moving: side to side, a little faster when OBLIVAR is nearly beaten
         if tk
-            set spd to item d of boss_speed_for
-            if boss_kind is 2 and boss_hp is less than boss_max / 2
-                change spd to spd * 1.4
-            change boss_x to boss_x + boss_dir * spd
-            if boss_x is less than 2
-                change boss_x to 2
-                change boss_dir to 1
-            if boss_x is greater than 318 - boss_w
-                change boss_x to 318 - boss_w
-                change boss_dir to -1
-            subtract 1 from boss_atk
-            if boss_atk is at most 0
-                boss_attack
-                if boss_kind is 1
-                    change boss_atk to item d of xeron_fire_for
-                otherwise
-                    change boss_atk to item d of oblivar_fire_for
-                    if boss_hp is less than boss_max / 2
-                        change boss_atk to floor of (boss_atk * 0.7)
+            if dive_phase is greater than 0
+                boss_dive_step
+            otherwise
+                set spd to item d of boss_speed_for
+                if boss_kind is 2 and boss_hp is less than boss_max / 2
+                    change spd to spd * 1.4
+                change boss_x to boss_x + boss_dir * spd
+                if boss_x is less than 2
+                    change boss_x to 2
+                    change boss_dir to 1
+                if boss_x is greater than 318 - boss_w
+                    change boss_x to 318 - boss_w
+                    change boss_dir to -1
+                subtract 1 from boss_atk
+                if boss_atk is at most 0
+                    boss_attack
+                    if boss_kind is 1
+                        change boss_atk to item d of xeron_fire_for
+                    otherwise
+                        change boss_atk to item d of oblivar_fire_for
+                        if boss_hp is less than boss_max / 2
+                            change boss_atk to floor of (boss_atk * 0.7)
+                    if dive_phase is 0
+                        change boss_atk to boss_atk + boss_pause
+            if beam_phase is greater than 0
+                beam_step
     note: the boss's bullets fall (they slow down with the time warp too)
     for each i from 1 to 30
         if item i of ky is at least 0
@@ -1104,11 +1290,11 @@ define boss_update
                 change item i of ky to -1
             otherwise if item i of ky is greater than 188 and item i of kx is greater than px + 12 and item i of kx is less than px + 43
                 change item i of ky to -1
-                if shield_t is greater than 0 or x_t is greater than 0
+                if shield_t is greater than 0 or x_t is greater than 900
                     play the sound "blip"
                     add_boom with (item i of kx) and 196
                 otherwise if hurt_t is 0
-                    lose_life
+                    hurt_player with (item d of boss_dmg_for)
 
 note: ==================================================
 note: STARTING, WAVES AND ENDING
@@ -1136,8 +1322,9 @@ define music_for_level
 
 define start_game
     set d to level_pick
-    change lives to item d of lives_for
-    change max_lives to item d of lives_for
+    change hp_max to 100
+    change hp to 100
+    change xhp to 0
     change drop_pct to item d of drop_for
     change bomb_every to item d of bomb_every_for
     change bomb_spd to item d of bomb_speed_for
@@ -1160,7 +1347,10 @@ define start_game
     change nova_t to 0
     change got_t to 0
     change x_t to 0
+    change xhp to 0
     change boss_kind to 0
+    reset_boss_moves
+    change hint_t to 0
     change boss_warn to 0
     change boss_in to 0
     change boss_die to 0
@@ -1220,12 +1410,23 @@ define end_game
     stop the music
     play the sound "lose"
 
-define lose_life
-    subtract 1 from lives
-    change hurt_t to 100
+define hurt_player with amount
+    note: v0.6.2: a health bar instead of lives. OBLIVAR-X's purple health takes the hit first, and softens it to half.
+    set rest to amount
+    if xhp is greater than 0
+        set rest to floor of (amount / 2)
+        if xhp is at least rest
+            subtract rest from xhp
+            set rest to 0
+        otherwise
+            set rest to rest - xhp
+            change xhp to 0
+    subtract rest from hp
+    change hurt_t to 80
     add_boom with (px + 20) and 196
     play the sound "explosion"
-    if lives is at most 0
+    if hp is at most 0
+        change hp to 0
         end_game
 
 define go_home
@@ -1233,6 +1434,9 @@ define go_home
     change boss_kind to 0
     change blood to 0
     change x_t to 0
+    change xhp to 0
+    reset_boss_moves
+    change hint_t to 0
     change click_wait to 20
     play the music "chill"
 
@@ -1270,15 +1474,20 @@ define grab with kind
     if kind is 7
         change got_name to "OBLIVAR-X!"
         change got_t to 130
+        change xhp to xhp_max
+        add 30 to hp
+        if hp is greater than hp_max
+            change hp to hp_max
         play the sound "explosion"
         if x_t is 0
             change x_t to 970
         otherwise if x_t is less than 900
             change x_t to 900
     if kind is 6
-        change got_name to "EXTRA LIFE!"
-        if lives is less than max_lives
-            add 1 to lives
+        change got_name to "HEALTH +35"
+        add 35 to hp
+        if hp is greater than hp_max
+            change hp to hp_max
 
 define kill_alien with spot and col and row
     change item spot of alive to 0
@@ -1391,6 +1600,8 @@ define update_play
         subtract 1 from hurt_t
     if got_t is greater than 0
         subtract 1 from got_t
+    if hint_t is greater than 0
+        subtract 1 from hint_t
     if wave_t is greater than 0
         subtract 1 from wave_t
     if nova_t is greater than 0
@@ -1405,6 +1616,7 @@ define update_play
                 change item i of by to -1
             clear_boss_bullets
         if x_t is 0
+            change xhp to 0
             play the sound "blip"
             add_boom with (px + 20) and 190
     if boss_kind is greater than 0
@@ -1479,11 +1691,11 @@ define update_play
                 change item i of by to -1
             otherwise if item i of by is greater than 190 and item i of bx is greater than px + 12 and item i of bx is less than px + 43
                 change item i of by to -1
-                if shield_t is greater than 0 or x_t is greater than 0
+                if shield_t is greater than 0 or x_t is greater than 900
                     play the sound "blip"
                     add_boom with (item i of bx) and 196
                 otherwise if hurt_t is 0
-                    lose_life
+                    hurt_player with (item level_pick of hit_dmg_for)
     if mode is "play" and active is less than max_bombs and tick and bomb_wait is 0 and left is greater than 0
         if random number from 1 to bomb_every is 1
             drop_bomb
@@ -1532,7 +1744,7 @@ define update_play
         for each i from 1 to 6
             change item i of by to -1
         if hurt_t is 0
-            lose_life
+            hurt_player with (item level_pick of hit_dmg_for)
 
     note: wave cleared: the next one comes at once, a little faster
     if mode is "play" and left is 0 and boss_kind is 0
@@ -1643,7 +1855,7 @@ define page_footer
 define draw_how
     if how_page is 1
         centre_text with "HOW TO PLAY" and 8 and 18 and "#FFE16A"
-        set lines to list of "MOVE   Left / Right keys, or drag a finger.", "FIRE   Hold SPACE (phone: touch the screen).", "PAUSE  Enter (the B button on a phone).", "", "Aliens come in waves and NEVER stop.", "You score for every kill AND for every", "second you stay alive. Survive!", "", "A bomb hit costs a life. So does an alien", "reaching the ground.", "", "Shoot the UFO: it always drops a skill."
+        set lines to list of "MOVE   Left / Right keys, or drag a finger.", "FIRE   Hold SPACE (phone: touch the screen).", "PAUSE  Enter (the B button on a phone).", "", "Aliens come in waves and NEVER stop.", "You score for every kill AND for every", "second you stay alive. Survive!", "", "A bomb hit takes some of your red health", "bar. So does an alien reaching the ground.", "", "Shoot the UFO: it always drops a skill."
         for each n from 1 to 12
             put a text (item n of lines) at 14, 36 + (n - 1) * 15 with size 11 and colour white
     otherwise if how_page is 2
@@ -1653,27 +1865,27 @@ define draw_how
         draw the sprite icon_ghost at 12, 88
         draw the sprite icon_slow at 12, 118
         draw the sprite icon_nova at 12, 148
-        draw the sprite icon_heart at 12, 178
-        set names to list of "SHIELD", "FULL POWER", "INVISIBLE", "TIME WARP", "NOVA", "EXTRA LIFE"
-        set tips to list of "Bombs can't hurt you for 5 seconds.", "3 guns fire at once for 5 seconds.", "Aliens can't see you: they fire elsewhere.", "Aliens and bombs slow down for 5 seconds.", "Destroys every alien on the screen.", "Gives you one more life."
+        draw the sprite icon_health at 12, 178
+        set names to list of "SHIELD", "FULL POWER", "INVISIBLE", "TIME WARP", "NOVA", "HEALTH PACK"
+        set tips to list of "Bombs can't hurt you for 5 seconds.", "3 guns fire at once for 5 seconds.", "Aliens can't see you: they fire elsewhere.", "Aliens and bombs slow down for 5 seconds.", "Destroys every alien on the screen.", "Heals 35 of your health bar."
         for each n from 1 to 6
             put a text (item n of names) at 42, 29 + (n - 1) * 30 with size 12 and colour "#2DCDFF" and bold
             put a text (item n of tips) at 42, 44 + (n - 1) * 30 with size 10 and colour white
         put a text "Skills fall slowly. Fly under one to catch it!" at 160, 211 with size 10 and colour "#FFE16A" and align center
     otherwise if how_page is 3
         centre_text with "LEVELS" and 8 and 18 and "#FFE16A"
-        set tips to list of "5 lives. Slow aliens. Lots of skills.", "3 lives. Faster aliens. Some skills.", "3 lives. Fierce aliens. Few skills.", "ONE life. Deadly aliens. Rare skills."
+        set tips to list of "Light hits. Slow aliens. Lots of skills.", "Medium hits. Faster aliens. Some skills.", "Heavy hits. Fierce aliens. Few skills.", "Brutal hits: 2 and you are out. Rare skills."
         for each d from 1 to 4
             set c to item d of level_colours
             put a text (item d of level_names) at 20, 40 + (d - 1) * 40 with size 14 and colour c and bold
             put a text (item d of tips) at 20, 60 + (d - 1) * 40 with size 11 and colour white
-        put a text "The level also decides how tough the bosses are." at 160, 194 with size 10 and colour "#9AA3C0" and align center
+        put a text "The level decides how hard the bosses hit you." at 160, 194 with size 10 and colour "#9AA3C0" and align center
         put a text "Your best score on each level is remembered." at 160, 208 with size 10 and colour "#9AA3C0" and align center
     otherwise
         centre_text with "BOSSES" and 4 and 16 and "#FF5A6E"
         draw the sprite xeron at 8, 24
         put a text "XERON" at 72, 28 with size 12 and colour "#34E08E" and bold
-        put a text "Fires fans of shots. Beat it: 2 skills." at 72, 44 with size 9 and colour white
+        put a text "Fans, walls of fire, DIVES. Beat it: 2 skills." at 72, 44 with size 9 and colour white
         draw the sprite oblivar at 2, 58
         put a text "OBLIVAR" at 72, 60 with size 12 and colour "#B58CFF" and bold
         put a text "THE ENDBRINGER" at 72, 74 with size 8 and colour "#8E7CC8"
@@ -1684,10 +1896,11 @@ define draw_how
         put a text "OBLIVAR-X (rare)" at 34, 128 with size 11 and colour "#B58CFF" and bold
         put a text "Your ship TRANSFORMS for 15 seconds:" at 34, 143 with size 9 and colour white
         put a text "5 guns, shots go through aliens, double" at 34, 155 with size 9 and colour white
-        put a text "damage to bosses, bombs cannot hurt you." at 34, 167 with size 9 and colour white
-        put a text "A boss comes every 3 waves. Easy: weak boss," at 160, 188 with size 9 and colour "#FFE16A" and align center
-        put a text "more OBLIVAR-X. Impossible: very tough boss," at 160, 200 with size 9 and colour "#FFE16A" and align center
-        put a text "and OBLIVAR-X is very rare." at 160, 212 with size 9 and colour "#FFE16A" and align center
+        put a text "damage to bosses. A PURPLE health bar" at 34, 167 with size 9 and colour white
+        put a text "takes the hits for you and heals you." at 34, 178 with size 9 and colour white
+        put a text "A boss comes every 3 waves and lasts LONG." at 160, 192 with size 9 and colour "#FFE16A" and align center
+        put a text "Every attack can be dodged: read the warning." at 160, 203 with size 9 and colour "#FFE16A" and align center
+        put a text "Harder level = harder hits. They drop health." at 160, 214 with size 9 and colour "#FFE16A" and align center
     page_footer
 
 define draw_hud
@@ -1702,9 +1915,24 @@ define draw_hud
     if secs is less than 10
         set pad to "0"
     put a text "TIME {mins}:{pad}{secs}" at 6, 16 with size 10 and colour "#9AA3C0"
-    put a text "LIVES" at 238, 3 with size 10 and colour white
-    for each n from 1 to lives
-        put a rectangle at 276 + (n - 1) * 8, 4 with width 6 and height 8 and colour "#E21C24"
+    note: the health bar: red as blood. With OBLIVAR-X it turns purple, in the style of OBLIVAR (the red bar shrinks to a thin line)
+    set bar_edge to "#444C6E"
+    if hurt_t is greater than 60
+        set bar_edge to "#FFFFFF"
+    if xhp is greater than 0
+        put a text "X" at 232, 3 with size 10 and colour "#B58CFF" and bold
+        put a rectangle at 242, 3 with width 74 and height 9 and colour "#1B2036" and border 1 and border colour "#B58CFF"
+        put a rectangle at 243, 4 with width floor of (72 * xhp / xhp_max) and height 7 and colour "#8E3CFF"
+        put a rectangle at 243, 4 with width floor of (72 * xhp / xhp_max) and height 2 and colour "#C9A8FF"
+        put a rectangle at 243, 12 with width floor of (72 * hp / hp_max) and height 2 and colour "#E21C24"
+    otherwise
+        put a text "HP" at 226, 3 with size 10 and colour white and bold
+        put a rectangle at 242, 3 with width 74 and height 9 and colour "#1B2036" and border 1 and border colour bar_edge
+        set fill to "#E21C24"
+        if hp is at most 25 and ((frame number divided evenly by 6) mod 2) is 0
+            set fill to "#FF9A9A"
+        put a rectangle at 243, 4 with width floor of (72 * hp / hp_max) and height 7 and colour fill
+        put a rectangle at 243, 4 with width floor of (72 * hp / hp_max) and height 2 and colour "#FF6B6B"
     set slot to 0
     if shield_t is greater than 0
         draw the sprite icon_shield at 2, 32 + slot * 24
@@ -1748,6 +1976,32 @@ define draw_boss
         put a rectangle at 80, 27 with width 160 and height 6 and colour "#1B2036" and border 1 and border colour "#444C6E"
         put a rectangle at 80, 27 with width floor of (160 * boss_hp / boss_max) and height 6 and colour tint
 
+define draw_beam with cx and phase
+    if cx is greater than 0
+        if phase is 1
+            if ((frame number divided evenly by 4) mod 2) is 0
+                put a rectangle at cx - 1, 60 with width 2 and height 178 and colour "#FF5A6E"
+                put a rectangle at cx - 4, 226 with width 8 and height 3 and colour "#FFE16A"
+        otherwise
+            put a rectangle at cx - 11, 44 with width 22 and height 194 and colour "#8E1018"
+            put a rectangle at cx - 7, 44 with width 14 and height 194 and colour "#FF2A2A"
+            put a rectangle at cx - 3, 44 with width 6 and height 194 and colour "#FFE0E0"
+
+define draw_boss_warnings
+    note: what is coming, drawn so that you can always see it before it hurts
+    if beam_phase is greater than 0
+        draw_beam with beam_a and beam_phase
+        draw_beam with beam_b and beam_phase
+        draw_beam with beam_c and beam_phase
+    if dive_phase is 1 or dive_phase is 2
+        set col to "#2A0A10"
+        if dive_phase is 1 and dive_t is greater than 34
+            set col to "#1A0A20"
+        if dive_t is at most 34 or dive_phase is 2
+            if ((frame number divided evenly by 3) mod 2) is 0
+                set col to "#5A101C"
+        put a rectangle at boss_x, boss_y + boss_h with width boss_w and height 238 - (boss_y + boss_h) and colour col
+
 define draw_play
     set pose to 1 + ((frame number divided evenly by 20) mod 2)
     for each row from 1 to rows
@@ -1763,6 +2017,7 @@ define draw_play
         draw the sprite ufo at ufo_x, 18
     if boss_kind is greater than 0
         draw_boss
+        draw_boss_warnings
     for each i from 1 to 5
         if item i of dy is at least 0
             set k to item i of dk
@@ -1777,7 +2032,7 @@ define draw_play
             if k is 5
                 draw the sprite icon_nova at (item i of dx), (item i of dy)
             if k is 6
-                draw the sprite icon_heart at (item i of dx), (item i of dy)
+                draw the sprite icon_health at (item i of dx), (item i of dy)
             if k is 7
                 draw the sprite icon_x at (item i of dx), (item i of dy)
     for each i from 1 to 30
@@ -1832,6 +2087,10 @@ define draw_play
     draw_hud
     if got_t is greater than 0
         centre_text with got_name and 168 and 14 and "#FFE16A"
+    if got_t is greater than 0 and got_name is "OBLIVAR-X!"
+        put a text "PURPLE HEALTH BAR!" at 160, 190 with size 11 and colour "#C9A8FF" and bold and align center
+    if hint_t is greater than 0 and boss_kind is greater than 0 and boss_warn is 0
+        put a text hint at 160, 120 with size 9 and colour "#FFE16A" and bold and align center
     if wave_t is greater than 0 and mode is "play" and boss_kind is 0
         centre_text with "WAVE {wave}" and 90 and 22 and "white"
     if boss_warn is greater than 0

@@ -295,12 +295,35 @@ class Showcase(unittest.TestCase):
         return it, g
 
     def test_planet_defenders_2_levels(self):
-        lives = {1: 5, 2: 3, 3: 3, 4: 1}
         drops = {1: 40, 2: 25, 3: 12, 4: 5}
         for level in (1, 2, 3, 4):
             it, g = self.pd2(level)
-            self.assertEqual(g["lives"], lives[level])      # impossible: only one life
+            self.assertEqual((g["hp"], g["hp_max"]), (100, 100))       # a health bar of 100 on every level
             self.assertEqual(g["drop_pct"], drops[level])   # harder levels drop fewer skills
+        self.assertEqual([int(v) for v in g["hit_dmg_for"]], [20, 30, 40, 50])   # ...but hits hurt more
+
+    def test_planet_defenders_2_health_is_a_bar_not_hearts(self):
+        with open(os.path.join(ROOT, "games", "planet_defenders_2.hum"), encoding="utf-8") as f:
+            text = f.read()
+        self.assertNotIn("lives", text.replace("health bar instead of lives", ""))
+        self.assertNotIn("icon_heart", text)
+        it, g = self.pd2(2)
+        it.game_frame()
+        g["bomb_wait"] = 10 ** 6
+        g["hp"] = 100
+        g["bx"][0], g["by"][0] = g["px"] + 25, 185
+        for _ in range(4):
+            it.game_frame()
+        self.assertEqual(g["hp"], 70)                       # a medium bomb takes 30 of 100
+        g["dx"][0], g["dy"][0], g["dk"][0] = g["px"] + 10, 180, 6
+        for _ in range(4):
+            it.game_frame()
+        self.assertEqual(g["hp"], 100)                      # a health pack gives 35 back, never more than the bar holds
+        g["dx"][0], g["dy"][0], g["dk"][0] = g["px"] + 10, 180, 6
+        g["hp"] = 50
+        for _ in range(4):
+            it.game_frame()
+        self.assertEqual(g["hp"], 85)
 
     def test_planet_defenders_2_never_ends_and_scores_time(self):
         it, g = self.pd2(1)
@@ -339,12 +362,12 @@ class Showcase(unittest.TestCase):
         g["bx"][0], g["by"][0] = g["px"] + 25, 185
         for _ in range(10):
             it.game_frame()
-        self.assertEqual(g["lives"], 3)                     # the shield took the bomb
+        self.assertEqual(g["hp"], 100)                      # the shield took the bomb
         g["shield_t"] = 0
         g["bx"][0], g["by"][0] = g["px"] + 25, 185
         for _ in range(10):
             it.game_frame()
-        self.assertEqual(g["lives"], 2)                     # without it, a life is lost
+        self.assertEqual(g["hp"], 70)                       # without it, the bomb takes 30 off the bar
         g["hurt_t"] = 0
 
         def mean_bomb_x(ghost):
@@ -354,7 +377,7 @@ class Showcase(unittest.TestCase):
                 g["bomb_wait"], g["px"], g["shield_t"], g["hurt_t"] = 0, 250, 0, 0
                 g["ghost_t"] = 300 if ghost else 0
                 g["decoy_x"] = 20                           # the game picks a new decoy every second: keep this one
-                g["lives"], g["aimed_pct"] = 3, 100             # always aim, so the only difference is what they aim at
+                g["hp"], g["aimed_pct"] = 100, 100            # always aim, so the only difference is what they aim at
                 it.game_frame()
                 xs += [float(v) for v, y in zip(g["bx"], g["by"]) if 0 <= y < 118]
             self.assertTrue(xs)
@@ -363,9 +386,14 @@ class Showcase(unittest.TestCase):
         seen, hidden = mean_bomb_x(False), mean_bomb_x(True)
         self.assertLess(hidden, seen - 40)                  # invisible: bombs go toward the decoy on the left, not the ship
 
-    def test_planet_defenders_2_one_life_on_impossible_then_home(self):
+    def test_planet_defenders_2_two_hits_on_impossible_then_home(self):
         it, g = self.pd2(4)
         it.game_frame()
+        g["bx"][0], g["by"][0] = g["px"] + 25, 185
+        for _ in range(4):
+            it.game_frame()
+        self.assertEqual((g["mode"], g["hp"]), ("play", 50))
+        g["hurt_t"] = 0
         g["bx"][0], g["by"][0] = g["px"] + 25, 185
         for _ in range(4):
             it.game_frame()
@@ -378,7 +406,7 @@ class Showcase(unittest.TestCase):
     def test_planet_defenders_2_instructions_and_best_score(self):
         it, g = self.pd2(1)
         g["score"] = 777
-        g["lives"] = 1
+        g["hp"] = 1
         g["bx"][0], g["by"][0] = g["px"] + 25, 185
         for _ in range(3):
             it.game_frame()
@@ -411,7 +439,7 @@ class Showcase(unittest.TestCase):
                 break
             if g["boss_kind"]:
                 g["px"] = max(0, min(265, int(float(g["boss_x"]) + float(g["boss_w"]) / 2 - 27)))
-            g["hurt_t"], g["lives"] = 0, g["max_lives"]
+            g["hurt_t"], g["hp"] = 0, g["hp_max"]
             out.append(it.game_frame(down=["space"]))
         return out
 
@@ -437,18 +465,19 @@ class Showcase(unittest.TestCase):
         self.assertGreater(share, 0.32)
         self.assertLess(share, 0.48)                        # 40 in 100
 
-    def test_pd2_boss_strength_comes_from_the_level(self):
+    def test_pd2_bosses_last_long_on_every_level_and_hit_harder_on_harder_levels(self):
         hp = {1: [], 2: []}
+        dmg = []
         for level in (1, 2, 3, 4):
             it, g = self.pd2(level)
             for kind in (1, 2):
                 self.call_boss(g, it, kind)
                 hp[kind].append(int(g["boss_hp"]))
-        for kind in (1, 2):
-            self.assertEqual(hp[kind], sorted(hp[kind]))    # easy < medium < hard < impossible
-            self.assertEqual(len(set(hp[kind])), 4)
-        self.assertEqual(hp[1], [20, 34, 52, 76])
-        self.assertEqual(hp[2], [40, 66, 100, 140])
+            dmg.append(int(g["boss_dmg_for"][level - 1]))
+        self.assertEqual(hp[1], [90] * 4)                   # the same long fight on every level
+        self.assertEqual(hp[2], [220] * 4)
+        self.assertEqual(dmg, [8, 14, 20, 30])              # easy: light hits, impossible: heavy hits
+        self.assertEqual(dmg, sorted(dmg))
 
     def test_pd2_xeron_can_be_beaten_and_drops_two_skills(self):
         it, g = self.pd2(1)
@@ -469,7 +498,7 @@ class Showcase(unittest.TestCase):
         self.assertEqual(g["blood"], 5)                     # OBLIVAR: blood red
         music = [f["music"] for f in frames if "music" in f]
         self.assertEqual(music, [])                         # (the tune started with the warning)
-        frames = self.fight(g, it, 3000)
+        frames = self.fight(g, it, 12000, until_beaten=True)    # the main boss lasts long
         self.assertEqual(g["boss_kind"], 0)
         self.assertIn("adventure", [f["music"] for f in frames if "music" in f])   # the level's own tune comes back
         for _ in range(120):
@@ -498,12 +527,12 @@ class Showcase(unittest.TestCase):
         g["kx"][0], g["ky"][0], g["kvx"][0], g["kvy"][0] = g["px"] + 25, 186, 0, 2
         for _ in range(3):
             it.game_frame()
-        self.assertEqual(g["lives"], 2)
+        self.assertEqual(g["hp"], 86)                       # a medium boss shot takes 14
         g["hurt_t"], g["shield_t"] = 0, 300
         g["kx"][0], g["ky"][0], g["kvx"][0], g["kvy"][0] = g["px"] + 25, 186, 0, 2
         for _ in range(3):
             it.game_frame()
-        self.assertEqual(g["lives"], 2)
+        self.assertEqual(g["hp"], 86)
 
     def test_pd2_oblivar_drops_oblivar_x_rarely_and_rarer_on_harder_levels(self):
         rate = []
@@ -550,13 +579,15 @@ class Showcase(unittest.TestCase):
         g["cool"] = 0
         it.game_frame(down=["space"])
         self.assertEqual(sum(1 for v in g["sy"] if v >= 0), 5)        # five guns
-        g["bx"][0], g["by"][0] = g["px"] + 25, 190          # a bomb cannot hurt it
+        self.assertEqual(g["xhp"], 100)                     # the purple health bar is full
+        g["bx"][0], g["by"][0] = g["px"] + 25, 190          # a bomb hits the purple bar first, and only half as hard
         for _ in range(4):
             it.game_frame()
-        self.assertEqual(g["lives"], 3)
+        self.assertEqual((g["xhp"], g["hp"]), (85, 100))
         for _ in range(900):
             it.game_frame()
         self.assertEqual(g["x_t"], 0)                       # and it changes back
+        self.assertEqual(g["xhp"], 0)                       # the health bar is red again
         g["cool"] = 0
         g["sy"] = [-1] * 30
         it.game_frame(down=["space"])
@@ -574,6 +605,168 @@ class Showcase(unittest.TestCase):
             it.game_frame()
             damage.append(hp - float(g["boss_hp"]))
         self.assertEqual(damage, [1, 2])
+
+    # ---- Planet Defenders 2 (0.6.2): every boss attack can be dodged or passed through ----
+    def boss_ready_for_attacks(self, kind, level=2):
+        it, g = self.pd2(level)
+        self.call_boss(g, it, kind)
+        g["boss_warn"], g["boss_in"], g["boss_y"], g["boss_atk"] = 0, 0, 40, 10 ** 6   # in the fight, but it does not attack by itself
+        g["ky"] = [-1] * 30
+        return it, g
+
+    def test_pd2_xeron_curtain_always_has_a_hole_wide_enough_for_the_ship(self):
+        it, g = self.boss_ready_for_attacks(1)
+        holes = 0
+        for seed in range(400):
+            random.seed(seed)
+            g["ky"], g["dive_phase"], g["beam_phase"], g["boss_y"] = [-1] * 30, 0, 0, 40
+            g["boss_atk"] = 0                                # attack now
+            g["boss_move"] = 0
+            it.game_frame()
+            xs = sorted(float(x) for x, y in zip(g["kx"], g["ky"]) if y >= 0 and y < 60)
+            if len(xs) >= 12 and all(abs(a - b) <= 18.1 or abs(a - b) > 60 for a, b in zip(xs, xs[1:])) and xs[-1] - xs[0] > 200:
+                holes += 1
+                widest = max(b - a for a, b in zip(xs, xs[1:]))
+                self.assertGreaterEqual(widest, 54)          # the ship is 31 wide: plenty of room
+        self.assertGreater(holes, 20)                        # the wall comes often enough to be tested
+
+    def test_pd2_oblivar_fan_has_a_gap_where_you_stand(self):
+        it, g = self.boss_ready_for_attacks(2, level=4)
+        seen = 0
+        for seed in range(400):
+            random.seed(seed)
+            g["ky"], g["beam_phase"], g["boss_y"] = [-1] * 30, 0, 40
+            g["px"] = 20 + (seed * 37) % 240                 # the ship stands anywhere
+            g["boss_x"] = 2 + (seed * 53) % 250              # and so does the boss
+            g["boss_atk"], g["boss_move"] = 0, 0
+            it.game_frame()
+            shots = [(float(x), float(vx), float(vy), float(y)) for x, vx, vy, y in zip(g["kx"], g["kvx"], g["kvy"], g["ky"]) if y >= 0]
+            if len(shots) >= 6 and len({round(v[1], 3) for v in shots}) == len(shots):
+                # where each shot will be when it reaches the ship's height
+                landing = sorted(x + vx * ((188 - y) / vy) for x, vx, vy, y in shots)
+                ship_left, ship_right = g["px"] + 12, g["px"] + 43
+                self.assertFalse(any(ship_left <= l <= ship_right for l in landing), f"seed {seed}: a fan shot hits a ship that stands still")
+                seen += 1
+        self.assertGreater(seen, 10)
+
+    def test_pd2_laser_beams_leave_room_and_warn_first(self):
+        it, g = self.boss_ready_for_attacks(2, level=3)
+        g["boss_hp"] = float(g["boss_max"]) * 0.4            # rage: three beams
+        seen = 0
+        for seed in range(300):
+            random.seed(seed)
+            g["beam_phase"], g["boss_atk"], g["boss_move"], g["px"] = 0, 0, 0, 100 + seed % 120
+            it.game_frame()
+            if g["beam_phase"] == 1:
+                beams = sorted(float(v) for v in (g["beam_a"], g["beam_b"], g["beam_c"]) if v > 0)
+                self.assertGreater(float(g["beam_t"]), 40)   # a long warning first
+                for a, b in zip(beams, beams[1:]):
+                    self.assertGreaterEqual(b - a, 80)       # at least 58 pixels free between two beams
+                    self.assertGreater(b - a - 22, 40)       # the ship is about 35 wide
+                self.assertTrue(all(20 <= v <= 300 for v in beams))
+                seen += 1
+        self.assertGreater(seen, 15)
+
+    def test_pd2_laser_beam_hurts_only_after_the_warning_and_only_on_the_beam(self):
+        it, g = self.boss_ready_for_attacks(2, level=2)
+        g["px"], g["hurt_t"], g["shield_t"], g["x_t"], g["hp"] = 100, 0, 0, 0, 100
+        g["beam_phase"], g["beam_t"], g["beam_a"], g["beam_b"], g["beam_c"] = 1, 30, 127, -100, -100
+        for _ in range(20):
+            it.game_frame()
+        self.assertEqual(g["hp"], 100)                       # the warning line does not hurt
+        for _ in range(60):
+            it.game_frame()
+        self.assertEqual(g["beam_phase"], 0)
+        self.assertEqual(g["hp"], 79)                        # the beam did: 1.5 x 14 = 21 (the ship stood in it)
+        g["px"], g["hurt_t"], g["hp"] = 100, 0, 100
+        g["beam_phase"], g["beam_t"], g["beam_a"] = 2, 20, 260
+        for _ in range(25):
+            it.game_frame()
+        self.assertEqual(g["hp"], 100)                       # standing somewhere else is safe
+        g["hurt_t"], g["shield_t"], g["hp"] = 0, 300, 100
+        g["beam_phase"], g["beam_t"], g["beam_a"] = 2, 20, 127
+        for _ in range(25):
+            it.game_frame()
+        self.assertEqual(g["hp"], 100)                       # a shield blocks a beam
+
+    def test_pd2_xeron_dive_follows_locks_and_can_be_dodged(self):
+        it, g = self.boss_ready_for_attacks(1, level=2)
+        g["px"], g["hurt_t"], g["shield_t"], g["hp"] = 130, 0, 0, 100
+        g["dive_phase"], g["dive_t"] = 1, 70
+        locked_x = None
+        dodged = False
+        for frame in range(200):
+            if g["dive_phase"] == 1 and g["dive_t"] == 33:
+                locked_x = float(g["boss_x"])
+            if g["dive_phase"] == 1 and g["dive_t"] <= 30:
+                g["px"] = 10 if locked_x is not None and locked_x > 100 else 260    # step out of the red column
+                dodged = True
+            it.game_frame()
+            if g["dive_phase"] == 0 and frame > 20:
+                break
+        self.assertTrue(dodged)
+        self.assertEqual(g["hp"], 100)                       # dodged: no damage
+        self.assertEqual(float(g["boss_y"]), 40)             # it climbs back
+        # standing still under the dive hurts: 2 x 14
+        g["hurt_t"], g["hp"], g["px"], g["dive_phase"], g["dive_t"] = 0, 100, 130, 1, 70
+        g["boss_x"] = 130 + 27 - float(g["boss_w"]) / 2
+        for _ in range(200):
+            g["px"] = 130
+            it.game_frame()
+            if g["dive_phase"] == 0:
+                break
+        self.assertEqual(g["hp"], 72)
+
+    def test_pd2_bosses_never_use_the_same_attack_twice_in_a_row_and_use_all_of_them(self):
+        for kind, n in ((1, 4), (2, 5)):
+            it, g = self.boss_ready_for_attacks(kind)
+            seen, last = set(), None
+            for seed in range(200):
+                random.seed(seed)
+                g["beam_phase"], g["dive_phase"], g["boss_y"] = 0, 0, 40
+                g["boss_atk"] = 0
+                it.game_frame()
+                move = int(g["boss_move"])
+                self.assertNotEqual(move, last)
+                seen.add(move)
+                last = move
+            self.assertEqual(seen, set(range(1, n + 1)))
+
+    def test_pd2_every_attack_shows_a_hint_and_a_boss_pack_falls_twice(self):
+        it, g = self.boss_ready_for_attacks(2)
+        g["boss_atk"], g["boss_move"] = 0, 0
+        it.game_frame()
+        self.assertTrue(str(g["hint"]).strip())
+        self.assertGreater(g["hint_t"], 0)
+        packs = 0
+        for _ in range(int(float(g["boss_max"]))):
+            before = sum(1 for i in range(5) if g["dy"][i] >= 0 and g["dk"][i] == 6)
+            g["dy"] = [-1] * 5
+            g["boss_x"] = 100
+            g["sx"][0], g["sy"][0] = 120, float(g["boss_y"]) + 30
+            it.game_frame()
+            packs += sum(1 for i in range(5) if g["dy"][i] >= 0 and g["dk"][i] == 6)
+            g["hurt_t"], g["hp"] = 0, 100
+            g["boss_atk"] = 10 ** 6
+        self.assertEqual(packs, 2)                           # at two thirds and at one third of its health
+
+    def test_pd2_the_health_bar_is_red_and_turns_purple_with_oblivar_x(self):
+        it, g = self.pd2(2)
+        it.game_frame()
+        frame = it.game_frame()
+        shapes = [str(sh) for sh in frame.get("draw", [])] if isinstance(frame, dict) else []
+        text = " ".join(shapes)
+        self.assertNotIn("#8e3cff", text.lower())                    # normal: no purple
+        g["bomb_wait"] = 10 ** 6
+        g["dx"][0], g["dy"][0], g["dk"][0] = g["px"] + 10, 180, 7
+        for _ in range(3):
+            it.game_frame()
+        for _ in range(80):
+            it.game_frame()
+        self.assertGreater(g["xhp"], 0)
+        frame = it.game_frame()
+        self.assertIn("#8e3cff", str(frame))                 # transformed: a purple bar
+        self.assertIn("#e21c24", str(frame))                 # (with a thin red line for the real health)
 
     def test_every_built_in_tune_exists_in_the_screen_code(self):
         from humanlang.assets import BUILTIN_MUSIC
