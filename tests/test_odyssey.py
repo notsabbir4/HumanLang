@@ -110,6 +110,22 @@ class Odyssey(unittest.TestCase):
         self.assertFalse(g.var("gate1_open") in (True, "yes"))
         self.assertEqual(g.var("pz_stage"), "pick")
 
+    def test_the_hero_can_jump_onto_the_floating_blocks_of_world_1(self):
+        """The first floating block is 4 tiles (64 pixels) above the ground: a jump must be able to get on top of it."""
+        g = Game()
+        g.to_world(0)
+        g.hero.update({"x": 240, "y": 184})
+        for n in range(200):                          # let Echo finish his hello
+            g.fr(pressed=["enter"] if n % 30 == 29 else [])
+        g.hero.update({"x": 240, "y": 184, "vx": 0, "vy": 0})
+        highest = 999
+        for n in range(100):
+            g.fr(down=(["space"] if n < 20 else []) + (["right"] if n < 20 else []))
+            highest = min(highest, float(g.hero["y"]))
+        self.assertGreaterEqual(184 - highest, 66)     # the jump is higher than 64 pixels
+        self.assertTrue(g.hero["ground"])
+        self.assertEqual(float(g.hero["y"]), 120)      # and the hero stands on the block (its top is at y = 160)
+
     def test_world_5_can_be_finished_by_a_simple_bot(self):
         g = Game()
         g.to_world(4)

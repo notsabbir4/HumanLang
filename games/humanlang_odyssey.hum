@@ -3751,7 +3751,7 @@ note: ==================================================
 note: THE HERO AND THE STATE OF THE GAME
 note: ==================================================
 
-make a body called hero at 60, 184 with size 22 by 40 and gravity 0.5 and speed 2.6 and jump 7.4
+make a body called hero at 60, 184 with size 22 by 40 and gravity 0.5 and speed 2.6 and jump 8.8
 
 set mode to "intro"
 set tick to 0
