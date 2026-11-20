@@ -191,7 +191,7 @@ def main():
     h, w1, w2, w3, w5, w6 = lv.hub(), lv.world1(), lv.world2(), lv.world3(), lv.world5(), lv.arena()
     user = lv.Level(lv.USER_COLS, "w7")
     maps = "\n".join([
-        map_block("hubmap", h, [("C", "t_circuit"), ("^", "t_spike")]),
+        map_block("hubmap", h, [("H", "t_hub"), ("J", "t_hub_alt"), ("h", "t_hub_in"), ("k", "t_hub_in_alt")]),
         map_block("w1map", w1, [("G", "t_grass"), ("D", "t_dirt"), ("E", "t_deep")]),
         map_block("w2map", w2, [("M", "t_metal"), ("m", "t_metal_in"), ("^", "t_spike")]),
         map_block("w3map", w3, [("G", "t_grass"), ("D", "t_dirt"), ("E", "t_deep"), ("^", "t_spike")]),
@@ -201,7 +201,9 @@ def main():
         + "\n".join(f'    "{r}"' for r in lv.user_start()) + "\n",
     ])
     sub = {"SPRITES": sprites, "MAPS": maps, "DATA": data_block(), "GW_LOADER": gw_loader(),
-           "HUB_W": str(lv.HUB_COLS * T), "W5_W": str(lv.W5_COLS * T), "W5_GOAL": str(lv.W5_GOAL_X)}
+           "HUB_W": str(lv.HUB_COLS * T), "CHIP_X": str(lv.HUB_DOORS[3] + 25 - 38),
+           "HUB_DECOR_K": lst([k for k, _, _ in lv.hub_decor()]), "HUB_DECOR_X": lst([x for _, x, _ in lv.hub_decor()]),
+           "HUB_DECOR_Y": lst([y for _, _, y in lv.hub_decor()]), "W5_W": str(lv.W5_COLS * T), "W5_GOAL": str(lv.W5_GOAL_X)}
     sub.update(lists("W5", w5))
     sub["W5_BUG_X"] = lst([b[0] for b in w5.bugs])
     sub["W5_BUG_LO"] = lst([b[0] for b in w5.bugs])

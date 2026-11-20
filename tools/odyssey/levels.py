@@ -58,8 +58,20 @@ HUB_COLS = 110
 def hub():
     L = Level(HUB_COLS, "hub")
     for c in range(HUB_COLS):
-        L.column(c, 14, ("C", "C", "C"))
+        alt = (c // 3) % 2 == 1
+        L.column(c, 14, ("J", "k", "k") if alt else ("H", "h", "h"))
     return L
+
+
+def hub_decor():
+    """(kind, x, ground_y): 11 lamp, 14 terminal, 15 dish, 16 fern."""
+    out = [(14, 12, 224), (11, 52, 224), (15, 1650, 224), (11, 1712, 224)]
+    for i, dx in enumerate(HUB_DOORS):
+        out.append((16, dx + 62, 224))
+        if i < 6:
+            out.append((11, dx + 140, 224))
+            out.append((16, dx + 190, 224))
+    return sorted(out, key=lambda t: t[1])
 
 
 # =================================================================================================================

@@ -870,3 +870,69 @@ sub('''        otherwise if mode is "w1"
             draw_ending''')
 sub("        change k_right to no\n        change k_space to no\n", "        change k_right to no\n        change k_space to no\n        change k_up to no\n        change k_down to no\n        change k_e to no\n        change k_s to no\n        change k_l to no\n")
 sub("define start_gw with n", "{{GW_LOADER}}\n\ndefine start_gw with n")
+
+# ---------------------------------------------------------------- the redesigned Motherboard
+sub('update the body hero on the map hubmap with solid "C"', 'update the body hero on the map hubmap with solid "H" and "J" and "h" and "k"')
+sub('''            otherwise if k is 13
+                draw the sprite house_b at dx - 20, dy - 70''', '''            otherwise if k is 13
+                draw the sprite house_b at dx - 20, dy - 70
+            otherwise if k is 14
+                draw the sprite terminal at dx, dy - 38
+            otherwise if k is 15
+                draw the sprite dish at dx, dy - 52 frame 1 + (floor of (tick / 30)) mod 2
+            otherwise if k is 16
+                draw the sprite fern at dx, dy - 24 frame 1 + (floor of ((tick + dx) / 40)) mod 2''')
+replace_def("draw_hub_world", '''define draw_hub_world
+    move the camera to 0, 0
+    bands with sky_hub
+    for each i from 1 to 44
+        set sx to (i * 97) mod 480
+        set sy to (i * 53) mod 150
+        if (floor of ((tick + i * 13) / 25)) mod 4 is not 0
+            put a rectangle at sx, sy with width 2 and height 2 and colour "#7FA8FF"
+    set moon_x to 400 - floor of (cam_x * 0.03)
+    put a circle at moon_x, 52 with radius 20 and colour "#9FB8F0"
+    put a circle at moon_x - 1, 51 with radius 17 and colour "#D6E4FF"
+    put a circle at moon_x + 6, 58 with radius 4 and colour "#B4C8F4"
+    put a circle at moon_x - 7, 45 with radius 3 and colour "#B4C8F4"
+    set lit to 1
+    if (sum of wdone) is at least 3
+        set lit to 2
+    if (sum of wdone) is at least 6
+        set lit to 3
+    set far_off to floor of (cam_x * 0.1) mod 480
+    draw the sprite city_far at 0 - far_off, 84
+    draw the sprite city_far at 480 - far_off, 84
+    set near_off to floor of (cam_x * 0.28) mod 480
+    draw the sprite city_near at 0 - near_off, 112 frame lit
+    draw the sprite city_near at 480 - near_off, 112 frame lit
+    move the camera to cam_x, 0
+    draw the sprite chip at {{CHIP_X}}, 74 frame 1 + (floor of (tick / 40)) mod 2
+    draw the map hubmap
+    draw_decor
+    draw the sprite echo at 104, 170 frame 1 + (floor of (tick / 40)) mod 2 facing left
+    for each i from 1 to 7
+        set dx to item i of door_x
+        draw_hub_door with i and dx
+    move the camera to 0, 0
+    for each i from 1 to 16
+        set spx to (i * 131) mod 480
+        set spy to 224 - ((tick * (0.3 + (i mod 3) * 0.2) + i * 41) mod 200)
+        put a rectangle at spx, spy with width 2 and height 2 and colour "#7FE8FF"
+    move the camera to cam_x, 0''')
+replace_def("draw_hub_door", '''define draw_hub_door with i and dx
+    set st to 1 + (floor of (tick / 30)) mod 2
+    if item i of wdone is 1
+        set st to 3
+    draw the sprite portal_door at dx, 152 frame (i - 1) * 3 + st
+    set label_x to floor of (dx + 25 - cam_x)
+    shadow_text with "{i}" and label_x and 132 and 16 and "#FFFFFF" and "center"
+    if item i of wdone is 1
+        draw the sprite star at dx + 20, 116''')
+sub("(item i of door_x) - 6 and hx is less than (item i of door_x) + 40", "(item i of door_x) - 6 and hx is less than (item i of door_x) + 56")
+sub("define start_hub with x\n    change mode to \"hub\"\n", "define start_hub with x\n    change mode to \"hub\"\n    change decor_k to {{HUB_DECOR_K}}\n    change decor_x to {{HUB_DECOR_X}}\n    change decor_y to {{HUB_DECOR_Y}}\n")
+
+sub('put a rectangle at 90, 196 with width 300 and height 56 and colour "#0B1026"', 'put a rectangle at 90, 36 with width 300 and height 58 and colour "#0B1026"')
+sub('text_at with "WORLD {i}: {item i of world_names}" and 240 and 202 and 14', 'text_at with "WORLD {i}: {item i of world_names}" and 240 and 42 and 14')
+sub('text_at with (item i of world_tips) and 240 and 224 and 11', 'text_at with (item i of world_tips) and 240 and 62 and 11')
+sub('text_at with "Enter: go in" and 240 and 238 and 10 and "#8FF2AE" and "center"', 'text_at with "Enter: go in" and 240 and 77 and 10 and "#8FF2AE" and "center"')

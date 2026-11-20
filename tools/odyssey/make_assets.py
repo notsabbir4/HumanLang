@@ -10,6 +10,7 @@ import hero
 import hero2
 import bgs
 import art2
+import hubart
 from pixelkit import Sheet, load, trim, main_part, harden, resize, put, palette_of, preview
 
 HERE = os.path.dirname(__file__)
@@ -44,8 +45,18 @@ def build():
     add("gate", [art.gate(0), art.gate(1)], 28, "The code gate (frame 1 closed, frame 2 open).")
     add("portal", [art.portal(0), art.portal(1), art.portal(2)], 28, "The exit portal (3 frames).")
     add("goal", [art.goal(0), art.goal(1)], 30, "The Compiler Gate at the end of a world (2 frames).")
-    doors = [art.door(c) for c in ("green", "orange", "blue", "pink", "purple", "red", "gold")] + [art.door("x", True)]
-    add("door", doors, 40, "The seven doors of the hub (frames 1 to 7 are open, in the colour of their world; frame 8 is locked).")
+    doors = [hubart.portal_door(i, st) for i in range(1, 8) for st in (0, 1, 2)]
+    add("portal_door", doors, 60, "The seven arched doors of the hub, 3 frames each: waiting (2 shimmer frames) and finished (lit). Each shows a peek of its world.")
+    add("city_far", [hubart.skyline_far()], 14, "The far city skyline of the hub.")
+    add("city_near", [hubart.skyline_near(0), hubart.skyline_near(1), hubart.skyline_near(2)], 40, "The near city of the hub: 3 frames, more windows light up as you finish worlds.")
+    add("chip", [hubart.chip_tower(0), hubart.chip_tower(1)], 30, "The chip tower in the middle of the Motherboard.")
+    add("t_hub", [hubart.tile_hub(True)], 20, "Hub path tiles.")
+    add("t_hub_alt", [hubart.tile_hub(True, alt=True)], 20)
+    add("t_hub_in", [hubart.tile_hub(False)], 20)
+    add("t_hub_in_alt", [hubart.tile_hub(False, alt=True)], 20)
+    add("terminal", [hubart.terminal()], 14, "A little computer with a smile.")
+    add("dish", [hubart.dish(0), hubart.dish(1)], 14, "A satellite dish.")
+    add("fern", [hubart.fern(0), hubart.fern(1)], 14, "A glowing plant.")
     add("tower", [art.tower(0), art.tower(1)], 26, "A server tower with blinking lights.")
     add("bug", [art.bug(0), art.bug(1)], 24, "A glitch bug (2 frames).")
     add("flag", [art.flag(0), art.flag(1)], 24, "A checkpoint flag (2 frames).")
@@ -95,7 +106,7 @@ if __name__ == "__main__":
     prev, sizes = build()
     for k, v in sizes.items():
         print(f"{k:10s} {v[0][0]:3d}x{v[0][1]:3d}  frames {v[1]}")
-    big = ["hero", "title_hero", "logo", "echo", "gate", "portal", "goal", "door", "tower", "bug", "flag"]
+    big = ["hero", "title_hero", "logo", "echo", "gate", "portal", "goal", "portal_door", "tower", "bug", "flag"]
     for n in big:
         preview(prev[n], os.path.join("/tmp/g/od", "p_" + n + ".png"), scale=4)
     print(os.path.getsize(os.path.join(OUT, "sprites.hum")) // 1024, "KB of sprites")
