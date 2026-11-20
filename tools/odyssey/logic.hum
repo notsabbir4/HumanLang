@@ -260,15 +260,21 @@ define hero_move
         move the body hero to world_w - 22, (the y of the body hero)
 
 define hero_pose
+    note: frames: 1 stand, 2-6 run, 7 jump up, 8 top of the jump, 9 fall, 10 hurt, 11 cheer
     if hurt_t is greater than 55
-        give back 5
+        give back 10
     if done_t is greater than 0
-        give back 6
+        give back 11
     if not (the body hero is on the ground)
-        give back 4
+        set vy to the vertical speed of the body hero
+        if vy is less than -1.5
+            give back 7
+        if vy is greater than 1.5
+            give back 9
+        give back 8
     set vx to the horizontal speed of the body hero
     if vx is greater than 0.3 or vx is less than -0.3
-        give back 2 + (floor of (tick / 6)) mod 2
+        give back 2 + (floor of (tick / 5)) mod 5
     give back 1
 
 define draw_hero
@@ -356,19 +362,13 @@ note: ==================================================
 note: BACKGROUNDS
 note: ==================================================
 
-define draw_clouds with f
-    set off to scrolled with f
-    for each k from 0 to 2
-        draw the sprite cloud_a at k * 224 - off + 20, 24 + (k mod 2) * 10
-        draw the sprite cloud_b at k * 224 - off + 150, 52 - (k mod 2) * 12
-
-define draw_mountains with sprite_pick and f and y
-    set off to scrolled with f
-    for each k from 0 to 2
-        if sprite_pick is 1
-            draw the sprite mtn_far at k * 224 - off, y
-        otherwise
-            draw the sprite mtn_near at k * 224 - off, y
+define backdrop with which and f
+    note: the picture is wider than the screen and slides a little as the camera moves (the far scenery moves slowly)
+    set off to floor of (cam_x * f)
+    if which is 1
+        draw the sprite bg_meadow at 0 - off, 0
+    otherwise
+        draw the sprite bg_snow at 0 - off, 0
 
 define draw_decor
     for each i from 1 to length of decor_k
@@ -395,31 +395,21 @@ define draw_decor
 
 define draw_w1_world
     move the camera to 0, 0
-    bands with sky_w1
-    put a circle at 400 - (cam_x * 0.03), 52 with radius 26 and colour "#FFF4B8"
-    put a circle at 400 - (cam_x * 0.03), 52 with radius 19 and colour "#FFE680"
-    draw_clouds with 0.1
-    draw_mountains with 1 and 0.18 and 118
-    draw the sprite hills at 0 - (scrolled with 0.45), 190
-    draw the sprite hills at 224 - (scrolled with 0.45), 190
-    draw the sprite hills at 448 - (scrolled with 0.45), 190
+    put a rectangle at 0, 0 with width 480 and height 270 and colour "#2F7FE8"
+    backdrop with 1 and 0.17
     move the camera to cam_x, 0
     draw the map w1map
     draw_decor
 
 define draw_w5_world
     move the camera to 0, 0
-    bands with sky_w5
+    put a rectangle at 0, 0 with width 480 and height 270 and colour "#3A2A7A"
+    backdrop with 2 and 0.07
     for each i from 1 to 24
         set sx to ((i * 83) mod 480)
-        set sy to (i * 37) mod 120
+        set sy to (i * 37) mod 110
         if (floor of ((tick + i * 9) / 20)) mod 3 is not 0
             put a rectangle at sx, sy with width 2 and height 2 and colour "#FFF1D6"
-    put a circle at 360, 96 with radius 30 and colour "#FFD9A0"
-    put a circle at 360, 96 with radius 22 and colour "#FFEFC8"
-    draw_clouds with 0.08
-    draw_mountains with 1 and 0.14 and 100
-    draw_mountains with 2 and 0.32 and 130
     move the camera to cam_x, 0
     draw the map w5map
     draw_decor
@@ -592,36 +582,27 @@ note: ==================================================
 
 define draw_title
     move the camera to 0, 0
-    bands with sky_w1
-    put a circle at 380, 60 with radius 28 and colour "#FFF4B8"
-    put a circle at 380, 60 with radius 20 and colour "#FFE680"
-    set slow to tick * 0.6
-    draw_mountains_slow with slow
-    draw the sprite hills at 0, 200
-    draw the sprite hills at 224, 200
-    draw the sprite hills at 448, 200
-    put a rectangle at 0, 246 with width 480 and height 24 and colour "#2B8240"
-    put a rectangle at 0, 246 with width 480 and height 4 and colour "#7AD161"
-    put a rectangle at 0, 250 with width 480 and height 20 and colour "#663B25"
-    draw the sprite cloud_a at 40 + (slow mod 520) * 0 + (tick mod 900) * 0.4 - 100, 30
-    draw the sprite cloud_b at 300 - (tick mod 800) * 0.3 + 100, 78
+    put a rectangle at 0, 0 with width 480 and height 270 and colour "#2F7FE8"
+    set drift to floor of (60 + 50 * (wave with (tick / 300)))
+    draw the sprite bg_meadow at 0 - drift, 0
+    draw the sprite t_grass at 0, 224
+    for each k from 0 to 29
+        draw the sprite t_grass at k * 16, 224
+        draw the sprite t_dirt at k * 16, 240
+        draw the sprite t_deep at k * 16, 256
     draw the sprite logo at 124, 16
     shadow_text with "ODYSSEY" and 240 and 88 and 32 and "#FFE680" and "center"
     shadow_text with "SEVEN WORLDS" and 240 and 124 and 18 and "#FFFFFF" and "center"
     set bob to floor of (3 * (wave with (tick / 14)))
-    draw the sprite title_hero at 24, 128 + bob
-    draw the sprite echo at 380, 192 frame 1 + (floor of (tick / 30)) mod 2
-    draw the sprite bush at 330, 226
-    draw the sprite flower_a at 346, 230
+    draw the sprite title_hero at 24, 112
+    draw the sprite echo at 380, 170 frame 1 + (floor of (tick / 30)) mod 2
+    draw the sprite bush at 330, 204
+    draw the sprite flower_a at 346, 208
     if (floor of (tick / 28)) mod 2 is 0
-        shadow_text with "Press ENTER to start" and 262 and 196 and 15 and "#FFFFFF" and "center"
+        shadow_text with "Press ENTER to start" and 262 and 190 and 15 and "#FFFFFF" and "center"
     if w1_done is 1 or w5_done is 1
-        shadow_text with "Your progress was loaded." and 262 and 222 and 11 and "#8FF2AE" and "center"
+        shadow_text with "Your progress was loaded." and 262 and 214 and 11 and "#8FF2AE" and "center"
     shadow_text with "The HumanLang adventure: seven worlds, one language." and 300 and 160 and 10 and "#FFFFFF" and "center"
-
-define draw_mountains_slow with s
-    for each k from 0 to 2
-        draw the sprite mtn_far at k * 224 - (s mod 224), 128
 
 define draw_done with title and line1 and line2
     move the camera to 0, 0
@@ -632,7 +613,7 @@ define draw_done with title and line1 and line2
             set sc to "#FFE680"
         put a rectangle at (i * 83) mod 480, (i * 41 + tick) mod 270 with width 3 and height 3 and colour sc
     shadow_text with title and 240 and 26 and 26 and "#FFE680" and "center"
-    draw the sprite hero at 208, 62 frame 6
+    draw the sprite hero at 208, 62 frame 11
     shadow_text with line1 and 240 and 128 and 15 and "#FFFFFF" and "center"
     shadow_text with line2 and 240 and 154 and 13 and "#8FF2AE" and "center"
     if (floor of (tick / 25)) mod 2 is 0

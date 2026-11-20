@@ -7,6 +7,8 @@ import numpy as np
 from PIL import Image
 import art
 import hero
+import hero2
+import bgs
 from pixelkit import Sheet, load, trim, main_part, harden, resize, put, palette_of, preview
 
 HERE = os.path.dirname(__file__)
@@ -25,9 +27,8 @@ def build():
         prev[name] = frames
 
     # ---- the hero: the HL mascot, from the project's own reaction pictures ----
-    f = hero.frames()
-    names = ["idle", "run1", "run2", "jump", "hurt", "cheer"]
-    add("hero", [f[n] for n in names], 34, "The hero: the HL mascot (6 frames: stand, run, run, jump, hurt, cheer). Converted from the mascot pictures, pixel size 1.")
+    f = hero2.frames()
+    add("hero", [f[n] for n in hero2.NAMES], 40, "The hero: the HL mascot, from your sprite sheet (11 frames: 1 stand, 2-6 run, 7 jump up, 8 top of the jump, 9 fall, 10 hurt, 11 cheer). Pixel size 1.")
     # ---- the title picture and the logo ----
     thumbs = trim(main_part(harden(load(os.path.join(ROOT, "website", "static", "mascot", "thumbs.png")))))
     th = resize(thumbs, round(thumbs.width * 112 / thumbs.height), 112)
@@ -69,11 +70,8 @@ def build():
     add("flower_b", [art.flower("orange", seed=12)], 12)
     add("tuft", [art.tuft()], 8)
     add("rock", [art.rock()], 12)
-    add("cloud_a", [art.cloud(74, 28, 1)], 12)
-    add("cloud_b", [art.cloud(48, 20, 2)], 12)
-    add("mtn_far", [art.mountains(224, 110, 14, "stone", True, 3)], 22, "Far mountains (they scroll slowly).")
-    add("mtn_near", [art.mountains(224, 92, 3, "rock", True, 4)], 22, "Near mountains.")
-    add("hills", [art.hills(224, 58)], 12)
+    add("bg_meadow", [bgs.meadow()], 56, "World 1 and the title screen: your meadow picture, cut to 600 x 224. It slides slowly behind the level.")
+    add("bg_snow", [bgs.snow()], 56, "World 5: your snowy sunset picture, cut to 600 x 224.")
     with open(os.path.join(OUT, "sprites.hum"), "w", encoding="utf-8") as fh:
         fh.write(sh.text())
     sizes = {k: (v[0].size, len(v)) for k, v in prev.items()}
