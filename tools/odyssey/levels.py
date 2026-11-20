@@ -145,3 +145,105 @@ def world5():
     L.coin_row(109, 3, 8 * T - 24)
     L.coin_arc(117, 5, 14 * T - 24)
     return L
+
+
+# =================================================================================================================
+# World 2: Lists and Machines (a factory) and World 3: Word and Number Town. Like World 1, each has Echo, two code gates and
+# a portal, and, like World 5, pits with spikes, glitch bugs and checkpoint flags.
+# =================================================================================================================
+GATE_WORLDS = {
+    1: dict(cols=W1_COLS, echo=W1_ECHO_X, g1=W1_GATE1_X, g2=W1_GATE2_X, portal=W1_PORTAL_X),
+    2: dict(cols=84, echo=10 * T, g1=28 * T, g2=62 * T, portal=78 * T),
+    3: dict(cols=90, echo=8 * T, g1=18 * T, g2=68 * T, portal=84 * T),
+}
+
+
+def _pit(L, c0, c1, top=14):
+    for c in range(c0, c1 + 1):
+        for r in range(top - 1, ROWS):
+            L.g[r][c] = "."
+        L.g[16][c] = "^"
+
+
+def world2():
+    L = Level(84, "w2")
+    L.ground(0, 83, 14, ("M", "m", "m"))
+    _pit(L, 36, 38)
+    L.block(20, 22, 11, "M")
+    L.block(70, 72, 10, "M")
+    L.block(47, 49, 11, "M")
+    for c0, c1, lo in ((44, 54, 14),):
+        L.bugs.append((c0 * T, (c1 + 1) * T - 30, lo * T - 22))
+    L.flags = [(32 * T, L.top_of(32) * T - 42), (58 * T, L.top_of(58) * T - 42)]
+    # decor kinds: 9 gear, 10 crate, 11 lamp
+    for kind, c in ((9, 3), (10, 5), (11, 7), (10, 13), (9, 16), (10, 24), (11, 25), (9, 31), (10, 41), (11, 42), (9, 57), (10, 60), (11, 65), (10, 67), (9, 75), (11, 80)):
+        if L.top_of(c) < ROWS:
+            L.decor.append((kind, c * T, L.top_of(c) * T))
+    L.scrolls = [(21 * T - 4, 11 * T - 24), (48 * T - 4, 11 * T - 24), (71 * T - 4, 10 * T - 24)]
+    L.coin_arc(5, 5, 14 * T - 22)
+    L.coin_row(20, 3, 11 * T - 24 - 14)
+    L.coin_arc(34, 5, 14 * T - 60, 0)
+    L.coin_arc(40, 4, 14 * T - 22)
+    L.coin_arc(56, 4, 14 * T - 22)
+    L.coin_row(70, 3, 10 * T - 24 - 14)
+    L.coin_arc(74, 4, 14 * T - 22)
+    return L
+
+
+def world3():
+    L = Level(90, "w3")
+    L.ground(0, 89, 14, ("G", "D", "E"))
+    L.ground(24, 24, 13, ("G", "D", "E"))
+    L.ground(25, 32, 12, ("G", "D", "E"))
+    L.ground(33, 33, 13, ("G", "D", "E"))
+    _pit(L, 44, 46)
+    L.block(12, 14, 11, "G")
+    L.block(70, 72, 10, "G")
+    L.bugs.append((52 * T, 62 * T - 30, 14 * T - 22))
+    L.flags = [(38 * T, L.top_of(38) * T - 42), (64 * T, L.top_of(64) * T - 42)]
+    # decor kinds: 12 house, 13 blue house, 11 lamp, 2 bush, 3 flower
+    for kind, c in ((12, 3), (11, 6), (13, 10), (3, 16), (2, 21), (12, 36), (3, 40), (13, 49), (11, 51), (12, 56), (2, 60), (13, 74), (11, 77), (12, 80), (3, 87)):
+        ground = L.top_of(c)
+        if ground < ROWS and (kind not in (12, 13) or c not in range(24, 34)):
+            L.decor.append((kind, c * T, ground * T))
+    L.scrolls = [(13 * T - 4, 11 * T - 24), (28 * T, 12 * T - 24), (71 * T - 4, 10 * T - 24)]
+    L.coin_arc(6, 5, 14 * T - 22)
+    L.coin_row(12, 3, 11 * T - 24 - 14)
+    L.coin_arc(26, 5, 12 * T - 22)
+    L.coin_arc(43, 5, 14 * T - 60, 0)
+    L.coin_arc(53, 5, 14 * T - 22)
+    L.coin_row(70, 3, 10 * T - 24 - 14)
+    L.coin_arc(80, 4, 14 * T - 22)
+    return L
+
+
+# World 6: the Boss Citadel arena (one screen) and World 7: the level editor's starting level (30 x 14 tiles)
+def arena():
+    L = Level(30, "w6")
+    L.ground(0, 29, 14, ("C", "C", "C"))
+    for r in range(0, 14):
+        L.g[r][0] = "C"
+        L.g[r][29] = "C"
+    L.block(4, 6, 11, "S")
+    L.block(23, 25, 11, "S")
+    L.block(13, 16, 9, "S")
+    return L
+
+
+USER_COLS, USER_ROWS = 30, 14
+
+
+def user_start():
+    rows = ["." * USER_COLS for _ in range(USER_ROWS)]
+    rows = [list(r) for r in rows]
+    for c in range(USER_COLS):
+        rows[12][c] = "G"
+        rows[13][c] = "D"
+    for c in (9, 10):
+        rows[12][c] = "^"
+        rows[13][c] = "^"
+    for c in range(14, 18):
+        rows[9][c] = "S"
+    rows[11][3] = "c"; rows[11][4] = "c"; rows[8][15] = "c"; rows[8][16] = "c"
+    rows[11][27] = "F"
+    return ["".join(r) for r in rows]

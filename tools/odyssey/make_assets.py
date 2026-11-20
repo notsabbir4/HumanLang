@@ -9,6 +9,7 @@ import art
 import hero
 import hero2
 import bgs
+import art2
 from pixelkit import Sheet, load, trim, main_part, harden, resize, put, palette_of, preview
 
 HERE = os.path.dirname(__file__)
@@ -72,6 +73,18 @@ def build():
     add("rock", [art.rock()], 12)
     add("bg_meadow", [bgs.meadow()], 56, "World 1 and the title screen: your meadow picture, cut to 600 x 224. It slides slowly behind the level.")
     add("bg_snow", [bgs.snow()], 56, "World 5: your snowy sunset picture, cut to 600 x 224.")
+    # ---- worlds 2, 3, 4, 6 and 7 ----
+    add("t_metal", [art2.tile_metal(True)], 18, "Factory floor (World 2).")
+    add("t_metal_in", [art2.tile_metal(False)], 14)
+    add("house_a", [art2.house(0)], 28, "Town houses (World 3).")
+    add("house_b", [art2.house(1)], 28)
+    add("gear", [art2.gear(0), art2.gear(1)], 12, "A turning gear (2 frames).")
+    add("crate", [art2.crate()], 10)
+    add("lamp", [art2.lamp()], 12, "A street lamp.")
+    add("boss", [art2.boss(0), art2.boss(1)], 26, "The Glitch King, boss of World 6 (2 frames).")
+    add("bolt", [art2.bolt(0), art2.bolt(1)], 14, "An error bolt (2 frames).")
+    add("warn", [art2.warn()], 10, "The marker that shows where a bolt will land.")
+    add("easel", [art2.easel()], 14, "A painter's easel.")
     with open(os.path.join(OUT, "sprites.hum"), "w", encoding="utf-8") as fh:
         fh.write(sh.text())
     sizes = {k: (v[0].size, len(v)) for k, v in prev.items()}

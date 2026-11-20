@@ -23,8 +23,9 @@
 - **Videos in games:** `play video "intro.mp4"` (also `play the video "intro.mp4"`) shows a video over the game; the game waits until it
   ends, and a click, tap, Esc, Space or Enter skips it. Video files go next to the program (up to 3 MB) and work in the Playground,
   `hl build`, and on the Games page.
-- **New game, HUMANLANG ODYSSEY (first slice):** the HL mascot hero, a 480 x 270 screen, your logo reveal at the start, the Motherboard
-  hub, World 1 (Echo and two code gates) and World 5 (platform peaks). All art is drawn at pixel size 1. The other five worlds come later.
+- **New game, HUMANLANG ODYSSEY:** the HL mascot hero, a 480 x 270 screen, your logo reveal at the start and seven worlds: Say Hello, Lists and
+  Machines, Word and Number Town (code gates with Echo), Pixel Gallery (paint a picture), Platform Peaks, the Boss Citadel (the Glitch King) and
+  Your World (build, save and play your own level). All art is drawn at pixel size 1.
 
 ## 0.6.1.1 - 2026-11-13
 - **New licence:** HumanLang is still **free to use** (the website, Playground, installers, courses and games), and what you make

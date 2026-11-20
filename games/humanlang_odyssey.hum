@@ -1,7 +1,7 @@
-note: HUMANLANG ODYSSEY: SEVEN WORLDS (the first slice). Made with HumanLang 0.6.2.
-note: Your logo reveal plays first (play video), then the title, the Motherboard hub, World 1 (Say Hello) and
-note: World 5 (Platform Peaks). The hero is the HL mascot, drawn at pixel size 1 like every important picture here.
-note: Keys: left/right run, space jumps, enter talks, opens doors and confirms. On a phone: arrows, A = jump, B = enter.
+note: HUMANLANG ODYSSEY: SEVEN WORLDS. Made with HumanLang 0.6.2.
+note: Your logo reveal plays first (play video), then the title and the Motherboard hub with its seven worlds:
+note: 1 Say Hello, 2 Lists and Machines, 3 Word and Number Town, 4 Pixel Gallery, 5 Platform Peaks, 6 The Boss Citadel, 7 Your World. The hero is the HL mascot, drawn at pixel size 1 like every important picture here.
+note: Keys: left/right run, space jumps, enter talks, opens doors and confirms. World 4 and 7 explain their keys on the screen.
 
 use math
 use text
@@ -3685,6 +3685,734 @@ make a sprite called bg_snow with pixel size 1
     "VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVWXXXXXXXIMIIIIIIXXXVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVXXXXXXXXXIIIIXXXWVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVXXXXXXXXXIIIIIXXXXVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVU2XXXXXXIIIIhXXXVVVVVVVVVVVVVVVVVV"
     "mmtmtmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmnCCCMIIIsIsIssshWXXnmntmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmtttmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmttttmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmtmmmmmmmmmtttttttttttttttmmmmmmmmmmmmmmmmmmmmmmmmtmmmmmmmmmmmmmmmmmmmmmmnXCMIIIIIssssIXWnnmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmtttttmmttmmmmmmmmmmmmmmmmmmmmmmmmmmmtnntttttmmmmmmmnCCCMIIIIIsssssIXXCnmmmmmmmmmttntmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmtmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmnXCIIIIsssshIXCnntttmmmmmmttnnttt"
 
+note: Factory floor (World 2).
+make a sprite called t_metal with pixel size 1
+    where "a" is "#E1ECFF"
+    where "b" is "#A9C0E8"
+    where "c" is "#FF8A2A"
+    where "d" is "#7289B8"
+    where "e" is "#4A5A82"
+    where "f" is "#2F3A58"
+    where "g" is "#1B2033"
+    where "h" is "#181C30"
+    "cccchhhhcccchhhh"
+    "cccchhhhcccchhhh"
+    "cccchhhhcccchhhh"
+    "gggggggggggggggg"
+    "ffffefeeeeeedede"
+    "fffffefeeeeeeded"
+    "ffefeeeeeedddddd"
+    "gggggggggggggggg"
+    "dddddddddddddddd"
+    "eeeeededdddddbdb"
+    "deddddddbdbdbdbb"
+    "edagdddbdbdbdagb"
+    "bdggbdbbbbbbbggb"
+    "dbdbbbdbbbdbbbbb"
+    "bdbbbbbbbbababab"
+    "gggggggggggggggg"
+
+make a sprite called t_metal_in with pixel size 1
+    where "a" is "#E1ECFF"
+    where "b" is "#A9C0E8"
+    where "c" is "#7289B8"
+    where "d" is "#4A5A82"
+    where "e" is "#2F3A58"
+    where "f" is "#1B2033"
+    "ffffffefeeeedddd"
+    "fffffefeeeededed"
+    "efafeeeededddafd"
+    "fefffeeeededeffd"
+    "eeeededdddddcdcd"
+    "eeeeededdddddcdc"
+    "eededdddddcccccc"
+    "ffffffffffffffff"
+    "cccccccccccccccc"
+    "dddddcdccccccbcb"
+    "cdccccccbcbcbcbb"
+    "dcafcccbcbcbcafb"
+    "bcffbcbbbbbbbffb"
+    "cbcbbbcbbbcbbbbb"
+    "bcbbbbbbbbababab"
+    "ffffffffffffffff"
+
+note: Town houses (World 3).
+make a sprite called house_a with pixel size 1
+    where "a" is "#FFF6E3"
+    where "b" is "#F6E8CD"
+    where "c" is "#FFE08C"
+    where "d" is "#E6D3B0"
+    where "e" is "#FFD95C"
+    where "f" is "#FFC0C6"
+    where "g" is "#C9B394"
+    where "h" is "#E0AA66"
+    where "i" is "#9C8870"
+    where "j" is "#F27A86"
+    where "k" is "#B98242"
+    where "l" is "#D44458"
+    where "m" is "#93602F"
+    where "n" is "#A3263A"
+    where "o" is "#6D4024"
+    where "p" is "#6B5A48"
+    where "q" is "#4B5380"
+    where "r" is "#4A2A18"
+    where "s" is "#6B1624"
+    where "t" is "#0F1224"
+    where "u" is "#3A0C14"
+    "................................................................"
+    "................................t..............................."
+    "...............................ttt.............................."
+    "..............................ttttt............................."
+    ".............................tttsttt............................"
+    "............................tttsusttt..........................."
+    "...........................tttsususttt.........................."
+    "..........................tttuusssusttt........................."
+    ".........................tttssssnssssttt........................"
+    ".......................ttttsusussssssstttt......................"
+    "......................ttttssssssnsnsnsstttt....................."
+    ".....................ttttsussssnsnsnsssstttt...................."
+    "....................tttsssssnsnnnnnnnsnsnsttt..................."
+    "...................tttussssssnsnnnnnnnsnsnsttttttttt............"
+    "..................tttsssssnnnnnnlnlnlnnnnsnsttqqqqqqt..........."
+    ".................tttussssnsnnnnlnnnlnnnnnnsnstqqqqqqt..........."
+    "................tttsnsnnnnlnlnlllnlnlnlnlnnnnnqqqqqqt..........."
+    "...............tttsssnnnnlnlnlnlnlnlnlnlnnnnnnqqqqqqt..........."
+    "..............tttsnsnnnnlnlllllllllllllllnlnnnqqqqqqt..........."
+    ".............tttsssnsnnlnlllnlnlnlllllllnlnlnnqqqqqqt..........."
+    "............tttsnnnnlnlnlllllllllljljljljllnlnqqqqqqt..........."
+    "...........tttsnnnnnnlnlllllllllllllllllllnlnlqqqqqqtt.........."
+    "..........tttsnnnnlnlllllllllljllljllljljljlllqqqqqqttt........."
+    ".........tttsnsnnnnlnlllllllllljllllllljljljllqqqqqqnttt........"
+    ".......ttttnnnnnlnlllllljljljjjljljljljljjjjjlqqqqqqlltttt......"
+    "......ttttsnnnnnnlnlllllljljljljljljljljljjjjjqqqqqqllntttt....."
+    ".....ttttnnnlnlllljljljljljljljljljjjljjjjjjjjqqqqqqlllltttt...."
+    "....tttnnnnlnlllllljllljljljljljljljljljljjjjjqqqqqqllllllttt..."
+    "...tttnnlnlnlllljljljljljjjjjjjjjjjljjjjjjjjfjqqqqqqjjjljllttt.."
+    "..tttnnnnlnlllllllllllllljljljljljljljljjjljjjqqqqqqjjljljllttt."
+    ".tttnnlnlllllljllljllljljljljljljljljljjjjjjjjjjjjjjjjjjjljljttt"
+    "tttnnnnlllllnlllnlllllllllljljljllljllljljljljljljjjljjjjjljljtt"
+    "ttlnlllllllllllllllljllllljljljljljljljljjjljjjjjjjljjjjfjjjjjjt"
+    "tnnlnlnlnlnlllllllllllllllllllllllllllllljllljljljljljljjjjjjjlj"
+    "lnlnlnlnlnlllllllllljllllllllljllljllljljljljljljljljljjjjjjjjjj"
+    "ttttttiipiiiiiigigigigigigggigggggggiggggggggggggggdggggggtttttt"
+    "ttttttiiiigigigiggggggggggggdgggdgggdgdgdgdgdgdgdddgdgdgdgtttttt"
+    "ttttttpiiiiiigigggiggggggggggggggggggdgdgdgdgdgdgdgdgdgdggtttttt"
+    "..ttttiiiigigiggggggggdgggdgdgdgdgdgdgdddgdddgdddddddgdgdgtttt.."
+    "..ttttpiigigiggggggggggggggdgggdgdgggdgdgdddgdgdddddgdgdggtttt.."
+    "..ttttiigigiggggrrrrrrrrrgdgdddddddgddddrrrrrrrrrddddddgdgtttt.."
+    "..ttttpiigigigggccccrccccdgdgdgdddddddddccccrccccdddddgdgdtttt.."
+    "..ttttiigiggggggccccrccccgddddddddddddbdccccrccccddddddddgtttt.."
+    "..ttttiiigigigggccccrccccdddddddddddddddccccrccccdddgdgdgdtttt.."
+    "..ttttiigiggggggrrrrrrrrrdbdbdddbdbdbdbdrrrrrrrrrdbdddddddtttt.."
+    "..ttttiiigigggggccccrccccddddbdddbdbdbdbccccrccccbddddgdgdtttt.."
+    "..ttttgigiggggdgccccrccccrrrororormooombccccrccccdbdddddddtttt.."
+    "..ttttigigiggggdccccrccccrrrrororoomooobccccrccccdddddddddtttt.."
+    "..ttttgiggggdgdgccccrccccroroooomommmombccccrccccdbdbdddddtttt.."
+    "..ttttigiggggdgdrrrrrrrrrrroooommmomomobrrrrrrrrrbdddbddddtttt.."
+    "..ttttggggdgdgddddddddbdbrrroommmmmmmombbbbbbdbbbdbdbdddddtttt.."
+    "..ttttigiggggggdgddddddbdrroommmmmmmmmobdbdbdbdbdbdbddddddtttt.."
+    "..ttttggggggdgddddddbdbdbroommmmkmkmmmmbbbbbbbbbbbbdbbbdbdtttt.."
+    "..ttttiggggggdgddddddbdbdrroommmmmmkmmobbbbbbbbbbbdbdbddddtttt.."
+    "..ttttggggdgdgddddbdbdbbbroommkmkmkmmmmbbbababbbbbbbbdbdddtttt.."
+    "..ttttgggggggdgddddddbdbdromommmmkmkmmmbbbbbbbbbdbdbdbdbddtttt.."
+    "..ttttggdgdgddddbdbdbbbdbroommmmkmkmkmmbabababbbbbbbbbbdbdtttt.."
+    "..ttttgggggdgdgddddbdbdbdoroommkmkmkmkmabbbbbbbbbbdbdbdbdbtttt.."
+    "..ttttdgdgdgddddddbdbdbbbroommkkkmkeemkbababababbbbbbdbbbdtttt.."
+    "..ttttgggggdgddddddddbdbboommmmkmkkeemmbbbbabbbbbbbbdbdbdbtttt.."
+    "..ttttdgddddddddbdbdbbbbaooommkmkkkkkmmbabababababbbbbbbbbtttt.."
+    "..ttttgggdgddddddbdbdbbbboommmmkmkmkmkmababbbabbbbbbbbdbbbtttt.."
+    "..ttttdgdgddddbdbdbbbbbbbrommmkkkkkkkmkaaaababababbbbbbbbdtttt.."
+    "..ttttgdgdgddddddddbdbbbboommkmkmkkkmkmabababababbbbbbbbdbtttt.."
+    "..ttttdgddddbdbdbbbbbbbbaommkkkmkkhkkkkaaaababababababbbbbtttt.."
+    "..ttttgdgddddddddbdbbbbbboommkmkmkkkkkkababababababbbbbbbbtttt.."
+    "..ttttddddddddbdbdbbbbbbbommkmkkkkhkkkkaaaaaababababababbbtttt.."
+    "..ttttgdgddddddbdbdbbbbbboommkmkmkkhmkmabaaabababbbbbbbbbbtttt.."
+    "..ttttddddddbdbdbbbbababaommkkkkkkhkkkkaaaaaaaaaabababbbbbtttt.."
+    "..ttttgddddddbdbdbbbbababoommkkkkhkkkkmaaaaaaaaababbbbbbbbtttt.."
+
+make a sprite called house_b with pixel size 1
+    where "a" is "#F4FAFF"
+    where "b" is "#DBE8F2"
+    where "c" is "#FFE08C"
+    where "d" is "#C0E4FF"
+    where "e" is "#FFD95C"
+    where "f" is "#BDD0E0"
+    where "g" is "#E0AA66"
+    where "h" is "#97AEC4"
+    where "i" is "#76BFF2"
+    where "j" is "#3F8FD4"
+    where "k" is "#B98242"
+    where "l" is "#93602F"
+    where "m" is "#6F849A"
+    where "n" is "#4B5380"
+    where "o" is "#6D4024"
+    where "p" is "#2760A3"
+    where "q" is "#4A5A6B"
+    where "r" is "#173A6B"
+    where "s" is "#4A2A18"
+    where "t" is "#0F1224"
+    where "u" is "#0C1C3A"
+    "................................................................"
+    "................................t..............................."
+    "...............................ttt.............................."
+    "..............................ttttt............................."
+    ".............................tttrttt............................"
+    "............................tttrurttt..........................."
+    "...........................tttrururttt.........................."
+    "..........................tttuurrrurttt........................."
+    ".........................tttrrrrprrrrttt........................"
+    ".......................ttttrururrrrrrrtttt......................"
+    "......................ttttrrrrrrprprprrtttt....................."
+    ".....................ttttrurrrrprprprrrrtttt...................."
+    "....................tttrrrrrprppppppprprprttt..................."
+    "...................ttturrrrrrprppppppprprprttttttttt............"
+    "..................tttrrrrrppppppjpjpjpppprprttnnnnnnt..........."
+    ".................ttturrrrprppppjpppjpppppprprtnnnnnnt..........."
+    "................tttrprppppjpjpjjjpjpjpjpjpppppnnnnnnt..........."
+    "...............tttrrrppppjpjpjpjpjpjpjpjppppppnnnnnnt..........."
+    "..............tttrprppppjpjjjjjjjjjjjjjjjpjpppnnnnnnt..........."
+    ".............tttrrrprppjpjjjpjpjpjjjjjjjpjpjppnnnnnnt..........."
+    "............tttrppppjpjpjjjjjjjjjjijijijijjpjpnnnnnnt..........."
+    "...........tttrppppppjpjjjjjjjjjjjjjjjjjjjpjpjnnnnnntt.........."
+    "..........tttrppppjpjjjjjjjjjjijjjijjjijijijjjnnnnnnttt........."
+    ".........tttrprppppjpjjjjjjjjjjijjjjjjjijijijjnnnnnnpttt........"
+    ".......ttttpppppjpjjjjjjijijiiijijijijijiiiiijnnnnnnjjtttt......"
+    "......ttttrppppppjpjjjjjjijijijijijijijijiiiiinnnnnnjjptttt....."
+    ".....ttttpppjpjjjjijijijijijijijijiiijiiiiiiiinnnnnnjjjjtttt...."
+    "....tttppppjpjjjjjjijjjijijijijijijijijijiiiiinnnnnnjjjjjjttt..."
+    "...tttppjpjpjjjjijijijijiiiiiiiiiiijiiiiiiiidinnnnnniiijijjttt.."
+    "..tttppppjpjjjjjjjjjjjjjjijijijijijijijiiijiiinnnnnniijijijjttt."
+    ".tttppjpjjjjjjijjjijjjijijijijijijijijiiiiiiiiiiiiiiiiiiijijittt"
+    "tttppppjjjjjpjjjpjjjjjjjjjjijijijjjijjjijijijijijiiijiiiiijijitt"
+    "ttjpjjjjjjjjjjjjjjjjijjjjjijijijijijijijiiijiiiiiiijiiiidiiiiiit"
+    "tppjpjpjpjpjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjijjjijijijijijiiiiiiiji"
+    "jpjpjpjpjpjjjjjjjjjjijjjjjjjjjijjjijjjijijijijijijijijiiiiiiiiii"
+    "ttttttmmqmmmmmmhmhmhmhmhmhhhmhhhhhhhmhhhhhhhhhhhhhhfhhhhhhtttttt"
+    "ttttttmmmmhmhmhmhhhhhhhhhhhhfhhhfhhhfhfhfhfhfhfhfffhfhfhfhtttttt"
+    "ttttttqmmmmmmhmhhhmhhhhhhhhhhhhhhhhhhfhfhfhfhfhfhfhfhfhfhhtttttt"
+    "..ttttmmmmhmhmhhhhhhhhfhhhfhfhfhfhfhfhfffhfffhfffffffhfhfhtttt.."
+    "..ttttqmmhmhmhhhhhhhhhhhhhhfhhhfhfhhhfhfhfffhfhfffffhfhfhhtttt.."
+    "..ttttmmhmhmhhhhssssssssshfhfffffffhffffsssssssssffffffhfhtttt.."
+    "..ttttqmmhmhmhhhccccsccccfhfhfhfffffffffccccsccccfffffhfhftttt.."
+    "..ttttmmhmhhhhhhccccscccchffffffffffffbfccccsccccffffffffhtttt.."
+    "..ttttmmmhmhmhhhccccsccccfffffffffffffffccccsccccfffhfhfhftttt.."
+    "..ttttmmhmhhhhhhsssssssssfbfbfffbfbfbfbfsssssssssfbffffffftttt.."
+    "..ttttmmmhmhhhhhccccsccccffffbfffbfbfbfbccccsccccbffffhfhftttt.."
+    "..tttthmhmhhhhfhccccsccccsssosososlooolbccccsccccfbffffffftttt.."
+    "..ttttmhmhmhhhhfccccsccccssssososoolooobccccsccccffffffffftttt.."
+    "..tttthmhhhhfhfhccccsccccsosoooololllolbccccsccccfbfbffffftttt.."
+    "..ttttmhmhhhhfhfsssssssssssoooolllololobsssssssssbfffbfffftttt.."
+    "..tttthhhhfhfhffffffffbfbsssoolllllllolbbbbbbfbbbfbfbffffftttt.."
+    "..ttttmhmhhhhhhfhffffffbfssoolllllllllobfbfbfbfbfbfbfffffftttt.."
+    "..tttthhhhhhfhffffffbfbfbsoollllklkllllbbbbbbbbbbbbfbbbfbftttt.."
+    "..ttttmhhhhhhfhffffffbfbfssoollllllkllobbbbbbbbbbbfbfbfffftttt.."
+    "..tttthhhhfhfhffffbfbfbbbsoollklklkllllbbbababbbbbbbbfbffftttt.."
+    "..tttthhhhhhhfhffffffbfbfsolollllklklllbbbbbbbbbfbfbfbfbfftttt.."
+    "..tttthhfhfhffffbfbfbbbfbsoollllklklkllbabababbbbbbbbbbfbftttt.."
+    "..tttthhhhhfhfhffffbfbfbfosoollklklklklabbbbbbbbbbfbfbfbfbtttt.."
+    "..ttttfhfhfhffffffbfbfbbbsoollkkklkeelkbababababbbbbbfbbbftttt.."
+    "..tttthhhhhfhffffffffbfbboollllklkkeellbbbbabbbbbbbbfbfbfbtttt.."
+    "..ttttfhffffffffbfbfbbbbaooollklkkkkkllbabababababbbbbbbbbtttt.."
+    "..tttthhhfhffffffbfbfbbbboollllklklklklababbbabbbbbbbbfbbbtttt.."
+    "..ttttfhfhffffbfbfbbbbbbbsolllkkkkkkklkaaaababababbbbbbbbftttt.."
+    "..tttthfhfhffffffffbfbbbboollklklkkklklabababababbbbbbbbfbtttt.."
+    "..ttttfhffffbfbfbbbbbbbbaollkkklkkgkkkkaaaababababababbbbbtttt.."
+    "..tttthfhffffffffbfbbbbbboollklklkkkkkkababababababbbbbbbbtttt.."
+    "..ttttffffffffbfbfbbbbbbbollklkkkkgkkkkaaaaaababababababbbtttt.."
+    "..tttthfhffffffbfbfbbbbbboollklklkkglklabaaabababbbbbbbbbbtttt.."
+    "..ttttffffffbfbfbbbbababaollkkkkkkgkkkkaaaaaaaaaabababbbbbtttt.."
+    "..tttthffffffbfbfbbbbababoollkkkkgkkkklaaaaaaaaababbbbbbbbtttt.."
+
+note: A turning gear (2 frames).
+make a sprite called gear with pixel size 1 and 2 frames
+    where "a" is "#A9C0E8"
+    where "b" is "#7289B8"
+    where "c" is "#4A5A82"
+    where "d" is "#2F3A58"
+    where "e" is "#1B2033"
+    where "f" is "#0F1224"
+    ".............................."
+    ".............fffff............"
+    "............fdddddf..........."
+    "............fdddddf..........."
+    "......fff...fdcdcdf...fff....."
+    ".....fedef.fffdcdfff.fdccf...."
+    "....fedddffdddcdcdcdffccccf..."
+    "....fddddddddddcdcdcdccbccf..."
+    "....fdddcdcdccccccccccbcbcf..."
+    ".....ffddcdccccbcbcccbccff...."
+    "......fdcdccbcbebbbcbcbcf....."
+    ".....fdddccbeeeeeeebcbcbcf...."
+    "..ffffcdccbeeeaeeeeeabbbbffff."
+    ".fdddfdcccceeaaaeeeebbbbcfcbbf"
+    ".fcdcdccccbeaaaaaeeeabbbbbbbbf"
+    ".fdcdcdccceeeaaaeeeeebbbbbbbbf"
+    ".fcdccccbcbeeeaeeeeeababbbabaf"
+    ".fdcdfdccbbeeeeeeeeebabbbfbbbf"
+    "..ffffccbcbeeeeeeeeeababbffff."
+    ".....fcccbbbeeeeeeeabbbbbf...."
+    "......fcbbbbaaaeaaaaabbbf....."
+    ".....ffccbbbbabababababbff...."
+    "....fcbcbcbbbbababababababf..."
+    "....fccbcbcbcbbbbbbbbbbabaf..."
+    "....fcbcbffbbbbbababffaaaaf..."
+    ".....fcbcf.fffbbbfff.fbabf...."
+    "......fff...fbababf...fff....."
+    "............fbbabbf..........."
+    "............fbababf..........."
+    ".............fffff............"
+    ".............................."
+    "............fff..............."
+    "..........ffdddf....ff........"
+    ".........feddddf...fddf......."
+    ".........fddcdcf..fdcccf......"
+    "..........fddcddfffcccdcf....."
+    ".....f...ffdcdcdcdcccccf......"
+    "....fdfffddddcdcdcdccccf......"
+    "...fddddddcdccccccccbccf......"
+    "..fddddddcdccccccbcbccccf.ff.."
+    "..fdddcccdccbcbebbbbbcbcffbcf."
+    "...fdddcdccbeeeeeeebcbcbcccbf."
+    "....ffcdccbeeeaeeeeeabbbbbbbbf"
+    ".....fdcccceeaaaeeeebbbbbbbbbf"
+    ".....fccccbeaaaaaeeeababbbbbbf"
+    "..fffddccceeeaaaeeeeebbbbbfff."
+    ".fcdccccbbbeeeaeeeeeabbbbf...."
+    ".fdccccccbbeeeeeeeeebabbbf...."
+    ".fccccbcbcbeeeeeeeeeababbff..."
+    "..fcdccccbbbeeeeeeeababbbbbf.."
+    "..fccffcbbbbaaaeaaaaababababf."
+    "...ff.fccbbbbabababababbbabaf."
+    ".......fbcbbbbababababababaf.."
+    ".......fcbbbcbbbbabbbbfffaf..."
+    ".......fbbbbbbbbababff...f...."
+    "......fbcbbbfffbbabaf........."
+    ".......fbbbbf..fabaaaf........"
+    "........fbbf...fbababf........"
+    ".........ff....fabaff........."
+    "................fff..........."
+
+make a sprite called crate with pixel size 1
+    where "a" is "#E0AA66"
+    where "b" is "#B98242"
+    where "c" is "#93602F"
+    where "d" is "#6D4024"
+    where "e" is "#4A2A18"
+    where "f" is "#2A1810"
+    "ffffffffffffffffffffffff"
+    "ffffffffffffffffffffffff"
+    "ffeeeededddddeddcdccccff"
+    "ffeeeeededededdddcdcdcff"
+    "ffeeeeddddddcdcdccccccff"
+    "ffeeeeedededdcdcccccccff"
+    "ffdedeeeddcdcdccccbcccff"
+    "ffededeeeddcdcdcdccbcbff"
+    "ffdddddeeecdccccbcbcbbff"
+    "ffedddddeeecdcdccbcbbbff"
+    "ffddddddceeeccccccbbbbff"
+    "ffdddddcdceeeccccccbcbff"
+    "ffcdccccccceeebcbbbbbbff"
+    "ffdcccdccccceeebcbcbbbff"
+    "ffccccccccbcbeeebbbbbbff"
+    "ffcccccccbcbcbeeebbbbbff"
+    "ffbcbcccbbbbbbbeeeababff"
+    "ffcccccbbbbbbbbbeeebbbff"
+    "ffbcbcbbbbabbbabaeeeabff"
+    "ffcbcbcbcbbbbbbabaeeebff"
+    "ffbcbbbbbbababaaaaaeeeff"
+    "ffcbbbcbbbbababababaeeef"
+    "fffffffffffffffffffffeef"
+    "ffffffffffffffffffffffff"
+
+note: A street lamp.
+make a sprite called lamp with pixel size 1
+    where "a" is "#FFFCDC"
+    where "b" is "#E1ECFF"
+    where "c" is "#FFEC96"
+    where "d" is "#A9C0E8"
+    where "e" is "#7289B8"
+    where "f" is "#4A5A82"
+    where "g" is "#2F3A58"
+    where "h" is "#0F1224"
+    ".............."
+    ".......h......"
+    ".....hhchh...."
+    "....hccccch..."
+    "...hccacccch.."
+    "..hccaaacccch."
+    "..hccaaacccch."
+    "..hcaaaaaccch."
+    ".hcccaaaccccch"
+    "..hccaaacccch."
+    "..hcccaccccch."
+    "..hccccccccch."
+    "...hccccccch.."
+    "..hggggggggh.."
+    "..hggggggggh.."
+    "...hhhgbhhh..."
+    ".....hfbh....."
+    ".....hgbh....."
+    ".....hfbh....."
+    ".....hgbh....."
+    ".....hfbh....."
+    ".....hgbh....."
+    ".....hfbh....."
+    ".....hgbh....."
+    ".....hfbh....."
+    ".....hgbh....."
+    ".....hfbh....."
+    ".....hgbh....."
+    ".....hfbh....."
+    ".....hgbh....."
+    ".....hfbh....."
+    ".....hgbh....."
+    ".....hfbh....."
+    ".....hgbh....."
+    ".....hfbh....."
+    ".....hgbh....."
+    ".....hfbh....."
+    ".....hgbh....."
+    ".....hfbh....."
+    ".....hgbh....."
+    ".....hfbh....."
+    ".....hgbh....."
+    ".....hfbh....."
+    ".....hgbh....."
+    ".....hfbh....."
+    ".....hgbh....."
+    ".....hfbh....."
+    ".....hgbh....."
+    ".....hfbh....."
+    ".....hgbh....."
+    ".....hfbh....."
+    "...hhhgbhhh..."
+    "..hgggggfffh.."
+    "..hggffffefh.."
+    "..hgefeedeeh.."
+    "..hffeededeh.."
+    "..heddddbbbh.."
+    "..hedbdbbbdh.."
+
+note: The Glitch King, boss of World 6 (2 frames).
+make a sprite called boss with pixel size 1 and 2 frames
+    where "a" is "#FFFFFF"
+    where "b" is "#FFF2B0"
+    where "c" is "#FFD95C"
+    where "d" is "#F0B832"
+    where "e" is "#ECD2FF"
+    where "f" is "#7FD6FF"
+    where "g" is "#C58CFF"
+    where "h" is "#FF7F86"
+    where "i" is "#C48A1A"
+    where "j" is "#9A56E6"
+    where "k" is "#8C5C0E"
+    where "l" is "#C81428"
+    where "m" is "#6A2FB8"
+    where "n" is "#5A3A08"
+    where "o" is "#3A1A6B"
+    where "p" is "#1A0F33"
+    where "q" is "#0F1224"
+    "................................q..............................."
+    "...............................qfq.............................."
+    "..............................qfffq............................."
+    ".............................qfffffq............................"
+    "..............q...............qfffq..............q.............."
+    ".............qhq..............qkfkq.............qhq............."
+    "............qhhhq............qkkkkkq...........qhhhq............"
+    "...........qhhhhhq..........qknkkkkkq.........qhhhhhq..........."
+    "............qhhhq...........qkikiiikq..........qhhhq............"
+    ".............qhkq..........qkkkiiikikq..........qhkq............"
+    ".............qkkkq.........qkkiiiiiiiq.........qiiiq............"
+    ".............qnknkq.......qkkiiiiiiikiq.......qiiiiq............"
+    ".............qkkikkq.....qikiididididiiq.....qiididq............"
+    ".............qkkkikkq....qkiiiidididiikq....qiididiq............"
+    ".............qkkiiikkq..qkiiiidddddddidiq..qdidddddq............"
+    ".............qkikiiikiqqkiiiidddddddididiqqdidddddiq............"
+    ".............qikiidiiiiqiiddddcdcdcdcddddqdiddcdcddq............"
+    ".............qkiididiiiiididdcdddcdddcddididdcdcdddq............"
+    ".............qiididddididdddcdcdcdcdcdcdddcdccbccddq............"
+    ".............qkiidddidididdcdddcdcdcdcdcdcdcdcccdddq............"
+    ".............qiiddcdcdcdcdcdcccdccccccccccccbcbccdcq............"
+    ".............qiddddddddddcdddcdcdcdcccdcccccccccccdq............"
+    ".............qkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkcq............"
+    ".............qkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkdq............"
+    "............qodidididdddddddcdcdcdcdcdcdcccccccccccmq..........."
+    "...........qooooooooooommmommmmmmmmmmmmmmjmmmmmmmmmmmq.........."
+    "..........qooomooomomommmmmmmmjmmmjmmmjmmmjmjmjmmmmmmmq........."
+    ".........qooooomomomomomommjmmmjmmmjmmmmmmmjmjmjmmmmmmmq........"
+    "........qooomppppppppppppppppmjjjjjppppppppppppppppmjmjmq......."
+    ".......qoooooppppppppppppppppjmjjjmppppppppppppppppjmjmjmq......"
+    "......qomomooommmmmmmajmjmjjjjjjjjjjjmjjgjgajjjjjjjjjmjjjmq....."
+    "......qoooooommmomaaaaaaajjjjjjjmjjjjjjjaaaaaaajjjjjmmmjmjq....."
+    ".....qoomomommmmaaaaaaaaaaajgjjjjjjjgjaaaaaaaaaaajjjjjjjjjjq...."
+    "....qoooooommmmaaaaaaaaaaaaajjjjjjjjjaaaaaaaaaaaaamjmjmjmjmjq..."
+    "....qomomommmmjaaaaaaaaaaaaajjgjjjgjjaaaaaaaaaaaaajjjjjjjjjjq..."
+    "...qpoomomomomaaaaaaaaaaaaaaajjgjjjjaaaaaaaaaaaaaaajjjjjmjmjmq.."
+    "...qoomommmmmmaaaaaaaalaaaaaajgjgjjjaaaaaaaalaaaaaajgjgjgjjjjq.."
+    "...qooomommmmjaaaaaalllllaaaagjjjgjjaaaaaalllllaaaagjgjgjjjjjq.."
+    "..qomommmmjmeeeeaaalllllllaaaagjgjgaaaaaalllllllaaaagjgjgjgjjjq."
+    "..qoomommjmmeeeeaaalllllllaaajjgjgjjaaaaalllllllaaagjgjgjjjjjjq."
+    "..qomommjmjmeeeeaalllllllllaaggggggjaaaalllllllllaaggggjgjgjgjq."
+    "..qoomommjmjeeeeaaalllllllaaagjgggggaaaaalllllllaaagggjgjgjjjgq."
+    "..qmmmmmjjjmjjgaaaalllllllaagggggggggaaaalllllllaagggggggjgjgjq."
+    "..qmommmmmmjmjjaaaaalllllaaajgggjgggjaaaaalllllaaaggjgjgjgjgjgq."
+    ".qmmmmmmjmjmjjjjaaaaaalaaaaggggjggggggaaaaaalaaaageggggggggjgggq"
+    "..qmmmmmmjmjjjjjjgaaaaaaagjgggjgjgggggggaaaaaaaegeggggjgjgjgjgq."
+    "..qmjmjmjmjjjjgjgggjgaggggggggggggegggegegeaegeeegegegggggggggq."
+    "..qmmmmjmjmjjjjgjgjgjgggggggjgggjggegggegegegggeggggggggggggggq."
+    "..qmjmjmjjjjgggjgggjggggggggggggegegegeeeeegeeegeeegegggggggggq."
+    "..qmmmmjmjjjjgjgjgjgjgjgjgjgggjggggggggegegegegegegegeggggggggq."
+    "..qmmmjmjjgjgjgjgjgggggggjgjggggegegggegegegggeeegeeegggggggggq."
+    "...qommjmjjjjjjgjgjgjgggjgggjggggggggggggggggggegegeggggggggjq.."
+    "...qjmjjjjjjgjgjggppppppppppppppppppppppppppppegeeegeeegeggggq.."
+    "...qmjmjjjjjjjjgjgppppppppppppppppppppppppppppgegegegegggggggq.."
+    "....qmjjjjjjjjgjgjppppppppppppppppppppppppppppegeeegegegggggq..."
+    "....qjmjjjjjmjjgjgjgaaagjgaaagggaaagggaaaggeaaaegggegggeggggq..."
+    ".....qjjjjjjjjjjgjgjaaajgjaaagggaaagggaaagegaaagegegegegegeq...."
+    "......qjmjjjjgjjjgjgaaagjgaaagjgaaagggaaagggaaagggggggggggq....."
+    "......qjjjjjgjgjjjgjaaajggaaajggaaagggaaagggaaagggegggegggq....."
+    ".......qjjjjjjjjjjjjjjjgjgjgjgjgggggggjgjggggggggggggggggq......"
+    "........qjgjjjgjgjgjgjgjgjgjgjggggggegggggggegggegegegegq......."
+    "........qqjjjjjjjjjjjjjgjjjgjgjgjgjgggjggggggggggggggegq........"
+    ".......qooooooqqqqqqooooooqqqqqqqqooooooqqqqqqooooooqqq........."
+    ".......qooooooq....qooooooq......qooooooq....qooooooq..........."
+    ".......qooooooq....qooooooq......qooooooq....qooooooq..........."
+    "......qqooooooqq..qqooooooqq....qqooooooqq..qqooooooqq.........."
+    ".....qooooooooooqqooooooooooq..qooooooooooqqooooooooooq........."
+    ".....qooooooooooqqooooooooooq..qooooooooooqqooooooooooq........."
+    ".....qooooooooooqqooooooooooq..qooooooooooqqooooooooooq........."
+    ".....qooooooooooqqooooooooooq..qooooooooooqqooooooooooq........."
+    ".....qooooooooooq.qqqqqqqqqq...qooooooooooq.qqqqqqqqqq.........."
+    ".....qooooooooooq..............qooooooooooq....................."
+    "................................q..............................."
+    "...............................qfq.............................."
+    "..............................qfffq............................."
+    ".............................qfffffq............................"
+    "..............q...............qfffq..............q.............."
+    ".............qhq..............qkfkq.............qhq............."
+    "............qhhhq............qkkkkkq...........qhhhq............"
+    "...........qhhhhhq..........qknkkkkkq.........qhhhhhq..........."
+    "............qhhhq...........qkikiiikq..........qhhhq............"
+    ".............qhkq..........qkkkiiikikq..........qhkq............"
+    ".............qkkkq.........qkkiiiiiiiq.........qiiiq............"
+    ".............qnknkq.......qkkiiiiiiikiq.......qiiiiq............"
+    ".............qkkikkq.....qikiididididiiq.....qiididq............"
+    ".............qkkkikkq....qkiiiidididiikq....qiididiq............"
+    ".............qkkiiikkq..qkiiiidddddddidiq..qdidddddq............"
+    ".............qkikiiikiqqkiiiidddddddididiqqdidddddiq............"
+    ".............qikiidiiiiqiiddddcdcdcdcddddqdiddcdcddq............"
+    ".............qkiididiiiiididdcdddcdddcddididdcdcdddq............"
+    ".............qiididddididdddcdcdcdcdcdcdddcdccbccddq............"
+    ".............qkiidddidididdcdddcdcdcdcdcdcdcdcccdddq............"
+    ".............qiiddcdcdcdcdcdcccdccccccccccccbcbccdcq............"
+    ".............qiddddddddddcdddcdcdcdcccdcccccccccccdq............"
+    ".............qkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkcq............"
+    ".............qkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkdq............"
+    "............qodidididdddddddcdcdcdcdcdcdcccccccccccmq..........."
+    "...........qooooooooooommmommmmmmmmmmmmmmjmmmmmmmmmmmq.........."
+    "..........qooomooomomommmmmmmmjmmmjmmmjmmmjmjmjmmmmmmmq........."
+    ".........qooooomomomomomommjmmmjmmmjmmmmmmmjmjmjmmmmmmmq........"
+    "........qooomppppppppppppppppmjjjjjppppppppppppppppmjmjmq......."
+    ".......qoooooppppppppppppppppjmjjjmppppppppppppppppjmjmjmq......"
+    "......qomomooommmmmmmajmjmjjjjjjjjjjjmjjgjgajjjjjjjjjmjjjmq....."
+    "......qoooooommmomaaaaaaajjjjjjjmjjjjjjjaaaaaaajjjjjmmmjmjq....."
+    ".....qoomomommmmaaaaaaaaaaajgjjjjjjjgjaaaaaaaaaaajjjjjjjjjjq...."
+    "....qoooooommmmaaaaaaaaaaaaajjjjjjjjjaaaaaaaaaaaaamjmjmjmjmjq..."
+    "....qomomommmmjaaaaaaaaaaaaajjgjjjgjjaaaaaaaaaaaaajjjjjjjjjjq..."
+    "...qpoomomomomaaaaaaaaaaaaaaajjgjjjjaaaaaaaaaaaaaaajjjjjmjmjmq.."
+    "...qoomommmmmmaaaaaaaalaaaaaajgjgjjjaaaaaaaalaaaaaajgjgjgjjjjq.."
+    "...qooomommmmjaaaaaalllllaaaagjjjgjjaaaaaalllllaaaagjgjgjjjjjq.."
+    "..qomommmmjmeeeeaaalllllllaaaagjgjgaaaaaalllllllaaaagjgjgjgjjjq."
+    "..qoomommjmmeeeeaaalllllllaaajjgjgjjaaaaalllllllaaagjgjgjjjjjjq."
+    "..qomommjmjmeeeeaalllllllllaaggggggjaaaalllllllllaaggggjgjgjgjq."
+    "..qoomommjmjeeeeaaalllllllaaagjgggggaaaaalllllllaaagggjgjgjjjgq."
+    "..qmmmmmjjjmjjgaaaalllllllaagggggggggaaaalllllllaagggggggjgjgjq."
+    "..qmommmmmmjmjjaaaaalllllaaajgggjgggjaaaaalllllaaaggjgjgjgjgjgq."
+    ".qmmmmmmjmjmjjjjaaaaaalaaaaggggjggggggaaaaaalaaaageggggggggjgggq"
+    "..qmmmmmmjmjjjjjjgaaaaaaagjgggjgjgggggggaaaaaaaegeggggjgjgjgjgq."
+    "..qmjmjmjmjjjjgjgggjgaggggggggggggegggegegeaegeeegegegggggggggq."
+    "..qmmmmjmjmjjjjgjgjgjgggggggjgggjggegggegegegggeggggggggggggggq."
+    "..qmjmjmjjjjgggjgggjggggggggggggegegegeeeeegeeegeeegegggggggggq."
+    "..qmmmmjmjjjjgjgjgjgjgjgjgjgggjggggggggegegegegegegegeggggggggq."
+    "..qmmmjmjjgjgjgjgjgggggggjgjggggegegggegegegggeeegeeegggggggggq."
+    "...qommjmjjjjjjgjgjgjgggjgggjggggggggggggggggggegegeggggggggjq.."
+    "...qjmjjjjjjgjgjggppppppppppppppppppppppppppppegeeegeeegeggggq.."
+    "...qmjmjjjjjjjjgjgppppppppppppppppppppppppppppgegegegegggggggq.."
+    "....qmjjjjjjjjgjgjppppppppppppppppppppppppppppegeeegegegggggq..."
+    "....qjmjjjjjmjjgjgjgaaagjgaaagggaaagggaaaggeaaaegggegggeggggq..."
+    ".....qjjjjjjjjjjgjgjaaajgjaaagggaaagggaaagegaaagegegegegegeq...."
+    "......qjmjjjjgjjjgjgaaagjgaaagjgaaagggaaagggaaagggggggggggq....."
+    "......qjjjjjgjgjjjgjaaajggaaajggaaagggaaagggaaagggegggegggq....."
+    ".......qjjjjjjjjjjjjjjjgjgjgjgjgggggggjgjggggggggggggggggq......"
+    "........qjgjjjgjgjgjgjgjgjgjgjggggggegggggggegggegegegegq......."
+    "........qqjjjjjjjjjjjjjgjjjgjgjgjgjgggjggggggggggggggegq........"
+    ".......qooooooqqqqqqooooooqqqqqqqqooooooqqqqqqooooooqqq........."
+    ".......qooooooq....qooooooq......qooooooq....qooooooq..........."
+    ".......qooooooq....qooooooq......qooooooq....qooooooq..........."
+    "......qqooooooqq..qqooooooqq....qqooooooqq..qqooooooqq.........."
+    ".....qooooooooooqqooooooooooq..qooooooooooqqooooooooooq........."
+    ".....qooooooooooqqooooooooooq..qooooooooooqqooooooooooq........."
+    ".....qooooooooooqqooooooooooq..qooooooooooqqooooooooooq........."
+    ".....qooooooooooqqooooooooooq..qooooooooooqqooooooooooq........."
+    "......qqqqqqqqqq.qooooooooooq...qqqqqqqqqq.qooooooooooq........."
+    ".................qooooooooooq..............qooooooooooq........."
+
+note: An error bolt (2 frames).
+make a sprite called bolt with pixel size 1 and 2 frames
+    where "a" is "#FFC9C9"
+    where "b" is "#FFB85E"
+    where "c" is "#F9902A"
+    where "d" is "#FF7F86"
+    where "e" is "#E43A4C"
+    where "f" is "#D26414"
+    where "g" is "#923B0E"
+    where "h" is "#B81E34"
+    where "i" is "#7D1426"
+    where "j" is "#0F1224"
+    "......jiehhj"
+    ".....jihhhhj"
+    ".....jhhehj."
+    "....jhhehhj."
+    "....jheeej.."
+    "...jihhehj.."
+    "...jhaaeej.."
+    "..jhhaaejjjj"
+    "..jheaaeeeee"
+    ".jheeaadedej"
+    ".jeeeedddedj"
+    "jhheheedeej."
+    ".jjjjedddej."
+    "....jeedej.."
+    "...jeedej..."
+    "...jededj..."
+    "...jdddj...."
+    "...jedj....."
+    "...jddj....."
+    "..jdej......"
+    "..jddj......"
+    "..jdj......."
+    "......jgcffj"
+    ".....jgffffj"
+    ".....jffcfj."
+    "....jffcffj."
+    "....jfcccj.."
+    "...jgffcfj.."
+    "...jfaaccj.."
+    "..jffaacjjjj"
+    "..jfcaaccccc"
+    ".jfccaabcbcj"
+    ".jccccbbbcbj"
+    "jffcfccbccj."
+    ".jjjjcbbbcj."
+    "....jccbcj.."
+    "...jccbcj..."
+    "...jcbcbj..."
+    "...jbbbj...."
+    "...jcbj....."
+    "...jbbj....."
+    "..jbcj......"
+    "..jbbj......"
+    "..jbj......."
+
+note: The marker that shows where a bolt will land.
+make a sprite called warn with pixel size 1
+    where "a" is "#FFC04A"
+    where "b" is "#FF8A2A"
+    where "c" is "#E0561A"
+    where "d" is "#A0320C"
+    where "e" is "#5A1A08"
+    where "f" is "#3C0A0A"
+    where "g" is "#0F1224"
+    "......geg....."
+    "......gdg....."
+    ".....gdddg...."
+    ".....gdcdg...."
+    "....gdcccdg..."
+    "....gcffccg..."
+    "...gccffbccg.."
+    "...gdcffcbcg.."
+    "...gcbffabbg.."
+    "..gccbffbbcbg."
+    "..gcbbabababg."
+    ".gcbbabababbbg"
+    ".gbbaaffaaaaag"
+    "gbbababaaaaaaa"
+    "gbbbabababaaaa"
+    ".ggggggggggggg"
+    ".............."
+    ".............."
+
+note: A painter's easel.
+make a sprite called easel with pixel size 1
+    where "a" is "#F6F2E6"
+    where "b" is "#F0B832"
+    where "c" is "#3FD477"
+    where "d" is "#E0AA66"
+    where "e" is "#B98242"
+    where "f" is "#93602F"
+    where "g" is "#2EB2F5"
+    where "h" is "#6D4024"
+    where "i" is "#E43A4C"
+    where "j" is "#4A2A18"
+    where "k" is "#2A1810"
+    where "l" is "#0F1224"
+    "........................................"
+    "........................................"
+    "........................................"
+    "..llllllllllllllllllllllllllllllllllll.."
+    ".ljkjkjkjkjkjkjkjkjkjjjjjjjjjjjjjjjjhjl."
+    ".lkjkjkjkjkjkjkjkjkjjjkjjjjjjjjjjhjjjjl."
+    ".ljkjkjjjkjjjjjjjjjjjjhjjjhjhjhjhjhjhjl."
+    ".lkjkaaaaaaaaaaaaaaaaaaaaaaaaaaaaaahjjl."
+    ".ljkjaaaaaaaaaaaaaaaaaaaaaaaaaaaaaahhhl."
+    ".lkjjaaaaaaaaaaaaaaaaaaaaaaaaaaaaaahjhl."
+    ".ljjjaaaaaaaaaaaaaaaaaaaaaaaaaaaaaahhhl."
+    ".lkjjaaaaaaaaaaaaaaaaaaaaaaaaaaaaaahjhl."
+    ".ljjhaaaaaaaaaaaaaaaaaaaaaaaaaaaaaahfhl."
+    ".lkjjaaaaaaaaaaaaaaaaaaaaaaaaaaaaaahhhl."
+    ".ljjhaaaaaaaaaaaaaaaaaaaaaaaaaaaaaahfhl."
+    ".ljjjaaaaaaaaaaaaaaaaaaaaaaaaaaaaaafhhl."
+    ".ljjhaaaaaaaaaaaaaaaaaaaaaaaaaaaaaahfhl."
+    ".ljhjaaaaaaaiaaaaagaaaaabaaaaacaaaafhfl."
+    ".lhjhaaaaaiiiiiagggggabbbbbacccccaaffhl."
+    ".ljhjaaaaaiiiiiagggggabbbbbacccccaafhfl."
+    ".lhhhaaaaiiiiiiggggggbbbbbbcccccccafffl."
+    ".ljhhaaaaaiiiiiagggggabbbbbacccccaafffl."
+    ".lhhhaaaaaiiiiiagggggabbbbbacccccaafffl."
+    ".ljhhaaaaaaaiaaaaagaaaaabaaaaacaaaafffl."
+    ".lhhfaaaaaaaaaaaaaaaaaaaaaaaaaaaaaafefl."
+    ".lhhhaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaeffl."
+    ".lfhfaaaaaaaaaaaaaaaaaaaaaaaaaaaaaafefl."
+    ".lhfhaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaeffl."
+    ".lfhfaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaeefl."
+    ".lhfhaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaefel."
+    ".lfffaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaeefl."
+    ".lhfhaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaefel."
+    ".lffeaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaeeel."
+    ".lhffffffefffefefefefefeeefeeeeeeeeeeel."
+    ".lffffefefefefefefeeefeeeeeeeeeeeeeeeel."
+    ".lfffffffffffffefefefefefefefeeefeeefel."
+    "..llhdllllllllllllllllllllllllllllhdll.."
+    "...lhdl..........................ljdl..."
+    "...lhdl..........................lhdl..."
+    "...ljdl..........................ljdl..."
+    "...lhdl..........................lhdl..."
+    "...lhdl..........................ljdl..."
+    "...lhdl..........................lhdl..."
+    "...ljdl..........................ljdl..."
+    "...lhdl..........................lhdl..."
+    "...lhdl..........................ljdl..."
+    "...lhdl..........................lhdl..."
+    "...ljdl..........................ljdl..."
+    "...lhdl..........................lhdl..."
+    "...lhdl..........................ljdl..."
+    "...lhdl..........................lhdl..."
+    "...ljdl..........................ljdl..."
+    "...lhdl..........................lhdl..."
+    "...lhdl..........................ljdl..."
+    "...lhdl..........................lhdl..."
+    "...ljdl..........................ljdl..."
+
 
 make a map called hubmap with tile size 16
     where "C" is the sprite t_circuit and "^" is the sprite t_spike
@@ -3726,6 +4454,46 @@ make a map called w1map with tile size 16
     "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDEEEEEEEEEEEDDDDDDDDDDDDDDDDDDDDDDDDDD"
     "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDEEEEEEEEEEEEEDDDDDDDDDDDDDDDDDDDDDDDDD"
 
+make a map called w2map with tile size 16
+    where "M" is the sprite t_metal and "m" is the sprite t_metal_in and "^" is the sprite t_spike
+    "...................................................................................."
+    "...................................................................................."
+    "...................................................................................."
+    "...................................................................................."
+    "...................................................................................."
+    "...................................................................................."
+    "...................................................................................."
+    "...................................................................................."
+    "...................................................................................."
+    "...................................................................................."
+    "......................................................................MMM..........."
+    "....................MMM........................MMM.................................."
+    "...................................................................................."
+    "...................................................................................."
+    "MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM...MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM"
+    "mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm...mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm"
+    "mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm^^^mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm"
+
+make a map called w3map with tile size 16
+    where "G" is the sprite t_grass and "D" is the sprite t_dirt and "E" is the sprite t_deep and "^" is the sprite t_spike
+    ".........................................................................................."
+    ".........................................................................................."
+    ".........................................................................................."
+    ".........................................................................................."
+    ".........................................................................................."
+    ".........................................................................................."
+    ".........................................................................................."
+    ".........................................................................................."
+    ".........................................................................................."
+    ".........................................................................................."
+    "......................................................................GGG................."
+    "............GGG..........................................................................."
+    ".........................GGGGGGGG........................................................."
+    "........................GDDDDDDDDG........................................................"
+    "GGGGGGGGGGGGGGGGGGGGGGGGDDDDDDDDDDGGGGGGGGGG...GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG"
+    "DDDDDDDDDDDDDDDDDDDDDDDDDEEEEEEEEDDDDDDDDDDD...DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD"
+    "DDDDDDDDDDDDDDDDDDDDDDDDEEEEEEEEEEDDDDDDDDDD^^^DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD"
+
 make a map called w5map with tile size 16
     where "N" is the sprite t_snow and "S" is the sprite t_stone and "^" is the sprite t_spike
     ".................................................................................................................................."
@@ -3746,6 +4514,43 @@ make a map called w5map with tile size 16
     "SSSSSSSSSSSSSSSSSSSSSSSSSSSS...SSSSSSSSSSSSSSSSSSSSSS...SSSSSSSSSSSSSSSSSSS................SSSSSSSSSSSSSSSSSSSSSS...SSSSSSSSSSSSSS"
     "SSSSSSSSSSSSSSSSSSSSSSSSSSSS^^^SSSSSSSSSSSSSSSSSSSSSS^^^SSSSSSSSSSSSSSSSSSS^^^..^^..^^..^^^SSSSSSSSSSSSSSSSSSSSSS^^^SSSSSSSSSSSSSS"
 
+make a map called w6map with tile size 16
+    where "C" is the sprite t_circuit and "S" is the sprite t_metal
+    "C............................C"
+    "C............................C"
+    "C............................C"
+    "C............................C"
+    "C............................C"
+    "C............................C"
+    "C............................C"
+    "C............................C"
+    "C............................C"
+    "C............SSSS............C"
+    "C............................C"
+    "C...SSS................SSS...C"
+    "C............................C"
+    "C............................C"
+    "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCC"
+    "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCC"
+    "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCC"
+
+make a map called usermap with tile size 16
+    where "G" is the sprite t_grass and "D" is the sprite t_dirt and "S" is the sprite t_stone and "^" is the sprite t_spike and "c" is the sprite coin and "F" is the sprite star
+    ".............................."
+    ".............................."
+    ".............................."
+    ".............................."
+    ".............................."
+    ".............................."
+    ".............................."
+    ".............................."
+    "...............cc............."
+    "..............SSSS............"
+    ".............................."
+    "...cc......................F.."
+    "GGGGGGGGG^^GGGGGGGGGGGGGGGGGGG"
+    "DDDDDDDDD^^DDDDDDDDDDDDDDDDDDD"
+
 
 note: ==================================================
 note: THE HERO AND THE STATE OF THE GAME
@@ -3761,9 +4566,19 @@ set hurt_t to 0
 set face_left to no
 set coins to 0
 set coins_total to 0
-set w1_done to 0
-set w5_done to 0
+set wdone to list of 0, 0, 0, 0, 0, 0, 0
 set w5_best to 0
+set w6_best to 0
+set wn to 1
+set echo_x to 0
+set g1_x to 0
+set g2_x to 0
+set portal_x to 0
+set done_world to 1
+set k_x to no
+set k_e to no
+set k_s to no
+set k_l to no
 set world_t to 0
 set world_w to 1152
 set spawn_x to 60
@@ -3777,6 +4592,30 @@ set msg_t to 0
 set shake_t to 0
 set done_t to 0
 set near_door to 0
+set last_time to 0
+set ending_seen to no
+set k_up to no
+set k_down to no
+set edit_on to yes
+set canvas to empty list
+set cx to 0
+set cy to 0
+set pcol to 1
+set boss_hp to 12
+set boss_max to 12
+set boss_x to 300
+set boss_dir to -1
+set boss_stun to 0
+set bolt_t to 0
+set bolt_x to empty list
+set bolt_y to empty list
+set bolt_w to empty list
+set bolt_on to empty list
+set ux to 0
+set uy to 0
+set utile to 1
+set level_backup to ""
+set user_loaded to no
 
 note: talking with Echo
 set talk_on to no
@@ -3819,54 +4658,82 @@ set scroll_y to empty list
 note: the sky of each world, from the top down (9 bands of 30 pixels)
 set sky_hub to list of "#04061A", "#070B26", "#0A1032", "#0D173F", "#101E4B", "#142558", "#182C64", "#1B3270", "#1E387C"
 set sky_w1 to list of "#4F9FE6", "#62AEEC", "#76BCF1", "#8BC8F5", "#A1D4F8", "#B7DFFA", "#CDE9FC", "#E1F3FD", "#F2FAFE"
+set sky_w2 to list of "#05060F", "#080A1A", "#0B0F26", "#0F1533", "#131C42", "#182450", "#1D2C5E", "#22346C", "#273C7A"
+set sky_boss to list of "#12030A", "#1D0510", "#2A0716", "#3A091C", "#4A0C22", "#5C0F28", "#70132E", "#841834", "#98203C"
 set sky_w5 to list of "#1B1750", "#2B2275", "#44308F", "#6A3FA0", "#9B4FA6", "#C9609F", "#EF7F8D", "#FBA37A", "#FEC98A"
 
 set world_names to list of "SAY HELLO", "LISTS AND MACHINES", "WORD AND NUMBER TOWN", "PIXEL GALLERY", "PLATFORM PEAKS", "THE BOSS CITADEL", "YOUR WORLD"
-set world_tips to list of "Talk to Echo and open the code gates.", "Build machines that sort and count.", "Puzzles with words and numbers.", "Paint your own pixel art.", "Run, jump and stomp the glitch bugs!", "A long boss fight. Dodge everything.", "Build, save and play your own level."
+set world_tips to list of "Talk to Echo and open the code gates.", "Lists, pits and bugs. Read the code.", "Puzzles with words and numbers.", "Paint the picture, one pixel at a time.", "Run, jump and stomp the glitch bugs!", "Stomp the Glitch King. Dodge his bolts.", "Build, save and play your own level."
 
 note: the code gates (the outputs below were made by really running the code in HumanLang)
-set pz_goal to list of "Which line makes the gate say:  Hello, Mia!", "Which number makes the gate count:  1 2 3"
-set pz_code_a to list of "set name to \"Mia\"", "for each n from 1 to ___"
-set pz_code_b to list of "___", "    say n"
+set pz_goal to list of "Which line makes the gate say:  Hello, Mia!", "Which number makes the gate count:  1 2 3", "Which number makes the gate say:  fig", "What will the gate print?", "What will the gate print?", "What will the gate print?"
+set pz_code_a to list of "set name to \"Mia\"", "for each n from 1 to ___", "set fruits to list of \"pear\", \"fig\", \"plum\"", "say length of list of 5, 6, 7, 8", "set word to \"robot\"", "set a to 6"
+set pz_code_b to list of "___", "    say n", "say item ___ of fruits", "", "say first 3 letters of word", "say a * a - 6"
 set pz_opts to empty list
 add (list of "say \"Hello, name!\"", "say \"Hello, \{name\}!\"", "say \"Hello, Mia\"") to pz_opts
 add (list of "2", "3", "4") to pz_opts
+add (list of "1", "2", "3") to pz_opts
+add (list of "3", "4", "8") to pz_opts
+add (list of "rob", "bot", "ro") to pz_opts
+add (list of "12", "30", "36") to pz_opts
 set pz_outs to empty list
 add (list of "Hello, name!", "Hello, Mia!", "Hello, Mia") to pz_outs
 add (list of "1 2", "1 2 3", "1 2 3 4") to pz_outs
-set pz_answer to list of 2, 2
+add (list of "pear", "fig", "plum") to pz_outs
+add (list of "4", "4", "4") to pz_outs
+add (list of "rob", "rob", "rob") to pz_outs
+add (list of "30", "30", "30") to pz_outs
+set pz_answer to list of 2, 2, 2, 2, 1, 2
 
-note: what Echo says (two lines on each page)
-set echo_a to list of "Hello! I am Echo, your guide.", "Code is just words a computer can read.", "Two gates block the way. Each one is a puzzle."
-set echo_b to list of "Welcome to the Motherboard!", "HumanLang writes it almost like English.", "Read the code, pick the right piece, open the gate."
-set echo2_a to list of "Nice! The first gate is open.", "One more gate, then the exit portal."
-set echo2_b to list of "Loops repeat things for you.", "Count to three and walk through."
-set scroll_text to list of "Scroll: say shows words on the screen.", "Scroll: set puts a value in a box with a name.", "Scroll: for each repeats a line again and again."
+note: what Echo says in each world (two lines on each page)
+set echo_a_all to empty list
+add (list of "Hello! I am Echo, your guide.", "Code is just words a computer can read.", "Two gates block the way. Each one is a puzzle.") to echo_a_all
+add (list of "This is the factory. Machines use lists.", "Item 1 is the first thing in a list.", "Pits, bugs and gates. Take your time.") to echo_a_all
+add (list of "Welcome to Word and Number Town!", "Text can be cut into pieces.", "Gates, pits and bugs again. You can do it.") to echo_a_all
+set echo_b_all to empty list
+add (list of "Welcome to the Motherboard!", "HumanLang writes it almost like English.", "Read the code, pick the right piece, open the gate.") to echo_b_all
+add (list of "A list keeps many things in one box.", "Read the code, pick a number, open the gate.", "Jump on the blocks to find the scrolls.") to echo_b_all
+add (list of "Here the code works with text and sums.", "Numbers can be added, taken away or multiplied.", "Predict what the code prints, then answer.") to echo_b_all
+set echo2_a_all to empty list
+add (list of "Nice! The first gate is open.", "One more gate, then the exit portal.") to echo2_a_all
+add (list of "The first gate is open. Well done!", "Lists can be counted too.") to echo2_a_all
+add (list of "The first gate is open!", "One more gate, then the portal.") to echo2_a_all
+set echo2_b_all to empty list
+add (list of "Loops repeat things for you.", "Count to three and walk through.") to echo2_b_all
+add (list of "Ask a list how long it is: length of.", "Predict what the code prints.") to echo2_b_all
+add (list of "Multiply goes before add and take away.", "Work it out, then choose.") to echo2_b_all
+set scroll_text to list of "Scroll: say shows words on the screen.", "Scroll: set puts a value in a box with a name.", "Scroll: for each repeats a line again and again.", "Scroll: item 1 is the first item of a list.", "Scroll: add puts a new item at the end of a list.", "Scroll: length of tells how many items a list has.", "Scroll: first 3 letters of cuts a word short.", "Scroll: * goes before + and -, like in maths.", "Scroll: mod gives what is left after dividing."
 set door_x to list of 150, 380, 610, 840, 1070, 1300, 1530
+set done_lines to list of "You said hello to HumanLang!", "You can read lists now!", "Words and numbers are no problem!", "You painted with pixels!", "You climbed the Platform Peaks!", "The Citadel is free!", "You are a HumanLang builder!"
+set paint_pal to list of "#2EB2F5", "#F6F8FF", "#FFD95C", "#E43A4C"
+set paint_target to list of 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 2, 1, 2, 1, 2, 1, 1, 1, 1, 0, 0, 1, 2, 1, 2, 1, 2, 1, 1, 1, 1, 0, 0, 1, 2, 1, 2, 1, 2, 1, 1, 1, 1, 0, 0, 1, 2, 2, 2, 1, 2, 1, 1, 1, 1, 0, 0, 1, 2, 1, 2, 1, 2, 1, 1, 1, 1, 0, 0, 1, 2, 1, 2, 1, 2, 2, 2, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+set user_letters to list of "G", "D", "S", "^", "c", "F"
 
 note: ==================================================
 note: SAVING (remember and recall)
 note: ==================================================
 
 define load_save
-    set v to recall "odyssey w1"
-    if v is not nothing
-        change w1_done to v
-    set v to recall "odyssey w5"
-    if v is not nothing
-        change w5_done to v
+    for each i from 1 to 7
+        set v to recall "odyssey done {i}"
+        if v is not nothing
+            change item i of wdone to v
     set v to recall "odyssey coins"
     if v is not nothing
         change coins_total to v
     set v to recall "odyssey w5 best"
     if v is not nothing
         change w5_best to v
+    set v to recall "odyssey w6 best"
+    if v is not nothing
+        change w6_best to v
 
 define save_all
-    remember w1_done as "odyssey w1"
-    remember w5_done as "odyssey w5"
+    for each i from 1 to 7
+        remember (item i of wdone) as "odyssey done {i}"
     remember coins_total as "odyssey coins"
     remember w5_best as "odyssey w5 best"
+    remember w6_best as "odyssey w6 best"
 
 note: ==================================================
 note: SMALL HELPERS
@@ -3906,6 +4773,9 @@ define wave with t
 define scrolled with f
     give back (cam_x * f) mod 224
 
+define tower_off with f
+    give back (cam_x * f) mod 130
+
 note: ==================================================
 note: STARTING PLACES
 note: ==================================================
@@ -3928,9 +4798,81 @@ define start_hub with x
     place_hero with x and 184
     play the music "chill"
 
-define start_w1
-    change mode to "w1"
-    change world_w to 1152
+define load_gw_data with n
+    if n is 1
+        change world_w to 1152
+        change echo_x to 192
+        change g1_x to 448
+        change g2_x to 832
+        change portal_x to 1040
+        change coin_x to list of 84, 102, 120, 138, 156, 340, 358, 376, 394, 412, 292, 308, 324, 580, 598, 616, 634, 652, 756, 774, 792, 810, 828, 900, 918, 936, 954, 964, 980, 996
+        change coin_y to list of 202, 195, 191, 195, 202, 202, 195, 191, 195, 202, 104, 104, 104, 170, 163, 159, 163, 170, 202, 195, 191, 195, 202, 202, 194, 202, 202, 104, 104, 104
+        change coin_got to list of 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+        change decor_k to list of 8, 1, 2, 3, 1, 5, 4, 2, 1, 6, 3, 1, 2, 4, 5, 1, 3, 2, 1, 4, 1, 5, 3, 4, 3
+        change decor_x to list of 48, 80, 128, 144, 240, 256, 352, 384, 512, 416, 496, 608, 672, 704, 768, 800, 880, 912, 944, 1008, 1088, 1120, 192, 576, 656
+        change decor_y to list of 224, 224, 224, 224, 224, 224, 224, 224, 224, 224, 224, 192, 192, 192, 224, 224, 224, 224, 224, 224, 224, 224, 224, 192, 192
+        change scroll_x to list of 304, 640, 976
+        change scroll_y to list of 122, 168, 122
+        change bug_x to empty list
+        change bug_lo to empty list
+        change bug_hi to empty list
+        change bug_y to empty list
+        change bug_dir to empty list
+        change bug_alive to empty list
+        change flag_x to empty list
+        change flag_y to empty list
+        change flag_on to empty list
+    otherwise if n is 2
+        change world_w to 1344
+        change echo_x to 160
+        change g1_x to 448
+        change g2_x to 992
+        change portal_x to 1248
+        change coin_x to list of 84, 102, 120, 138, 156, 324, 340, 356, 548, 566, 584, 602, 620, 644, 662, 680, 698, 900, 918, 936, 954, 1124, 1140, 1156, 1188, 1206, 1224, 1242
+        change coin_y to list of 202, 195, 191, 195, 202, 138, 138, 138, 164, 157, 153, 157, 164, 202, 194, 202, 202, 202, 194, 202, 202, 122, 122, 122, 202, 194, 202, 202
+        change coin_got to list of 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+        change decor_k to list of 9, 10, 11, 10, 9, 10, 11, 9, 10, 11, 9, 10, 11, 10, 9, 11
+        change decor_x to list of 48, 80, 112, 208, 256, 384, 400, 496, 656, 672, 912, 960, 1040, 1072, 1200, 1280
+        change decor_y to list of 224, 224, 224, 224, 224, 224, 224, 224, 224, 224, 224, 224, 224, 224, 224, 224
+        change scroll_x to list of 332, 764, 1132
+        change scroll_y to list of 152, 152, 136
+        change bug_x to list of 704
+        change bug_lo to list of 704
+        change bug_hi to list of 850
+        change bug_y to list of 202
+        change bug_dir to list of 1
+        change bug_alive to list of 1
+        change flag_x to list of 512, 928
+        change flag_y to list of 182, 182
+        change flag_on to list of 0, 0
+    otherwise
+        change world_w to 1440
+        change echo_x to 128
+        change g1_x to 288
+        change g2_x to 1088
+        change portal_x to 1344
+        change coin_x to list of 100, 118, 136, 154, 172, 196, 212, 228, 420, 438, 456, 474, 492, 692, 710, 728, 746, 764, 852, 870, 888, 906, 924, 1124, 1140, 1156, 1284, 1302, 1320, 1338
+        change coin_y to list of 202, 195, 191, 195, 202, 138, 138, 138, 170, 163, 159, 163, 170, 164, 157, 153, 157, 164, 202, 195, 191, 195, 202, 122, 122, 122, 202, 194, 202, 202
+        change coin_got to list of 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+        change decor_k to list of 12, 11, 13, 3, 2, 12, 3, 13, 11, 12, 2, 13, 11, 12, 3
+        change decor_x to list of 48, 96, 160, 256, 336, 576, 640, 784, 816, 896, 960, 1184, 1232, 1280, 1392
+        change decor_y to list of 224, 224, 224, 224, 224, 224, 224, 224, 224, 224, 224, 224, 224, 224, 224
+        change scroll_x to list of 204, 448, 1132
+        change scroll_y to list of 152, 168, 136
+        change bug_x to list of 832
+        change bug_lo to list of 832
+        change bug_hi to list of 962
+        change bug_y to list of 202
+        change bug_dir to list of 1
+        change bug_alive to list of 1
+        change flag_x to list of 608, 1024
+        change flag_y to list of 182, 182
+        change flag_on to list of 0, 0
+
+define start_gw with n
+    change mode to "gw"
+    change wn to n
+    load_gw_data with n
     change hp to 3
     change coins to 0
     change world_t to 0
@@ -3938,20 +4880,16 @@ define start_w1
     change gate2_open to no
     change scroll_got to list of 0, 0, 0
     change scroll_n to 0
-    change coin_x to list of 84, 102, 120, 138, 156, 340, 358, 376, 394, 412, 292, 308, 324, 580, 598, 616, 634, 652, 756, 774, 792, 810, 828, 900, 918, 936, 954, 964, 980, 996
-    change coin_y to list of 202, 195, 191, 195, 202, 202, 195, 191, 195, 202, 104, 104, 104, 170, 163, 159, 163, 170, 202, 195, 191, 195, 202, 202, 194, 202, 202, 104, 104, 104
-    change coin_got to list of 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-    change decor_k to list of 8, 1, 2, 3, 1, 5, 4, 2, 1, 6, 3, 1, 2, 4, 5, 1, 3, 2, 1, 4, 1, 5, 3, 4, 3
-    change decor_x to list of 48, 80, 128, 144, 240, 256, 352, 384, 512, 416, 496, 608, 672, 704, 768, 800, 880, 912, 944, 1008, 1088, 1120, 192, 576, 656
-    change decor_y to list of 224, 224, 224, 224, 224, 224, 224, 224, 224, 224, 224, 192, 192, 192, 224, 224, 224, 224, 224, 224, 224, 224, 224, 192, 192
-    change scroll_x to list of 304, 640, 976
-    change scroll_y to list of 122, 168, 122
     change echo_seen to no
     change gate2_seen to no
     change pz to 0
     change talk_on to no
+    change done_t to 0
     place_hero with 40 and 184
-    play the music "adventure"
+    if n is 2
+        play the music "chase"
+    otherwise
+        play the music "adventure"
 
 define start_w5
     change mode to "w5"
@@ -3962,6 +4900,7 @@ define start_w5
     change coin_x to list of 100, 118, 136, 154, 172, 212, 228, 244, 452, 470, 488, 506, 524, 532, 550, 568, 586, 604, 564, 580, 676, 694, 712, 730, 916, 934, 952, 970, 988, 1012, 1030, 1048, 1092, 1110, 1128, 1146, 1164, 1220, 1238, 1256, 1274, 1252, 1268, 1316, 1332, 1380, 1396, 1508, 1526, 1544, 1562, 1580, 1636, 1654, 1672, 1684, 1700, 1716, 1748, 1764, 1780, 1876, 1894, 1912, 1930, 1948
     change coin_y to list of 200, 193, 189, 193, 200, 170, 170, 170, 164, 157, 153, 157, 164, 200, 193, 189, 193, 200, 170, 170, 168, 160, 168, 168, 136, 129, 125, 129, 136, 168, 160, 168, 200, 193, 189, 193, 200, 152, 144, 152, 152, 170, 170, 154, 154, 170, 170, 200, 193, 189, 193, 200, 168, 160, 168, 136, 136, 136, 104, 104, 104, 200, 193, 189, 193, 200
     change coin_got to list of 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    change done_t to 0
     change decor_k to list of 7, 5, 7, 6, 7, 7, 5, 7, 6, 7, 7, 7, 5, 7, 6, 7, 7, 6, 7, 7, 5
     change decor_x to list of 48, 112, 160, 352, 432, 512, 608, 704, 784, 864, 928, 1040, 1104, 1168, 1488, 1552, 1632, 1712, 1920, 2032, 2000
     change decor_y to list of 224, 224, 224, 224, 224, 224, 224, 192, 160, 272, 160, 192, 224, 224, 224, 224, 192, 160, 224, 224, 224
@@ -3983,7 +4922,7 @@ note: ==================================================
 
 define hero_free
     note: can the hero move right now? (not while talking, solving a gate or seeing a result)
-    give back (not talk_on) and pz is 0 and done_t is 0
+    give back (not talk_on) and pz is 0 and done_t is 0 and not (mode is "w7" and edit_on)
 
 define hero_move
     set on_ground to the body hero is on the ground
@@ -4004,10 +4943,19 @@ define hero_move
         make the body hero stop
     if mode is "hub"
         update the body hero on the map hubmap with solid "C"
-    otherwise if mode is "w1"
-        update the body hero on the map w1map with solid "G" and "D" and "E"
-    otherwise
+    otherwise if mode is "gw"
+        if wn is 1
+            update the body hero on the map w1map with solid "G" and "D" and "E"
+        otherwise if wn is 2
+            update the body hero on the map w2map with solid "M" and "m"
+        otherwise
+            update the body hero on the map w3map with solid "G" and "D" and "E"
+    otherwise if mode is "w5"
         update the body hero on the map w5map with solid "N" and "S"
+    otherwise if mode is "w6"
+        update the body hero on the map w6map with solid "C" and "S"
+    otherwise
+        update the body hero on the map usermap with solid "G" and "D" and "S"
     set hx to the x of the body hero
     if hx is less than 0
         move the body hero to 0, (the y of the body hero)
@@ -4077,9 +5025,9 @@ define pick_up_coins
     set hy to the y of the body hero
     for each i from 1 to length of coin_x
         if item i of coin_got is 0
-            set cx to item i of coin_x
-            set cy to item i of coin_y
-            if cx + 14 is greater than hx and cx is less than hx + 22 and cy + 14 is greater than hy and cy is less than hy + 40
+            set coin_cx to item i of coin_x
+            set coin_cy to item i of coin_y
+            if coin_cx + 14 is greater than hx and coin_cx is less than hx + 22 and coin_cy + 14 is greater than hy and coin_cy is less than hy + 40
                 change item i of coin_got to 1
                 add 1 to coins
                 play the sound "coin"
@@ -4088,9 +5036,9 @@ define draw_coins
     set beat to 1 + (floor of (tick / 7)) mod 4
     for each i from 1 to length of coin_x
         if item i of coin_got is 0
-            set cx to item i of coin_x
-            if cx is greater than cam_x - 20 and cx is less than cam_x + 490
-                draw the sprite coin at cx, item i of coin_y frame beat
+            set coin_cx to item i of coin_x
+            if coin_cx is greater than cam_x - 20 and coin_cx is less than cam_x + 490
+                draw the sprite coin at coin_cx, item i of coin_y frame beat
 
 define draw_scrolls
     set beat to 1 + (floor of (tick / 14)) mod 2
@@ -4111,7 +5059,7 @@ define pick_up_scrolls
                 change item i of scroll_got to 1
                 add 1 to scroll_n
                 play the sound "powerup"
-                say_msg with (item i of scroll_text)
+                say_msg with (item ((wn - 1) * 3 + i) of scroll_text)
 
 note: ==================================================
 note: BACKGROUNDS
@@ -4147,13 +5095,40 @@ define draw_decor
                 draw the sprite pine at dx - 10, dy - 72
             otherwise if k is 8
                 draw the sprite sign at dx, dy - 34
+            otherwise if k is 9
+                draw the sprite gear at dx, dy - 30 frame 1 + (floor of (tick / 20)) mod 2
+            otherwise if k is 10
+                draw the sprite crate at dx, dy - 24
+            otherwise if k is 11
+                draw the sprite lamp at dx, dy - 58
+            otherwise if k is 12
+                draw the sprite house_a at dx - 20, dy - 70
+            otherwise if k is 13
+                draw the sprite house_b at dx - 20, dy - 70
 
 define draw_w1_world
     move the camera to 0, 0
     put a rectangle at 0, 0 with width 480 and height 270 and colour "#2F7FE8"
     backdrop with 1 and 0.17
     move the camera to cam_x, 0
-    draw the map w1map
+    if wn is 1
+        draw the map w1map
+    otherwise
+        draw the map w3map
+    draw_decor
+
+define draw_w2_world
+    move the camera to 0, 0
+    bands with sky_w2
+    for each i from 1 to 36
+        set sx to (i * 97) mod 480
+        set sy to (i * 53) mod 130
+        if (floor of ((tick + i * 13) / 25)) mod 4 is not 0
+            put a rectangle at sx, sy with width 2 and height 2 and colour "#FFB85E"
+    for each k from 0 to 4
+        draw the sprite tower at k * 130 - (tower_off with 0.3) + 10, 70 frame 1 + (floor of ((tick + k * 20) / 40)) mod 2
+    move the camera to cam_x, 0
+    draw the map w2map
     draw_decor
 
 define draw_w5_world
@@ -4178,7 +5153,7 @@ define draw_hub_world
         if (floor of ((tick + i * 13) / 25)) mod 4 is not 0
             put a rectangle at sx, sy with width 2 and height 2 and colour "#7FA8FF"
     for each k from 0 to 4
-        draw the sprite tower at k * 130 - (scrolled with 0.35) + 10, 70 frame 1 + (floor of ((tick + k * 20) / 40)) mod 2
+        draw the sprite tower at k * 130 - (tower_off with 0.35) + 10, 70 frame 1 + (floor of ((tick + k * 20) / 40)) mod 2
     move the camera to cam_x, 0
     draw the map hubmap
     for each i from 1 to 7
@@ -4186,15 +5161,9 @@ define draw_hub_world
         draw_hub_door with i and dx
 
 define draw_hub_door with i and dx
-    set open to i is 1 or i is 5
-    if open
-        draw the sprite door at dx, 168 frame i
-    otherwise
-        draw the sprite door at dx, 168 frame 8
+    draw the sprite door at dx, 168 frame i
     shadow_text with "{i}" and (dx + 17) and 138 and 18 and "#FFFFFF" and "center"
-    if i is 1 and w1_done is 1
-        draw the sprite star at dx + 12, 122
-    if i is 5 and w5_done is 1
+    if item i of wdone is 1
         draw the sprite star at dx + 12, 122
 
 note: ==================================================
@@ -4270,7 +5239,8 @@ note: ==================================================
 define draw_panel
     if pz is greater than 0
         put a rectangle at 40, 30 with width 400 and height 214 and colour "#0B1026" and border 2 and border colour "#FFE680" and rounded 10
-        text_at with "CODE GATE {pz}" and 240 and 38 and 15 and "#FFE680" and "center"
+        set gate_n to ((pz - 1) mod 2) + 1
+        text_at with "CODE GATE {gate_n}" and 240 and 38 and 15 and "#FFE680" and "center"
         text_at with (item pz of pz_goal) and 240 and 62 and 12 and "#FFFFFF" and "center"
         put a rectangle at 70, 84 with width 340 and height 62 and colour "#05070F" and border 1 and border colour "#3B4A7A" and rounded 6
         put a text (item pz of pz_code_a) at 84, 92 with size 13 and colour "#8FF2AE" and font monospace
@@ -4320,7 +5290,7 @@ define update_panel
         otherwise
             if k_enter or k_space
                 if pz_right
-                    if pz is 1
+                    if ((pz - 1) mod 2) is 0
                         change gate1_open to yes
                     otherwise
                         change gate2_open to yes
@@ -4355,7 +5325,7 @@ define draw_title
     draw the sprite flower_a at 346, 208
     if (floor of (tick / 28)) mod 2 is 0
         shadow_text with "Press ENTER to start" and 262 and 190 and 15 and "#FFFFFF" and "center"
-    if w1_done is 1 or w5_done is 1
+    if (sum of wdone) is greater than 0
         shadow_text with "Your progress was loaded." and 262 and 214 and 11 and "#8FF2AE" and "center"
     shadow_text with "The HumanLang adventure: seven worlds, one language." and 300 and 160 and 10 and "#FFFFFF" and "center"
 
@@ -4387,13 +5357,17 @@ define update_hub
         if hx is greater than (item i of door_x) - 6 and hx is less than (item i of door_x) + 40
             change near_door to i
     if k_enter and near_door is greater than 0
-        if near_door is 1
-            start_w1
+        play the sound "powerup"
+        if near_door is less than 4
+            start_gw with near_door
+        otherwise if near_door is 4
+            start_w4
         otherwise if near_door is 5
             start_w5
+        otherwise if near_door is 6
+            start_w6
         otherwise
-            play the sound "lose"
-            say_msg with "This world is coming in the full game."
+            start_w7
     draw_hub_world
     draw_hero
     move the camera to 0, 0
@@ -4402,96 +5376,87 @@ define update_hub
         put a rectangle at 90, 196 with width 300 and height 56 and colour "#0B1026" and border 2 and border colour "#FFE680" and rounded 8
         text_at with "WORLD {i}: {item i of world_names}" and 240 and 202 and 14 and "#FFE680" and "center"
         text_at with (item i of world_tips) and 240 and 224 and 11 and "#FFFFFF" and "center"
-        if i is 1 or i is 5
-            text_at with "Enter: go in" and 240 and 238 and 10 and "#8FF2AE" and "center"
-        otherwise
-            text_at with "Locked: coming in the full game" and 240 and 238 and 10 and "#FF8E8E" and "center"
+        text_at with "Enter: go in" and 240 and 238 and 10 and "#8FF2AE" and "center"
     draw_hud with "THE MOTHERBOARD"
-    set done_count to w1_done + w5_done
+    set done_count to sum of wdone
     text_at with "Worlds {done_count}/7   Coins {coins_total}" and 470 and 8 and 11 and "#9AA3C0" and "right"
 
 note: ==================================================
 note: WORLD 1: SAY HELLO
 note: ==================================================
 
-define w1_gate_block
+define gw_gate_block
     note: a closed gate is a wall: the hero cannot go through it
     set hx to the x of the body hero
-    if not gate1_open and hx is greater than 448 - 26
-        move the body hero to 448 - 26, (the y of the body hero)
-    if not gate2_open and hx is greater than 832 - 26
-        move the body hero to 832 - 26, (the y of the body hero)
+    if not gate1_open and hx is greater than g1_x - 26
+        move the body hero to g1_x - 26, (the y of the body hero)
+    if not gate2_open and hx is greater than g2_x - 26
+        move the body hero to g2_x - 26, (the y of the body hero)
 
-define update_w1
+define update_gw
     update_talk
     update_panel
     add 1 to world_t
     hero_move
-    w1_gate_block
+    gw_gate_block
     follow_camera
     if hurt_t is greater than 0
         subtract 1 from hurt_t
     set hx to the x of the body hero
     note: Echo says hello the first time you walk up to him
-    if not echo_seen and not talk_on and hx is greater than 192 - 90
-        start_talk with echo_a and echo_b and "echo"
-    if not gate2_seen and not talk_on and gate1_open and hx is greater than 832 - 150
-        start_talk with echo2_a and echo2_b and "gate2"
+    if not echo_seen and not talk_on and hx is greater than echo_x - 90
+        start_talk with (item wn of echo_a_all) and (item wn of echo_b_all) and "echo"
+    if not gate2_seen and not talk_on and gate1_open and hx is greater than g2_x - 150
+        start_talk with (item wn of echo2_a_all) and (item wn of echo2_b_all) and "gate2"
     if hero_free
         pick_up_coins
         pick_up_scrolls
+        update_bugs
+        update_flags
+        hazards
         if k_enter
-            if not gate1_open and hx is greater than 448 - 90 and hx is less than 448
-                change pz to 1
+            if not gate1_open and hx is greater than g1_x - 90 and hx is less than g1_x
+                change pz to (wn - 1) * 2 + 1
                 change pz_sel to 1
                 change pz_stage to "pick"
-            otherwise if gate1_open and not gate2_open and hx is greater than 832 - 90 and hx is less than 832
-                change pz to 2
+            otherwise if gate1_open and not gate2_open and hx is greater than g2_x - 90 and hx is less than g2_x
+                change pz to (wn - 1) * 2 + 2
                 change pz_sel to 1
                 change pz_stage to "pick"
-            otherwise if hx is greater than 192 - 50 and hx is less than 192 + 60
-                start_talk with echo_a and echo_b and "echo"
-        if gate2_open and hx is greater than 1040 - 20 and hx is less than 1040 + 34
-            finish_w1
-    draw_w1_world
+            otherwise if hx is greater than echo_x - 50 and hx is less than echo_x + 60
+                start_talk with (item wn of echo_a_all) and (item wn of echo_b_all) and "echo"
+        if gate2_open and hx is greater than portal_x - 20 and hx is less than portal_x + 34
+            finish_world with wn
+    if wn is 2
+        draw_w2_world
+    otherwise
+        draw_w1_world
     draw_scrolls
     draw_coins
-    draw the sprite echo at 192, 170 frame 1 + (floor of (tick / 40)) mod 2 facing left
+    draw_flags
+    draw the sprite echo at echo_x, 170 frame 1 + (floor of (tick / 40)) mod 2 facing left
     set g1f to 1
     if gate1_open
         set g1f to 2
     set g2f to 1
     if gate2_open
         set g2f to 2
-    draw the sprite gate at 448, 154 frame g1f
-    draw the sprite gate at 832, 154 frame g2f
-    draw the sprite portal at 1040, 160 frame 1 + (floor of (tick / 8)) mod 3
+    draw the sprite gate at g1_x, 154 frame g1f
+    draw the sprite gate at g2_x, 154 frame g2f
+    draw the sprite portal at portal_x, 160 frame 1 + (floor of (tick / 8)) mod 3
+    draw_bugs
     draw_hero
     move the camera to 0, 0
-    if not gate1_open and hx is greater than 448 - 90 and hx is less than 448 and pz is 0 and not talk_on
+    if not gate1_open and hx is greater than g1_x - 90 and hx is less than g1_x and pz is 0 and not talk_on
         shadow_text with "Enter: read the gate" and 240 and 170 and 12 and "#FFE680" and "center"
-    if gate1_open and not gate2_open and hx is greater than 832 - 90 and hx is less than 832 and pz is 0 and not talk_on
+    if gate1_open and not gate2_open and hx is greater than g2_x - 90 and hx is less than g2_x and pz is 0 and not talk_on
         shadow_text with "Enter: read the gate" and 240 and 170 and 12 and "#FFE680" and "center"
-    draw_hud with "WORLD 1: SAY HELLO"
+    set title to "WORLD {wn}: {item wn of world_names}"
+    draw_hud with title
     text_at with "Scrolls {scroll_n}/3" and 470 and 26 and 11 and "#FFE680" and "right"
     draw_talk
     draw_panel
     change k_enter to no
-
-define finish_w1
-    change mode to "w1done"
-    change done_t to 1
-    change w1_done to 1
-    set bonus to coins
-    change coins_total to coins_total + bonus
-    save_all
-    play the sound "win"
-
-define draw_w1_done
-    set total_coins to length of coin_x
-    draw_done with "WORLD 1 COMPLETE" and "Coins {coins}/{total_coins}     Scrolls {scroll_n}/3" and "You said hello to HumanLang!"
-    if k_enter
-        start_hub with 156
 
 note: ==================================================
 note: WORLD 5: PLATFORM PEAKS
@@ -4548,10 +5513,24 @@ define draw_flags
     for each i from 1 to length of flag_x
         draw the sprite flag at (item i of flag_x), (item i of flag_y) frame (item i of flag_on) + 1
 
+define tile_under with x and y
+    if mode is "gw"
+        if wn is 1
+            give back tile at x, y of w1map
+        otherwise if wn is 2
+            give back tile at x, y of w2map
+        otherwise
+            give back tile at x, y of w3map
+    otherwise if mode is "w5"
+        give back tile at x, y of w5map
+    otherwise if mode is "w7"
+        give back tile at x, y of usermap
+    give back ""
+
 define hazards
     set hx to the x of the body hero
     set hy to the y of the body hero
-    set under to tile at hx + 11, hy + 41 of w5map
+    set under to tile_under with (hx + 11) and (hy + 41)
     if under is "^" or hy is greater than 262
         if hy is greater than 262
             respawn_hero
@@ -4595,26 +5574,507 @@ define update_w5
         text_at with "BEST {best_clock}" and 470 and 26 and 11 and "#FFE680" and "right"
     change k_enter to no
 
-define finish_w5
-    change mode to "w5done"
+define finish_world with n
+    change done_world to n
+    change mode to "wdone"
     change done_t to 1
-    change w5_done to 1
-    set secs to floor of (world_t / 60)
-    change w5_final to secs
-    if w5_best is 0 or secs is less than w5_best
-        change w5_best to secs
+    change item n of wdone to 1
     change coins_total to coins_total + coins
     save_all
     play the sound "win"
 
-set w5_final to 0
+define finish_w5
+    set secs to floor of (world_t / 60)
+    change last_time to secs
+    if w5_best is 0 or secs is less than w5_best
+        change w5_best to secs
+    finish_world with 5
 
-define draw_w5_done
+define draw_wdone
+    set n to done_world
     set total_coins to length of coin_x
-    set clock to clock_text with w5_final
-    draw_done with "WORLD 5 COMPLETE" and "Coins {coins}/{total_coins}     Time {clock}" and "You climbed the Platform Peaks!"
+    set l1 to "Coins {coins}"
+    if n is less than 4
+        set l1 to "Coins {coins}/{total_coins}     Scrolls {scroll_n}/3"
+    if n is 4
+        set l1 to "Every pixel is right!"
+    if n is 5
+        set clock to clock_text with last_time
+        set l1 to "Coins {coins}/{total_coins}     Time {clock}"
+    if n is 6
+        set clock to clock_text with last_time
+        set l1 to "The Glitch King is beaten in {clock}"
+    if n is 7
+        set l1 to "You made a level and you beat it!"
+    draw_done with "WORLD {n} COMPLETE" and l1 and (item n of done_lines)
     if k_enter
-        start_hub with 1076
+        if (sum of wdone) is 7 and not ending_seen
+            change mode to "ending"
+            change ending_seen to yes
+        otherwise
+            start_hub with ((item n of door_x) + 6)
+
+
+note: ==================================================
+note: WORLD 4: PIXEL GALLERY (paint the picture)
+note: ==================================================
+
+define start_w4
+    change mode to "w4"
+    change world_w to 480
+    change coins to 0
+    change world_t to 0
+    change done_t to 0
+    change hp to 3
+    change cam_x to 0
+    change canvas to empty list
+    for each i from 1 to 144
+        add 0 to canvas
+    change cx to 0
+    change cy to 0
+    change pcol to 1
+    change coin_x to empty list
+    change coin_y to empty list
+    change coin_got to empty list
+    play the music "chill"
+
+define count_match
+    set same to 0
+    for each i from 1 to 144
+        if (item i of canvas) is (item i of paint_target)
+            add 1 to same
+    give back same
+
+define cell_colour with v
+    if v is 0
+        give back "#141C3E"
+    give back item v of paint_pal
+
+define update_w4
+    add 1 to world_t
+    if k_left and cx is greater than 0
+        subtract 1 from cx
+    if k_right and cx is less than 11
+        add 1 to cx
+    if k_up and cy is greater than 0
+        subtract 1 from cy
+    if k_down and cy is less than 11
+        add 1 to cy
+    if key "1" is down
+        change pcol to 1
+    if key "2" is down
+        change pcol to 2
+    if key "3" is down
+        change pcol to 3
+    if key "4" is down
+        change pcol to 4
+    set at to cy * 12 + cx + 1
+    if key "space" is down
+        change item at of canvas to pcol
+    if key "x" is down
+        change item at of canvas to 0
+    set same to count_match
+    if same is 144 and done_t is 0
+        finish_world with 4
+    move the camera to 0, 0
+    bands with sky_hub
+    draw the sprite easel at 30, 214
+    draw the sprite easel at 420, 214
+    put a rectangle at 14, 34 with width 170 and height 170 and colour "#0B1026" and border 2 and border colour "#FFE680" and rounded 6
+    for each i from 1 to 144
+        set r to floor of ((i - 1) / 12)
+        set c to (i - 1) mod 12
+        set colr to cell_colour with (item i of canvas)
+        put a rectangle at 20 + c * 13, 40 + r * 13 with width 12 and height 12 and colour colr
+    set cur to cell_colour with (item at of canvas)
+    put a rectangle at 20 + cx * 13 - 1, 40 + cy * 13 - 1 with width 14 and height 14 and colour cur and border 2 and border colour "#FFFFFF"
+    text_at with "YOUR PICTURE" and 99 and 210 and 10 and "#9AA3C0" and "center"
+    put a rectangle at 232, 34 with width 110 and height 110 and colour "#0B1026" and border 2 and border colour "#7FD6FF" and rounded 6
+    for each i from 1 to 144
+        set r to floor of ((i - 1) / 12)
+        set c to (i - 1) mod 12
+        set colr to cell_colour with (item i of paint_target)
+        put a rectangle at 238 + c * 8, 40 + r * 8 with width 8 and height 8 and colour colr
+    text_at with "COPY THIS" and 287 and 148 and 10 and "#9AA3C0" and "center"
+    for each o from 1 to 4
+        set pc to item o of paint_pal
+        set bc to "#3B4A7A"
+        if o is pcol
+            set bc to "#FFFFFF"
+        put a rectangle at 360 + (o - 1) * 28, 40 with width 24 and height 24 and colour pc and border 2 and border colour bc and rounded 4
+        text_at with "{o}" and (372 + (o - 1) * 28) and 68 and 11 and "#FFFFFF" and "center"
+    text_at with "Arrows move" and 360 and 96 and 11 and "#FFFFFF" and "left"
+    text_at with "Space paints" and 360 and 112 and 11 and "#FFFFFF" and "left"
+    text_at with "1 2 3 4 pick a colour" and 360 and 128 and 11 and "#FFFFFF" and "left"
+    text_at with "X rubs out" and 360 and 144 and 11 and "#FFFFFF" and "left"
+    text_at with "Matching squares: {same}/144" and 360 and 168 and 11 and "#8FF2AE" and "left"
+    text_at with "In HumanLang a picture is" and 232 and 196 and 10 and "#9AA3C0" and "left"
+    text_at with "just letters: put pixel art" and 232 and 210 and 10 and "#9AA3C0" and "left"
+    draw_hud with "WORLD 4: PIXEL GALLERY"
+    change k_enter to no
+
+note: ==================================================
+note: WORLD 6: THE BOSS CITADEL (the Glitch King)
+note: ==================================================
+
+define start_w6
+    change mode to "w6"
+    change world_w to 480
+    change hp to 3
+    change coins to 0
+    change world_t to 0
+    change done_t to 0
+    change boss_hp to boss_max
+    change boss_x to 300
+    change boss_dir to -1
+    change boss_stun to 0
+    change bolt_t to 0
+    change bolt_x to empty list
+    change bolt_y to empty list
+    change bolt_w to empty list
+    change bolt_on to empty list
+    change coin_x to empty list
+    change coin_y to empty list
+    change coin_got to empty list
+    change decor_k to empty list
+    change decor_x to empty list
+    change decor_y to empty list
+    change bug_x to empty list
+    change bug_y to empty list
+    change bug_lo to empty list
+    change bug_hi to empty list
+    change bug_dir to empty list
+    change bug_alive to empty list
+    change flag_x to empty list
+    change flag_y to empty list
+    change flag_on to empty list
+    place_hero with 40 and 184
+    play the music "boss"
+
+define boss_phase
+    give back 1 + floor of ((boss_max - boss_hp) / 4)
+
+define add_bolt with x
+    set slot to 0
+    for each i from 1 to length of bolt_x
+        if slot is 0 and (item i of bolt_on) is 0
+            set slot to i
+    if slot is 0
+        add x to bolt_x
+        add -30 to bolt_y
+        add 50 to bolt_w
+        add 1 to bolt_on
+    otherwise
+        change item slot of bolt_x to x
+        change item slot of bolt_y to -30
+        change item slot of bolt_w to 50
+        change item slot of bolt_on to 1
+
+define update_boss
+    set phase to boss_phase
+    set boss_y to 152
+    if boss_stun is greater than 0
+        subtract 1 from boss_stun
+    otherwise
+        change boss_x to boss_x + boss_dir * (0.8 + 0.5 * phase)
+        if boss_x is less than 20
+            change boss_x to 20
+            change boss_dir to 1
+        if boss_x is greater than 396
+            change boss_x to 396
+            change boss_dir to -1
+    set hx to the x of the body hero
+    set hy to the y of the body hero
+    set vy to the vertical speed of the body hero
+    if hx + 22 is greater than boss_x + 6 and hx is less than boss_x + 58 and hy + 40 is greater than 146 and hy is less than 224
+        if boss_stun is 0
+            if vy is greater than 0.3 and hy + 40 is less than 182
+                subtract 1 from boss_hp
+                change boss_stun to 80
+                make the body hero bounce
+                play the sound "explosion"
+                add 5 to coins
+                say_msg with "Hit! {boss_hp} to go."
+                if boss_hp is at most 0
+                    finish_boss
+            otherwise
+                hurt_hero
+                if hurt_t is 100
+                    set side to 30
+                    if hx is less than boss_x + 32
+                        set side to -30
+                    set nx to hx + side
+                    if nx is less than 20
+                        set nx to 20
+                    if nx is greater than 438
+                        set nx to 438
+                    move the body hero to nx, hy - 8
+    add 1 to bolt_t
+    if bolt_t is greater than 200 - 35 * phase
+        change bolt_t to 0
+        add_bolt with (hx + 5)
+
+define update_bolts
+    set hx to the x of the body hero
+    set hy to the y of the body hero
+    for each i from 1 to length of bolt_x
+        if (item i of bolt_on) is 1
+            if (item i of bolt_w) is greater than 0
+                change item i of bolt_w to (item i of bolt_w) - 1
+            otherwise
+                change item i of bolt_y to (item i of bolt_y) + 5
+                set bx to item i of bolt_x
+                set by to item i of bolt_y
+                if hx + 22 is greater than bx and hx is less than bx + 12 and hy + 40 is greater than by and hy is less than by + 22
+                    change item i of bolt_on to 0
+                    hurt_hero
+                if by is greater than 222
+                    change item i of bolt_on to 0
+
+define draw_boss
+    set bf to 1 + (floor of (tick / 12)) mod 2
+    if boss_stun is 0 or (floor of (tick / 3)) mod 2 is 0
+        draw the sprite boss at boss_x, 152 frame bf
+
+define draw_bolts
+    for each i from 1 to length of bolt_x
+        if (item i of bolt_on) is 1
+            set bx to item i of bolt_x
+            if (item i of bolt_w) is greater than 0
+                if (floor of (tick / 4)) mod 2 is 0
+                    draw the sprite warn at bx, 204
+            otherwise
+                draw the sprite bolt at bx, item i of bolt_y frame 1 + (floor of (tick / 4)) mod 2
+
+define finish_boss
+    set secs to floor of (world_t / 60)
+    change last_time to secs
+    if w6_best is 0 or secs is less than w6_best
+        change w6_best to secs
+    finish_world with 6
+
+define draw_w6_world
+    move the camera to 0, 0
+    bands with sky_boss
+    for each k from 0 to 4
+        draw the sprite tower at k * 110 + 10, 100 frame 1 + (floor of ((tick + k * 20) / 40)) mod 2
+    move the camera to 0, 0
+    draw the map w6map
+
+define update_w6
+    add 1 to world_t
+    hero_move
+    follow_camera
+    if hurt_t is greater than 0
+        subtract 1 from hurt_t
+    if done_t is 0
+        update_boss
+        update_bolts
+        if (the y of the body hero) is greater than 262
+            respawn_hero
+    draw_w6_world
+    draw_boss
+    draw_bolts
+    draw_hero
+    move the camera to 0, 0
+    put a rectangle at 150, 24 with width 180 and height 12 and colour "#2A0716" and border 2 and border colour "#FFFFFF" and rounded 4
+    if boss_hp is greater than 0
+        put a rectangle at 152, 26 with width boss_hp * 14 and height 8 and colour "#E43A4C" and rounded 3
+    text_at with "THE GLITCH KING" and 240 and 38 and 10 and "#FFFFFF" and "center"
+    draw_hud with "WORLD 6: THE BOSS CITADEL"
+    change k_enter to no
+
+note: ==================================================
+note: WORLD 7: YOUR WORLD (build, save and play your own level)
+note: ==================================================
+
+define serialize_level
+    set s to ""
+    for each r from 1 to 14
+        for each c from 1 to 30
+            set t to tile in column c, row r of usermap
+            if t is ""
+                set t to "."
+            set s to "{s}{t}"
+    give back s
+
+define apply_level with s
+    for each r from 1 to 14
+        for each c from 1 to 30
+            set ch to item ((r - 1) * 30 + c) of s
+            change tile in column c, row r of usermap to ch
+
+define start_w7
+    change mode to "w7"
+    change world_w to 480
+    change edit_on to yes
+    change hp to 3
+    change coins to 0
+    change world_t to 0
+    change done_t to 0
+    change cam_x to 0
+    change ux to 1
+    change uy to 11
+    change coin_x to empty list
+    change coin_y to empty list
+    change coin_got to empty list
+    change decor_k to empty list
+    change decor_x to empty list
+    change decor_y to empty list
+    change bug_x to empty list
+    change bug_y to empty list
+    change bug_lo to empty list
+    change bug_hi to empty list
+    change bug_dir to empty list
+    change bug_alive to empty list
+    change flag_x to empty list
+    change flag_y to empty list
+    change flag_on to empty list
+    if not user_loaded
+        change user_loaded to yes
+        set v to recall "odyssey level"
+        if v is not nothing
+            if length of v is 420
+                apply_level with v
+    play the music "adventure"
+
+define enter_play
+    change level_backup to serialize_level
+    change edit_on to no
+    change coins to 0
+    change hp to 3
+    change hurt_t to 0
+    place_hero with 20 and 60
+    say_msg with "Reach the star! Press E to go back and edit."
+
+define leave_play
+    apply_level with level_backup
+    change edit_on to yes
+    change msg_t to 0
+
+define update_w7
+    add 1 to world_t
+    if edit_on
+        if k_left and ux is greater than 0
+            subtract 1 from ux
+        if k_right and ux is less than 29
+            add 1 to ux
+        if k_up and uy is greater than 0
+            subtract 1 from uy
+        if k_down and uy is less than 13
+            add 1 to uy
+        if key "1" is down
+            change utile to 1
+        if key "2" is down
+            change utile to 2
+        if key "3" is down
+            change utile to 3
+        if key "4" is down
+            change utile to 4
+        if key "5" is down
+            change utile to 5
+        if key "6" is down
+            change utile to 6
+        if key "space" is down
+            change tile in column ux + 1, row uy + 1 of usermap to (item utile of user_letters)
+        if key "x" is down
+            change tile in column ux + 1, row uy + 1 of usermap to "."
+        if k_s
+            remember serialize_level as "odyssey level"
+            say_msg with "Level saved!"
+            play the sound "powerup"
+        if k_l
+            set v to recall "odyssey level"
+            if v is not nothing
+                apply_level with v
+                say_msg with "Level loaded!"
+        if k_enter
+            enter_play
+    otherwise
+        hero_move
+        follow_camera
+        if hurt_t is greater than 0
+            subtract 1 from hurt_t
+        if done_t is 0
+            set hx to (the x of the body hero) + 11
+            set hy to (the y of the body hero) + 30
+            set here to tile at hx, hy of usermap
+            if here is "c"
+                change tile at hx, hy of usermap to "."
+                add 1 to coins
+                play the sound "coin"
+            hazards
+            if here is "F"
+                leave_play_for_finish
+        if k_e
+            leave_play
+    move the camera to 0, 0
+    put a rectangle at 0, 0 with width 480 and height 270 and colour "#2F7FE8"
+    bands with sky_w1
+    draw the map usermap
+    if not edit_on
+        draw_hero
+    move the camera to 0, 0
+    if edit_on
+        set cur_x to ux * 16
+        set cur_y to uy * 16
+        put a rectangle at cur_x, cur_y with width 16 and height 2 and colour "#FFE680"
+        put a rectangle at cur_x, cur_y + 14 with width 16 and height 2 and colour "#FFE680"
+        put a rectangle at cur_x, cur_y with width 2 and height 16 and colour "#FFE680"
+        put a rectangle at cur_x + 14, cur_y with width 2 and height 16 and colour "#FFE680"
+    put a rectangle at 0, 226 with width 480 and height 44 and colour "#0B1026"
+    if edit_on
+        for each o from 1 to 6
+            set bc to "#3B4A7A"
+            if o is utile
+                set bc to "#FFE680"
+            put a rectangle at 8 + (o - 1) * 30, 232 with width 26 and height 26 and colour "#141C3E" and border 2 and border colour bc and rounded 4
+            draw_tool with o and (14 + (o - 1) * 30) and 238
+            text_at with "{o}" and (21 + (o - 1) * 30) and 259 and 9 and "#9AA3C0" and "center"
+        text_at with "Arrows move   Space puts   X rubs out" and 196 and 234 and 10 and "#FFFFFF" and "left"
+        text_at with "S saves   L loads   Enter plays your level" and 196 and 250 and 10 and "#8FF2AE" and "left"
+    otherwise
+        text_at with "Reach the star.   E: back to editing" and 240 and 240 and 12 and "#FFFFFF" and "center"
+    draw_hud with "WORLD 7: YOUR WORLD"
+    change k_enter to no
+
+define draw_tool with o and x and y
+    if o is 1
+        draw the sprite t_grass at x - 4, y - 4
+    otherwise if o is 2
+        draw the sprite t_dirt at x - 4, y - 4
+    otherwise if o is 3
+        draw the sprite t_stone at x - 4, y - 4
+    otherwise if o is 4
+        draw the sprite t_spike at x - 4, y - 4
+    otherwise if o is 5
+        draw the sprite coin at x - 2, y - 2
+    otherwise
+        draw the sprite star at x - 1, y - 1
+
+define leave_play_for_finish
+    apply_level with level_backup
+    finish_world with 7
+
+note: ==================================================
+note: THE END
+note: ==================================================
+
+define draw_ending
+    move the camera to 0, 0
+    put a rectangle at 0, 0 with width 480 and height 270 and colour "#0B1026"
+    for each i from 1 to 30
+        put a rectangle at (i * 83) mod 480, (i * 41 + tick) mod 270 with width 3 and height 3 and colour "#FFE680"
+    shadow_text with "YOU DID IT!" and 240 and 20 and 30 and "#FFE680" and "center"
+    draw the sprite hero at 208, 62 frame 11
+    shadow_text with "All seven worlds are finished." and 240 and 128 and 15 and "#FFFFFF" and "center"
+    shadow_text with "You can read and write HumanLang now." and 240 and 150 and 13 and "#8FF2AE" and "center"
+    shadow_text with "Coins collected: {coins_total}" and 240 and 172 and 12 and "#FFE680" and "center"
+    shadow_text with "Made with HumanLang by the HL mascot and you." and 240 and 196 and 11 and "#7FD6FF" and "center"
+    if (floor of (tick / 25)) mod 2 is 0
+        shadow_text with "Press ENTER to go back to the Motherboard" and 240 and 234 and 12 and "#FFFFFF" and "center"
+    if k_enter
+        start_hub with 60
 
 note: ==================================================
 note: THE GAME
@@ -4637,6 +6097,21 @@ play a game titled "HumanLang Odyssey: Seven Worlds" with size 480 by 270 and ba
     when the key "space" is pressed
         change k_space to yes
 
+    when the key "up" is pressed
+        change k_up to yes
+
+    when the key "down" is pressed
+        change k_down to yes
+
+    when the key "e" is pressed
+        change k_e to yes
+
+    when the key "s" is pressed
+        change k_s to yes
+
+    when the key "l" is pressed
+        change k_l to yes
+
     every frame
         add 1 to tick
         if mode is "intro"
@@ -4650,15 +6125,26 @@ play a game titled "HumanLang Odyssey: Seven Worlds" with size 480 by 270 and ba
                 play the sound "powerup"
         otherwise if mode is "hub"
             update_hub
-        otherwise if mode is "w1"
-            update_w1
-        otherwise if mode is "w1done"
-            draw_w1_done
+        otherwise if mode is "gw"
+            update_gw
+        otherwise if mode is "w4"
+            update_w4
         otherwise if mode is "w5"
             update_w5
-        otherwise if mode is "w5done"
-            draw_w5_done
+        otherwise if mode is "w6"
+            update_w6
+        otherwise if mode is "w7"
+            update_w7
+        otherwise if mode is "wdone"
+            draw_wdone
+        otherwise if mode is "ending"
+            draw_ending
         change k_enter to no
         change k_left to no
         change k_right to no
         change k_space to no
+        change k_up to no
+        change k_down to no
+        change k_e to no
+        change k_s to no
+        change k_l to no
