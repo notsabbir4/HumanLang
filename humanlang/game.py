@@ -108,6 +108,12 @@ class GameParser:
             music = self.arith()
             self.end()
             return ("music", line, music)
+        if self.words("the", "video") or self.words("video"):
+            self.i += 2 if self.words("the", "video") else 1       # both spellings: play the video "x" and play video "x"
+            self.example = 'play video "intro.mp4"'
+            video = self.arith()
+            self.end()
+            return ("video", line, video)
         if self.words("the", "sound"):
             self.i += 2
             self.example = 'play the sound "coin"'

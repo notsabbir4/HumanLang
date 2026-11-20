@@ -146,6 +146,7 @@
     const files = opts.assets || {}, pictures = {};  // your own files: name -> data (or web address)
     for (const k in files) if (/\.(png|jpe?g|gif|webp)$/i.test(k)) { const im = new Image(); im.src = files[k]; pictures[k] = im; }
     let lastMusic = null;
+    let videoOn = null;  // while a video plays over the game: { box, video, finish }; the game waits until it ends
     canvas.width = info.w; canvas.height = info.h;
     g.imageSmoothingEnabled = false;
 
@@ -158,6 +159,7 @@
       if (!running || e.ctrlKey || e.metaKey || e.altKey) return;
       const k = keyName(e);
       if (!k) return;
+      if (videoOn) { if (k === "escape" || k === "space" || k === "enter") { e.preventDefault(); videoOn.finish(); } return; }
       if (CAPTURE.has(k)) e.preventDefault();
       sound.unlock();
       if (!down.has(k)) { down.add(k); pressed.push(k); }
@@ -168,7 +170,7 @@
       const r = canvas.getBoundingClientRect();
       mouse = [Math.round((e.clientX - r.left) * info.w / r.width), Math.round((e.clientY - r.top) * info.h / r.height)];
     }
-    function onClick(e) { onMouse(e); clicked = true; sound.unlock(); canvas.focus(); }
+    function onClick(e) { if (videoOn) return; onMouse(e); clicked = true; sound.unlock(); canvas.focus(); }
 
     // a finger (or a held mouse button) dragged over the game counts as clicks where it is: that is how to steer by dragging
     let dragging = false;
@@ -252,21 +254,69 @@
       }
     }
 
+    // ---- play the video "x.mp4": shown over the game, the game waits; click, tap, Escape, Space or Enter skips it ----
+    function playVideo(name, done) {
+      const src = files[name], doc = canvas.ownerDocument;
+      if (!src) { done(); return; }
+      const box = doc.createElement("div"), v = doc.createElement("video");
+      box.className = "hl-video";
+      box.style.cssText = "position:fixed;z-index:60;background:#000;display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;touch-action:manipulation";
+      v.src = src; v.playsInline = true; v.setAttribute("playsinline", ""); v.preload = "auto"; v.muted = muted;
+      v.style.cssText = "width:100%;height:100%;object-fit:contain;display:block";
+      const skip = doc.createElement("button");
+      skip.type = "button"; skip.textContent = "Skip \u25B6"; skip.setAttribute("aria-label", "Skip the video");
+      skip.style.cssText = "position:absolute;right:8px;bottom:8px;font:600 13px system-ui,sans-serif;color:#fff;background:#000a;border:1px solid #fff6;border-radius:6px;padding:4px 10px;cursor:pointer";
+      const tap = doc.createElement("button");
+      tap.type = "button"; tap.textContent = "\u25B6  Tap to play"; tap.hidden = true;
+      tap.style.cssText = "position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font:700 20px system-ui,sans-serif;color:#fff;background:#1b6fe8;border:0;border-radius:30px;padding:12px 26px;cursor:pointer";
+      box.append(v, skip, tap); doc.body.appendChild(box);
+      let ended = false, raf = 0;
+      const place = () => {   // sits exactly over the game screen, wherever the page puts it
+        const r = canvas.getBoundingClientRect();
+        box.style.left = r.left + "px"; box.style.top = r.top + "px"; box.style.width = r.width + "px"; box.style.height = r.height + "px";
+        raf = root.requestAnimationFrame(place);
+      };
+      place();
+      const finish = (quiet) => {
+        if (ended) return; ended = true; videoOn = null;
+        root.cancelAnimationFrame(raf); try { v.pause(); } catch (e) { /* gone already */ }
+        v.removeAttribute("src"); try { v.load(); } catch (e) { /* ignore */ }
+        box.remove();
+        down.clear(); pressed = []; clicked = false;    // what was pressed to skip the video must not reach the game
+        if (quiet === true) return;
+        canvas.focus(); done();
+      };
+      videoOn = { box, video: v, finish };
+      const go = () => { const p = v.play(); if (p && p.catch) p.catch(() => { tap.hidden = false; }); };  // a page nobody has clicked yet may not play sound: ask for a tap
+      v.addEventListener("ended", () => finish());
+      v.addEventListener("error", () => finish());
+      skip.addEventListener("click", (e) => { e.stopPropagation(); sound.unlock(); finish(); });
+      tap.addEventListener("click", (e) => { e.stopPropagation(); tap.hidden = true; v.muted = muted; go(); });
+      box.addEventListener("click", () => { if (tap.hidden) { sound.unlock(); finish(); } });
+      box.addEventListener("touchstart", (e) => { e.stopPropagation(); }, { passive: true });
+      sound.stopMusic(); lastMusic = null;
+      go();
+    }
+
     async function tick(now) {
       if (!running) return;
       if (!last) last = now;
       acc = Math.min(acc + (now - last), STEP * 5);
       last = now;
-      if (acc >= STEP && !busy) {
+      if (videoOn) { last = now; acc = 0; }
+      if (acc >= STEP && !busy && !videoOn) {
         acc -= STEP; busy = true;
         const input = { down: Array.from(down), pressed, clicked, mouse };
         pressed = []; clicked = false;
         try {
           frame = await step(input);
           draw(frame);
-          if (!muted) for (const s of frame.sounds || []) sound.play(s, files);
-          if (frame.music !== undefined && frame.music !== lastMusic) { lastMusic = frame.music; sound.music(frame.music, files); }
-          if (frame.over) { over = true; running = false; if (opts.onOver) opts.onOver(); }
+          const f = frame, after = () => {
+            if (!muted) for (const s of f.sounds || []) sound.play(s, files);
+            if (f.music !== undefined && f.music !== lastMusic) { lastMusic = f.music; sound.music(f.music, files); }
+            if (f.over) { over = true; running = false; if (opts.onOver) opts.onOver(); }
+          };
+          if (f.video) playVideo(f.video, after); else after();
         } catch (err) {
           running = false;
           if (opts.onError) opts.onError(err && err.message ? err.message : String(err));
@@ -331,6 +381,7 @@
       },
       stop() {
         running = false;
+        if (videoOn) videoOn.finish(true);
         if (pad) { pad.remove(); pad = null; }
         sound.stopMusic();
         root.removeEventListener("keydown", onKeyDown);
@@ -342,7 +393,7 @@
         canvas.removeEventListener("touchmove", onTouchMove);
         canvas.removeEventListener("touchstart", onTouch);
       },
-      setMuted(m) { muted = !!m; sound.mute(muted); },
+      setMuted(m) { muted = !!m; sound.mute(muted); if (videoOn) videoOn.video.muted = muted; },
       get over() { return over; },
     };
     return api;

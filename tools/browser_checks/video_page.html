@@ -1,0 +1,9 @@
+<!doctype html><meta charset=utf-8><body style="margin:0;background:#222"><canvas id=c style="width:480px;height:270px;display:block;margin:20px"></canvas>
+<script src="arcade.js"></script><script>
+window.log = []; window.n = 0; window.overs = 0;
+const q = new URLSearchParams(location.search), asset = q.get("src") || "clip.webm";
+const info = { w: 480, h: 270, bg: "#123", sprites: {}, maps: {}, keys: ["left", "right", "space"] };
+const step = async (input) => { window.n++; window.log.push(input); return Object.assign({ cmds: [], sounds: [], maps: {}, over: false }, window.n === 1 ? { video: asset, music: "adventure" } : {}); };
+window.g = Arcade(document.getElementById("c"), info, step, { assets: { [asset]: asset }, onOver: () => window.overs++ });
+window.g.start();
+</script>

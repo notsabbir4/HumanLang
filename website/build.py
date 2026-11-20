@@ -44,7 +44,7 @@ DESIGN_KINDS = ["box", "row", "text", "heading", "button", "input", "drawing", "
                 "square", "triangle", "line", "polygon", "pixel art"]
 DESIGN = ["show a page", "titled", "called", "where", "make a sprite", "make a map", "play a game", "when the game starts",
           "every frame", "when the key", "is pressed", "when the mouse is clicked", "draw the sprite", "draw the map",
-          "move the camera to", "play the sound", "stop the game", "change the tile", "touches", "facing left",
+          "move the camera to", "play the sound", "play the video", "play video", "stop the game", "change the tile", "touches", "facing left",
           "is down", "frame number", "game time"] + ['remember', 'forget', 'recall', 'calculate', 'when the button', 'is clicked', 'when the input', 'changes', 'the text in', 'the number in', 'play the music', 'stop the music', 'draw the picture', 'make a body', 'make the body', 'update the body', 'move the body', 'run left', 'run right', 'bounce', 'is on the ground'] + [
     f"put {'an' if k[0] in 'aeiou' else 'a'} {k}" for k in DESIGN_KINDS] + ["put some"]
 CONSTANTS = ["yes", "no", "nothing", "problem_line", "problem_kind", "problem"]
@@ -343,10 +343,10 @@ def playground_page(examples):
 <div class="stepgrid"><pre id="stepcode" aria-label="Your program, with the current line marked"></pre>
 <div><h4>What the variables hold</h4><table id="stepvars"></table><h4>Output so far</h4><pre id="stepout"></pre></div></div>
 </div>
-<div id="filespane" hidden><p>Add your own <b>pictures</b> (png, jpg, gif, webp) and <b>sounds or music</b> (wav, mp3, ogg, m4a) to use in a game.
-They stay in this browser only. Use them by name, for example <code>draw the picture "face.png" at 10, 10</code> or
-<code>play the music "theme.mp3"</code>. Up to 3 MB each.</p>
-<label class="btn ghost" id="addfiles-label">Add files<input type="file" id="addfiles" multiple accept="image/png,image/jpeg,image/gif,image/webp,audio/*,.wav,.mp3,.ogg,.m4a" hidden></label>
+<div id="filespane" hidden><p>Add your own <b>pictures</b> (png, jpg, gif, webp), <b>sounds or music</b> (wav, mp3, ogg, m4a) and <b>videos</b> (mp4, webm) to use in a game.
+They stay in this browser only. Use them by name, for example <code>draw the picture "face.png" at 10, 10</code>,
+<code>play the music "theme.mp3"</code> or <code>play the video "intro.mp4"</code>. Up to 3 MB each.</p>
+<label class="btn ghost" id="addfiles-label">Add files<input type="file" id="addfiles" multiple accept="image/png,image/jpeg,image/gif,image/webp,audio/*,video/mp4,video/webm,.wav,.mp3,.ogg,.m4a,.mp4,.webm" hidden></label>
 <ul id="filelist" aria-live="polite"></ul><p id="filenote"></p></div>
 <div id="inpane" hidden><p>Optional. If your program uses <code>ask</code>, type all its answers here, one per line, and it will not stop to ask.</p>
 <textarea id="inputs" spellcheck="false" aria-label="Answers, one per line"></textarea></div>
@@ -596,13 +596,23 @@ def main():
     games = []
     with open(os.path.join(ROOT, "games", "index.json"), encoding="utf-8") as f:
         for g in json.load(f):
-            entry = {k: v for k, v in g.items() if k not in ("test_runs", "image")}
+            entry = {k: v for k, v in g.items() if k not in ("test_runs", "image", "files")}
+            if g.get("files"):
+                # the game's own pictures, sounds and videos: served as files next to the pages, named in "files" in games/index.json
+                from humanlang.assets import kind_of
+                os.makedirs(os.path.join(out, "game-files"), exist_ok=True)
+                entry["files"] = {}
+                for fname in g["files"]:
+                    shutil.copy(os.path.join(ROOT, "games", "files", fname), os.path.join(out, "game-files", fname))
+                    entry["files"][fname] = {"kind": kind_of(fname), "url": "game-files/" + fname, "size": os.path.getsize(os.path.join(ROOT, "games", "files", fname))}
             entry["code"] = read(os.path.join(ROOT, "games", g["file"]))
             if g.get("how"):
                 entry["inspect"] = inspect_html(entry["code"], g["how"], g["id"])
             entry.pop("how", None)
             if g.get("kind") == "arcade":
                 examples[g["file"]] = {"code": entry["code"], "inputs": ""}
+                if entry.get("files"):
+                    examples[g["file"]]["files"] = entry["files"]
             if g.get("image"):
                 entry["image"] = "game-" + g["id"] + os.path.splitext(g["image"])[1]
                 shutil.copy(os.path.join(ROOT, "games", g["image"]), os.path.join(out, entry["image"]))

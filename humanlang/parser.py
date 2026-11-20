@@ -336,7 +336,7 @@ class Parser(DesignParser, GameParser, LiveParser, PhysicsParser):
                 ("make", self.word("the", 1) and self.word("body", 2), "st_bodydo"),
                 ("update", self.word("the", 1) and self.word("body", 2), "st_update"),
                 ("make", self.word("a", 1) and (self.word("sprite", 2) or self.word("map", 2) or self.word("body", 2)), "st_make"),
-                ("play", (self.word("a", 1) and self.word("game", 2)) or (self.word("the", 1) and (self.word("sound", 2) or self.word("music", 2))), "st_play"),
+                ("play", (self.word("a", 1) and self.word("game", 2)) or (self.word("the", 1) and (self.word("sound", 2) or self.word("music", 2) or self.word("video", 2))) or self.word("video", 1), "st_play"),
                 ("draw", self.word("the", 1) and (self.word("sprite", 2) or self.word("map", 2) or self.word("picture", 2)), "st_draw"),
                 ("move", self.word("the", 1) and self.word("camera", 2), "st_move"),
                 ("move", self.word("the", 1) and self.word("body", 2), "st_bodymove"),

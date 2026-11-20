@@ -213,7 +213,7 @@ class Showcase(unittest.TestCase):
             return [g["file"] for g in json.load(f) if g.get("kind") == "arcade"]
 
     def test_arcade_games_are_listed(self):
-        self.assertEqual(len(self.arcade_files()), 5)
+        self.assertEqual(len(self.arcade_files()), 6)
 
     def test_every_game_explains_itself_for_inspect(self):
         sys.path.insert(0, os.path.join(ROOT, "website"))
@@ -230,7 +230,9 @@ class Showcase(unittest.TestCase):
         for name in self.arcade_files():
             path = os.path.join(ROOT, "games", name)
             with self.subTest(game=os.path.basename(path)):
-                it = make(load(os.path.basename(path)), out=lambda t: None)
+                it = Interpreter(out=lambda t: None)
+                it.assets = {f: "video" for f in os.listdir(os.path.join(ROOT, "games", "files")) if f.endswith(".mp4")}   # files a game ships with
+                it.run(load(os.path.basename(path)))
                 keys = ["left", "right", "up", "down", "space"]
                 for i in range(900):
                     f = it.game_frame(down=[keys[(i // 30) % 5]], pressed=[keys[(i // 7) % 5]] if i % 7 == 0 else [])

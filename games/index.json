@@ -576,5 +576,48 @@
       }
     ],
     "version": "0.5.1"
+  },
+  {
+    "id": "humanlang-odyssey",
+    "title": "HUMANLANG ODYSSEY",
+    "subtitle": "Adventure (first slice)",
+    "file": "humanlang_odyssey.hum",
+    "kind": "arcade",
+    "tagline": "Seven worlds, one language. The HL mascot runs, jumps and opens code gates. First slice: the hub, World 1 and World 5.",
+    "blurb": "Your logo reveal plays first, then the HL mascot explores the Motherboard. In World 1 you talk to the robot Echo and open two code gates by reading code; in World 5 you jump over pits and spikes, stomp glitch bugs and use checkpoint flags. All art is drawn at pixel size 1.",
+    "tags": [
+      "Adventure",
+      "Platformer",
+      "Puzzle",
+      "Keyboard"
+    ],
+    "keys": "Left/Right run, Space or Up jumps, Enter talks, opens doors and confirms",
+    "image": "thumbs/humanlang-odyssey.jpg",
+    "version": "0.6.2",
+    "files": [
+      "humanlang_intro.mp4"
+    ],
+    "how": [
+      {
+        "title": "Pixel size 1 art",
+        "at": "make a sprite called hero",
+        "text": "The hero, Echo, the doors, the trees and the mountains are all drawn at pixel size 1, so they keep every detail. Small things use fewer colours."
+      },
+      {
+        "title": "Saving",
+        "at": "define save_all",
+        "text": "`remember` and `recall` keep your finished worlds, coins and best time, so the game remembers you next time."
+      },
+      {
+        "title": "Code gates",
+        "at": "define update_panel",
+        "text": "Each gate shows a bit of code and three choices. The answer you pick is shown with what HumanLang really printed when that code was run."
+      },
+      {
+        "title": "A video at the start",
+        "at": "play video",
+        "text": "`play video \"humanlang_intro.mp4\"` shows the logo reveal over the game. The game waits until it ends, and a click, Space or Enter skips it."
+      }
+    ]
   }
 ]

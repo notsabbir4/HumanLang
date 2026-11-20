@@ -20,6 +20,11 @@
   fire with a hole and a diving attack (a red column shows where it will land); OBLIVAR uses a fan with a gap where you stand, fast
   shots, fire rain, laser beams (flashing warning lines first) and a faster wall of fire.
 - Course pages are now one page each (the old lesson-by-lesson pages for these three courses are gone; "Read all chapters" still works).
+- **Videos in games:** `play video "intro.mp4"` (also `play the video "intro.mp4"`) shows a video over the game; the game waits until it
+  ends, and a click, tap, Esc, Space or Enter skips it. Video files go next to the program (up to 3 MB) and work in the Playground,
+  `hl build`, and on the Games page.
+- **New game, HUMANLANG ODYSSEY (first slice):** the HL mascot hero, a 480 x 270 screen, your logo reveal at the start, the Motherboard
+  hub, World 1 (Echo and two code gates) and World 5 (platform peaks). All art is drawn at pixel size 1. The other five worlds come later.
 
 ## 0.6.1.1 - 2026-11-13
 - **New licence:** HumanLang is still **free to use** (the website, Playground, installers, courses and games), and what you make

@@ -56,6 +56,73 @@ class AssetTests(unittest.TestCase):
         self.assertIn("data:image/png;base64", html)
         self.assertNotIn("\"notes.txt\":", html)
 
+    # ---- videos: play the video "intro.mp4" ----
+    VIDEO_GAME = '''play a game titled "V" with size 100 by 80
+    when the game starts
+        play the video "intro.mp4"
+        play the music "adventure"
+    every frame
+        draw the picture "face.png" at 1, 2
+'''
+
+    def test_video_files_are_found_and_embedded(self):
+        d = tempfile.mkdtemp()
+        for n in ("intro.mp4", "clip.webm", "movie.avi"):
+            with open(os.path.join(d, n), "wb") as f:
+                f.write(b"x")
+        self.assertEqual(scan_folder(d), {"clip.webm": "video", "intro.mp4": "video"})
+        self.assertEqual(kind_of("A.MP4"), "video")
+        self.assertIsNone(kind_of("movie.avi"))
+        self.assertTrue(data_urls(d, ["intro.mp4"])["intro.mp4"].startswith("data:video/mp4;base64,"))
+        html = game_to_html(self.VIDEO_GAME, "V", folder=d)
+        self.assertIn("data:video/mp4;base64", html)
+        self.assertIn("data:video", html.split("const KINDS")[1][:200])       # the page tells videos from sounds
+
+    def test_play_the_video_sends_it_to_the_screen_once(self):
+        it = Interpreter(out=lambda t: None)
+        it.assets = {"intro.mp4": "video", "face.png": "picture"}
+        it.run(self.VIDEO_GAME)
+        f = it.game_frame()
+        self.assertEqual(f["video"], "intro.mp4")
+        self.assertEqual(f["music"], "adventure")        # the screen holds the music back until the video ends
+        self.assertNotIn("video", it.game_frame())       # only the frame that asked for it carries it
+
+    def test_play_video_without_the_works_too(self):
+        it = Interpreter()
+        it.assets = {"intro.mp4": "video"}
+        it.run('play a game titled "V"\n    every frame\n        play video "intro.mp4"\n')
+        it.game_frame()
+        self.assertEqual(it.game_frame().get("video"), "intro.mp4")
+
+    def test_missing_video_is_friendly(self):
+        it = Interpreter(out=lambda t: None)
+        it.assets = {"inro.mp4": "video", "face.png": "picture"}
+        it.run(self.VIDEO_GAME)
+        with self.assertRaises(Exception) as c:
+            it.game_frame()
+        self.assertIn('video called "intro.mp4"', str(c.exception))
+        self.assertIn("inro.mp4", c.exception.hint)      # it suggests the file that is there
+        it = Interpreter(out=lambda t: None)
+        it.run(self.VIDEO_GAME)
+        with self.assertRaises(Exception) as c:
+            it.game_frame()
+        self.assertIn("mp4 or webm", c.exception.hint)
+
+    def test_a_picture_is_not_a_video(self):
+        it = Interpreter(out=lambda t: None)
+        it.assets = {"intro.mp4": "picture", "face.png": "picture"}
+        it.run(self.VIDEO_GAME)
+        with self.assertRaises(Exception):
+            it.game_frame()
+
+    def test_video_statement_is_checked_before_running(self):
+        from humanlang.lint import STATEMENTS
+        self.assertIn("video", STATEMENTS)
+        it = Interpreter(out=lambda t: None)
+        with self.assertRaises(Exception) as c:
+            it.run('play a game titled "V"\n    every frame\n        play the video\n')
+        self.assertIn("play video", c.exception.hint)      # the example in the message
+
 
 if __name__ == "__main__":
     unittest.main()

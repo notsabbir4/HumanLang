@@ -43,7 +43,7 @@ const FILES = __FILES__;
 const CODE = __CODE__;
 const ASSETS = __ASSETS__;
 const KINDS = {};
-for (const k in ASSETS) KINDS[k] = /^data:image/.test(ASSETS[k]) ? "picture" : "audio";
+for (const k in ASSETS) KINDS[k] = /^data:image/.test(ASSETS[k]) ? "picture" : /^data:video/.test(ASSETS[k]) ? "video" : "audio";
 const note = document.getElementById("note"), canvas = document.getElementById("screen");
 let game = null, py = null, muted = false;
 const MEMKEY = "hl-memory:" + document.title;
@@ -109,7 +109,7 @@ def safe(text):  # inside a <script>: nothing may close it early
 
 
 def game_assets(folder, code):
-    """The pictures and sounds the game names in quotes and finds next to the program, as data inside the page."""
+    """The pictures, sounds and videos the game names in quotes and finds next to the program, as data inside the page."""
     if not folder:
         return {}
     from .assets import data_urls, scan_folder

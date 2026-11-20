@@ -1,0 +1,928 @@
+note: HUMANLANG ODYSSEY: SEVEN WORLDS (the first slice). Made with HumanLang 0.6.2.
+note: Your logo reveal plays first (play video), then the title, the Motherboard hub, World 1 (Say Hello) and
+note: World 5 (Platform Peaks). The hero is the HL mascot, drawn at pixel size 1 like every important picture here.
+note: Keys: left/right run, space jumps, enter talks, opens doors and confirms. On a phone: arrows, A = jump, B = enter.
+
+use math
+use text
+
+{{SPRITES}}
+
+{{MAPS}}
+
+note: ==================================================
+note: THE HERO AND THE STATE OF THE GAME
+note: ==================================================
+
+make a body called hero at 60, 184 with size 22 by 40 and gravity 0.5 and speed 2.6 and jump 7.4
+
+set mode to "intro"
+set tick to 0
+set cam_x to 0
+set hp to 3
+set hurt_t to 0
+set face_left to no
+set coins to 0
+set coins_total to 0
+set w1_done to 0
+set w5_done to 0
+set w5_best to 0
+set world_t to 0
+set world_w to 1152
+set spawn_x to 60
+set spawn_y to 184
+set k_enter to no
+set k_left to no
+set k_right to no
+set k_space to no
+set msg to ""
+set msg_t to 0
+set shake_t to 0
+set done_t to 0
+set near_door to 0
+
+note: talking with Echo
+set talk_on to no
+set talk_a to empty list
+set talk_b to empty list
+set talk_i to 1
+set talk_n to 0
+set talk_done to no
+set talk_after to ""
+set echo_seen to no
+set gate2_seen to no
+
+note: the code gates
+set pz to 0
+set pz_sel to 1
+set pz_stage to "pick"
+set pz_out to ""
+set gate1_open to no
+set gate2_open to no
+set scroll_got to list of 0, 0, 0
+set scroll_n to 0
+set coin_x to empty list
+set coin_y to empty list
+set coin_got to empty list
+set bug_x to empty list
+set bug_y to empty list
+set bug_dir to empty list
+set bug_lo to empty list
+set bug_hi to empty list
+set bug_alive to empty list
+set decor_k to empty list
+set decor_x to empty list
+set decor_y to empty list
+set flag_x to empty list
+set flag_y to empty list
+set flag_on to empty list
+set scroll_x to empty list
+set scroll_y to empty list
+
+note: the sky of each world, from the top down (9 bands of 30 pixels)
+set sky_hub to list of "#04061A", "#070B26", "#0A1032", "#0D173F", "#101E4B", "#142558", "#182C64", "#1B3270", "#1E387C"
+set sky_w1 to list of "#4F9FE6", "#62AEEC", "#76BCF1", "#8BC8F5", "#A1D4F8", "#B7DFFA", "#CDE9FC", "#E1F3FD", "#F2FAFE"
+set sky_w5 to list of "#1B1750", "#2B2275", "#44308F", "#6A3FA0", "#9B4FA6", "#C9609F", "#EF7F8D", "#FBA37A", "#FEC98A"
+
+set world_names to list of "SAY HELLO", "LISTS AND MACHINES", "WORD AND NUMBER TOWN", "PIXEL GALLERY", "PLATFORM PEAKS", "THE BOSS CITADEL", "YOUR WORLD"
+set world_tips to list of "Talk to Echo and open the code gates.", "Build machines that sort and count.", "Puzzles with words and numbers.", "Paint your own pixel art.", "Run, jump and stomp the glitch bugs!", "A long boss fight. Dodge everything.", "Build, save and play your own level."
+
+{{DATA}}
+
+note: ==================================================
+note: SAVING (remember and recall)
+note: ==================================================
+
+define load_save
+    set v to recall "odyssey w1"
+    if v is not nothing
+        change w1_done to v
+    set v to recall "odyssey w5"
+    if v is not nothing
+        change w5_done to v
+    set v to recall "odyssey coins"
+    if v is not nothing
+        change coins_total to v
+    set v to recall "odyssey w5 best"
+    if v is not nothing
+        change w5_best to v
+
+define save_all
+    remember w1_done as "odyssey w1"
+    remember w5_done as "odyssey w5"
+    remember coins_total as "odyssey coins"
+    remember w5_best as "odyssey w5 best"
+
+note: ==================================================
+note: SMALL HELPERS
+note: ==================================================
+
+define say_msg with words
+    change msg to words
+    change msg_t to 150
+
+define text_at with words and x and y and size and tint and place
+    if place is "center"
+        put a text words at x, y with size size and colour tint and bold and align center
+    otherwise if place is "right"
+        put a text words at x, y with size size and colour tint and bold and align right
+    otherwise
+        put a text words at x, y with size size and colour tint and bold and align left
+
+define shadow_text with words and x and y and size and tint and place
+    text_at with words and (x + 1) and (y + 1) and size and "#0B0E1C" and place
+    text_at with words and x and y and size and tint and place
+
+define clock_text with seconds
+    set m to floor of (seconds / 60)
+    set s to seconds - m * 60
+    if s is less than 10
+        give back "{m}:0{s}"
+    give back "{m}:{s}"
+
+define bands with colours
+    for each i from 1 to 9
+        set band_c to item i of colours
+        put a rectangle at 0, (i - 1) * 30 with width 480 and height 31 and colour band_c
+
+define wave with t
+    give back calculate "sin({t})"
+
+define scrolled with f
+    give back (cam_x * f) mod 224
+
+note: ==================================================
+note: STARTING PLACES
+note: ==================================================
+
+define place_hero with x and y
+    move the body hero to x, y
+    make the body hero stop
+    change spawn_x to x
+    change spawn_y to y
+    change hurt_t to 0
+    change cam_x to x - 240
+    if cam_x is less than 0
+        change cam_x to 0
+
+define start_hub with x
+    change mode to "hub"
+    change world_w to {{HUB_W}}
+    change talk_on to no
+    change pz to 0
+    place_hero with x and 184
+    play the music "chill"
+
+define start_w1
+    change mode to "w1"
+    change world_w to {{W1_W}}
+    change hp to 3
+    change coins to 0
+    change world_t to 0
+    change gate1_open to no
+    change gate2_open to no
+    change scroll_got to list of 0, 0, 0
+    change scroll_n to 0
+    change coin_x to {{W1_COIN_X}}
+    change coin_y to {{W1_COIN_Y}}
+    change coin_got to {{W1_COIN_GOT}}
+    change decor_k to {{W1_DECOR_K}}
+    change decor_x to {{W1_DECOR_X}}
+    change decor_y to {{W1_DECOR_Y}}
+    change scroll_x to {{W1_SCROLL_X}}
+    change scroll_y to {{W1_SCROLL_Y}}
+    change echo_seen to no
+    change gate2_seen to no
+    change pz to 0
+    change talk_on to no
+    place_hero with 40 and 184
+    play the music "adventure"
+
+define start_w5
+    change mode to "w5"
+    change world_w to {{W5_W}}
+    change hp to 3
+    change coins to 0
+    change world_t to 0
+    change coin_x to {{W5_COIN_X}}
+    change coin_y to {{W5_COIN_Y}}
+    change coin_got to {{W5_COIN_GOT}}
+    change decor_k to {{W5_DECOR_K}}
+    change decor_x to {{W5_DECOR_X}}
+    change decor_y to {{W5_DECOR_Y}}
+    change bug_x to {{W5_BUG_X}}
+    change bug_y to {{W5_BUG_Y}}
+    change bug_lo to {{W5_BUG_LO}}
+    change bug_hi to {{W5_BUG_HI}}
+    change bug_dir to {{W5_BUG_DIR}}
+    change bug_alive to {{W5_BUG_ALIVE}}
+    change flag_x to {{W5_FLAG_X}}
+    change flag_y to {{W5_FLAG_Y}}
+    change flag_on to {{W5_FLAG_ON}}
+    place_hero with 40 and 168
+    play the music "chase"
+
+note: ==================================================
+note: THE HERO
+note: ==================================================
+
+define hero_free
+    note: can the hero move right now? (not while talking, solving a gate or seeing a result)
+    give back (not talk_on) and pz is 0 and done_t is 0
+
+define hero_move
+    set on_ground to the body hero is on the ground
+    if hero_free
+        if key "left" is down
+            make the body hero run left
+            change face_left to yes
+        otherwise if key "right" is down
+            make the body hero run right
+            change face_left to no
+        otherwise
+            make the body hero stop
+        if key "space" is down or key "up" is down
+            if on_ground
+                make the body hero jump
+                play the sound "jump"
+    otherwise
+        make the body hero stop
+    if mode is "hub"
+        update the body hero on the map hubmap with solid "C"
+    otherwise if mode is "w1"
+        update the body hero on the map w1map with solid "G" and "D" and "E"
+    otherwise
+        update the body hero on the map w5map with solid "N" and "S"
+    set hx to the x of the body hero
+    if hx is less than 0
+        move the body hero to 0, (the y of the body hero)
+    if hx is greater than world_w - 22
+        move the body hero to world_w - 22, (the y of the body hero)
+
+define hero_pose
+    if hurt_t is greater than 55
+        give back 5
+    if done_t is greater than 0
+        give back 6
+    if not (the body hero is on the ground)
+        give back 4
+    set vx to the horizontal speed of the body hero
+    if vx is greater than 0.3 or vx is less than -0.3
+        give back 2 + (floor of (tick / 6)) mod 2
+    give back 1
+
+define draw_hero
+    set blink to hurt_t is greater than 0 and (floor of (tick / 3)) mod 2 is 0 and hurt_t is at most 55
+    if not blink
+        set hx to the x of the body hero
+        set hy to the y of the body hero
+        draw the sprite hero at hx - 21, hy - 12 frame hero_pose facing left when face_left
+
+define follow_camera
+    set target to (the x of the body hero) - 228
+    if target is less than 0
+        set target to 0
+    if target is greater than world_w - 480
+        set target to world_w - 480
+    change cam_x to cam_x + (target - cam_x) * 0.14
+    if shake_t is greater than 0
+        subtract 1 from shake_t
+
+define hurt_hero
+    note: lose a heart, and a short moment where nothing can hurt you
+    if hurt_t is 0
+        subtract 1 from hp
+        change hurt_t to 100
+        change shake_t to 12
+        play the sound "hit"
+        if hp is at most 0
+            respawn_hero
+
+define respawn_hero
+    note: out of hearts or fell into a pit: back to the last flag with full hearts
+    change hp to 3
+    move the body hero to spawn_x, spawn_y
+    make the body hero stop
+    change hurt_t to 100
+    play the sound "lose"
+    say_msg with "Try again! You are back at the last flag."
+
+note: ==================================================
+note: COINS, SCROLLS AND THINGS TO PICK UP
+note: ==================================================
+
+define pick_up_coins
+    set hx to the x of the body hero
+    set hy to the y of the body hero
+    for each i from 1 to length of coin_x
+        if item i of coin_got is 0
+            set cx to item i of coin_x
+            set cy to item i of coin_y
+            if cx + 14 is greater than hx and cx is less than hx + 22 and cy + 14 is greater than hy and cy is less than hy + 40
+                change item i of coin_got to 1
+                add 1 to coins
+                play the sound "coin"
+
+define draw_coins
+    set beat to 1 + (floor of (tick / 7)) mod 4
+    for each i from 1 to length of coin_x
+        if item i of coin_got is 0
+            set cx to item i of coin_x
+            if cx is greater than cam_x - 20 and cx is less than cam_x + 490
+                draw the sprite coin at cx, item i of coin_y frame beat
+
+define draw_scrolls
+    set beat to 1 + (floor of (tick / 14)) mod 2
+    for each i from 1 to 3
+        if item i of scroll_got is 0
+            set sx to item i of scroll_x
+            set sy to (item i of scroll_y) + floor of (3 * (wave with (tick / 12 + i)))
+            draw the sprite scroll at sx, sy frame beat
+
+define pick_up_scrolls
+    set hx to the x of the body hero
+    set hy to the y of the body hero
+    for each i from 1 to 3
+        if item i of scroll_got is 0
+            set sx to item i of scroll_x
+            set sy to item i of scroll_y
+            if sx + 18 is greater than hx and sx is less than hx + 22 and sy + 20 is greater than hy and sy is less than hy + 40
+                change item i of scroll_got to 1
+                add 1 to scroll_n
+                play the sound "powerup"
+                say_msg with (item i of scroll_text)
+
+note: ==================================================
+note: BACKGROUNDS
+note: ==================================================
+
+define draw_clouds with f
+    set off to scrolled with f
+    for each k from 0 to 2
+        draw the sprite cloud_a at k * 224 - off + 20, 24 + (k mod 2) * 10
+        draw the sprite cloud_b at k * 224 - off + 150, 52 - (k mod 2) * 12
+
+define draw_mountains with sprite_pick and f and y
+    set off to scrolled with f
+    for each k from 0 to 2
+        if sprite_pick is 1
+            draw the sprite mtn_far at k * 224 - off, y
+        otherwise
+            draw the sprite mtn_near at k * 224 - off, y
+
+define draw_decor
+    for each i from 1 to length of decor_k
+        set dx to item i of decor_x
+        if dx is greater than cam_x - 80 and dx is less than cam_x + 500
+            set k to item i of decor_k
+            set dy to item i of decor_y
+            if k is 1
+                draw the sprite tree at dx - 22, dy - 76
+            otherwise if k is 2
+                draw the sprite bush at dx, dy - 20
+            otherwise if k is 3
+                draw the sprite flower_a at dx, dy - 16
+            otherwise if k is 4
+                draw the sprite flower_b at dx, dy - 16
+            otherwise if k is 5
+                draw the sprite tuft at dx, dy - 10
+            otherwise if k is 6
+                draw the sprite rock at dx, dy - 16
+            otherwise if k is 7
+                draw the sprite pine at dx - 10, dy - 72
+            otherwise if k is 8
+                draw the sprite sign at dx, dy - 34
+
+define draw_w1_world
+    move the camera to 0, 0
+    bands with sky_w1
+    put a circle at 400 - (cam_x * 0.03), 52 with radius 26 and colour "#FFF4B8"
+    put a circle at 400 - (cam_x * 0.03), 52 with radius 19 and colour "#FFE680"
+    draw_clouds with 0.1
+    draw_mountains with 1 and 0.18 and 118
+    draw the sprite hills at 0 - (scrolled with 0.45), 190
+    draw the sprite hills at 224 - (scrolled with 0.45), 190
+    draw the sprite hills at 448 - (scrolled with 0.45), 190
+    move the camera to cam_x, 0
+    draw the map w1map
+    draw_decor
+
+define draw_w5_world
+    move the camera to 0, 0
+    bands with sky_w5
+    for each i from 1 to 24
+        set sx to ((i * 83) mod 480)
+        set sy to (i * 37) mod 120
+        if (floor of ((tick + i * 9) / 20)) mod 3 is not 0
+            put a rectangle at sx, sy with width 2 and height 2 and colour "#FFF1D6"
+    put a circle at 360, 96 with radius 30 and colour "#FFD9A0"
+    put a circle at 360, 96 with radius 22 and colour "#FFEFC8"
+    draw_clouds with 0.08
+    draw_mountains with 1 and 0.14 and 100
+    draw_mountains with 2 and 0.32 and 130
+    move the camera to cam_x, 0
+    draw the map w5map
+    draw_decor
+
+define draw_hub_world
+    move the camera to 0, 0
+    bands with sky_hub
+    for each i from 1 to 40
+        set sx to (i * 97) mod 480
+        set sy to (i * 53) mod 150
+        if (floor of ((tick + i * 13) / 25)) mod 4 is not 0
+            put a rectangle at sx, sy with width 2 and height 2 and colour "#7FA8FF"
+    for each k from 0 to 4
+        draw the sprite tower at k * 130 - (scrolled with 0.35) + 10, 70 frame 1 + (floor of ((tick + k * 20) / 40)) mod 2
+    move the camera to cam_x, 0
+    draw the map hubmap
+    for each i from 1 to 7
+        set dx to item i of door_x
+        draw_hub_door with i and dx
+
+define draw_hub_door with i and dx
+    set open to i is 1 or i is 5
+    if open
+        draw the sprite door at dx, 168 frame i
+    otherwise
+        draw the sprite door at dx, 168 frame 8
+    shadow_text with "{i}" and (dx + 17) and 138 and 18 and "#FFFFFF" and "center"
+    if i is 1 and w1_done is 1
+        draw the sprite star at dx + 12, 122
+    if i is 5 and w5_done is 1
+        draw the sprite star at dx + 12, 122
+
+note: ==================================================
+note: HUD AND MESSAGES
+note: ==================================================
+
+define draw_hud with title
+    move the camera to 0, 0
+    for each i from 1 to 3
+        set f to 2
+        if i is at most hp
+            set f to 1
+        draw the sprite heart at 10 + (i - 1) * 16, 8 frame f
+    draw the sprite coin at 10, 26 frame 1
+    shadow_text with "{coins}" and 28 and 25 and 12 and "#FFE680" and "left"
+    shadow_text with title and 240 and 7 and 12 and "#FFFFFF" and "center"
+    if msg_t is greater than 0
+        subtract 1 from msg_t
+        put a rectangle at 60, 232 with width 360 and height 26 and colour "#0B0E1C" and border 2 and border colour "#FFE680" and rounded 6
+        text_at with msg and 240 and 238 and 11 and "#FFFFFF" and "center"
+
+define draw_talk
+    if talk_on
+        put a rectangle at 16, 188 with width 448 and height 74 and colour "#0B1026" and border 2 and border colour "#7FD6FF" and rounded 8
+        put a rectangle at 22, 194 with width 52 and height 62 and colour "#141C3E" and rounded 6
+        draw the sprite echo at 28, 202 frame 1 + (floor of (tick / 24)) mod 2
+        text_at with "ECHO" and 86 and 196 and 11 and "#7FD6FF" and "left"
+        set la to item talk_i of talk_a
+        set lb to item talk_i of talk_b
+        set shown to talk_n
+        put a text (first shown letters of la) at 86, 214 with size 12 and colour white
+        if shown is greater than length of la
+            put a text (first (shown - length of la) letters of lb) at 86, 234 with size 12 and colour white
+        if shown is at least length of la + length of lb
+            if (floor of (tick / 20)) mod 2 is 0
+                put a text "Enter" at 452, 246 with size 10 and colour "#7FD6FF" and align right
+
+define start_talk with lines_a and lines_b and after
+    change talk_a to lines_a
+    change talk_b to lines_b
+    change talk_i to 1
+    change talk_n to 0
+    change talk_on to yes
+    change talk_after to after
+    make the body hero stop
+
+define update_talk
+    if talk_on
+        set total to length of (item talk_i of talk_a) + length of (item talk_i of talk_b)
+        if talk_n is less than total
+            add 1 to talk_n
+            if tick mod 2 is 0
+                play the sound "step"
+        if k_enter or k_space
+            if talk_n is less than total
+                change talk_n to total
+            otherwise if talk_i is less than length of talk_a
+                add 1 to talk_i
+                change talk_n to 0
+            otherwise
+                change talk_on to no
+                if talk_after is "gate2"
+                    change gate2_seen to yes
+                otherwise
+                    change echo_seen to yes
+            change k_enter to no
+            change k_space to no
+
+note: ==================================================
+note: THE CODE GATES (puzzles)
+note: ==================================================
+
+define draw_panel
+    if pz is greater than 0
+        put a rectangle at 40, 30 with width 400 and height 214 and colour "#0B1026" and border 2 and border colour "#FFE680" and rounded 10
+        text_at with "CODE GATE {pz}" and 240 and 38 and 15 and "#FFE680" and "center"
+        text_at with (item pz of pz_goal) and 240 and 62 and 12 and "#FFFFFF" and "center"
+        put a rectangle at 70, 84 with width 340 and height 62 and colour "#05070F" and border 1 and border colour "#3B4A7A" and rounded 6
+        put a text (item pz of pz_code_a) at 84, 92 with size 13 and colour "#8FF2AE" and font monospace
+        put a text (item pz of pz_code_b) at 84, 114 with size 13 and colour "#8FF2AE" and font monospace
+        for each o from 1 to 3
+            set bx to 52 + (o - 1) * 128
+            set c to "#1B2548"
+            if o is pz_sel
+                set c to "#2D5CC8"
+            set bc to "#3B4A7A"
+            if o is pz_sel
+                set bc to "#FFE680"
+            put a rectangle at bx, 156 with width 118 and height 28 and colour c and border 2 and border colour bc and rounded 6
+            text_at with (item o of (item pz of pz_opts)) and (bx + 59) and 164 and 11 and "#FFFFFF" and "center"
+        if pz_stage is "pick"
+            text_at with "Left and Right choose, Enter opens the gate" and 240 and 196 and 10 and "#9AA3C0" and "center"
+        otherwise
+            text_at with "HumanLang says:" and 240 and 192 and 10 and "#9AA3C0" and "center"
+            set pz_col to "#FF8E8E"
+            if pz_right
+                set pz_col to "#8FF2AE"
+            text_at with pz_out and 240 and 206 and 13 and pz_col and "center"
+            if pz_right
+                text_at with "The gate opens! (Enter)" and 240 and 226 and 11 and "#FFE680" and "center"
+            otherwise
+                text_at with "Not quite. Try another one (Enter)" and 240 and 226 and 11 and "#FFE680" and "center"
+
+set pz_right to no
+
+define update_panel
+    if pz is greater than 0
+        if pz_stage is "pick"
+            if k_left and pz_sel is greater than 1
+                subtract 1 from pz_sel
+                play the sound "blip"
+            if k_right and pz_sel is less than 3
+                add 1 to pz_sel
+                play the sound "blip"
+            if k_enter or k_space
+                change pz_stage to "show"
+                change pz_out to item pz_sel of (item pz of pz_outs)
+                change pz_right to pz_sel is (item pz of pz_answer)
+                if pz_right
+                    play the sound "win"
+                otherwise
+                    play the sound "lose"
+        otherwise
+            if k_enter or k_space
+                if pz_right
+                    if pz is 1
+                        change gate1_open to yes
+                    otherwise
+                        change gate2_open to yes
+                    change pz to 0
+                    say_msg with "The gate is open. Keep going!"
+                otherwise
+                    change pz_stage to "pick"
+        change k_enter to no
+        change k_space to no
+
+note: ==================================================
+note: THE SCREENS
+note: ==================================================
+
+define draw_title
+    move the camera to 0, 0
+    bands with sky_w1
+    put a circle at 380, 60 with radius 28 and colour "#FFF4B8"
+    put a circle at 380, 60 with radius 20 and colour "#FFE680"
+    set slow to tick * 0.6
+    draw_mountains_slow with slow
+    draw the sprite hills at 0, 200
+    draw the sprite hills at 224, 200
+    draw the sprite hills at 448, 200
+    put a rectangle at 0, 246 with width 480 and height 24 and colour "#2B8240"
+    put a rectangle at 0, 246 with width 480 and height 4 and colour "#7AD161"
+    put a rectangle at 0, 250 with width 480 and height 20 and colour "#663B25"
+    draw the sprite cloud_a at 40 + (slow mod 520) * 0 + (tick mod 900) * 0.4 - 100, 30
+    draw the sprite cloud_b at 300 - (tick mod 800) * 0.3 + 100, 78
+    draw the sprite logo at 124, 16
+    shadow_text with "ODYSSEY" and 240 and 88 and 32 and "#FFE680" and "center"
+    shadow_text with "SEVEN WORLDS" and 240 and 124 and 18 and "#FFFFFF" and "center"
+    set bob to floor of (3 * (wave with (tick / 14)))
+    draw the sprite title_hero at 24, 128 + bob
+    draw the sprite echo at 380, 192 frame 1 + (floor of (tick / 30)) mod 2
+    draw the sprite bush at 330, 226
+    draw the sprite flower_a at 346, 230
+    if (floor of (tick / 28)) mod 2 is 0
+        shadow_text with "Press ENTER to start" and 262 and 196 and 15 and "#FFFFFF" and "center"
+    if w1_done is 1 or w5_done is 1
+        shadow_text with "Your progress was loaded." and 262 and 222 and 11 and "#8FF2AE" and "center"
+    shadow_text with "The HumanLang adventure: seven worlds, one language." and 300 and 160 and 10 and "#FFFFFF" and "center"
+
+define draw_mountains_slow with s
+    for each k from 0 to 2
+        draw the sprite mtn_far at k * 224 - (s mod 224), 128
+
+define draw_done with title and line1 and line2
+    move the camera to 0, 0
+    put a rectangle at 0, 0 with width 480 and height 270 and colour "#0B1026"
+    for each i from 1 to 24
+        set sc to "#7FD6FF"
+        if i mod 2 is 0
+            set sc to "#FFE680"
+        put a rectangle at (i * 83) mod 480, (i * 41 + tick) mod 270 with width 3 and height 3 and colour sc
+    shadow_text with title and 240 and 26 and 26 and "#FFE680" and "center"
+    draw the sprite hero at 208, 62 frame 6
+    shadow_text with line1 and 240 and 128 and 15 and "#FFFFFF" and "center"
+    shadow_text with line2 and 240 and 154 and 13 and "#8FF2AE" and "center"
+    if (floor of (tick / 25)) mod 2 is 0
+        shadow_text with "Press ENTER to go back to the Motherboard" and 240 and 214 and 12 and "#FFFFFF" and "center"
+
+note: ==================================================
+note: THE HUB
+note: ==================================================
+
+define update_hub
+    hero_move
+    follow_camera
+    set hx to (the x of the body hero) + 11
+    change near_door to 0
+    for each i from 1 to 7
+        if hx is greater than (item i of door_x) - 6 and hx is less than (item i of door_x) + 40
+            change near_door to i
+    if k_enter and near_door is greater than 0
+        if near_door is 1
+            start_w1
+        otherwise if near_door is 5
+            start_w5
+        otherwise
+            play the sound "lose"
+            say_msg with "This world is coming in the full game."
+    draw_hub_world
+    draw_hero
+    move the camera to 0, 0
+    if near_door is greater than 0
+        set i to near_door
+        put a rectangle at 90, 196 with width 300 and height 56 and colour "#0B1026" and border 2 and border colour "#FFE680" and rounded 8
+        text_at with "WORLD {i}: {item i of world_names}" and 240 and 202 and 14 and "#FFE680" and "center"
+        text_at with (item i of world_tips) and 240 and 224 and 11 and "#FFFFFF" and "center"
+        if i is 1 or i is 5
+            text_at with "Enter: go in" and 240 and 238 and 10 and "#8FF2AE" and "center"
+        otherwise
+            text_at with "Locked: coming in the full game" and 240 and 238 and 10 and "#FF8E8E" and "center"
+    draw_hud with "THE MOTHERBOARD"
+    set done_count to w1_done + w5_done
+    text_at with "Worlds {done_count}/7   Coins {coins_total}" and 470 and 8 and 11 and "#9AA3C0" and "right"
+
+note: ==================================================
+note: WORLD 1: SAY HELLO
+note: ==================================================
+
+define w1_gate_block
+    note: a closed gate is a wall: the hero cannot go through it
+    set hx to the x of the body hero
+    if not gate1_open and hx is greater than {{GATE1_X}} - 26
+        move the body hero to {{GATE1_X}} - 26, (the y of the body hero)
+    if not gate2_open and hx is greater than {{GATE2_X}} - 26
+        move the body hero to {{GATE2_X}} - 26, (the y of the body hero)
+
+define update_w1
+    update_talk
+    update_panel
+    add 1 to world_t
+    hero_move
+    w1_gate_block
+    follow_camera
+    if hurt_t is greater than 0
+        subtract 1 from hurt_t
+    set hx to the x of the body hero
+    note: Echo says hello the first time you walk up to him
+    if not echo_seen and not talk_on and hx is greater than {{ECHO_X}} - 90
+        start_talk with echo_a and echo_b and "echo"
+    if not gate2_seen and not talk_on and gate1_open and hx is greater than {{GATE2_X}} - 150
+        start_talk with echo2_a and echo2_b and "gate2"
+    if hero_free
+        pick_up_coins
+        pick_up_scrolls
+        if k_enter
+            if not gate1_open and hx is greater than {{GATE1_X}} - 90 and hx is less than {{GATE1_X}}
+                change pz to 1
+                change pz_sel to 1
+                change pz_stage to "pick"
+            otherwise if gate1_open and not gate2_open and hx is greater than {{GATE2_X}} - 90 and hx is less than {{GATE2_X}}
+                change pz to 2
+                change pz_sel to 1
+                change pz_stage to "pick"
+            otherwise if hx is greater than {{ECHO_X}} - 50 and hx is less than {{ECHO_X}} + 60
+                start_talk with echo_a and echo_b and "echo"
+        if gate2_open and hx is greater than {{PORTAL_X}} - 20 and hx is less than {{PORTAL_X}} + 34
+            finish_w1
+    draw_w1_world
+    draw_scrolls
+    draw_coins
+    draw the sprite echo at {{ECHO_X}}, 170 frame 1 + (floor of (tick / 40)) mod 2 facing left
+    set g1f to 1
+    if gate1_open
+        set g1f to 2
+    set g2f to 1
+    if gate2_open
+        set g2f to 2
+    draw the sprite gate at {{GATE1_X}}, 154 frame g1f
+    draw the sprite gate at {{GATE2_X}}, 154 frame g2f
+    draw the sprite portal at {{PORTAL_X}}, 160 frame 1 + (floor of (tick / 8)) mod 3
+    draw_hero
+    move the camera to 0, 0
+    if not gate1_open and hx is greater than {{GATE1_X}} - 90 and hx is less than {{GATE1_X}} and pz is 0 and not talk_on
+        shadow_text with "Enter: read the gate" and 240 and 170 and 12 and "#FFE680" and "center"
+    if gate1_open and not gate2_open and hx is greater than {{GATE2_X}} - 90 and hx is less than {{GATE2_X}} and pz is 0 and not talk_on
+        shadow_text with "Enter: read the gate" and 240 and 170 and 12 and "#FFE680" and "center"
+    draw_hud with "WORLD 1: SAY HELLO"
+    text_at with "Scrolls {scroll_n}/3" and 470 and 26 and 11 and "#FFE680" and "right"
+    draw_talk
+    draw_panel
+    change k_enter to no
+
+define finish_w1
+    change mode to "w1done"
+    change done_t to 1
+    change w1_done to 1
+    set bonus to coins
+    change coins_total to coins_total + bonus
+    save_all
+    play the sound "win"
+
+define draw_w1_done
+    set total_coins to length of coin_x
+    draw_done with "WORLD 1 COMPLETE" and "Coins {coins}/{total_coins}     Scrolls {scroll_n}/3" and "You said hello to HumanLang!"
+    if k_enter
+        start_hub with {{HUB_DOOR1}}
+
+note: ==================================================
+note: WORLD 5: PLATFORM PEAKS
+note: ==================================================
+
+define update_bugs
+    set hx to the x of the body hero
+    set hy to the y of the body hero
+    set vy to the vertical speed of the body hero
+    for each i from 1 to length of bug_x
+        if item i of bug_alive is 1
+            set b to item i of bug_x
+            set d to item i of bug_dir
+            set b to b + d * 0.7
+            if b is less than item i of bug_lo
+                set d to 1
+            if b is greater than item i of bug_hi
+                set d to -1
+            change item i of bug_x to b
+            change item i of bug_dir to d
+            set by to item i of bug_y
+            if hx + 22 is greater than b + 2 and hx is less than b + 28 and hy + 40 is greater than by and hy is less than by + 22
+                if vy is greater than 0.5 and hy + 40 is less than by + 18
+                    change item i of bug_alive to 0
+                    make the body hero bounce
+                    play the sound "explosion"
+                    add 3 to coins
+                otherwise
+                    hurt_hero
+                    if hurt_t is 100
+                        move the body hero to hx + 0 - d * 14, hy - 6
+
+define draw_bugs
+    for each i from 1 to length of bug_x
+        if item i of bug_alive is 1
+            set b to item i of bug_x
+            if b is greater than cam_x - 40 and b is less than cam_x + 500
+                set by2 to item i of bug_y
+                set bf to 1 + (floor of (tick / 10)) mod 2
+                set going_left to (item i of bug_dir) is -1
+                draw the sprite bug at b, by2 frame bf facing left when going_left
+
+define update_flags
+    set hx to the x of the body hero
+    for each i from 1 to length of flag_x
+        if item i of flag_on is 0 and hx is greater than (item i of flag_x) - 8
+            change item i of flag_on to 1
+            change spawn_x to item i of flag_x
+            change spawn_y to (item i of flag_y) - 2
+            play the sound "powerup"
+            say_msg with "Checkpoint! If you fall, you come back here."
+
+define draw_flags
+    for each i from 1 to length of flag_x
+        draw the sprite flag at (item i of flag_x), (item i of flag_y) frame (item i of flag_on) + 1
+
+define hazards
+    set hx to the x of the body hero
+    set hy to the y of the body hero
+    set under to tile at hx + 11, hy + 41 of w5map
+    if under is "^" or hy is greater than 262
+        if hy is greater than 262
+            respawn_hero
+        otherwise
+            hurt_hero
+            if hurt_t is 100
+                move the body hero to hx, hy - 30
+                make the body hero bounce
+
+define update_w5
+    add 1 to world_t
+    hero_move
+    follow_camera
+    if hurt_t is greater than 0
+        subtract 1 from hurt_t
+    if done_t is 0
+        pick_up_coins
+        update_bugs
+        update_flags
+        hazards
+        set hx to the x of the body hero
+        if hx is greater than {{W5_GOAL}} - 6
+            finish_w5
+    draw_w5_world
+    draw_coins
+    draw_flags
+    draw the sprite goal at {{W5_GOAL}} - 6, 224 - 80 frame 1 + (floor of (tick / 12)) mod 2
+    draw_bugs
+    draw_hero
+    move the camera to 0, 0
+    for each i from 1 to 26
+        set fx to ((i * 61) + tick * 0.4 * (1 + i mod 3 * 0.4)) mod 480
+        set fy to ((i * 47) + tick * 0.9 * (1 + i mod 2 * 0.5)) mod 270
+        put a rectangle at fx, fy with width 2 and height 2 and colour "#FFFFFF"
+    draw_hud with "WORLD 5: PLATFORM PEAKS"
+    set secs to floor of (world_t / 60)
+    set clock to clock_text with secs
+    text_at with "TIME {clock}" and 470 and 8 and 11 and "#FFFFFF" and "right"
+    if w5_best is greater than 0
+        set best_clock to clock_text with w5_best
+        text_at with "BEST {best_clock}" and 470 and 26 and 11 and "#FFE680" and "right"
+    change k_enter to no
+
+define finish_w5
+    change mode to "w5done"
+    change done_t to 1
+    change w5_done to 1
+    set secs to floor of (world_t / 60)
+    change w5_final to secs
+    if w5_best is 0 or secs is less than w5_best
+        change w5_best to secs
+    change coins_total to coins_total + coins
+    save_all
+    play the sound "win"
+
+set w5_final to 0
+
+define draw_w5_done
+    set total_coins to length of coin_x
+    set clock to clock_text with w5_final
+    draw_done with "WORLD 5 COMPLETE" and "Coins {coins}/{total_coins}     Time {clock}" and "You climbed the Platform Peaks!"
+    if k_enter
+        start_hub with {{HUB_DOOR5}}
+
+note: ==================================================
+note: THE GAME
+note: ==================================================
+
+play a game titled "HumanLang Odyssey: Seven Worlds" with size 480 by 270 and background black
+
+    when the game starts
+        load_save
+
+    when the key "enter" is pressed
+        change k_enter to yes
+
+    when the key "left" is pressed
+        change k_left to yes
+
+    when the key "right" is pressed
+        change k_right to yes
+
+    when the key "space" is pressed
+        change k_space to yes
+
+    every frame
+        add 1 to tick
+        if mode is "intro"
+            play video "humanlang_intro.mp4"
+            change mode to "title"
+            play the music "chill"
+        otherwise if mode is "title"
+            draw_title
+            if k_enter or k_space
+                start_hub with 60
+                play the sound "powerup"
+        otherwise if mode is "hub"
+            update_hub
+        otherwise if mode is "w1"
+            update_w1
+        otherwise if mode is "w1done"
+            draw_w1_done
+        otherwise if mode is "w5"
+            update_w5
+        otherwise if mode is "w5done"
+            draw_w5_done
+        change k_enter to no
+        change k_left to no
+        change k_right to no
+        change k_space to no

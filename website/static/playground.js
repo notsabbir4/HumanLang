@@ -113,7 +113,7 @@
 
   // ---- your own files (pictures, sounds, music): kept in this browser's IndexedDB ----
   const MAX_FILE = 3 * 1024 * 1024, MAX_TOTAL = 16 * 1024 * 1024, MAX_FILES = 24;
-  const KIND = (n) => /\.(png|jpe?g|gif|webp)$/i.test(n) ? "picture" : /\.(wav|mp3|ogg|m4a)$/i.test(n) ? "audio" : null;
+  const KIND = (n) => /\.(png|jpe?g|gif|webp)$/i.test(n) ? "picture" : /\.(wav|mp3|ogg|m4a)$/i.test(n) ? "audio" : /\.(mp4|webm)$/i.test(n) ? "video" : null;
   let myFiles = {};  // name -> { kind, url (a data: address), size }
   function dbOpen() {
     return new Promise((res, rej) => {
@@ -135,6 +135,7 @@
     for (const name of Object.keys(myFiles)) {
       const f = myFiles[name], li = document.createElement("li");
       if (f.kind === "picture") { const im = document.createElement("img"); im.src = f.url; im.alt = ""; li.appendChild(im); }
+      else if (f.kind === "video") { const vd = document.createElement("video"); vd.src = f.url; vd.muted = true; vd.preload = "metadata"; vd.controls = true; vd.setAttribute("aria-label", "Preview of " + name); li.appendChild(vd); }
       else { const b = document.createElement("button"); b.type = "button"; b.className = "btn ghost"; b.textContent = "Play";
         b.onclick = () => { const a = new Audio(f.url); a.play().catch(() => {}); }; li.appendChild(b); }
       const nm = document.createElement("span"); nm.className = "nm"; nm.textContent = name; li.appendChild(nm);
@@ -149,7 +150,7 @@
     const notes = [];
     for (const file of Array.from(e.target.files)) {
       const name = file.name.replace(/[^\w.\- ]/g, "_"), kind = KIND(name);
-      if (!kind) { notes.push(name + ": I can use png, jpg, gif, webp, wav, mp3, ogg and m4a files."); continue; }
+      if (!kind) { notes.push(name + ": I can use png, jpg, gif, webp, wav, mp3, ogg, m4a, mp4 and webm files."); continue; }
       if (file.size > MAX_FILE) { notes.push(name + " is bigger than 3 MB."); continue; }
       if (!(name in myFiles) && Object.keys(myFiles).length >= MAX_FILES) { notes.push("You can add up to " + MAX_FILES + " files."); continue; }
       if (total() - ((myFiles[name] || {}).size || 0) + file.size > MAX_TOTAL) { notes.push(name + ": that would be more than 16 MB in total."); continue; }
@@ -358,6 +359,8 @@
   function loadExample(name) {
     const ex = examples[name];
     if (!ex) return;
+    for (const [n, f] of Object.entries(ex.files || {})) myFiles[n] = { kind: f.kind, url: f.url, size: f.size || 0 };   // a game's own files come along (this visit only)
+    renderFiles();
     code.value = ex.code; inputs.value = ex.inputs || ""; show("", false); lastPage = null; tabPreview.hidden = true; showTab("console");
     pick.value = name; code.scrollTop = 0; code.scrollLeft = 0; refresh(); liveSoon();
   }

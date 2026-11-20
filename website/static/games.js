@@ -166,7 +166,8 @@
     stopArcade();
     if (!ready) { setStatus("Loading HumanLang... (the first time takes a few seconds)"); return; }
     starting = true; setStatus("Starting the game...");
-    worker.postMessage({ type: "gamestart", code: current.code });
+    const kinds = {}; for (const n in (current.files || {})) kinds[n] = current.files[n].kind;
+    worker.postMessage({ type: "gamestart", code: current.code, assets: kinds });
   }
   function arcadeInfo(m) {
     starting = false;
@@ -178,6 +179,7 @@
       frameWaiting = { resolve, reject };
       worker.postMessage({ type: "gameframe", input });
     }), {
+      assets: Object.fromEntries(Object.entries(current.files || {}).map(([n, f]) => [n, f.url])),
       onError: (msg) => { setStatus("The game stopped with a problem."); screen.hidden = false; screen.className = "error"; screen.textContent = msg; },
       onOver: () => setStatus("Game over. Press Restart to play again."),
     });

@@ -16,7 +16,7 @@ _state = {}
 
 
 def start(code, seed=None, store=None, assets=None):
-    """assets: {file name: 'picture' or 'audio'} (JSON text or a dict): the files the person added."""
+    """assets: {file name: 'picture', 'audio' or 'video'} (JSON text or a dict): the files the person added."""
     if seed is not None:
         random.seed(seed)
 
@@ -73,4 +73,4 @@ def _asset_kinds(assets):
             assets = None
     if hasattr(assets, "to_py"):
         assets = assets.to_py()
-    return {str(k): v for k, v in assets.items() if v in ("picture", "audio")} if isinstance(assets, dict) else {}
+    return {str(k): v for k, v in assets.items() if v in ("picture", "audio", "video")} if isinstance(assets, dict) else {}

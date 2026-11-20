@@ -1,15 +1,17 @@
-"""Your own pictures, sounds and music in a game: the files sit next to the program (or are uploaded in the Playground).
+"""Your own pictures, sounds, music and videos in a game: the files sit next to the program (or are uploaded in the Playground).
 
     draw the picture "face.png" at 10, 20 with size 32 by 32
     play the sound "boom.wav"
     play the music "theme.mp3"      (or a built-in tune: "adventure", "chill", "chase", "boss", "doom")
     stop the music
+    play the video "intro.mp4"       (the game waits until the video ends; a click or a key skips it)
 """
 import base64
 import os
 
 PICTURES = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".gif": "image/gif", ".webp": "image/webp"}
 AUDIO = {".wav": "audio/wav", ".mp3": "audio/mpeg", ".ogg": "audio/ogg", ".m4a": "audio/mp4"}
+VIDEO = {".mp4": "video/mp4", ".webm": "video/webm"}
 BUILTIN_MUSIC = ("adventure", "chill", "chase", "boss", "doom")
 MAX_FILE = 3 * 1024 * 1024
 MAX_FILES = 24
@@ -22,12 +24,14 @@ def kind_of(name):
         return "picture"
     if ext in AUDIO:
         return "audio"
+    if ext in VIDEO:
+        return "video"
     return None
 
 
 def mime_of(name):
     ext = os.path.splitext(name)[1].lower()
-    return PICTURES.get(ext) or AUDIO.get(ext)
+    return PICTURES.get(ext) or AUDIO.get(ext) or VIDEO.get(ext)
 
 
 def scan_folder(folder, code=None):

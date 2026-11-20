@@ -23,11 +23,11 @@ class GameRun:
     def game_init(self):
         self.sprites, self.maps, self.game = {}, {}, None
         self.frame_cmds = None
-        self.sounds, self.changed_maps = [], set()
+        self.sounds, self.changed_maps, self.video_now = [], set(), None
         self.cam = (0, 0)
         self.keys_down = set()
         self.mouse = (0, 0)
-        self.assets = {}  # file name -> "picture" / "audio" (set by the host before the program runs)
+        self.assets = {}  # file name -> "picture" / "audio" / "video" (set by the host before the program runs)
         self.music_now = None
 
     # -- declaring ---------------------------------------------------------------------
@@ -156,6 +156,18 @@ class GameRun:
             if self.assets.get(name) != "audio":
                 name = name.lower()
         self.music_now = name  # sent to the screen with this frame
+
+    def x_video(self, s, env):
+        """play the video "intro.mp4": the screen shows it over the game, and the game waits until it ends (or is skipped)."""
+        name = self.fmt(self.ev(s[2], env))
+        if self.assets.get(name) != "video":
+            mine = [k for k, v in self.assets.items() if v == "video"]
+            hint = suggest(name, mine) if mine else None
+            raise self.err(f'I don\'t have a video called "{name}".',
+                           (hint + "  " if hint else "") + ("Your videos: " + ", ".join(mine) + "." if mine else
+                            "Put the video file (mp4 or webm, up to 3 MB) next to your program, or upload it in the Playground."))
+        if self.frame_cmds is not None:
+            self.video_now = name
 
     def x_drawpicture(self, s, env):
         _, line, expr, x, y, size = s
@@ -291,7 +303,7 @@ class GameRun:
         self.keys_down = set(down)
         if mouse is not None:
             self.mouse = (mouse[0], mouse[1])
-        self.frame_cmds, self.sounds = [], []
+        self.frame_cmds, self.sounds, self.video_now = [], [], None
         if not g["over"]:
             self.set_time_limit(FRAME_SECONDS)
             try:
@@ -327,6 +339,9 @@ class GameRun:
         changed = self.maps_snapshot(self.changed_maps)
         self.changed_maps = set()
         out = {"cmds": self.frame_cmds, "sounds": self.sounds, "maps": changed, "over": g["over"]}
+        if self.video_now:
+            out["video"] = self.video_now
+            self.video_now = None
         if self.music_now is not None:
             out["music"] = self.music_now
             self.music_now = None
