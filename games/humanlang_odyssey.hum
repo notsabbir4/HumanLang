@@ -4792,6 +4792,10 @@ define place_hero with x and y
 
 define start_hub with x
     change mode to "hub"
+    change done_t to 0
+    change hp to 3
+    change hurt_t to 0
+    change msg_t to 0
     change world_w to 1760
     change talk_on to no
     change pz to 0

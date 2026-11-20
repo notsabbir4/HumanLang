@@ -265,6 +265,35 @@ class Odyssey(unittest.TestCase):
         self.assertTrue(ok)
         self.assertEqual(g.var("wdone")[6], 1)
 
+    def test_the_hero_can_move_in_the_hub_after_finishing_a_world(self):
+        g = Game()
+        g.to_world(4)
+        target = g.var("paint_target")
+        cx = cy = 0
+        for i, v in enumerate(target):
+            if not v:
+                continue
+            tx, ty = i % 12, i // 12
+            while cx != tx or cy != ty:
+                key = "right" if cx < tx else "left" if cx > tx else "down" if cy < ty else "up"
+                g.fr(pressed=[key])
+                cx += (key == "right") - (key == "left")
+                cy += (key == "down") - (key == "up")
+            g.fr(down=[str(v), "space"])
+        for _ in range(5):
+            g.fr()
+        self.assertEqual(g.var("mode"), "wdone")
+        g.fr(pressed=["enter"])
+        self.assertEqual(g.var("mode"), "hub")
+        x0 = float(g.hero["x"])
+        for _ in range(40):
+            g.fr(down=["right"])
+        self.assertGreater(float(g.hero["x"]), x0 + 30)
+        for _ in range(40):
+            g.fr(down=["left"])
+        self.assertLess(float(g.hero["x"]), x0 + 30)
+        self.assertEqual(g.var("done_t"), 0)
+
     def test_all_seven_done_shows_the_ending(self):
         g = Game()
         g.to_world(7)
