@@ -953,6 +953,8 @@ replace_def("draw_hub_world", '''define draw_hub_world
     put a circle at moon_x - 1, 51 with radius 17 and colour "#D6E4FF"
     put a circle at moon_x + 6, 58 with radius 4 and colour "#B4C8F4"
     put a circle at moon_x - 7, 45 with radius 3 and colour "#B4C8F4"
+    if (sum of wdone) is 7
+        fireworks
     set lit to 1
     if (sum of wdone) is at least 3
         set lit to 2
@@ -1032,3 +1034,33 @@ define restart_level
         change coins to 0
         place_hero with 20 and 60
     say_msg with "Out of hearts! The level starts again."''')
+
+sub("define draw_hub_door with i and dx", '''note: the party after the whole game is finished: six rockets take turns, each flies up and bursts into 16 sparks that fall and fade
+define fireworks
+    for each b from 1 to 6
+        set life to 170
+        set age to (tick + b * 43) mod life
+        set round_no to floor of ((tick + b * 43) / life)
+        set fx to 40 + ((b * 83 + round_no * 97) mod 400)
+        set fy to 34 + ((b * 29 + round_no * 41) mod 70)
+        set col to item b of fw_col
+        if age is less than 16
+            put a rectangle at fx, fy + 90 - age * 5 with width 2 and height 8 and colour "#FFE9A8"
+        otherwise
+            set t to age - 16
+            set size to 3
+            if t is greater than 60
+                set size to 2
+            if t is greater than 105
+                set size to 1
+            if t is less than 130
+                for each j from 1 to 16
+                    set reach to 38 * (1 - 1 / (1 + t * 0.09))
+                    set px to fx + (item j of fw_dx) * reach * 2.4
+                    set py to fy + (item j of fw_dy) * reach * 2.4 + t * t * 0.006
+                    put a rectangle at px, py with width size and height size and colour col
+                    put a rectangle at px, py with width 1 and height 1 and colour "#FFFFFF"
+        if age is 16
+            play the sound "blip"
+
+define draw_hub_door with i and dx''')

@@ -291,6 +291,20 @@ class Odyssey(unittest.TestCase):
         g.fr()
         self.assertEqual(g.var("boss_hp"), hp - 1)
 
+    def test_fireworks_only_after_all_seven_worlds(self):
+        g = Game()
+        g.to_hub()
+        for _ in range(60):
+            plain = len(g.fr()["cmds"])
+        g.it.game["env"].find("wdone").vars["wdone"] = [1, 1, 1, 1, 1, 1, 0]
+        for _ in range(60):
+            six = len(g.fr()["cmds"])
+        g.it.game["env"].find("wdone").vars["wdone"] = [1] * 7
+        for _ in range(60):
+            party = len(g.fr()["cmds"])
+        self.assertGreater(party, six + 60)         # the sparks
+        self.assertLess(abs(six - plain), 40)       # nothing like it before the last world
+
     def test_music_menu_and_levels(self):
         g = Game()
         for n in (1, 2, 3, 4, 5, 6, 7):

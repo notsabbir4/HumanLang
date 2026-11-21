@@ -32,6 +32,7 @@
 - **New touch controls, built for thumbs:** the left thumb gets a cross (or two big run buttons when the game does not use up/down);
   the right thumb gets a big **A** (jump) in the corner and **B** on a small arc above it. Buttons are 56 to 88 pixels, sit clear of
   the screen edges, can be slid between without lifting the thumb, work with several fingers at once, and buzz a little on Android.
+- **HumanLang Odyssey:** once all seven worlds are finished, the Motherboard night sky holds a fireworks show: six rockets take turns and burst into colourful sparks.
 - **Engine fix (bodies and tiles):** a body wider or taller than one tile no longer falls through a single tile or walks through a single
   block. Landing and wall checks now look along the whole edge of the body, not just its corners.
 - **HumanLang Odyssey:** losing all 3 hearts now restarts the level (it used to hand out 3 new hearts). Falling in a pit costs a heart.

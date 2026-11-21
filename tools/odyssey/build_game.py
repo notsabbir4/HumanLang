@@ -145,6 +145,10 @@ def data_block():
         "Scroll: item 1 is the first item of a list.", "Scroll: add puts a new item at the end of a list.", "Scroll: length of tells how many items a list has.",
         "Scroll: first 3 letters of cuts a word short.", "Scroll: * goes before + and -, like in maths.", "Scroll: mod gives what is left after dividing."]))
     out.append("set door_x to " + lst(lv.HUB_DOORS))
+    import math as _m
+    out.append("set fw_dx to " + lst([round(_m.cos(i * _m.pi / 8), 3) for i in range(16)]))
+    out.append("set fw_dy to " + lst([round(_m.sin(i * _m.pi / 8), 3) for i in range(16)]))
+    out.append("set fw_col to " + strlist(["#FF5FA8", "#7FE8FF", "#C58CFF", "#FFE680", "#8FF2AE", "#FFFFFF"]))
     out.append("set done_lines to " + strlist(["You said hello to HumanLang!", "You can read lists now!", "Words and numbers are no problem!", "You painted with pixels!",
                                                "You climbed the Platform Peaks!", "The Citadel is free!", "You are a HumanLang builder!"]))
     out.append("set paint_pal to " + strlist(["#2EB2F5", "#F6F8FF", "#FFD95C", "#E43A4C"]))
