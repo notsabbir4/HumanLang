@@ -160,8 +160,71 @@
 
   // ---- arcade games: drawn on a canvas, one frame at a time (the engine is shared with the Playground) ----
   const abox = $("arcade-box"), acanvas = $("arcade-screen");
-  let arcade = null, frameWaiting = null, starting = false;
-  function stopArcade() { if (arcade) { arcade.stop(); arcade = null; } frameWaiting = null; starting = false; }
+  let arcade = null, frameWaiting = null, starting = false, info = null;
+  function stopArcade() { if (arcade) { arcade.stop(); arcade = null; } frameWaiting = null; starting = false; leaveLand(); }
+
+  // ---- phones: the game always fits the screen, and "Landscape" fills it sideways (a phone is wider than tall that way) ----
+  const phone = !!(window.matchMedia && matchMedia("(pointer: coarse)").matches);
+  const docEl = document.documentElement;
+  let land = false, forced = false, home = null;
+  const landBtn = document.createElement("button"), exitBtn = document.createElement("button");
+  landBtn.type = exitBtn.type = "button"; landBtn.id = "land-btn"; exitBtn.id = "land-exit";
+  landBtn.textContent = "\u26F6  Play in landscape"; exitBtn.textContent = "\u2715"; exitBtn.setAttribute("aria-label", "Leave landscape");
+  landBtn.hidden = exitBtn.hidden = true;
+  abox.insertBefore(landBtn, abox.firstChild); abox.appendChild(exitBtn);
+  function sizeCanvas() {
+    if (!info) return;
+    if (!phone) {                                  // computers: exactly as before
+      const k = Math.max(1, Math.floor(Math.min(stage.clientWidth || 640, 900) / info.w));
+      acanvas.style.width = info.w * k + "px"; acanvas.style.height = info.h * k + "px"; return;
+    }
+    const portrait = innerHeight > innerWidth;
+    let W, H;
+    if (land) { W = forced && portrait ? innerHeight : innerWidth; H = forced && portrait ? innerWidth : innerHeight; }
+    else { W = Math.max(200, Math.min(stage.clientWidth || innerWidth, innerWidth) - 24); H = 1e5; }
+    const k = Math.min(W / info.w, H / info.h);
+    acanvas.style.width = Math.floor(info.w * k) + "px"; acanvas.style.height = Math.floor(info.h * k) + "px";
+  }
+  function layout() {
+    const portrait = innerHeight > innerWidth;
+    docEl.style.setProperty("--vw", innerWidth + "px"); docEl.style.setProperty("--vh", innerHeight + "px");
+    if (phone && arcade && !land && !portrait && innerHeight < 560) enterLand(false);        // phone turned sideways: fill the screen
+    if (land && !forced && portrait) leaveLand();                                              // turned back up: normal page again
+    abox.classList.toggle("rot", land && forced && portrait);
+    document.body.classList.toggle("hl-rot", land && forced && portrait);
+    sizeCanvas();
+  }
+  function enterLand(user) {
+    land = true; forced = !!user || forced;
+    if (abox.parentNode !== document.body) { home = { p: abox.parentNode, n: abox.nextSibling }; document.body.appendChild(abox); }   // out of the page's layout: the game owns the whole screen
+    abox.classList.add("land"); document.body.classList.add("hl-landing");
+    exitBtn.hidden = false; landBtn.hidden = true;
+    if (user) {
+      // Android Chrome: full screen + lock to landscape. Where that is not possible (iPhone, or the lock is refused), the page turns the game sideways itself.
+      (async () => {
+        try { await (abox.requestFullscreen || abox.webkitRequestFullscreen).call(abox); } catch (e) { return; }
+        const giveUp = async () => { try { await document.exitFullscreen(); } catch (e2) { /* fine */ } layout(); };
+        try { await screen_orientation().lock("landscape"); setTimeout(() => { if (land && innerHeight > innerWidth) giveUp(); }, 700); }
+        catch (e) { giveUp(); }
+      })();
+    }
+    layout();
+  }
+  function screen_orientation() { return window.screen && window.screen.orientation; }
+  function leaveLand() {
+    if (!land) return;
+    land = false; forced = false;
+    abox.classList.remove("land", "rot"); document.body.classList.remove("hl-landing", "hl-rot");
+    if (home) { home.p.insertBefore(abox, home.n); home = null; }
+    exitBtn.hidden = true; landBtn.hidden = !phone || abox.hidden;
+    try { if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen(); } catch (e) { /* fine */ }
+    try { const o = screen_orientation(); if (o && o.unlock) o.unlock(); } catch (e) { /* fine */ }
+    sizeCanvas();
+  }
+  landBtn.onclick = () => enterLand(true);
+  exitBtn.onclick = () => leaveLand();
+  addEventListener("resize", layout); addEventListener("orientationchange", () => setTimeout(layout, 120));
+  document.addEventListener("fullscreenchange", () => setTimeout(layout, 100));
   function startArcade() {
     stopArcade();
     if (!ready) { setStatus("Loading HumanLang... (the first time takes a few seconds)"); return; }
@@ -173,8 +236,8 @@
     starting = false;
     if (!current || current.kind !== "arcade") return;
     if (m.error) { setStatus(""); abox.hidden = true; screen.hidden = false; screen.className = "error"; screen.textContent = m.error; return; }
-    const k = Math.max(1, Math.floor(Math.min(stage.clientWidth || 640, 900) / m.info.w));
-    acanvas.style.width = m.info.w * k + "px"; acanvas.style.height = m.info.h * k + "px";
+    info = m.info;
+    sizeCanvas();
     arcade = Arcade(acanvas, m.info, (input) => new Promise((resolve, reject) => {
       frameWaiting = { resolve, reject };
       worker.postMessage({ type: "gameframe", input });
@@ -183,7 +246,9 @@
       onError: (msg) => { setStatus("The game stopped with a problem."); screen.hidden = false; screen.className = "error"; screen.textContent = msg; },
       onOver: () => setStatus("Game over. Press Restart to play again."),
     });
-    setStatus("Click the game, then use the keys."); acanvas.focus(); arcade.start();
+    setStatus(phone ? "Use the buttons on the screen." : "Click the game, then use the keys."); if (!phone) acanvas.focus(); arcade.start();
+    landBtn.hidden = !phone || land; layout();
+    if (phone && !land) setTimeout(() => window.scrollTo(0, Math.max(0, abox.getBoundingClientRect().top + scrollY - 76)), 50);   // the game sits at the top, the thumbs' buttons at the bottom
   }
   function arcadeFrame(m) {
     const w = frameWaiting; frameWaiting = null; if (!w) return;

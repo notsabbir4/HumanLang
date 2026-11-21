@@ -568,3 +568,20 @@ details.follow summary{cursor:pointer;font-weight:700}
   .learn.enter,.player.enter,.stag,.pbody .ex,.opt.sel,.opt.good,.opt.bad,.bugline.sel,.bugline.good,.bugline.bad,.upath .unow .unitcard,.pbar i::after,.banner.good,.banner.bad,.mascot,.grade{animation:none!important}
   .unitcard,.opt,.tile,.bugline,.pbar i,.btn.big.pmain{transition:none!important}
 }
+
+/* ---- phones: the arcade game fits the screen; "Play in landscape" fills it sideways ---- */
+#land-btn{display:none}
+@media (pointer:coarse){
+  #land-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 20px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--fg);font:700 1rem system-ui,sans-serif;cursor:pointer;width:100%;max-width:420px}
+  #land-btn[hidden]{display:none}
+  .screen-tools[hidden]{display:none}
+  #arcade-box .arcade-frame{padding:6px;overflow:hidden}
+  #arcade-box{padding-bottom:210px}
+  #arcade-box.land{transition:none;animation:none;position:fixed;left:0;top:0;width:var(--vw,100vw);height:var(--vh,100vh);margin:0;padding:0;background:#000;z-index:40;justify-content:center;gap:0}
+  #arcade-box.land .arcade-frame{background:#000;border:0;padding:0;border-radius:0}
+  #arcade-box.land .keys{display:none}
+  #arcade-box.land.rot{transform-origin:top left;translate:var(--vw,100vw) 0;rotate:90deg;animation:none;width:var(--vh,100vh);height:var(--vw,100vw)}
+  #land-exit{position:absolute;left:calc(10px + env(safe-area-inset-left,0px));top:calc(10px + env(safe-area-inset-top,0px));width:48px;height:48px;border-radius:50%;border:2px solid rgba(255,255,255,.5);background:rgba(10,14,30,.55);color:#fff;font-size:1.2rem;z-index:61}
+  #land-exit[hidden]{display:none}
+  body.hl-landing{overflow:hidden;overscroll-behavior:none}
+}

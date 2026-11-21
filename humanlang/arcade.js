@@ -333,33 +333,80 @@
       if (opts.touch === true) return true;
       return !!(root.matchMedia && root.matchMedia("(pointer: coarse)").matches);
     }
+    function padCss(doc) {
+      if (doc.getElementById("hl-pad-css")) return;
+      const st = doc.createElement("style");
+      st.id = "hl-pad-css";
+      // Thumbs rest at the bottom corners: the left thumb gets the way to run (a cross when up/down matter), the right thumb gets
+      // the action buttons on a small arc, biggest one nearest the corner. Sizes shrink with the screen width (--u).
+      st.textContent =
+        ".hl-touchpad{--u:1;position:fixed;left:0;top:0;width:var(--vw,100vw);height:var(--vh,100vh);pointer-events:none;z-index:60;touch-action:none;user-select:none;-webkit-user-select:none}" +
+        ".hl-rot .hl-touchpad{transform-origin:top left;transform:translateX(var(--vw,100vw)) rotate(90deg);width:var(--vh,100vh);height:var(--vw,100vw)}" +
+        ".hl-pad{position:absolute;bottom:calc(16px + env(safe-area-inset-bottom,0px));pointer-events:none}" +
+        ".hl-pad-l{left:calc(16px + env(safe-area-inset-left,0px))}.hl-pad-r{right:calc(16px + env(safe-area-inset-right,0px))}" +
+        ".hl-b{position:absolute;box-sizing:border-box;border-radius:50%;border:2px solid rgba(255,255,255,.6);background:rgba(10,14,30,.5);color:#fff;" +
+        "font:700 calc(22px * var(--u)) system-ui,sans-serif;padding:0;pointer-events:auto;touch-action:none;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent}" +
+        ".hl-b.on{background:rgba(255,255,255,.45)}";
+      doc.head.appendChild(st);
+    }
+    function padScale() { return Math.max(0.72, Math.min(1, ((root.innerWidth || 400)) / 440)); }
     function makePad() {
       const doc = canvas.ownerDocument, used = info.keys && info.keys.length ? info.keys : ["left", "right", "up", "space"];
       const want = (k) => used.indexOf(k) >= 0;
-      const LABEL = { left: "\u25C0", right: "\u25B6", up: "\u25B2", down: "\u25BC", space: "A", enter: "B" };
+      const LABEL = { left: "◀", right: "▶", up: "▲", down: "▼", space: "A", enter: "B" };
+      padCss(doc);
       const el = doc.createElement("div");
       el.className = "hl-touchpad";
-      el.style.cssText = "position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:space-between;align-items:flex-end;" +
-        "padding:10px 14px;pointer-events:none;z-index:50;touch-action:none;user-select:none;-webkit-user-select:none";
-      const left = doc.createElement("div"), right = doc.createElement("div");
-      left.style.cssText = right.style.cssText = "display:flex;gap:10px;align-items:flex-end;pointer-events:none";
-      const count = ["left", "right", "down", "up", "enter", "space"].filter(want).length;
-      const size = Math.max(44, Math.min(64, Math.floor(((root.innerWidth || 360) - 28 - 10 * (count - 1)) / Math.max(1, count))));
-      function btn(k, side) {
-        const b = doc.createElement("button");
-        b.type = "button"; b.textContent = LABEL[k]; b.setAttribute("aria-label", k + " button");
-        b.style.cssText = "pointer-events:auto;touch-action:none;width:" + size + "px;height:" + size + "px;border-radius:" + size / 2 + "px;border:2px solid #ffffff88;" +
-          "background:#00000066;color:#fff;font:bold " + Math.round(size / 3) + "px system-ui,sans-serif;padding:0";
-        const press = (e) => { e.preventDefault(); sound.unlock(); if (!down.has(k)) { down.add(k); pressed.push(k); } b.style.background = "#ffffff55"; };
-        const release = (e) => { e.preventDefault(); down.delete(k); b.style.background = "#00000066"; };
-        b.addEventListener("pointerdown", press);
-        ["pointerup", "pointercancel", "pointerleave"].forEach((ev) => b.addEventListener(ev, release));
-        b.addEventListener("contextmenu", (e) => e.preventDefault());
-        side.appendChild(b);
+      el.style.setProperty("--u", String(padScale()));
+      const held = new Map();                       // key -> how many fingers hold it
+      const hold = (k) => { const n = held.get(k) || 0; held.set(k, n + 1); if (!n) { down.add(k); pressed.push(k); if (root.navigator && root.navigator.vibrate) root.navigator.vibrate(8); } };
+      const drop = (k) => { const n = (held.get(k) || 1) - 1; if (n <= 0) { held.delete(k); down.delete(k); } else held.set(k, n); };
+      function cluster(cls, w, h) {
+        const c = doc.createElement("div");
+        c.className = "hl-pad " + cls;
+        c.style.width = "calc(" + w + "px * var(--u))"; c.style.height = "calc(" + h + "px * var(--u))";
+        const btns = [], fingers = new Map();       // pointer id -> key it holds now
+        const keyAt = (x, y) => {
+          for (const b of btns) { const r = b.getBoundingClientRect(); if (x >= r.left - 8 && x <= r.right + 8 && y >= r.top - 8 && y <= r.bottom + 8) return b.dataset.k; }
+          return null;
+        };
+        const move = (id, k) => { const old = fingers.get(id); if (old === k) return; if (old) { drop(old); const ob = btns.find((b) => b.dataset.k === old); if (ob && !held.has(old)) ob.classList.remove("on"); } if (k) { hold(k); fingers.set(id, k); btns.find((b) => b.dataset.k === k).classList.add("on"); } else fingers.delete(id); };
+        c.add = (k, size, x, y, fromBottom, fromRight) => {
+          const b = doc.createElement("button");
+          b.type = "button"; b.className = "hl-b"; b.textContent = LABEL[k]; b.dataset.k = k; b.setAttribute("aria-label", k + " button");
+          b.style.width = b.style.height = "calc(" + size + "px * var(--u))";
+          b.style[fromRight ? "right" : "left"] = "calc(" + x + "px * var(--u))"; b.style.bottom = "calc(" + y + "px * var(--u))";
+          b.addEventListener("pointerdown", (e) => { e.preventDefault(); sound.unlock(); try { b.setPointerCapture(e.pointerId); } catch (x_) { /* fine */ } move(e.pointerId, k); });
+          b.addEventListener("pointermove", (e) => { if (fingers.has(e.pointerId)) { e.preventDefault(); move(e.pointerId, keyAt(e.clientX, e.clientY)); } });
+          const up = (e) => { e.preventDefault(); move(e.pointerId, null); };
+          b.addEventListener("pointerup", up); b.addEventListener("pointercancel", up);
+          b.addEventListener("contextmenu", (e) => e.preventDefault());
+          btns.push(b); c.appendChild(b);
+        };
+        el.appendChild(c);
+        return c;
       }
-      ["left", "right", "down"].filter(want).forEach((k) => btn(k, left));
-      ["up", "enter", "space"].filter(want).forEach((k) => btn(k, right));
-      el.appendChild(left); el.appendChild(right);
+      // left thumb: a cross when up or down are used (it rests in the middle), else just the two ways to run, big
+      if (want("left") || want("right") || want("up") || want("down")) {
+        if (want("up") || want("down")) {
+          const L = cluster("hl-pad-l", 186, 186);
+          if (want("up")) L.add("up", 60, 63, 126);
+          if (want("left")) L.add("left", 60, 0, 63);
+          if (want("right")) L.add("right", 60, 126, 63);
+          if (want("down")) L.add("down", 60, 63, 0);
+        } else {
+          const L = cluster("hl-pad-l", 156, 76);
+          if (want("left")) L.add("left", 72, 0, 0);
+          if (want("right")) L.add("right", 72, 84, 0);
+        }
+      }
+      // right thumb: the main action nearest the corner and the big one, the second action up and to the left on the thumb's arc
+      const main = want("space") ? "space" : want("enter") ? "enter" : null;
+      if (main) {
+        const R = cluster("hl-pad-r", 178, 130);
+        R.add(main, 88, 0, 0, true, true);
+        if (main === "space" && want("enter")) R.add("enter", 68, 98, 52, true, true);
+      }
       doc.body.appendChild(el);
       return el;
     }
