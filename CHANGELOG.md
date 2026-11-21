@@ -27,6 +27,7 @@
   block. Landing and wall checks now look along the whole edge of the body, not just its corners.
 - **HumanLang Odyssey:** losing all 3 hearts now restarts the level (it used to hand out 3 new hearts). Falling in a pit costs a heart.
   Level 6 is easier: a flat arena with two low shelves, a slower boss with 8 hits, and a warning before each bolt.
+  New music: Exploration Menu plays on the title screen and in the hub, and Nimble Motif plays in every level.
 - **New game, HUMANLANG ODYSSEY:** the HL mascot hero, a 480 x 270 screen, your logo reveal at the start and seven worlds: Say Hello, Lists and
   Machines, Word and Number Town (code gates with Echo), Pixel Gallery (paint a picture), Platform Peaks, the Boss Citadel (the Glitch King) and
   Your World (build, save and play your own level). All art is drawn at pixel size 1.

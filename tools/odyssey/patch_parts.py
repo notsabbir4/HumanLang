@@ -53,11 +53,11 @@ replace_def("start_w1", '''define start_gw with n
     change done_t to 0
     place_hero with 40 and 184
     if n is 2
-        play the music "chase"
+        play the music "Nimble_Motif.mp3"
     otherwise
-        play the music "adventure"''')
+        play the music "Nimble_Motif.mp3"''')
 sub('    change coin_got to {{W5_COIN_GOT}}\n', '    change coin_got to {{W5_COIN_GOT}}\n    change done_t to 0\n')
-sub('    place_hero with 40 and 168\n    play the music "chase"', '    place_hero with 40 and 168\n    play the music "chase"')
+sub('    place_hero with 40 and 168\n    play the music "Nimble_Motif.mp3"', '    place_hero with 40 and 168\n    play the music "Nimble_Motif.mp3"')
 
 # ---------------------------------------------------------------- the hero walks on the right map
 sub('''    if mode is "hub"
@@ -404,7 +404,7 @@ define start_w4
     change coin_got to empty list
     set_round with 1
     say_msg with "Paint the dotted squares. The colour picks itself!"
-    play the music "chill"
+    play the music "Nimble_Motif.mp3"
 
 define count_match
     set same to 0
@@ -554,7 +554,7 @@ define start_w6
     change flag_y to empty list
     change flag_on to empty list
     place_hero with 100 and 184
-    play the music "boss"
+    play the music "Nimble_Motif.mp3"
 
 define boss_phase
     give back 1 + floor of ((boss_max - boss_hp) / 3)
@@ -741,7 +741,7 @@ define start_w7
         if v is not nothing
             if length of v is 420
                 apply_level with v
-    play the music "adventure"
+    play the music "Nimble_Motif.mp3"
 
 define enter_play
     change level_backup to serialize_level

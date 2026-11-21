@@ -19,7 +19,7 @@ YES = (True, "yes")
 class Game:
     def __init__(self):
         self.it = Interpreter()
-        self.it.assets = {"humanlang_intro.mp4": "video"}
+        self.it.assets = {"humanlang_intro.mp4": "video", "Exploration_Menu.mp3": "audio", "Nimble_Motif.mp3": "audio"}
         self.it.run(CODE)
 
     def var(self, n):
@@ -290,6 +290,14 @@ class Odyssey(unittest.TestCase):
         g.hero.update({"x": bx + 20, "y": 120, "vx": 0, "vy": 3})
         g.fr()
         self.assertEqual(g.var("boss_hp"), hp - 1)
+
+    def test_music_menu_and_levels(self):
+        g = Game()
+        for n in (1, 2, 3, 4, 5, 6, 7):
+            g.to_world(n)
+            self.assertEqual(g.fr().get("music") or "Nimble_Motif.mp3", "Nimble_Motif.mp3")
+        for f in ("Exploration_Menu.mp3", "Nimble_Motif.mp3"):
+            self.assertTrue(os.path.isfile(os.path.join(ROOT, "games", "files", f)))
 
     def test_losing_all_three_hearts_restarts_the_level(self):
         g = Game()

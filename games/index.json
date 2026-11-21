@@ -597,7 +597,9 @@
     "image": "thumbs/humanlang-odyssey.jpg",
     "version": "0.6.2",
     "files": [
-      "humanlang_intro.mp4"
+      "humanlang_intro.mp4",
+      "Exploration_Menu.mp3",
+      "Nimble_Motif.mp3"
     ],
     "how": [
       {

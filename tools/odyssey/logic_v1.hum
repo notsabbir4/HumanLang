@@ -175,7 +175,7 @@ define start_hub with x
     change talk_on to no
     change pz to 0
     place_hero with x and 184
-    play the music "chill"
+    play the music "Exploration_Menu.mp3"
 
 define start_w1
     change mode to "w1"
@@ -200,7 +200,7 @@ define start_w1
     change pz to 0
     change talk_on to no
     place_hero with 40 and 184
-    play the music "adventure"
+    play the music "Nimble_Motif.mp3"
 
 define start_w5
     change mode to "w5"
@@ -224,7 +224,7 @@ define start_w5
     change flag_y to {{W5_FLAG_Y}}
     change flag_on to {{W5_FLAG_ON}}
     place_hero with 40 and 168
-    play the music "chase"
+    play the music "Nimble_Motif.mp3"
 
 note: ==================================================
 note: THE HERO
@@ -891,7 +891,7 @@ play a game titled "HumanLang Odyssey: Seven Worlds" with size 480 by 270 and ba
         if mode is "intro"
             play video "humanlang_intro.mp4"
             change mode to "title"
-            play the music "chill"
+            play the music "Exploration_Menu.mp3"
         otherwise if mode is "title"
             draw_title
             if k_enter or k_space

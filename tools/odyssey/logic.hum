@@ -225,7 +225,7 @@ define start_hub with x
     change talk_on to no
     change pz to 0
     place_hero with x and 184
-    play the music "chill"
+    play the music "Exploration_Menu.mp3"
 
 {{GW_LOADER}}
 
@@ -247,9 +247,9 @@ define start_gw with n
     change done_t to 0
     place_hero with 40 and 184
     if n is 2
-        play the music "chase"
+        play the music "Nimble_Motif.mp3"
     otherwise
-        play the music "adventure"
+        play the music "Nimble_Motif.mp3"
 
 define start_w5
     change mode to "w5"
@@ -274,7 +274,7 @@ define start_w5
     change flag_y to {{W5_FLAG_Y}}
     change flag_on to {{W5_FLAG_ON}}
     place_hero with 40 and 168
-    play the music "chase"
+    play the music "Nimble_Motif.mp3"
 
 note: ==================================================
 note: THE HERO
@@ -1064,7 +1064,7 @@ define start_w4
     change coin_got to empty list
     set_round with 1
     say_msg with "Paint the dotted squares. The colour picks itself!"
-    play the music "chill"
+    play the music "Nimble_Motif.mp3"
 
 define count_match
     set same to 0
@@ -1214,7 +1214,7 @@ define start_w6
     change flag_y to empty list
     change flag_on to empty list
     place_hero with 100 and 184
-    play the music "boss"
+    play the music "Nimble_Motif.mp3"
 
 define boss_phase
     give back 1 + floor of ((boss_max - boss_hp) / 3)
@@ -1401,7 +1401,7 @@ define start_w7
         if v is not nothing
             if length of v is 420
                 apply_level with v
-    play the music "adventure"
+    play the music "Nimble_Motif.mp3"
 
 define enter_play
     change level_backup to serialize_level
@@ -1582,7 +1582,7 @@ play a game titled "HumanLang Odyssey: Seven Worlds" with size 480 by 270 and ba
         if mode is "intro"
             play video "humanlang_intro.mp4"
             change mode to "title"
-            play the music "chill"
+            play the music "Exploration_Menu.mp3"
         otherwise if mode is "title"
             draw_title
             if k_enter or k_space
