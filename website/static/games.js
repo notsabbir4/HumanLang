@@ -164,7 +164,8 @@
   function stopArcade() { if (arcade) { arcade.stop(); arcade = null; } frameWaiting = null; starting = false; leaveLand(); }
 
   // ---- phones: the game always fits the screen, and "Landscape" fills it sideways (a phone is wider than tall that way) ----
-  const phone = !!(window.matchMedia && matchMedia("(pointer: coarse)").matches);
+  const phone = !!((window.matchMedia && matchMedia("(pointer: coarse)").matches) || (navigator.maxTouchPoints > 0 && /Android|iPhone|iPad|iPod|Mobi/i.test(navigator.userAgent || "")));
+  if (phone) document.documentElement.classList.add("is-phone");
   const docEl = document.documentElement;
   let land = false, forced = false, home = null;
   const landBtn = document.createElement("button"), exitBtn = document.createElement("button");

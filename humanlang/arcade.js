@@ -331,7 +331,8 @@
     function wantsTouch() {
       if (opts.touch === false) return false;
       if (opts.touch === true) return true;
-      return !!(root.matchMedia && root.matchMedia("(pointer: coarse)").matches);
+      const nav = root.navigator || {};
+      return !!((root.matchMedia && root.matchMedia("(pointer: coarse)").matches) || (nav.maxTouchPoints > 0 && /Android|iPhone|iPad|iPod|Mobi/i.test(nav.userAgent || "")));
     }
     function padCss(doc) {
       if (doc.getElementById("hl-pad-css")) return;
