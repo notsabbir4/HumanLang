@@ -231,7 +231,7 @@ class Showcase(unittest.TestCase):
             path = os.path.join(ROOT, "games", name)
             with self.subTest(game=os.path.basename(path)):
                 it = Interpreter(out=lambda t: None)
-                it.assets = {f: "video" for f in os.listdir(os.path.join(ROOT, "games", "files")) if f.endswith(".mp4")}   # files a game ships with
+                it.assets = {f: ("video" if f.endswith(".mp4") else "audio") for f in os.listdir(os.path.join(ROOT, "games", "files"))}   # files a game ships with
                 it.run(load(os.path.basename(path)))
                 keys = ["left", "right", "up", "down", "space"]
                 for i in range(900):
