@@ -220,7 +220,7 @@
   }
   function setTheme(t) {
     document.documentElement.dataset.theme = t;
-    themeBtn.textContent = t === "dark" ? "Light" : "Dark";
+    themeBtn.querySelector(".t").textContent = t === "dark" ? "Light" : "Dark";
     try { localStorage.setItem("hl-theme", t); } catch (e) { /* private window: fine */ }
   }
   (function () {
@@ -392,6 +392,34 @@
       code.selectionStart = code.selectionEnd = s + 4; refresh();
     } else if ((e.ctrlKey || e.metaKey) && e.key === "Enter") { e.preventDefault(); run(); }
   });
+
+  // ---- open a .hum file from the computer: the Upload button, or drop it on the editor ----
+  const upFile = $("upfile"), MAX_PROGRAM = 1024 * 1024;
+  async function openFile(file) {
+    if (!file) return;
+    if (!/\.(hum|txt)$/i.test(file.name)) { setStatus(file.name + " is not a .hum file."); return; }
+    if (file.size > MAX_PROGRAM) { setStatus(file.name + " is too big for a program (the limit is 1 MB)."); return; }
+    let text = "";
+    try { text = await file.text(); } catch (e) { setStatus("I could not read " + file.name + "."); return; }
+    if (text.indexOf("\u0000") !== -1) { setStatus(file.name + " does not look like a text file."); return; }
+    text = text.replace(/^\uFEFF/, "").replace(/\r\n?/g, "\n");
+    const known = pick.value && examples[pick.value] && examples[pick.value].code === code.value;
+    if (code.value.trim() && !known && code.value !== text && !confirm("Open " + file.name + "? It will replace the program that is in the editor now.")) return;
+    if (!pick.querySelector('option[value=""]')) { const o = document.createElement("option"); o.value = ""; o.textContent = "(your program)"; pick.insertBefore(o, pick.firstChild); }
+    code.value = text; inputs.value = ""; pick.value = ""; show("", false); lastPage = null; tabPreview.hidden = true; showTab("console");
+    window.HL_UPLOAD_NAME = file.name.replace(/\.(hum|txt)$/i, "");
+    $("filetab").textContent = window.HL_UPLOAD_NAME + ".hum";
+    code.scrollTop = 0; code.scrollLeft = 0; refresh(); liveSoon();
+    document.dispatchEvent(new Event("hl-upload"));
+    setStatus("Opened " + file.name + ". Press Run.");
+  }
+  $("upbtn").onclick = () => upFile.click();
+  upFile.onchange = () => { const f = upFile.files[0]; upFile.value = ""; openFile(f); };
+  const dropZone = document.querySelector(".ide-edit");
+  ["dragenter", "dragover"].forEach((ev) => dropZone.addEventListener(ev, (e) => { if (e.dataTransfer && [...e.dataTransfer.types].includes("Files")) { e.preventDefault(); dropZone.classList.add("drop"); } }));
+  ["dragleave", "drop"].forEach((ev) => dropZone.addEventListener(ev, () => dropZone.classList.remove("drop")));
+  dropZone.addEventListener("drop", (e) => { if (e.dataTransfer && e.dataTransfer.files.length) { e.preventDefault(); openFile(e.dataTransfer.files[0]); } });
+
   // editing the program means the dropdown no longer describes it
   code.addEventListener("input", () => {
     if (pick.value && examples[pick.value] && code.value !== examples[pick.value].code) pick.value = "";

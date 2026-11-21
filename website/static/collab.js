@@ -3,6 +3,7 @@
 (function () {
   "use strict";
   const $ = (id) => document.getElementById(id);
+  const setLabel = (t) => { const s = document.querySelector("#collabbtn .t"); if (s) s.textContent = t; };
   const btn = $("collabbtn"), drawer = $("collab"), bar = $("collab-bar"), code = $("code"), remote = $("remote");
   if (!btn || !drawer) return;
   const YJS = "https://cdn.jsdelivr.net/npm/yjs@13.6.18/+esm";
@@ -125,7 +126,7 @@
     core.announce(true);
     say("Shared program: " + r.name);
     $("filetab").textContent = r.name;
-    btn.textContent = "Shared";
+    setLabel("Shared");
     btn.classList.add("on");
     panel(); paintBar([]);
     history.replaceState(null, "", "?room=" + r.code);
@@ -151,7 +152,7 @@
       if (was.owner) await sb.from("rooms").delete().eq("id", was.id); else await sb.from("room_members").delete().eq("room_id", was.id).eq("user_id", me.id);
     }
     room = null; bar.hidden = true; bar.textContent = ""; remote.textContent = "";
-    $("filetab").textContent = "main.hum"; btn.textContent = "Collaborate"; btn.classList.remove("on");
+    $("filetab").textContent = "main.hum"; setLabel("Collaborate"); btn.classList.remove("on");
     history.replaceState(null, "", location.pathname);
     panel();
   }

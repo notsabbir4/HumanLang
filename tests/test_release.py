@@ -43,6 +43,9 @@ class Release(unittest.TestCase):
                 html = open(os.path.join(out, page + ".html"), encoding="utf-8").read()
                 self.assertIn("<title>", html)
                 self.assertNotIn("@@BOX", html)
+            play = open(os.path.join(out, "playground.html"), encoding="utf-8").read()
+            for ident in ("upbtn", "upfile", "dlbtn", "run", "stop", "stepbtn", "savebtn", "share", "collabbtn", "postbtn", "theme"):
+                self.assertIn('id="%s"' % ident, play)      # the playground toolbar, including Upload for .hum files
             with open(os.path.join(out, "humanlang_src.json"), encoding="utf-8") as f:
                 self.assertIn("interpreter.py", f.read())
             with open(os.path.join(out, "config.js"), encoding="utf-8") as f:

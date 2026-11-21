@@ -7,8 +7,10 @@
   let saved = null;                                  // { id, name } once this program lives in the account
   const say = (t) => { const s = $("status"); if (s) s.textContent = t; };
   const clean = (n) => (n || "").replace(/\.hum$/i, "").replace(/[^\w\- ]+/g, "").trim().slice(0, 60);
-  const fileName = () => (clean(saved && saved.name) || clean($("examples") && $("examples").value) || "my-program") + ".hum";
+  const fileName = () => (clean(saved && saved.name) || clean(window.HL_UPLOAD_NAME) || clean($("examples") && $("examples").value) || "my-program") + ".hum";
   const touch = () => code.dispatchEvent(new Event("input", { bubbles: true }));
+
+  document.addEventListener("hl-upload", () => { saved = null; if (location.hash.indexOf("saved=") !== -1) history.replaceState(null, "", location.pathname); });
 
   dlBtn.onclick = () => {
     const blob = new Blob([code.value.replace(/\r?\n/g, "\n")], { type: "text/plain;charset=utf-8" });

@@ -23,6 +23,9 @@
 - **Videos in games:** `play video "intro.mp4"` (also `play the video "intro.mp4"`) shows a video over the game; the game waits until it
   ends, and a click, tap, Esc, Space or Enter skips it. Video files go next to the program (up to 3 MB) and work in the Playground,
   `hl build`, and on the Games page.
+- **Playground: Upload and a new toolbar.** A new **Upload** button opens a `.hum` file from your computer in the editor (or drop the file
+  on the editor). The toolbar is tidier: Run, Stop and Step through on the left; Upload, Download and Save, then Share link,
+  Collaborate and Post to Community as grouped buttons with icons, all one height; and it wraps neatly on small screens.
 - **Engine fix (bodies and tiles):** a body wider or taller than one tile no longer falls through a single tile or walks through a single
   block. Landing and wall checks now look along the whole edge of the body, not just its corners.
 - **HumanLang Odyssey:** losing all 3 hearts now restarts the level (it used to hand out 3 new hearts). Falling in a pit costs a heart.

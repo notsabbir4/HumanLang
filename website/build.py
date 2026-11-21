@@ -303,21 +303,32 @@ def playground_page(examples):
     body = """
 <div class="ide">
 <div class="ide-top">
-<select id="examples" aria-label="Example programs"></select>
-<button class="btn run" id="run" type="button" disabled>&#9654; Run</button>
-<button class="btn ghost" id="stop" type="button" disabled>Stop</button>
-<button class="btn ghost" id="stepbtn" type="button" disabled title="Go through the program one line at a time and see what each line does">Step through</button>
-<span class="grow"></span>
-<button class="btn ghost" id="dlbtn" type="button" title="Download your program as a .hum file">Download .hum</button>
-<button class="btn ghost" id="savebtn" type="button" title="Save your program to your account (sign in with GitHub)">Save</button>
-<button class="btn ghost" id="share" type="button">Share link</button>
-<button class="btn ghost" id="collabbtn" type="button" title="Code on the same program with other people, live">Collaborate</button>
-<button class="btn ghost" id="postbtn" type="button" title="Open the Community post form with your program already filled in">Post to Community</button>
-<button class="btn ghost" id="theme" type="button" aria-label="Switch between light and dark">Light</button>
+<div class="tb-left">
+<label class="tb-pick"><span>Examples</span><select id="examples" aria-label="Example programs"></select></label>
+<div class="tb-group run-group">
+<button class="tb run" id="run" type="button" title="Run your program (Ctrl+Enter)" disabled><svg class="ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4l13 8-13 8z" fill="currentColor" stroke="none"/></svg><span class="t">Run</span></button>
+<button class="tb" id="stop" type="button" title="Stop the program" disabled><svg class="ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="1.5" fill="currentColor" stroke="none"/></svg><span class="t">Stop</span></button>
+<button class="tb" id="stepbtn" type="button" title="Go through the program one line at a time and see what each line does" disabled><svg class="ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4v16M10 5l10 7-10 7z"/></svg><span class="t">Step through</span></button>
+</div>
+</div>
+<div class="tb-right">
+<div class="tb-group" role="group" aria-label="File">
+<button class="tb" id="upbtn" type="button" title="Open a .hum file from your computer in the editor"><svg class="ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg><span class="t">Upload</span></button>
+<button class="tb" id="dlbtn" type="button" title="Download your program as a .hum file"><svg class="ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M7 11l5 5 5-5M4 20h16"/></svg><span class="t">Download</span></button>
+<button class="tb" id="savebtn" type="button" title="Save your program to your account (sign in with GitHub)"><svg class="ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h11l3 3v13H5zM8 4v5h7V4M8 20v-6h8v6"/></svg><span class="t">Save</span></button>
+<input type="file" id="upfile" accept=".hum,.txt,text/plain" hidden>
+</div>
+<div class="tb-group" role="group" aria-label="Share">
+<button class="tb" id="share" type="button" title="Copy a link to your program"><svg class="ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg><span class="t">Share link</span></button>
+<button class="tb" id="collabbtn" type="button" title="Code on the same program with other people, live"><svg class="ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M17 5a3 3 0 0 1 0 6M21 20c0-2.6-1.6-4.8-4-5.6"/></svg><span class="t">Collaborate</span></button>
+<button class="tb" id="postbtn" type="button" title="Open the Community post form with your program already filled in"><svg class="ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/></svg><span class="t">Post to Community</span></button>
+</div>
+<button class="tb solo" id="theme" type="button" aria-label="Switch between light and dark"><svg class="ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/></svg><span class="t">Light</span></button>
+</div>
 </div>
 <div class="ide-main">
 <section class="ide-edit" aria-label="Your program">
-<div class="ide-tabs"><span class="tab on" id="filetab">main.hum</span><span id="collab-bar" hidden aria-live="polite"></span></div>
+<div class="ide-tabs"><span class="tab on" id="filetab">main.hum</span><span class="drophint">Tip: drop a .hum file here to open it</span><span id="collab-bar" hidden aria-live="polite"></span></div>
 <div class="ide-code">
 <pre class="gutter" id="gutter" aria-hidden="true">1</pre>
 <div class="ed"><pre class="hl" id="hl" aria-hidden="true"></pre>
