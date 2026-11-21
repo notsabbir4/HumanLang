@@ -45,6 +45,16 @@ class PhysicsTests(unittest.TestCase):
         it = play(src, 120)
         self.assertGreater(it.bodies["hero"]["y"], 0)
 
+    def test_a_body_wider_than_a_tile_lands_on_a_single_tile(self):
+        """A 22 wide body over a 16 wide tile has both corners off the tile, but it must still stand on it."""
+        src = GAME.replace("size 8 by 8", "size 22 by 8").replace("at 20, 0", "at 13, 0").replace("make the body hero run right", "make the body hero stop")
+        src = src.replace('"..........#"\n    "..........#"\n    "..........#"\n    "###########"',
+                          '"...........#"\n    "...........#"\n    "...........#"\n    ".#.........#"')
+        it = play(src, 60)
+        b = it.bodies["hero"]
+        self.assertTrue(b["ground"])
+        self.assertEqual(b["y"], 48 - 8)          # standing on top of the one tile (bottom row), not fallen through
+
     def test_expressions(self):
         src = GAME.replace("draw the map level", 'draw the map level\n        if the body hero is on the ground\n            say "ground {the x of the body hero}"')
         out = []

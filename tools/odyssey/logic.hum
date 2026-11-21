@@ -65,8 +65,8 @@ set paint_round to 1
 set last_cx to -1
 set last_cy to -1
 set paint_target to empty list
-set boss_hp to 12
-set boss_max to 12
+set boss_hp to 8
+set boss_max to 8
 set boss_x to 300
 set boss_dir to -1
 set boss_stun to 0
@@ -358,23 +358,43 @@ define follow_camera
         subtract 1 from shake_t
 
 define hurt_hero
-    note: lose a heart, and a short moment where nothing can hurt you
+    note: lose a heart, and a short moment where nothing can hurt you. No hearts left: the level starts again.
     if hurt_t is 0
         subtract 1 from hp
         change hurt_t to 100
         change shake_t to 12
         play the sound "hit"
         if hp is at most 0
-            respawn_hero
+            restart_level
 
 define respawn_hero
-    note: out of hearts or fell into a pit: back to the last flag with full hearts
-    change hp to 3
-    move the body hero to spawn_x, spawn_y
-    make the body hero stop
-    change hurt_t to 100
+    note: fell into a pit: lose a heart and go back to the last flag. No hearts left: the level starts again.
+    subtract 1 from hp
+    if hp is at most 0
+        restart_level
+    otherwise
+        move the body hero to spawn_x, spawn_y
+        make the body hero stop
+        change hurt_t to 100
+        play the sound "lose"
+        say_msg with "You fell! Back to the last flag."
+
+define restart_level
     play the sound "lose"
-    say_msg with "Try again! You are back at the last flag."
+    if mode is "gw"
+        start_gw with wn
+        change echo_seen to yes
+        change gate2_seen to yes
+    otherwise if mode is "w5"
+        start_w5
+    otherwise if mode is "w6"
+        start_w6
+    otherwise if mode is "w7"
+        apply_level with level_backup
+        change hp to 3
+        change coins to 0
+        place_hero with 20 and 60
+    say_msg with "Out of hearts! The level starts again."
 
 note: ==================================================
 note: COINS, SCROLLS AND THINGS TO PICK UP
@@ -1193,11 +1213,11 @@ define start_w6
     change flag_x to empty list
     change flag_y to empty list
     change flag_on to empty list
-    place_hero with 40 and 184
+    place_hero with 100 and 184
     play the music "boss"
 
 define boss_phase
-    give back 1 + floor of ((boss_max - boss_hp) / 4)
+    give back 1 + floor of ((boss_max - boss_hp) / 3)
 
 define add_bolt with x
     set slot to 0
@@ -1207,12 +1227,12 @@ define add_bolt with x
     if slot is 0
         add x to bolt_x
         add -30 to bolt_y
-        add 50 to bolt_w
+        add 60 to bolt_w
         add 1 to bolt_on
     otherwise
         change item slot of bolt_x to x
         change item slot of bolt_y to -30
-        change item slot of bolt_w to 50
+        change item slot of bolt_w to 60
         change item slot of bolt_on to 1
 
 define update_boss
@@ -1221,21 +1241,21 @@ define update_boss
     if boss_stun is greater than 0
         subtract 1 from boss_stun
     otherwise
-        change boss_x to boss_x + boss_dir * (0.8 + 0.5 * phase)
-        if boss_x is less than 20
-            change boss_x to 20
+        change boss_x to boss_x + boss_dir * (0.7 + 0.3 * phase)
+        if boss_x is less than 70
+            change boss_x to 70
             change boss_dir to 1
-        if boss_x is greater than 396
-            change boss_x to 396
+        if boss_x is greater than 345
+            change boss_x to 345
             change boss_dir to -1
     set hx to the x of the body hero
     set hy to the y of the body hero
     set vy to the vertical speed of the body hero
     if hx + 22 is greater than boss_x + 6 and hx is less than boss_x + 58 and hy + 40 is greater than 146 and hy is less than 224
         if boss_stun is 0
-            if vy is greater than 0.3 and hy + 40 is less than 182
+            if vy is at least -1 and hy + 40 is less than 182
                 subtract 1 from boss_hp
-                change boss_stun to 80
+                change boss_stun to 100
                 make the body hero bounce
                 play the sound "explosion"
                 add 5 to coins
@@ -1255,7 +1275,7 @@ define update_boss
                         set nx to 438
                     move the body hero to nx, hy - 8
     add 1 to bolt_t
-    if bolt_t is greater than 200 - 35 * phase
+    if bolt_t is greater than 260 - 40 * phase
         change bolt_t to 0
         add_bolt with (hx + 5)
 
@@ -1267,7 +1287,7 @@ define update_bolts
             if (item i of bolt_w) is greater than 0
                 change item i of bolt_w to (item i of bolt_w) - 1
             otherwise
-                change item i of bolt_y to (item i of bolt_y) + 5
+                change item i of bolt_y to (item i of bolt_y) + 4
                 set bx to item i of bolt_x
                 set by to item i of bolt_y
                 if hx + 22 is greater than bx and hx is less than bx + 12 and hy + 40 is greater than by and hy is less than by + 22
@@ -1324,7 +1344,7 @@ define update_w6
     move the camera to 0, 0
     put a rectangle at 150, 24 with width 180 and height 12 and colour "#2A0716" and border 2 and border colour "#FFFFFF" and rounded 4
     if boss_hp is greater than 0
-        put a rectangle at 152, 26 with width boss_hp * 14 and height 8 and colour "#E43A4C" and rounded 3
+        put a rectangle at 152, 26 with width boss_hp * 22 and height 8 and colour "#E43A4C" and rounded 3
     text_at with "THE GLITCH KING" and 240 and 38 and 10 and "#FFFFFF" and "center"
     draw_hud with "WORLD 6: THE BOSS CITADEL"
     change k_enter to no

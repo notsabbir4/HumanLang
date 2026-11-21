@@ -204,12 +204,23 @@ class PhysicsRun:
                 return rows[r][c] in chars
             return False
 
+        def row_solid(y, x0, x1):
+            """Is any tile solid along a horizontal line? The points are less than one tile apart, so a body wider than a
+            tile can never slip past a single tile that lies between its two corners."""
+            n = max(1, math.ceil((x1 - x0) / (t - 1)))
+            return any(solid(x0 + (x1 - x0) * k / n, y) for k in range(n + 1))
+
+        def column_solid(x, y0, y1):
+            """The same along a vertical line: a body taller than a tile cannot walk through a single block."""
+            n = max(1, math.ceil((y1 - y0) / (t - 1)))
+            return any(solid(x, y0 + (y1 - y0) * k / n) for k in range(n + 1))
+
         w, h = b["w"], b["h"]
         # across: move, and stop at a wall
         b["vx"] = b["run"] * b["speed"]
         nx = b["x"] + b["vx"]
         edge = nx + w - 0.01 if b["vx"] > 0 else nx
-        if b["vx"] != 0 and (solid(edge, b["y"] + 0.5) or solid(edge, b["y"] + h - 0.5) or solid(edge, b["y"] + h / 2)):
+        if b["vx"] != 0 and column_solid(edge, b["y"] + 0.5, b["y"] + h - 0.5):
             nx = (math.floor(edge / t) * t - w) if b["vx"] > 0 else (math.floor(edge / t) + 1) * t
             b["vx"] = 0
         b["x"] = nx
@@ -218,11 +229,11 @@ class PhysicsRun:
         ny = b["y"] + b["vy"]
         b["ground"] = False
         if b["vy"] > 0:
-            if solid(b["x"] + 0.5, ny + h) or solid(b["x"] + w - 0.5, ny + h):
+            if row_solid(ny + h, b["x"] + 0.5, b["x"] + w - 0.5):
                 ny = math.floor((ny + h) / t) * t - h
                 b["vy"], b["ground"] = 0, True
         elif b["vy"] < 0:
-            if solid(b["x"] + 0.5, ny) or solid(b["x"] + w - 0.5, ny):
+            if row_solid(ny, b["x"] + 0.5, b["x"] + w - 0.5):
                 ny = (math.floor(ny / t) + 1) * t
                 b["vy"] = 0
         b["y"] = ny

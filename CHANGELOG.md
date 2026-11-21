@@ -23,6 +23,10 @@
 - **Videos in games:** `play video "intro.mp4"` (also `play the video "intro.mp4"`) shows a video over the game; the game waits until it
   ends, and a click, tap, Esc, Space or Enter skips it. Video files go next to the program (up to 3 MB) and work in the Playground,
   `hl build`, and on the Games page.
+- **Engine fix (bodies and tiles):** a body wider or taller than one tile no longer falls through a single tile or walks through a single
+  block. Landing and wall checks now look along the whole edge of the body, not just its corners.
+- **HumanLang Odyssey:** losing all 3 hearts now restarts the level (it used to hand out 3 new hearts). Falling in a pit costs a heart.
+  Level 6 is easier: a flat arena with two low shelves, a slower boss with 8 hits, and a warning before each bolt.
 - **New game, HUMANLANG ODYSSEY:** the HL mascot hero, a 480 x 270 screen, your logo reveal at the start and seven worlds: Say Hello, Lists and
   Machines, Word and Number Town (code gates with Echo), Pixel Gallery (paint a picture), Platform Peaks, the Boss Citadel (the Glitch King) and
   Your World (build, save and play your own level). All art is drawn at pixel size 1.

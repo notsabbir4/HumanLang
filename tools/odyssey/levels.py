@@ -231,14 +231,14 @@ def world3():
 
 # World 6: the Boss Citadel arena (one screen) and World 7: the level editor's starting level (30 x 14 tiles)
 def arena():
+    """One flat floor for the boss fight (the boss walks along it) and two low shelves by the walls where the hero can rest."""
     L = Level(30, "w6")
     L.ground(0, 29, 14, ("C", "C", "C"))
     for r in range(0, 14):
         L.g[r][0] = "C"
         L.g[r][29] = "C"
-    L.block(4, 6, 11, "S")
-    L.block(23, 25, 11, "S")
-    L.block(13, 16, 9, "S")
+    L.block(1, 3, 12, "S")
+    L.block(26, 28, 12, "S")
     return L
 
 

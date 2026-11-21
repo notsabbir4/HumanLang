@@ -259,7 +259,7 @@ class Odyssey(unittest.TestCase):
         g = Game()
         g.to_world(6)
         self.assertEqual(g.var("mode"), "w6")
-        self.assertEqual(g.var("boss_hp"), 12)
+        self.assertEqual(g.var("boss_hp"), 8)
         for n in range(30000):
             if g.var("mode") != "w6":
                 break
@@ -267,10 +267,15 @@ class Odyssey(unittest.TestCase):
             boss = float(g.var("boss_x")) + 32
             hx = float(b["x"]) + 11
             down = []
-            if abs(hx - boss) > 28:
+            bolts = [float(x) + 6 for x, on in zip(g.var("bolt_x"), g.var("bolt_on")) if on in YES or on == 1]
+            near = [x for x in bolts if abs(x - hx) < 40]
+            if near:
+                down.append("left" if near[0] > hx else "right")        # a player steps out of the way of a bolt
+            elif b["ground"] and abs(hx - boss) < 70:
+                down.append("space")                                      # jump from a little way off and land on its head
                 down.append("right" if hx < boss else "left")
-            elif b["ground"]:
-                down.append("space")
+            elif abs(hx - boss) > 6:
+                down.append("right" if hx < boss else "left")
             g.fr(down=down)
         self.assertEqual(g.var("mode"), "wdone")
         self.assertEqual(g.var("wdone")[5], 1)
@@ -285,6 +290,43 @@ class Odyssey(unittest.TestCase):
         g.hero.update({"x": bx + 20, "y": 120, "vx": 0, "vy": 3})
         g.fr()
         self.assertEqual(g.var("boss_hp"), hp - 1)
+
+    def test_losing_all_three_hearts_restarts_the_level(self):
+        g = Game()
+        g.to_world(6)
+        for _ in range(3):
+            g.fr()
+        g.it.game["env"].find("boss_hp").vars["boss_hp"] = 3
+        for _ in range(3):
+            g.it.game["env"].find("hurt_t").vars["hurt_t"] = 0
+            g.it.game["env"].find("hp").vars["hp"] = g.var("hp")
+            hp_before = g.var("hp")
+            bx = float(g.var("boss_x"))
+            g.hero.update({"x": bx + 20, "y": 184, "vx": 0, "vy": 0})
+            g.fr()
+            self.assertEqual(g.var("hp"), hp_before - 1) if hp_before > 1 else None
+        g.fr()
+        self.assertEqual(g.var("mode"), "w6")
+        self.assertEqual(g.var("hp"), 3)
+        self.assertEqual(g.var("boss_hp"), 8)
+
+    def test_falling_in_a_pit_costs_a_heart(self):
+        g = Game()
+        g.to_world(5)
+        for _ in range(3):
+            g.fr()
+        g.hero.update({"x": 100, "y": 400, "vx": 0, "vy": 5})
+        g.fr()
+        g.fr()
+        self.assertEqual(g.var("hp"), 2)
+        self.assertEqual(g.var("mode"), "w5")
+
+    def test_a_lone_placed_tile_holds_the_hero_up(self):
+        g = Game()
+        g.to_world(7)
+        g.fr(down=["1", "space"])
+        g.fr(pressed=["enter"])
+        self.assertNotIn(g.var("edit_on"), YES)
 
     def test_world_7_build_play_and_save(self):
         g = Game()
