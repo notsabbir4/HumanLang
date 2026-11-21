@@ -85,6 +85,24 @@ class Game:
         return stop()
 
 
+
+def paint_picture(g, size_hint=None):
+    """Paints every square of the picture on the screen, like a player would."""
+    n = g.var("gridn")
+    target = g.var("paint_target")
+    cx, cy = g.var("cx"), g.var("cy")
+    for i, v in enumerate(target):
+        if not v:
+            continue
+        tx, ty = i % n, i // n
+        while cx != tx or cy != ty:
+            key = "right" if cx < tx else "left" if cx > tx else "down" if cy < ty else "up"
+            g.fr(pressed=[key])
+            cx += (key == "right") - (key == "left")
+            cy += (key == "down") - (key == "up")
+        g.fr(down=["space"])           # the colour picks itself when the cursor reaches a square
+
+
 class Odyssey(unittest.TestCase):
     def test_listed_with_version_and_video_file(self):
         with open(os.path.join(ROOT, "games", "index.json"), encoding="utf-8") as f:
@@ -188,26 +206,46 @@ class Odyssey(unittest.TestCase):
                     g.fr(down=["right"] + (["space"] if n % 40 == 0 else []))
             self.assertLess(g.hero["x"], limit, number)
 
-    def test_world_4_can_be_painted(self):
+    def test_world_4_two_pictures_can_be_painted(self):
         g = Game()
         g.to_world(4)
         self.assertEqual(g.var("mode"), "w4")
+        self.assertEqual(g.var("paint_round"), 1)
+        self.assertEqual(g.var("gridn"), 8)
+        paint_picture(g)
+        g.fr()
+        self.assertEqual(g.var("paint_round"), 2)          # the first picture is done: on to the bigger one
+        self.assertEqual(g.var("gridn"), 12)
+        self.assertEqual(g.var("mode"), "w4")
+        paint_picture(g)
+        for _ in range(3):
+            g.fr()
+        self.assertEqual(g.var("mode"), "wdone")
+        self.assertEqual(g.var("wdone")[3], 1)
+
+    def test_world_4_a_wrong_square_does_not_finish_it(self):
+        g = Game()
+        g.to_world(4)
+        paint_picture(g)
+        g.fr()
+        # picture 2: paint everything right except one square that gets the wrong colour
         target = g.var("paint_target")
-        cx = cy = 0
-        for i, t in enumerate(target):
-            if not t or g.var("mode") != "w4":
+        first = next(i for i, v in enumerate(target) if v)
+        n = g.var("gridn")
+        cx, cy = g.var("cx"), g.var("cy")
+        for i, v in enumerate(target):
+            if not v or i == first:
                 continue
-            tx, ty = i % 12, i // 12
+            tx, ty = i % n, i // n
             while cx != tx or cy != ty:
                 key = "right" if cx < tx else "left" if cx > tx else "down" if cy < ty else "up"
                 g.fr(pressed=[key])
                 cx += (key == "right") - (key == "left")
                 cy += (key == "down") - (key == "up")
-            g.fr(down=[str(t), "space"])
-        for _ in range(5):
+            g.fr(down=["space"])
+        for _ in range(3):
             g.fr()
-        self.assertEqual(g.var("mode"), "wdone")
-        self.assertEqual(g.var("wdone")[3], 1)
+        self.assertEqual(g.var("mode"), "w4")
 
     def test_world_5_can_be_finished_by_a_simple_bot(self):
         g = Game()
@@ -268,19 +306,10 @@ class Odyssey(unittest.TestCase):
     def test_the_hero_can_move_in_the_hub_after_finishing_a_world(self):
         g = Game()
         g.to_world(4)
-        target = g.var("paint_target")
-        cx = cy = 0
-        for i, v in enumerate(target):
-            if not v:
-                continue
-            tx, ty = i % 12, i // 12
-            while cx != tx or cy != ty:
-                key = "right" if cx < tx else "left" if cx > tx else "down" if cy < ty else "up"
-                g.fr(pressed=[key])
-                cx += (key == "right") - (key == "left")
-                cy += (key == "down") - (key == "up")
-            g.fr(down=[str(v), "space"])
-        for _ in range(5):
+        paint_picture(g)
+        g.fr()
+        paint_picture(g)
+        for _ in range(3):
             g.fr()
         self.assertEqual(g.var("mode"), "wdone")
         g.fr(pressed=["enter"])

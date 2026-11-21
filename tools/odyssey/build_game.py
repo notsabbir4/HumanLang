@@ -34,7 +34,17 @@ PUZZLES = [
 ]
 
 
-PAINT_ROWS = [  # 1 blue, 2 white, 3 yellow, 0 nothing: the HL badge
+PAINT_1 = [  # 4 red, 2 white, 0 nothing: a heart (8 x 8)
+    "00000000",
+    "04400440",
+    "04244440",
+    "04444440",
+    "00444400",
+    "00044000",
+    "00000000",
+    "00000000",
+]
+PAINT_2 = [  # 1 blue, 2 white, 3 yellow, 0 nothing: the HL badge (12 x 12)
     "000000000000",
     "011111111110",
     "012121211110",
@@ -48,7 +58,8 @@ PAINT_ROWS = [  # 1 blue, 2 white, 3 yellow, 0 nothing: the HL badge
     "033333333330",
     "000000000000",
 ]
-PAINT = [int(ch) for row in PAINT_ROWS for ch in row]
+PAINT_T1 = [int(ch) for row in PAINT_1 for ch in row]
+PAINT_T2 = [int(ch) for row in PAINT_2 for ch in row]
 
 
 def run_hl(code):
@@ -137,7 +148,8 @@ def data_block():
     out.append("set done_lines to " + strlist(["You said hello to HumanLang!", "You can read lists now!", "Words and numbers are no problem!", "You painted with pixels!",
                                                "You climbed the Platform Peaks!", "The Citadel is free!", "You are a HumanLang builder!"]))
     out.append("set paint_pal to " + strlist(["#2EB2F5", "#F6F8FF", "#FFD95C", "#E43A4C"]))
-    out.append("set paint_target to " + lst(PAINT))
+    out.append("set paint_t1 to " + lst(PAINT_T1))
+    out.append("set paint_t2 to " + lst(PAINT_T2))
     out.append("set user_letters to " + strlist(["G", "D", "S", "^", "c", "F"]))
     return "\n".join(out)
 

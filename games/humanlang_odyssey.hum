@@ -6853,6 +6853,12 @@ set canvas to empty list
 set cx to 0
 set cy to 0
 set pcol to 1
+set gridn to 8
+set pcell to 19
+set paint_round to 1
+set last_cx to -1
+set last_cy to -1
+set paint_target to empty list
 set boss_hp to 12
 set boss_max to 12
 set boss_x to 300
@@ -6958,7 +6964,8 @@ set scroll_text to list of "Scroll: say shows words on the screen.", "Scroll: se
 set door_x to list of 150, 380, 610, 840, 1070, 1300, 1530
 set done_lines to list of "You said hello to HumanLang!", "You can read lists now!", "Words and numbers are no problem!", "You painted with pixels!", "You climbed the Platform Peaks!", "The Citadel is free!", "You are a HumanLang builder!"
 set paint_pal to list of "#2EB2F5", "#F6F8FF", "#FFD95C", "#E43A4C"
-set paint_target to list of 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 2, 1, 2, 1, 2, 1, 1, 1, 1, 0, 0, 1, 2, 1, 2, 1, 2, 1, 1, 1, 1, 0, 0, 1, 2, 1, 2, 1, 2, 1, 1, 1, 1, 0, 0, 1, 2, 2, 2, 1, 2, 1, 1, 1, 1, 0, 0, 1, 2, 1, 2, 1, 2, 1, 1, 1, 1, 0, 0, 1, 2, 1, 2, 1, 2, 2, 2, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+set paint_t1 to list of 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 0, 0, 4, 4, 0, 0, 4, 2, 4, 4, 4, 4, 0, 0, 4, 4, 4, 4, 4, 4, 0, 0, 0, 4, 4, 4, 4, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+set paint_t2 to list of 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 2, 1, 2, 1, 2, 1, 1, 1, 1, 0, 0, 1, 2, 1, 2, 1, 2, 1, 1, 1, 1, 0, 0, 1, 2, 1, 2, 1, 2, 1, 1, 1, 1, 0, 0, 1, 2, 2, 2, 1, 2, 1, 1, 1, 1, 0, 0, 1, 2, 1, 2, 1, 2, 1, 1, 1, 1, 0, 0, 1, 2, 1, 2, 1, 2, 2, 2, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 set user_letters to list of "G", "D", "S", "^", "c", "F"
 
 note: ==================================================
@@ -7911,6 +7918,25 @@ note: ==================================================
 note: WORLD 4: PIXEL GALLERY (paint the picture)
 note: ==================================================
 
+define set_round with r
+    change paint_round to r
+    if r is 1
+        change gridn to 8
+        change pcell to 19
+        change paint_target to paint_t1
+    otherwise
+        change gridn to 12
+        change pcell to 13
+        change paint_target to paint_t2
+    change canvas to empty list
+    for each i from 1 to gridn * gridn
+        add 0 to canvas
+    change cx to 0
+    change cy to 0
+    change last_cx to -1
+    change last_cy to -1
+    change pcol to 1
+
 define start_w4
     change mode to "w4"
     change world_w to 480
@@ -7919,20 +7945,16 @@ define start_w4
     change done_t to 0
     change hp to 3
     change cam_x to 0
-    change canvas to empty list
-    for each i from 1 to 144
-        add 0 to canvas
-    change cx to 0
-    change cy to 0
-    change pcol to 1
     change coin_x to empty list
     change coin_y to empty list
     change coin_got to empty list
+    set_round with 1
+    say_msg with "Paint the dotted squares. The colour picks itself!"
     play the music "chill"
 
 define count_match
     set same to 0
-    for each i from 1 to 144
+    for each i from 1 to gridn * gridn
         if (item i of canvas) is (item i of paint_target)
             add 1 to same
     give back same
@@ -7944,14 +7966,23 @@ define cell_colour with v
 
 define update_w4
     add 1 to world_t
+    set n to gridn
     if k_left and cx is greater than 0
         subtract 1 from cx
-    if k_right and cx is less than 11
+    if k_right and cx is less than n - 1
         add 1 to cx
     if k_up and cy is greater than 0
         subtract 1 from cy
-    if k_down and cy is less than 11
+    if k_down and cy is less than n - 1
         add 1 to cy
+    set at to cy * n + cx + 1
+    set need to item at of paint_target
+    note: when the cursor moves to a new square, the colour picks itself (you can still press 1 to 4)
+    if cx is not last_cx or cy is not last_cy
+        change last_cx to cx
+        change last_cy to cy
+        if need is greater than 0
+            change pcol to need
     if key "1" is down
         change pcol to 1
     if key "2" is down
@@ -7960,48 +7991,76 @@ define update_w4
         change pcol to 3
     if key "4" is down
         change pcol to 4
-    set at to cy * 12 + cx + 1
     if key "space" is down
         change item at of canvas to pcol
-    if key "x" is down
+    if key "x" is down or key "backspace" is down
         change item at of canvas to 0
     set same to count_match
-    if same is 144 and done_t is 0
-        finish_world with 4
+    set total to n * n
+    set left to total - same
+    if left is 0 and done_t is 0
+        if paint_round is 1
+            play the sound "win"
+            set_round with 2
+            say_msg with "Great! Now a bigger picture: the HL badge."
+        otherwise
+            finish_world with 4
     move the camera to 0, 0
     bands with sky_hub
-    draw the sprite easel at 30, 214
-    draw the sprite easel at 420, 214
-    put a rectangle at 14, 34 with width 170 and height 170 and colour "#0B1026" and border 2 and border colour "#FFE680" and rounded 6
-    for each i from 1 to 144
-        set r to floor of ((i - 1) / 12)
-        set c to (i - 1) mod 12
-        set colr to cell_colour with (item i of canvas)
-        put a rectangle at 20 + c * 13, 40 + r * 13 with width 12 and height 12 and colour colr
+    set cell to pcell
+    set box to n * cell + 12
+    put a rectangle at 14, 34 with width box and height box and colour "#0B1026" and border 2 and border colour "#FFE680" and rounded 6
+    for each i from 1 to n * n
+        set r to floor of ((i - 1) / n)
+        set c to (i - 1) mod n
+        set have to item i of canvas
+        set want to item i of paint_target
+        set colr to cell_colour with have
+        put a rectangle at 20 + c * cell, 40 + r * cell with width cell - 1 and height cell - 1 and colour colr
+        if have is 0 and want is greater than 0
+            set dot to cell_colour with want
+            put a rectangle at 20 + c * cell + floor of (cell / 2) - 3, 40 + r * cell + floor of (cell / 2) - 3 with width 5 and height 5 and colour dot and border 1 and border colour "#FFFFFF"
+        if have is not want and have is greater than 0
+            put a rectangle at 21 + c * cell, 41 + r * cell with width 5 and height 5 and colour "#FF4A4A" and border 1 and border colour "#FFFFFF"
     set cur to cell_colour with (item at of canvas)
-    put a rectangle at 20 + cx * 13 - 1, 40 + cy * 13 - 1 with width 14 and height 14 and colour cur and border 2 and border colour "#FFFFFF"
-    text_at with "YOUR PICTURE" and 99 and 210 and 10 and "#9AA3C0" and "center"
-    put a rectangle at 232, 34 with width 110 and height 110 and colour "#0B1026" and border 2 and border colour "#7FD6FF" and rounded 6
-    for each i from 1 to 144
-        set r to floor of ((i - 1) / 12)
-        set c to (i - 1) mod 12
+    put a rectangle at 20 + cx * cell - 1, 40 + cy * cell - 1 with width cell + 1 and height cell + 1 and colour cur and border 2 and border colour "#FFFFFF"
+    text_at with "YOUR PICTURE" and (14 + floor of (box / 2)) and (box + 38) and 10 and "#9AA3C0" and "center"
+    set tc to floor of (96 / n)
+    set tbox to n * tc + 12
+    put a rectangle at 190, 34 with width tbox and height tbox and colour "#0B1026" and border 2 and border colour "#7FD6FF" and rounded 6
+    for each i from 1 to n * n
+        set r to floor of ((i - 1) / n)
+        set c to (i - 1) mod n
         set colr to cell_colour with (item i of paint_target)
-        put a rectangle at 238 + c * 8, 40 + r * 8 with width 8 and height 8 and colour colr
-    text_at with "COPY THIS" and 287 and 148 and 10 and "#9AA3C0" and "center"
+        put a rectangle at 196 + c * tc, 40 + r * tc with width tc and height tc and colour colr
+    text_at with "COPY THIS" and (190 + floor of (tbox / 2)) and (tbox + 38) and 10 and "#7FD6FF" and "center"
     for each o from 1 to 4
         set pc to item o of paint_pal
         set bc to "#3B4A7A"
         if o is pcol
             set bc to "#FFFFFF"
-        put a rectangle at 360 + (o - 1) * 28, 40 with width 24 and height 24 and colour pc and border 2 and border colour bc and rounded 4
-        text_at with "{o}" and (372 + (o - 1) * 28) and 68 and 11 and "#FFFFFF" and "center"
-    text_at with "Arrows move" and 360 and 96 and 11 and "#FFFFFF" and "left"
-    text_at with "Space paints" and 360 and 112 and 11 and "#FFFFFF" and "left"
-    text_at with "1 2 3 4 pick a colour" and 360 and 128 and 11 and "#FFFFFF" and "left"
-    text_at with "X rubs out" and 360 and 144 and 11 and "#FFFFFF" and "left"
-    text_at with "Matching squares: {same}/144" and 360 and 168 and 11 and "#8FF2AE" and "left"
-    text_at with "In HumanLang a picture is" and 232 and 196 and 10 and "#9AA3C0" and "left"
-    text_at with "just letters: put pixel art" and 232 and 210 and 10 and "#9AA3C0" and "left"
+        put a rectangle at 316 + (o - 1) * 32, 36 with width 26 and height 26 and colour pc and border 2 and border colour bc and rounded 4
+        text_at with "{o}" and (329 + (o - 1) * 32) and 64 and 10 and "#FFFFFF" and "center"
+    text_at with "Picture {paint_round} of 2" and 316 and 80 and 12 and "#FFE680" and "left"
+    text_at with "HOW TO PLAY" and 316 and 98 and 10 and "#7FD6FF" and "left"
+    text_at with "1  Arrows move" and 316 and 112 and 10 and "#FFFFFF" and "left"
+    text_at with "2  Space paints" and 316 and 126 and 10 and "#FFFFFF" and "left"
+    text_at with "3  X erases" and 316 and 140 and 10 and "#FFFFFF" and "left"
+    text_at with "Hold Space + arrows" and 316 and 154 and 10 and "#9AA3C0" and "left"
+    text_at with "to paint a line." and 316 and 166 and 10 and "#9AA3C0" and "left"
+    if left is 0
+        text_at with "Perfect!" and 316 and 186 and 13 and "#8FF2AE" and "left"
+    otherwise
+        text_at with "Squares to fix: {left}" and 316 and 186 and 12 and "#FFB86B" and "left"
+    if need is greater than 0
+        set nc to cell_colour with need
+        text_at with "This square:" and 316 and 206 and 10 and "#FFFFFF" and "left"
+        put a rectangle at 400, 204 with width 16 and height 14 and colour nc and border 2 and border colour "#FFFFFF" and rounded 3
+    otherwise
+        text_at with "This square: empty" and 316 and 206 and 10 and "#9AA3C0" and "left"
+    if msg_t is 0
+        shadow_text with "Paint every dotted square so it looks like the small picture." and 240 and 232 and 10 and "#FFFFFF" and "center"
+        shadow_text with "A red mark is a wrong square: paint it again or press X." and 240 and 247 and 10 and "#9AA3C0" and "center"
     draw_hud with "WORLD 4: PIXEL GALLERY"
     change k_enter to no
 
