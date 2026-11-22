@@ -25,6 +25,16 @@ class AssetTests(unittest.TestCase):
                 f.write(b"x")
         return d
 
+    def test_continue_the_music_asks_the_screen_to_resume(self):
+        it = Interpreter(out=lambda t: None)
+        it.assets = {"a.mp3": "audio", "b.mp3": "audio"}
+        it.run('play a game titled "T" with size 40 by 40\n    when the key "a" is pressed\n        play the music "b.mp3"\n    when the key "b" is pressed\n        continue the music "a.mp3"\n    every frame\n        draw the sprite x at 0, 0\n'.replace("        draw the sprite x at 0, 0\n","        put a rectangle at 0, 0 with width 4 and height 4 and colour red\n"))
+        f = it.game_frame(pressed=["a"])
+        self.assertEqual(f["music"], "b.mp3")
+        self.assertNotIn("resume", f)
+        f = it.game_frame(pressed=["b"])
+        self.assertEqual((f["music"], f["resume"]), ("a.mp3", True))
+
     def test_scan_and_kinds(self):
         d = self.folder()
         self.assertEqual(scan_folder(d), {"boom.wav": "audio", "face.png": "picture"})

@@ -295,17 +295,17 @@
   {
     "id": "planet-defenders-2",
     "title": "PLANET DEFENDERS 2",
-    "subtitle": "Endless · bosses · v0.6.1",
+    "subtitle": "Endless · bosses · v0.6.2",
     "file": "planet_defenders_2.hum",
     "kind": "arcade",
     "tagline": "The invasion never stops. Catch skills, survive, beat your best.",
-    "blurb": "An endless shooter with a home page, instructions and four levels (easy, medium, hard, impossible). Aliens come in waves that never stop. Every third wave a boss arrives: XERON, or the main boss OBLIVAR (4 fights in 10), who turns the sky blood red and changes the music. Every boss fight is long on every level, but bosses hit much harder on harder levels, and every boss attack has a way through or a way to dodge it. Shoot aliens to make skills drop (shield, full power, invisible, time warp, nova, health pack), then fly under a skill to catch it. OBLIVAR can drop the rare skill OBLIVAR-X, which transforms your ship and turns your red health bar purple. You score for every second you survive. Best scores are saved, there is music, and it plays on phones.",
+    "blurb": "An endless shooter with a home page, instructions and five levels (training, easy, medium, hard, impossible). Aliens come in waves that never stop. Every third wave a boss arrives: XERON, or the main boss OBLIVAR (4 fights in 10), who turns the sky blood red and changes the music. Every boss fight is long on every level, but bosses hit much harder on harder levels (and barely hurt on Training, where they drop six skills), and every boss attack has a way through or a way to dodge it. Shoot aliens to make skills drop (shield, full power, invisible, time warp, nova, health pack), then fly under a skill to catch it. OBLIVAR can drop the rare skill OBLIVAR-X, which transforms your ship and turns your red health bar purple. You score for every second you survive. Best scores are saved, it has four songs (home page, game, XERON and OBLIVAR; the game song goes on where it stopped after each boss) and it plays on phones.",
     "tags": [
       "Arcade",
       "Endless",
       "Bosses",
       "Skills",
-      "4 levels",
+      "5 levels",
       "Music",
       "Phone ready"
     ],
@@ -323,9 +323,9 @@
         "text": "Every picture is a sprite: a `where` line says what each letter means (hex colour codes like `\"#E21C24\"` work), then one line of quotes per row of squares. The aliens have 2 frames so they wiggle. The six skill icons and the bonus UFO are tiny sprites too."
       },
       {
-        "title": "Settings for 4 levels",
+        "title": "Settings for 5 levels",
         "at": "set level_names to",
-        "text": "Each difficulty is one item in a set of lists: item 1 is easy, item 4 is impossible. Lives, how often skills drop, how often aliens fire, how fast bombs fall and how well aliens aim all come from these lists. Change a number and the whole level changes."
+        "text": "Each difficulty is one item in a set of lists: item 1 is easy, item 4 is impossible. Lives, how often skills drop, how often aliens fire, how fast bombs fall and how well aliens aim all come from these lists. Change a number and the whole level changes. Item 5 is TRAINING: tiny hits, gentle bosses that drop six skills."
       },
       {
         "title": "The game's memory",
@@ -395,10 +395,16 @@
       {
         "title": "The game, its parts and the phone",
         "at": "play a game titled",
-        "text": "The game has parts: when it starts, every frame, every second (that is where survival points come from), keys and mouse clicks. On a phone a finger counts as mouse clicks, so dragging steers and touching fires. The music (`play the music \"adventure\"`) is built in, no files needed."
+        "text": "The game has parts: when it starts, every frame, every second (that is where survival points come from), keys and mouse clicks. On a phone a finger counts as mouse clicks, so dragging steers and touching fires. The music is four song files: `play the music \"Boss_Battle_Theme.mp3\"` starts a boss song and puts the game song on the shelf, and `continue the music \"Galaxy_Dash.mp3\"` takes it off the shelf again from where it stopped (a v0.6.2 word)."
       }
     ],
-    "version": "0.6.1"
+    "version": "0.6.2",
+    "files": [
+      "Pixel_Arpeggio.mp3",
+      "Galaxy_Dash.mp3",
+      "Boss_Battle_Theme.mp3",
+      "Oblivar_Final_Boss.mp3"
+    ]
   },
   {
     "id": "maze-muncher",

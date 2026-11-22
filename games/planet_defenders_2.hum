@@ -697,38 +697,40 @@ make a sprite called icon_x with pixel size 2
     "..kkpkk.."
 
 note: ==================================================
-note: GAME SETTINGS FOR THE 4 DIFFICULTY LEVELS (item 1 = easy ... item 4 = impossible)
+note: GAME SETTINGS FOR THE 5 DIFFICULTY LEVELS (item 1 = easy ... item 4 = impossible, item 5 = TRAINING: the gentlest of all)
 note: ==================================================
 
-set level_names to list of "EASY", "MEDIUM", "HARD", "IMPOSSIBLE"
-set level_colours to list of "#4CE05A", "#FFD23F", "#FF8A1F", "#FF3B3B"
+set level_names to list of "EASY", "MEDIUM", "HARD", "IMPOSSIBLE", "TRAINING"
+set level_colours to list of "#4CE05A", "#FFD23F", "#FF8A1F", "#FF3B3B", "#4CC9FF"
 note: v0.6.2: the health bar is 100 for everybody. The level decides how HARD things hit you.
-set hit_dmg_for to list of 20, 30, 40, 50
+set hit_dmg_for to list of 20, 30, 40, 50, 8
 note: how much a boss shot takes off your bar (a laser beam does 1.5 times, a boss dive 2 times)
-set boss_dmg_for to list of 8, 14, 20, 30
-set drop_for to list of 40, 25, 12, 5
-set bomb_every_for to list of 55, 38, 26, 20
-set bomb_speed_for to list of 2, 3, 3, 3.5
-set max_bombs_for to list of 2, 3, 4, 5
-set aimed_for to list of 20, 40, 60, 80
-set speed_base_for to list of 0.28, 0.38, 0.5, 0.65
-set speed_grow_for to list of 0.03, 0.04, 0.05, 0.06
+set boss_dmg_for to list of 8, 14, 20, 30, 2
+set drop_for to list of 40, 25, 12, 5, 70
+set bomb_every_for to list of 55, 38, 26, 20, 80
+set bomb_speed_for to list of 2, 3, 3, 3.5, 1.5
+set max_bombs_for to list of 2, 3, 4, 5, 1
+set aimed_for to list of 20, 40, 60, 80, 5
+set speed_base_for to list of 0.28, 0.38, 0.5, 0.65, 0.2
+set speed_grow_for to list of 0.03, 0.04, 0.05, 0.06, 0.015
 
 note: bosses: one number for each level. Every boss lasts LONG on every level (same health). Harder levels = harder hits,
 note: faster shots and wider fans.
-set xeron_hp_for to list of 90, 90, 90, 90
-set oblivar_hp_for to list of 220, 220, 220, 220
-set xeron_fire_for to list of 75, 56, 42, 32
-set oblivar_fire_for to list of 62, 46, 34, 26
-set boss_speed_for to list of 0.7, 0.95, 1.25, 1.6
-set boss_bullet_for to list of 1.8, 2.3, 2.8, 3.3
-set xeron_fan_for to list of 1, 3, 3, 5
-set oblivar_fan_for to list of 3, 5, 5, 7
-set rain_for to list of 2, 3, 4, 6
-set xeron_pts_for to list of 300, 500, 800, 1200
-set oblivar_pts_for to list of 900, 1500, 2400, 3600
+set xeron_hp_for to list of 90, 90, 90, 90, 90
+set oblivar_hp_for to list of 220, 220, 220, 220, 220
+set xeron_fire_for to list of 75, 56, 42, 32, 110
+set oblivar_fire_for to list of 62, 46, 34, 26, 100
+set boss_speed_for to list of 0.7, 0.95, 1.25, 1.6, 0.5
+set boss_bullet_for to list of 1.8, 2.3, 2.8, 3.3, 1.4
+set xeron_fan_for to list of 1, 3, 3, 5, 1
+set oblivar_fan_for to list of 3, 5, 5, 7, 1
+set rain_for to list of 2, 3, 4, 6, 1
+set xeron_pts_for to list of 300, 500, 800, 1200, 150
+set oblivar_pts_for to list of 900, 1500, 2400, 3600, 450
 note: the chance (in 100) that OBLIVAR drops OBLIVAR-X: it gets rarer on harder levels
-set x_drop_for to list of 45, 30, 18, 8
+set x_drop_for to list of 45, 30, 18, 8, 60
+note: how many skills a boss drops during the fight (TRAINING drops six, and not only health packs)
+set gifts_for to list of 2, 2, 2, 2, 6
 note: the colours of the sky when it is turning blood red (0 = normal)
 set blood_sky to list of "#000000", "#1A0205", "#2A0307", "#3A040A", "#520610", "#6A0814"
 
@@ -739,7 +741,7 @@ note: ==================================================
 set mode to "home"
 set how_page to 1
 set level_pick to 2
-set bests to list of 0, 0, 0, 0
+set bests to list of 0, 0, 0, 0, 0
 set click_wait to 0
 set over_t to 0
 set new_best to no
@@ -1102,9 +1104,9 @@ define start_boss with kind
         change item i of by to -1
     clear_boss_bullets
     if kind is 1
-        play the music "boss"
+        play the music "Boss_Battle_Theme.mp3"
     otherwise
-        play the music "doom"
+        play the music "Oblivar_Final_Boss.mp3"
     play the sound "lose"
 
 define boss_attack
@@ -1191,11 +1193,15 @@ define damage_boss with amount and hx and hy
         clear_boss_bullets
         reset_boss_moves
         play the sound "explosion"
-    otherwise if boss_gifts is less than 2 and boss_hp is at most boss_max * (2 - boss_gifts) / 3
-        note: the fights are long: at two thirds and at one third the boss drops a health pack
+    otherwise if boss_gifts is less than item level_pick of gifts_for and boss_hp is at most boss_max * ((item level_pick of gifts_for) - boss_gifts) / ((item level_pick of gifts_for) + 1)
+        note: the fights are long: the boss drops a gift at regular steps of its health (2 gifts, health packs; TRAINING: 6 gifts, any skill)
         add 1 to boss_gifts
-        add_special_drop with (boss_x + boss_w / 2 - 9) and (boss_y + boss_h) and 6
-        show_hint with "A HEALTH PACK IS FALLING: CATCH IT!"
+        if level_pick is 5
+            add_special_drop with (boss_x + boss_w / 2 - 9) and (boss_y + boss_h) and (random number from 1 to 6)
+            show_hint with "A SKILL IS FALLING: CATCH IT!"
+        otherwise
+            add_special_drop with (boss_x + boss_w / 2 - 9) and (boss_y + boss_h) and 6
+            show_hint with "A HEALTH PACK IS FALLING: CATCH IT!"
 
 define boss_ready
     set ok to boss_kind is greater than 0 and boss_warn is 0 and boss_in is 0 and boss_die is 0
@@ -1314,11 +1320,9 @@ define new_wave
     note: v0.6.1: the speed of each wave comes from a formula that is worked out from text
     change wave_speed to calculate "min(1.4, {base} + {wave} * {grow})"
 
+note: the game song goes on from where a boss song interrupted it (from the start when nothing was interrupted)
 define music_for_level
-    if level_pick is at most 2
-        play the music "adventure"
-    otherwise
-        play the music "chase"
+    continue the music "Galaxy_Dash.mp3"
 
 define start_game
     set d to level_pick
@@ -1396,7 +1400,7 @@ define start_game
     change mode to "play"
     change click_wait to 20
     remember level_pick as "pd2 level"
-    music_for_level
+    play the music "Galaxy_Dash.mp3"
 
 define end_game
     change mode to "over"
@@ -1438,7 +1442,7 @@ define go_home
     reset_boss_moves
     change hint_t to 0
     change click_wait to 20
-    play the music "chill"
+    play the music "Pixel_Arpeggio.mp3"
 
 define grab with kind
     play the sound "powerup"
@@ -1829,11 +1833,11 @@ define draw_button with d and top
     set c to item d of level_colours
     set picked to d is level_pick
     if picked
-        put a rectangle at 60, top with width 200 and height 28 and colour "#1B2036" and border 2 and border colour c
+        put a rectangle at 60, top with width 200 and height 24 and colour "#1B2036" and border 2 and border colour c
     otherwise
-        put a rectangle at 60, top with width 200 and height 28 and colour "#0A0C14" and border 1 and border colour "#444C6E"
-    put a text (item d of level_names) at 72, top + 7 with size 13 and colour c and bold
-    put a text "BEST {item d of bests}" at 250, top + 9 with size 10 and colour "#9AA3C0" and align right
+        put a rectangle at 60, top with width 200 and height 24 and colour "#0A0C14" and border 1 and border colour "#444C6E"
+    put a text (item d of level_names) at 72, top + 5 with size 13 and colour c and bold
+    put a text "BEST {item d of bests}" at 250, top + 7 with size 10 and colour "#9AA3C0" and align right
 
 define draw_home
     set pose to 1 + ((frame number divided evenly by 20) mod 2)
@@ -1842,12 +1846,12 @@ define draw_home
     put a text "PLANET DEFENDERS" at 150, 10 with size 21 and colour "#FFE16A" and bold and align center
     put a text "2" at 262, 10 with size 21 and colour "#FF3B3B" and bold
     put a text "THE ENDLESS INVASION" at 160, 38 with size 10 and colour "#2DCDFF" and align center
-    for each d from 1 to 4
-        draw_button with d and (56 + (d - 1) * 32)
-    put a rectangle at 100, 188 with width 120 and height 24 and colour "#0A0C14" and border 1 and border colour "#9AA3C0"
-    put a text "HOW TO PLAY" at 160, 194 with size 12 and colour white and bold and align center
-    put a text "Tap a level to start. Up / Down + Enter on a keyboard." at 160, 218 with size 9 and colour "#9AA3C0" and align center
-    put a text "HumanLang 0.6.1: music, saved scores, phone ready" at 160, 231 with size 8 and colour "#6C7494" and align center
+    for each d from 1 to 5
+        draw_button with d and (52 + (d - 1) * 28)
+    put a rectangle at 100, 196 with width 120 and height 22 and colour "#0A0C14" and border 1 and border colour "#9AA3C0"
+    put a text "HOW TO PLAY" at 160, 200 with size 12 and colour white and bold and align center
+    put a text "Tap a level to start. Up / Down + Enter on a keyboard." at 160, 224 with size 9 and colour "#9AA3C0" and align center
+    put a text "HumanLang 0.6.2: music, saved scores, phone ready" at 160, 234 with size 8 and colour "#6C7494" and align center
 
 define page_footer
     put a text "Enter or tap: next   ({how_page} of 4)" at 160, 226 with size 10 and colour "#9AA3C0" and align center
@@ -1874,11 +1878,11 @@ define draw_how
         put a text "Skills fall slowly. Fly under one to catch it!" at 160, 211 with size 10 and colour "#FFE16A" and align center
     otherwise if how_page is 3
         centre_text with "LEVELS" and 8 and 18 and "#FFE16A"
-        set tips to list of "Light hits. Slow aliens. Lots of skills.", "Medium hits. Faster aliens. Some skills.", "Heavy hits. Fierce aliens. Few skills.", "Brutal hits: 2 and you are out. Rare skills."
-        for each d from 1 to 4
+        set tips to list of "Light hits. Slow aliens. Lots of skills.", "Medium hits. Faster aliens. Some skills.", "Heavy hits. Fierce aliens. Few skills.", "Brutal hits: 2 and you are out. Rare skills.", "Tiny hits. Gentle bosses that drop skills."
+        for each d from 1 to 5
             set c to item d of level_colours
-            put a text (item d of level_names) at 20, 40 + (d - 1) * 40 with size 14 and colour c and bold
-            put a text (item d of tips) at 20, 60 + (d - 1) * 40 with size 11 and colour white
+            put a text (item d of level_names) at 20, 34 + (d - 1) * 32 with size 13 and colour c and bold
+            put a text (item d of tips) at 20, 50 + (d - 1) * 32 with size 10 and colour white
         put a text "The level decides how hard the bosses hit you." at 160, 194 with size 10 and colour "#9AA3C0" and align center
         put a text "Your best score on each level is remembered." at 160, 208 with size 10 and colour "#9AA3C0" and align center
     otherwise
@@ -2132,7 +2136,7 @@ play a game titled "Planet Defenders 2" with size 320 by 240 and background blac
 
     when the game starts
         change stx to list of -1
-        for each d from 1 to 4
+        for each d from 1 to 5
             set v to recall "pd2 best {d}"
             if v is not nothing
                 change item d of bests to v
@@ -2142,7 +2146,7 @@ play a game titled "Planet Defenders 2" with size 320 by 240 and background blac
         repeat 10 times
             add 0 to drip_len
             add random number from 18 to 70 to drip_max
-        play the music "chill"
+        play the music "Pixel_Arpeggio.mp3"
 
     every frame
         move_stars
@@ -2178,12 +2182,12 @@ play a game titled "Planet Defenders 2" with size 320 by 240 and background blac
         if mode is "home"
             change level_pick to level_pick - 1
             if level_pick is less than 1
-                change level_pick to 4
+                change level_pick to 5
 
     when the key "down" is pressed
         if mode is "home"
             change level_pick to level_pick + 1
-            if level_pick is greater than 4
+            if level_pick is greater than 5
                 change level_pick to 1
 
     when the key "h" is pressed
@@ -2219,11 +2223,11 @@ play a game titled "Planet Defenders 2" with size 320 by 240 and background blac
             change touch_t to 25
         otherwise if click_wait is 0
             if mode is "home"
-                for each d from 1 to 4
-                    if mx is greater than 60 and mx is less than 260 and my is at least 56 + (d - 1) * 32 and my is less than 84 + (d - 1) * 32
+                for each d from 1 to 5
+                    if mx is greater than 60 and mx is less than 260 and my is at least 52 + (d - 1) * 28 and my is less than 76 + (d - 1) * 28
                         change level_pick to d
                         start_game
-                if mx is greater than 100 and mx is less than 220 and my is at least 188 and my is less than 214
+                if mx is greater than 100 and mx is less than 220 and my is at least 196 and my is less than 218
                     change mode to "how"
                     change how_page to 1
                     change click_wait to 20

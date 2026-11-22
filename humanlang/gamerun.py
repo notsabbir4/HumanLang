@@ -29,6 +29,7 @@ class GameRun:
         self.mouse = (0, 0)
         self.assets = {}  # file name -> "picture" / "audio" / "video" (set by the host before the program runs)
         self.music_now = None
+        self.music_resume = False
 
     # -- declaring ---------------------------------------------------------------------
     def x_sprite(self, s, env):
@@ -143,7 +144,8 @@ class GameRun:
             self.sounds.append(name)
 
     def x_music(self, s, env):
-        _, line, expr = s
+        _, line, expr, *more = s
+        self.music_resume = bool(more and more[0])
         if expr is None:
             name = ""
         else:
@@ -344,6 +346,9 @@ class GameRun:
             self.video_now = None
         if self.music_now is not None:
             out["music"] = self.music_now
+            if self.music_resume:
+                out["resume"] = True
+            self.music_resume = False
             self.music_now = None
         self.frame_cmds = None
         return out

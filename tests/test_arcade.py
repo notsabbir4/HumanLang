@@ -287,12 +287,14 @@ class Showcase(unittest.TestCase):
 
     def pd2(self, level):
         random.seed(level)                                      # the game uses chance: make every run the same
-        it = make(load("planet_defenders_2.hum"))
+        it = Interpreter()
+        it.assets = {f: "audio" for f in ("Pixel_Arpeggio.mp3", "Galaxy_Dash.mp3", "Boss_Battle_Theme.mp3", "Oblivar_Final_Boss.mp3")}
+        it.run(load("planet_defenders_2.hum"))
         g = it.globals.vars
         for _ in range(25):
             it.game_frame()
         self.assertEqual(g["mode"], "home")
-        it.game_frame(clicked=True, mouse=(150, 56 + (level - 1) * 32 + 10))   # tap the level's button
+        it.game_frame(clicked=True, mouse=(150, 52 + (level - 1) * 28 + 10))   # tap the level's button
         self.assertEqual(g["mode"], "play")
         return it, g
 
@@ -302,7 +304,7 @@ class Showcase(unittest.TestCase):
             it, g = self.pd2(level)
             self.assertEqual((g["hp"], g["hp_max"]), (100, 100))       # a health bar of 100 on every level
             self.assertEqual(g["drop_pct"], drops[level])   # harder levels drop fewer skills
-        self.assertEqual([int(v) for v in g["hit_dmg_for"]], [20, 30, 40, 50])   # ...but hits hurt more
+        self.assertEqual([int(v) for v in g["hit_dmg_for"]][:4], [20, 30, 40, 50])   # ...but hits hurt more
 
     def test_planet_defenders_2_health_is_a_bar_not_hearts(self):
         with open(os.path.join(ROOT, "games", "planet_defenders_2.hum"), encoding="utf-8") as f:
@@ -502,13 +504,45 @@ class Showcase(unittest.TestCase):
         self.assertEqual(music, [])                         # (the tune started with the warning)
         frames = self.fight(g, it, 12000, until_beaten=True)    # the main boss lasts long
         self.assertEqual(g["boss_kind"], 0)
-        self.assertIn("adventure", [f["music"] for f in frames if "music" in f])   # the level's own tune comes back
+        back = [f for f in frames if f.get("music") == "Galaxy_Dash.mp3"]
+        self.assertTrue(back and back[0].get("resume"))     # the game song goes on from where the boss interrupted it
         for _ in range(120):
             it.game_frame()
         self.assertEqual(g["blood"], 0)                     # and the sky heals
 
+    def test_pd2_training_is_very_gentle_and_bosses_drop_many_skills(self):
+        it, g = self.pd2(5)
+        self.assertEqual(g["level_pick"], 5)
+        self.assertEqual(g["level_names"][4], "TRAINING")
+        self.call_boss(g, it, 2)
+        for _ in range(100):
+            it.game_frame()
+        g["hurt_t"], g["shield_t"] = 0, 0
+        g["kx"][0], g["ky"][0], g["kvx"][0], g["kvy"][0] = g["px"] + 25, 186, 0, 2
+        for _ in range(3):
+            it.game_frame()
+        self.assertEqual(g["hp"], 98)                       # a training boss shot takes only 2
+        self.fight(g, it, 12000, until_beaten=True)
+        self.assertEqual(g["boss_kind"], 0)
+        self.assertEqual(g["boss_gifts"], 6)                # 6 gifts in a training fight (2 on the other levels)
+
+    def test_pd2_the_game_song_pauses_for_a_boss_and_continues_after(self):
+        it, g = self.pd2(2)
+        sent = []
+        for _ in range(400):
+            g["boss_kind"], g["wave"], g["alive"], g["left"] = 0, 3, [0] * 32, 0
+            f = it.game_frame()
+            if "music" in f:
+                sent.append((f["music"], f.get("resume", False)))
+            if g["boss_kind"]:
+                break
+        self.assertEqual(sent[-1], ("Boss_Battle_Theme.mp3", False))    # it is PLAYED, so the game song is put on the shelf where it was
+        frames = self.fight(g, it, 12000, until_beaten=True)
+        back = [(f["music"], f.get("resume")) for f in frames if "music" in f]
+        self.assertIn(("Galaxy_Dash.mp3", True), back)                   # and CONTINUED when the boss is beaten
+
     def test_pd2_each_boss_has_its_own_tune(self):
-        for kind, tune in ((1, "boss"), (2, "doom")):
+        for kind, tune in ((1, "Boss_Battle_Theme.mp3"), (2, "Oblivar_Final_Boss.mp3")):
             it, g = self.pd2(2)
             g["boss_kind"], g["wave"], g["alive"], g["left"] = 0, 3, [0] * 32, 0
             tunes = []

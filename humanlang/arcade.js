@@ -74,10 +74,13 @@
       doom: { bpm: 112, lead: "E4 - - D#4 E4 - B3 - C4 - - B3 C4 - F#4 -", bass: "E2 - E2 - E2 - B1 - C2 - C2 - C2 - F#1 -" },
       chase: { bpm: 180, lead: "A4 A4 C5 A4 E5 A4 C5 A4 G4 G4 B4 G4 D5 G4 B4 G4", bass: "A2 - A2 - A2 - A2 - G2 - G2 - G2 - G2 -" },
     };
-    let timer = null, musicEl = null, uMuted = false;
+    let timer = null, musicEl = null, musicName = "", uMuted = false;
+    const shelf = {};                       // songs another song interrupted: name -> audio element, still at its place
     function stopMusic() {
       if (timer) { clearInterval(timer); timer = null; }
       if (musicEl) { musicEl.pause(); musicEl = null; }
+      musicName = "";
+      for (const k of Object.keys(shelf)) { shelf[k].pause(); delete shelf[k]; }
     }
     function playTune(name) {
       const tune = TUNES[name]; if (!tune) return;
@@ -103,11 +106,15 @@
         const c = ensure();
         if (c && bank[name]) bank[name](c, c.currentTime);
       },
-      music(name, files) {
-        stopMusic();
-        if (!name) return;
+      music(name, files, resume) {
+        // a song file that is interrupted is put on the shelf at its place, so "continue the music" can pick it up again
+        if (timer) { clearInterval(timer); timer = null; }
+        if (musicEl) { musicEl.pause(); if (name) shelf[musicName] = musicEl; else delete shelf[musicName]; musicEl = null; }
+        if (!name) { stopMusic(); return; }
+        musicName = name;
         if (files && files[name]) {
-          musicEl = new Audio(files[name]); musicEl.loop = true; musicEl.volume = 0.5;
+          if (resume && shelf[name]) { musicEl = shelf[name]; delete shelf[name]; }
+          else { if (shelf[name]) { shelf[name].pause(); delete shelf[name]; } musicEl = new Audio(files[name]); musicEl.loop = true; musicEl.volume = 0.5; }
           if (!uMuted) { const p = musicEl.play(); if (p && p.catch) p.catch(() => {}); }
         } else playTune(name);
       },
@@ -313,7 +320,7 @@
           draw(frame);
           const f = frame, after = () => {
             if (!muted) for (const s of f.sounds || []) sound.play(s, files);
-            if (f.music !== undefined && f.music !== lastMusic) { lastMusic = f.music; sound.music(f.music, files); }
+            if (f.music !== undefined && f.music !== lastMusic) { lastMusic = f.music; sound.music(f.music, files, f.resume); }
             if (f.over) { over = true; running = false; if (opts.onOver) opts.onOver(); }
           };
           if (f.video) playVideo(f.video, after); else after();

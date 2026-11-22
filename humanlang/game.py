@@ -99,6 +99,15 @@ class GameParser:
             return ("sprite", line, name, ps, int(frames), extra)
         return ("map", line, name, tile, extra)
 
+    def st_continue(self):
+        """continue the music "song.mp3": a song that another song interrupted goes on from where it stopped"""
+        line = self.lineno
+        self.example = 'continue the music "theme.mp3"'
+        self.i += 2
+        music = self.arith()
+        self.end()
+        return ("music", line, music, True)
+
     # -- play a game -------------------------------------------------------------------
     def st_play(self):
         line, lvl = self.lineno, self.level
