@@ -295,7 +295,7 @@
   {
     "id": "planet-defenders-2",
     "title": "PLANET DEFENDERS 2",
-    "subtitle": "Endless · bosses · v0.6.2",
+    "subtitle": "Endless · bosses · v0.6.1",
     "file": "planet_defenders_2.hum",
     "kind": "arcade",
     "tagline": "The invasion never stops. Catch skills, survive, beat your best.",
@@ -395,10 +395,10 @@
       {
         "title": "The game, its parts and the phone",
         "at": "play a game titled",
-        "text": "The game has parts: when it starts, every frame, every second (that is where survival points come from), keys and mouse clicks. On a phone a finger counts as mouse clicks, so dragging steers and touching fires. The music is four song files: `play the music \"Boss_Battle_Theme.mp3\"` starts a boss song and puts the game song on the shelf, and `continue the music \"Galaxy_Dash.mp3\"` takes it off the shelf again from where it stopped (a v0.6.2 word)."
+        "text": "The game has parts: when it starts, every frame, every second (that is where survival points come from), keys and mouse clicks. On a phone a finger counts as mouse clicks, so dragging steers and touching fires. The music is four song files: `play the music \"Boss_Battle_Theme.mp3\"` starts a boss song and puts the game song on the shelf, and `continue the music \"Galaxy_Dash.mp3\"` takes it off the shelf again from where it stopped (a new word)."
       }
     ],
-    "version": "0.6.2",
+    "version": "0.6.1",
     "files": [
       "Pixel_Arpeggio.mp3",
       "Galaxy_Dash.mp3",

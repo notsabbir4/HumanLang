@@ -1851,7 +1851,7 @@ define draw_home
     put a rectangle at 100, 196 with width 120 and height 22 and colour "#0A0C14" and border 1 and border colour "#9AA3C0"
     put a text "HOW TO PLAY" at 160, 200 with size 12 and colour white and bold and align center
     put a text "Tap a level to start. Up / Down + Enter on a keyboard." at 160, 224 with size 9 and colour "#9AA3C0" and align center
-    put a text "HumanLang 0.6.2: music, saved scores, phone ready" at 160, 234 with size 8 and colour "#6C7494" and align center
+    put a text "HumanLang 0.6.1: music, saved scores, phone ready" at 160, 234 with size 8 and colour "#6C7494" and align center
 
 define page_footer
     put a text "Enter or tap: next   ({how_page} of 4)" at 160, 226 with size 10 and colour "#9AA3C0" and align center
