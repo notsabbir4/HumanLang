@@ -447,18 +447,66 @@ class Showcase(unittest.TestCase):
             out.append(it.game_frame(down=["space"]))
         return out
 
-    def test_pd2_a_boss_comes_after_every_6_waves(self):
+    def boss_run(self, last_wave):
+        """Clear waves one after another, beating every boss at once; returns (wave cleared, [boss kinds in a row]) for each boss time."""
         it, g = self.pd2(2)
-        for done in range(1, 19):                           # clear waves 1 to 18, one after another
-            g["boss_kind"], g["wave"], g["alive"], g["left"] = 0, done, [0] * 32, 0
+        random.seed(11)
+        seen, drops = [], []
+        for cleared in range(1, last_wave + 1):
+            g["alive"], g["left"] = [0] * 32, 0
             it.game_frame()
-            if done % 6 == 0:
-                self.assertIn(int(g["boss_kind"]), (1, 2))  # after wave 6, 12 and 18: a boss, with a warning first
-                self.assertGreater(g["boss_warn"], 0)
-                self.assertEqual(g["wave"], done + 1)
-            else:
-                self.assertEqual(g["boss_kind"], 0)
-                self.assertEqual(g["wave"], done + 1)
+            kinds = []
+            while g["boss_kind"]:
+                kinds.append(int(g["boss_kind"]))
+                self.assertGreater(g["boss_warn"], 0)       # a warning first, every time
+                g["boss_warn"], g["boss_in"], g["boss_die"], g["boss_y"] = 0, 0, 1, 40
+                it.game_frame()
+                drops += [int(k) for k, y in zip(g["dk"], g["dy"]) if y >= 0]
+                g["dy"] = [-1] * 5
+            if kinds:
+                seen.append((cleared, kinds))
+            self.assertEqual(g["wave"], cleared + 1)
+        return seen, drops, it, g
+
+    def test_pd2_boss_schedule(self):
+        seen, drops, it, g = self.boss_run(66)
+        when = [c for c, k in seen]
+        # every 6 waves, then the special fights: 40 (OBLIVAR, XERON), 46 (OBLIVAR, XERON, XERON), 52, 58 as before, 60 (OBLIVAR), 66
+        self.assertEqual(when, [6, 12, 18, 24, 30, 36, 40, 46, 52, 58, 60, 66])
+        kinds = dict(seen)
+        self.assertEqual(kinds[40], [2, 1])
+        self.assertEqual(kinds[46], [2, 1, 1])
+        self.assertEqual(kinds[60], [2])
+        for c in (6, 12, 18, 24, 30, 36, 52, 58, 66):
+            self.assertEqual(len(kinds[c]), 1)
+        self.assertEqual(drops.count(8), 1)                 # OBLIVAR-X FOREVER dropped once: from the OBLIVAR of wave 60
+
+    def test_pd2_oblivar_x_forever_has_no_time_limit(self):
+        seen, drops, it, g = self.boss_run(60)
+        g["alive"], g["left"] = [0] * 32, 0
+        g["hurt_t"] = 0
+        it.game_frame()
+        # the drop of wave 60 was removed by boss_run; drop it again and catch it
+        g["boss_kind"] = 0
+        g["dx"][0], g["dy"][0], g["dk"][0] = g["px"], 190, 8
+        for _ in range(5):
+            it.game_frame()
+        self.assertTrue(g["x_perm"])
+        for _ in range(3000):                               # 50 seconds: a normal OBLIVAR-X lasts 15
+            g["hurt_t"], g["hp"] = 0, g["hp_max"]
+            g["bx"] = g["bx"]
+            it.game_frame()
+        self.assertEqual(g["x_t"], 900)
+        self.assertEqual(g["mode"], "play")
+        g["x_perm"], g["x_t"] = False, 0                    # (a normal one still runs out)
+        g["dx"][0], g["dy"][0], g["dk"][0] = g["px"], 190, 7
+        for _ in range(5):
+            it.game_frame()
+        self.assertGreater(g["x_t"], 900)
+        for _ in range(1100):
+            g["hurt_t"], g["hp"] = 0, g["hp_max"]
+            it.game_frame()
+        self.assertEqual(g["x_t"], 0)
 
     def test_pd2_oblivar_is_the_main_boss_but_comes_less_than_half_the_time(self):
         it, g = self.pd2(2)

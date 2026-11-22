@@ -815,6 +815,13 @@ set hint_t to 0
 set bosses_beaten to 0
 set blood to 0
 set x_t to 0
+note: boss schedule: waves cleared since the last boss, which special fight is next (0 = none yet), XERON fights still to come right after OBLIVAR
+set since_boss to 0
+set boss_stage to 0
+set chain_left to 0
+set forever_drop to no
+note: OBLIVAR-X FOREVER: the ship stays transformed, there is no time limit
+set x_perm to no
 
 set kx to empty list
 set ky to empty list
@@ -1219,16 +1226,25 @@ define finish_boss
     otherwise
         add item d of oblivar_pts_for to score
         add_drop with (mid - 26) and top
-        if random number from 1 to 100 is at most item d of x_drop_for
+        if forever_drop
+            change forever_drop to no
+            add_special_drop with (mid + 8) and top and 8
+        otherwise if random number from 1 to 100 is at most item d of x_drop_for
             add_special_drop with (mid + 8) and top and 7
         otherwise
             add_drop with (mid + 14) and top
     change boss_kind to 0
     change boss_flash to 0
-    new_wave
-    change wave_t to 90
-    play the sound "win"
-    music_for_level
+    if chain_left is greater than 0
+        note: the special fights come one right after the other: XERON follows OBLIVAR at once
+        subtract 1 from chain_left
+        change since_boss to 0
+        start_boss with 1
+    otherwise
+        new_wave
+        change wave_t to 90
+        play the sound "win"
+        music_for_level
 
 define boss_update
     note: a boss is on the screen: warning, flying in, fighting, or blowing up
@@ -1351,9 +1367,14 @@ define start_game
     change nova_t to 0
     change got_t to 0
     change x_t to 0
+    change x_perm to no
     change xhp to 0
     change boss_kind to 0
     reset_boss_moves
+    change since_boss to 0
+    change boss_stage to 0
+    change chain_left to 0
+    change forever_drop to no
     change hint_t to 0
     change boss_warn to 0
     change boss_in to 0
@@ -1438,6 +1459,7 @@ define go_home
     change boss_kind to 0
     change blood to 0
     change x_t to 0
+    change x_perm to no
     change xhp to 0
     reset_boss_moves
     change hint_t to 0
@@ -1480,6 +1502,19 @@ define grab with kind
         change got_t to 130
         change xhp to xhp_max
         add 30 to hp
+        if hp is greater than hp_max
+            change hp to hp_max
+        play the sound "explosion"
+        if x_t is 0
+            change x_t to 970
+        otherwise if x_t is less than 900
+            change x_t to 900
+    if kind is 8
+        change got_name to "OBLIVAR-X FOREVER!"
+        change got_t to 200
+        change xhp to xhp_max
+        change x_perm to yes
+        add 50 to hp
         if hp is greater than hp_max
             change hp to hp_max
         play the sound "explosion"
@@ -1610,7 +1645,11 @@ define update_play
         subtract 1 from wave_t
     if nova_t is greater than 0
         subtract 1 from nova_t
-    if x_t is greater than 0
+    if x_perm and x_t is 900
+        note: FOREVER: the ship stays transformed, and the purple bar slowly fills again
+        if (frame number mod 45) is 0 and xhp is less than xhp_max
+            add 1 to xhp
+    otherwise if x_t is greater than 0
         subtract 1 from x_t
         if x_t is 900
             note: the change is finished: a shockwave wipes the bombs and shots away
@@ -1754,12 +1793,32 @@ define update_play
     if mode is "play" and left is 0 and boss_kind is 0
         add 1 to wave
         add 50 to score
-        if wave is at least 7 and ((wave - 7) mod 6) is 0
-            note: a boss comes after every 6 waves (after wave 6, 12, 18 ...): OBLIVAR 4 times in 10, XERON the other 6
+        add 1 to since_boss
+        set cleared to wave - 1
+        set next_boss to 0
+        if cleared is 40 and boss_stage is 0
+            note: after wave 40: OBLIVAR, and XERON right after him
+            change next_boss to 2
+            change boss_stage to 1
+            change chain_left to 1
+        otherwise if boss_stage is 1 and since_boss is at least 6
+            note: 6 normal waves later: OBLIVAR again, and 2 XERON fights right after him
+            change next_boss to 2
+            change boss_stage to 2
+            change chain_left to 2
+        otherwise if cleared is 60 and boss_stage is 2
+            note: after wave 60: OBLIVAR, who always drops OBLIVAR-X FOREVER
+            change next_boss to 2
+            change boss_stage to 3
+            change forever_drop to yes
+        otherwise if since_boss is at least 6
+            note: otherwise a boss comes after every 6 waves: OBLIVAR 4 times in 10, XERON the other 6
+            change next_boss to 1
             if random number from 1 to 100 is at most 40
-                start_boss with 2
-            otherwise
-                start_boss with 1
+                change next_boss to 2
+        if next_boss is greater than 0
+            change since_boss to 0
+            start_boss with next_boss
         otherwise
             new_wave
             change wave_t to 90
@@ -1956,7 +2015,10 @@ define draw_hud
         add 1 to slot
     if x_t is greater than 0
         draw the sprite icon_x at 2, 32 + slot * 24
-        put a rectangle at 2, 52 + slot * 24 with width x_t / 55 and height 2 and colour "#B58CFF"
+        if x_perm
+            put a rectangle at 2, 52 + slot * 24 with width 16 and height 2 and colour "#FFE16A"
+        otherwise
+            put a rectangle at 2, 52 + slot * 24 with width x_t / 55 and height 2 and colour "#B58CFF"
         add 1 to slot
 
 define draw_boss
@@ -2039,6 +2101,11 @@ define draw_play
                 draw the sprite icon_health at (item i of dx), (item i of dy)
             if k is 7
                 draw the sprite icon_x at (item i of dx), (item i of dy)
+            if k is 8
+                if ((frame number divided evenly by 5) mod 2) is 0
+                    put a rectangle at (item i of dx) - 2, (item i of dy) - 2 with width 22 and height 22 and colour "#FFE16A"
+                draw the sprite icon_x at (item i of dx), (item i of dy)
+
     for each i from 1 to 30
         if item i of sy is at least 0
             put a rectangle at (item i of sx), (item i of sy) with width 2 and height 8 and colour "#FFFFFF"
