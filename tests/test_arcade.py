@@ -427,9 +427,9 @@ class Showcase(unittest.TestCase):
 
     # ---- Planet Defenders 2: the bosses XERON and OBLIVAR, and the skill OBLIVAR-X ----
     def call_boss(self, g, it, kind=None):
-        """Clear the aliens of wave 3 so that a boss comes; with kind, keep going until that boss is the one."""
+        """Clear the aliens of wave 6 so that a boss comes; with kind, keep going until that boss is the one."""
         for _ in range(400):
-            g["boss_kind"], g["wave"], g["alive"], g["left"] = 0, 3, [0] * 32, 0
+            g["boss_kind"], g["wave"], g["alive"], g["left"] = 0, 6, [0] * 32, 0
             it.game_frame()
             if g["boss_kind"] and (kind is None or int(g["boss_kind"]) == kind):
                 return
@@ -447,16 +447,25 @@ class Showcase(unittest.TestCase):
             out.append(it.game_frame(down=["space"]))
         return out
 
-    def test_pd2_a_boss_comes_every_third_wave(self):
+    def test_pd2_the_first_boss_comes_after_wave_6_then_one_every_3_waves(self):
         it, g = self.pd2(2)
-        for wave in (1, 2):
+        for wave in (1, 2, 3, 4, 5):
             g["wave"], g["alive"], g["left"] = wave, [0] * 32, 0
             it.game_frame()
-            self.assertEqual(g["boss_kind"], 0)             # waves 1 and 2: just aliens
+            self.assertEqual(g["boss_kind"], 0)             # waves 1 to 5: just aliens
             self.assertEqual(g["wave"], wave + 1)
-        self.call_boss(g, it)
+        self.call_boss(g, it)                               # wave 6 cleared: the first boss
         self.assertIn(int(g["boss_kind"]), (1, 2))
         self.assertGreater(g["boss_warn"], 0)               # a warning first
+        self.assertEqual(g["wave"], 7)
+        for wave in (7, 8):                                 # after a boss: 3 waves of aliens (7, 8, 9), then the next boss
+            g["boss_kind"], g["wave"], g["alive"], g["left"] = 0, wave, [0] * 32, 0
+            it.game_frame()
+            self.assertEqual(g["boss_kind"], 0)
+        g["boss_kind"], g["wave"], g["alive"], g["left"] = 0, 9, [0] * 32, 0
+        it.game_frame()
+        self.assertIn(int(g["boss_kind"]), (1, 2))
+        self.assertEqual(g["wave"], 10)
 
     def test_pd2_oblivar_is_the_main_boss_but_comes_less_than_half_the_time(self):
         it, g = self.pd2(2)
@@ -489,7 +498,7 @@ class Showcase(unittest.TestCase):
         self.fight(g, it, 2400, until_beaten=True)
         self.assertEqual(g["boss_kind"], 0)
         self.assertEqual(g["bosses_beaten"], 1)
-        self.assertEqual(g["wave"], 4)                      # the waves go on after a boss
+        self.assertEqual(g["wave"], 7)                      # the waves go on after a boss
         self.assertGreaterEqual(sum(1 for v in g["dy"] if v >= 0), 2)
 
     def test_pd2_oblivar_makes_the_sky_bloody_and_changes_the_music(self):
@@ -530,7 +539,7 @@ class Showcase(unittest.TestCase):
         it, g = self.pd2(2)
         sent = []
         for _ in range(400):
-            g["boss_kind"], g["wave"], g["alive"], g["left"] = 0, 3, [0] * 32, 0
+            g["boss_kind"], g["wave"], g["alive"], g["left"] = 0, 6, [0] * 32, 0
             f = it.game_frame()
             if "music" in f:
                 sent.append((f["music"], f.get("resume", False)))
@@ -544,10 +553,10 @@ class Showcase(unittest.TestCase):
     def test_pd2_each_boss_has_its_own_tune(self):
         for kind, tune in ((1, "Boss_Battle_Theme.mp3"), (2, "Oblivar_Final_Boss.mp3")):
             it, g = self.pd2(2)
-            g["boss_kind"], g["wave"], g["alive"], g["left"] = 0, 3, [0] * 32, 0
+            g["boss_kind"], g["wave"], g["alive"], g["left"] = 0, 6, [0] * 32, 0
             tunes = []
             for _ in range(80):
-                g["boss_kind"], g["wave"], g["alive"], g["left"] = 0, 3, [0] * 32, 0
+                g["boss_kind"], g["wave"], g["alive"], g["left"] = 0, 6, [0] * 32, 0
                 f = it.game_frame()
                 if g["boss_kind"] == kind:
                     tunes = [f["music"]] if "music" in f else []
