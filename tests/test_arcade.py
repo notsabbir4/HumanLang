@@ -447,25 +447,18 @@ class Showcase(unittest.TestCase):
             out.append(it.game_frame(down=["space"]))
         return out
 
-    def test_pd2_the_first_boss_comes_after_wave_6_then_one_every_3_waves(self):
+    def test_pd2_a_boss_comes_after_every_6_waves(self):
         it, g = self.pd2(2)
-        for wave in (1, 2, 3, 4, 5):
-            g["wave"], g["alive"], g["left"] = wave, [0] * 32, 0
+        for done in range(1, 19):                           # clear waves 1 to 18, one after another
+            g["boss_kind"], g["wave"], g["alive"], g["left"] = 0, done, [0] * 32, 0
             it.game_frame()
-            self.assertEqual(g["boss_kind"], 0)             # waves 1 to 5: just aliens
-            self.assertEqual(g["wave"], wave + 1)
-        self.call_boss(g, it)                               # wave 6 cleared: the first boss
-        self.assertIn(int(g["boss_kind"]), (1, 2))
-        self.assertGreater(g["boss_warn"], 0)               # a warning first
-        self.assertEqual(g["wave"], 7)
-        for wave in (7, 8):                                 # after a boss: 3 waves of aliens (7, 8, 9), then the next boss
-            g["boss_kind"], g["wave"], g["alive"], g["left"] = 0, wave, [0] * 32, 0
-            it.game_frame()
-            self.assertEqual(g["boss_kind"], 0)
-        g["boss_kind"], g["wave"], g["alive"], g["left"] = 0, 9, [0] * 32, 0
-        it.game_frame()
-        self.assertIn(int(g["boss_kind"]), (1, 2))
-        self.assertEqual(g["wave"], 10)
+            if done % 6 == 0:
+                self.assertIn(int(g["boss_kind"]), (1, 2))  # after wave 6, 12 and 18: a boss, with a warning first
+                self.assertGreater(g["boss_warn"], 0)
+                self.assertEqual(g["wave"], done + 1)
+            else:
+                self.assertEqual(g["boss_kind"], 0)
+                self.assertEqual(g["wave"], done + 1)
 
     def test_pd2_oblivar_is_the_main_boss_but_comes_less_than_half_the_time(self):
         it, g = self.pd2(2)

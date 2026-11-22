@@ -1754,8 +1754,8 @@ define update_play
     if mode is "play" and left is 0 and boss_kind is 0
         add 1 to wave
         add 50 to score
-        if wave is at least 7 and ((wave - 7) mod 3) is 0
-            note: the first boss comes after wave 6, then one after every 3 waves: OBLIVAR 4 times in 10, XERON the other 6
+        if wave is at least 7 and ((wave - 7) mod 6) is 0
+            note: a boss comes after every 6 waves (after wave 6, 12, 18 ...): OBLIVAR 4 times in 10, XERON the other 6
             if random number from 1 to 100 is at most 40
                 start_boss with 2
             otherwise

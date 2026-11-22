@@ -37,7 +37,7 @@
   takes it off the shelf and goes on from that place (it starts from the beginning if nothing was interrupted).
 - **PLANET DEFENDERS 2:** four new songs (home page, game, XERON, OBLIVAR). The game song stops when a boss comes and goes on from the same
   place after the boss is beaten. A new level, **TRAINING**: tiny hits, gentle bosses (as long as ever) that drop six skills instead of two.
-- **PLANET DEFENDERS 2:** the first boss now comes after wave 6, and then one after every 3 waves (it was every third wave from the start).
+- **PLANET DEFENDERS 2:** a boss now comes after every 6 waves (after wave 6, 12, 18 ...). It was every third wave.
 - **Engine fix (bodies and tiles):** a body wider or taller than one tile no longer falls through a single tile or walks through a single
   block. Landing and wall checks now look along the whole edge of the body, not just its corners.
 - **HumanLang Odyssey:** losing all 3 hearts now restarts the level (it used to hand out 3 new hearts). Falling in a pit costs a heart.
