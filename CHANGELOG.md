@@ -26,9 +26,10 @@
 - **Playground: Upload and a new toolbar.** A new **Upload** button opens a `.hum` file from your computer in the editor (or drop the file
   on the editor). The toolbar is tidier: Run, Stop and Step through on the left; Upload, Download and Save, then Share link,
   Collaborate and Post to Community as grouped buttons with icons, all one height; and it wraps neatly on small screens.
-- **Phones: games fit the screen.** On a phone the game is scaled to fit (it used to run off the right side). A new **Play in landscape**
-  button fills the screen sideways (it locks the phone to landscape where the phone allows it, and turns the game itself where it
-  does not). Turning the phone sideways does the same on its own. Nothing changes on computers.
+- **Phones: games fit the screen and play sideways by default.** On a phone the game opens in landscape on its own (full screen and a
+  landscape lock where the phone allows it; where it does not, the page turns the game itself). There is no "Play in landscape" button
+  any more, and a round ✕ in the corner goes back to the games list. The touch buttons now live inside the game box, so they stay on
+  screen in full screen too. Nothing changes on computers.
 - **New touch controls, built for thumbs:** the left thumb gets a cross (or two big run buttons when the game does not use up/down);
   the right thumb gets a big **A** (jump) in the corner and **B** on a small arc above it. Buttons are 56 to 88 pixels, sit clear of
   the screen edges, can be slid between without lifting the thumb, work with several fingers at once, and buzz a little on Android.

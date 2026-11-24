@@ -569,10 +569,7 @@ details.follow summary{cursor:pointer;font-weight:700}
   .unitcard,.opt,.tile,.bugline,.pbar i,.btn.big.pmain{transition:none!important}
 }
 
-/* ---- phones: the arcade game fits the screen; "Play in landscape" fills it sideways ---- */
-#land-btn{display:none}
-html.is-phone #land-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 20px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--fg);font:700 1rem system-ui,sans-serif;cursor:pointer;width:100%;max-width:420px}
-html.is-phone #land-btn[hidden]{display:none}
+/* ---- phones: the arcade game always fills the screen sideways ---- */
 html.is-phone .screen-tools[hidden]{display:none}
 html.is-phone #arcade-box .arcade-frame{padding:6px;overflow:hidden}
 html.is-phone #arcade-box{padding-bottom:210px}
@@ -583,3 +580,6 @@ html.is-phone #arcade-box.land.rot{transform-origin:top left;translate:var(--vw,
 html.is-phone #land-exit{position:absolute;left:calc(10px + env(safe-area-inset-left,0px));top:calc(10px + env(safe-area-inset-top,0px));width:48px;height:48px;border-radius:50%;border:2px solid rgba(255,255,255,.5);background:rgba(10,14,30,.55);color:#fff;font-size:1.2rem;z-index:61}
 html.is-phone #land-exit[hidden]{display:none}
 html.is-phone body.hl-landing{overflow:hidden;overscroll-behavior:none}
+
+html.is-phone #land-msg{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center;color:#fff;font:700 1rem system-ui,sans-serif}
+html.is-phone #land-msg[hidden]{display:none}

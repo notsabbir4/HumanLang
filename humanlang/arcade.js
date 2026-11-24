@@ -349,7 +349,8 @@
       // the action buttons on a small arc, biggest one nearest the corner. Sizes shrink with the screen width (--u).
       st.textContent =
         ".hl-touchpad{--u:1;position:fixed;left:0;top:0;width:var(--vw,100vw);height:var(--vh,100vh);pointer-events:none;z-index:60;touch-action:none;user-select:none;-webkit-user-select:none}" +
-        ".hl-rot .hl-touchpad{transform-origin:top left;transform:translateX(var(--vw,100vw)) rotate(90deg);width:var(--vh,100vh);height:var(--vw,100vw)}" +
+        "body.hl-rot > .hl-touchpad{transform-origin:top left;transform:translateX(var(--vw,100vw)) rotate(90deg);width:var(--vh,100vh);height:var(--vw,100vw)}" +
+        "#arcade-box > .hl-touchpad{position:absolute;left:0;top:0;width:100%;height:100%}" +
         ".hl-pad{position:absolute;bottom:calc(16px + env(safe-area-inset-bottom,0px));pointer-events:none}" +
         ".hl-pad-l{left:calc(16px + env(safe-area-inset-left,0px))}.hl-pad-r{right:calc(16px + env(safe-area-inset-right,0px))}" +
         ".hl-b{position:absolute;box-sizing:border-box;border-radius:50%;border:2px solid rgba(255,255,255,.6);background:rgba(10,14,30,.5);color:#fff;" +
@@ -415,7 +416,7 @@
         R.add(main, 88, 0, 0, true, true);
         if (main === "space" && want("enter")) R.add("enter", 68, 98, 52, true, true);
       }
-      doc.body.appendChild(el);
+      (root.hlPadHost ? root.hlPadHost() : doc.body).appendChild(el);
       return el;
     }
 

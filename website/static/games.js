@@ -168,11 +168,14 @@
   if (phone) document.documentElement.classList.add("is-phone");
   const docEl = document.documentElement;
   let land = false, forced = false, home = null;
-  const landBtn = document.createElement("button"), exitBtn = document.createElement("button");
-  landBtn.type = exitBtn.type = "button"; landBtn.id = "land-btn"; exitBtn.id = "land-exit";
-  landBtn.textContent = "\u26F6  Play in landscape"; exitBtn.textContent = "\u2715"; exitBtn.setAttribute("aria-label", "Leave landscape");
-  landBtn.hidden = exitBtn.hidden = true;
-  abox.insertBefore(landBtn, abox.firstChild); abox.appendChild(exitBtn);
+  const exitBtn = document.createElement("button"), landMsg = document.createElement("div");
+  exitBtn.type = "button"; exitBtn.id = "land-exit"; exitBtn.textContent = "\u2715"; exitBtn.setAttribute("aria-label", "Back to the games");
+  landMsg.id = "land-msg"; landMsg.textContent = "Loading the game...";
+  exitBtn.hidden = landMsg.hidden = true;
+  abox.appendChild(exitBtn); abox.appendChild(landMsg);
+  // the touch buttons live inside the game box while it is full screen (a full screen element shows only its own children)
+  function movePad() { const pad = document.querySelector(".hl-touchpad"); if (pad) (land ? abox : document.body).appendChild(pad); }
+  window.hlPadHost = () => (land ? abox : document.body);
   function sizeCanvas() {
     if (!info) return;
     if (!phone) {                                  // computers: exactly as before
@@ -196,10 +199,10 @@
     sizeCanvas();
   }
   function enterLand(user) {
-    land = true; forced = !!user || forced;
+    land = true; forced = true;
     if (abox.parentNode !== document.body) { home = { p: abox.parentNode, n: abox.nextSibling }; document.body.appendChild(abox); }   // out of the page's layout: the game owns the whole screen
-    abox.classList.add("land"); document.body.classList.add("hl-landing");
-    exitBtn.hidden = false; landBtn.hidden = true;
+    abox.classList.add("land"); document.body.classList.add("hl-landing"); movePad();
+    exitBtn.hidden = false; landMsg.hidden = !starting;
     if (user) {
       // Android Chrome: full screen + lock to landscape. Where that is not possible (iPhone, or the lock is refused), the page turns the game sideways itself.
       (async () => {
@@ -217,13 +220,13 @@
     land = false; forced = false;
     abox.classList.remove("land", "rot"); document.body.classList.remove("hl-landing", "hl-rot");
     if (home) { home.p.insertBefore(abox, home.n); home = null; }
-    exitBtn.hidden = true; landBtn.hidden = !phone || abox.hidden;
+    movePad();
+    exitBtn.hidden = landMsg.hidden = true;
     try { if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen(); } catch (e) { /* fine */ }
     try { const o = screen_orientation(); if (o && o.unlock) o.unlock(); } catch (e) { /* fine */ }
     sizeCanvas();
   }
-  landBtn.onclick = () => enterLand(true);
-  exitBtn.onclick = () => leaveLand();
+  exitBtn.onclick = () => { leaveLand(); location.hash = ""; };
   addEventListener("resize", layout); addEventListener("orientationchange", () => setTimeout(layout, 120));
   document.addEventListener("fullscreenchange", () => setTimeout(layout, 100));
   function startArcade() {
@@ -248,8 +251,9 @@
       onOver: () => setStatus("Game over. Press Restart to play again."),
     });
     setStatus(phone ? "Use the buttons on the screen." : "Click the game, then use the keys."); if (!phone) acanvas.focus(); arcade.start();
-    landBtn.hidden = !phone || land; layout();
-    if (phone && !land) setTimeout(() => window.scrollTo(0, Math.max(0, abox.getBoundingClientRect().top + scrollY - 76)), 50);   // the game sits at the top, the thumbs' buttons at the bottom
+    landMsg.hidden = true;
+    if (phone && !land) enterLand(false);        // a phone always plays sideways
+    layout(); movePad();
   }
   function arcadeFrame(m) {
     const w = frameWaiting; frameWaiting = null; if (!w) return;
@@ -321,6 +325,7 @@
     const banner = $("gbanner");
     if (g.image) { banner.src = g.image; banner.hidden = false; } else banner.hidden = true;
     if (extra === "inspect") inspectBox.scrollIntoView(); else window.scrollTo(0, 0);
+    if (phone && arc) enterLand(true);           // a phone always plays sideways (full screen + landscape lock where the phone allows it)
     if (!same) play();
   }
   restartBtn.onclick = () => { if (current && current.kind === "arcade") { startArcade(); return; } if (running) { worker.terminate(); running = false; startWorker(); } play(); };
