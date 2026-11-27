@@ -602,6 +602,7 @@
     "keys": "Left/Right run, Space jumps, Enter talks and opens doors. World 4 and 7 show their own keys on the screen.",
     "image": "thumbs/humanlang-odyssey.jpg",
     "version": "0.6.2",
+    "curtain": "humanlang_intro.mp4",
     "files": [
       "humanlang_intro.mp4",
       "Exploration_Menu.mp3",
@@ -627,11 +628,6 @@
         "title": "Your own level",
         "at": "define update_w7",
         "text": "World 7 changes a map while the game runs with `change tile in column C, row R of MAP to \"G\"`, and saves it with `remember`."
-      },
-      {
-        "title": "A video at the start",
-        "at": "play video",
-        "text": "`play video \"humanlang_intro.mp4\"` shows the logo reveal over the game. The game waits until it ends, and a click, Space or Enter skips it."
       }
     ]
   }

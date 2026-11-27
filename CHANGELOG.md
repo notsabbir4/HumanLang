@@ -13,6 +13,8 @@
   confetti for good results. People who ask their device for less motion get none of it.
 - **Home and Account:** the Home button continues the course you used last. The Account page shows all four courses, and your
   progress in every course is kept in your account when you are signed in.
+- **Intro video as a curtain (HUMANLANG ODYSSEY and future games):** the logo video plays the moment you press Play while the game
+  loads behind it, so you don't wait. A game opts in with a `curtain` file in games/index.json. On phones there is no Skip button.
 - **PLANET DEFENDERS 2 update:** bosses last long on every level (XERON 90, OBLIVAR 220 hits) and only hit harder on harder levels.
   A **health bar** replaces the lives: red as blood, and with OBLIVAR-X it turns **purple**, in the style of OBLIVAR, takes the
   hits first and heals you a little. The extra-life skill is now a health pack (and bosses drop two while you fight them). Every boss

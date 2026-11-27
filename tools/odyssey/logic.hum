@@ -1,5 +1,5 @@
 note: HUMANLANG ODYSSEY: SEVEN WORLDS. Made with HumanLang 0.6.2.
-note: Your logo reveal plays first (play video), then the title and the Motherboard hub with its seven worlds:
+note: Your logo reveal is the website curtain (it plays while the game loads), then the title and the Motherboard hub with its seven worlds:
 note: 1 Say Hello, 2 Lists and Machines, 3 Word and Number Town, 4 Pixel Gallery, 5 Platform Peaks, 6 The Boss Citadel, 7 Your World. The hero is the HL mascot, drawn at pixel size 1 like every important picture here.
 note: Keys: left/right run, space jumps, enter talks, opens doors and confirms. World 4 and 7 explain their keys on the screen.
 
@@ -1610,7 +1610,6 @@ play a game titled "HumanLang Odyssey: Seven Worlds" with size 480 by 270 and ba
     every frame
         add 1 to tick
         if mode is "intro"
-            play video "humanlang_intro.mp4"
             change mode to "title"
             play the music "Exploration_Menu.mp3"
         otherwise if mode is "title"

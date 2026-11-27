@@ -889,7 +889,6 @@ play a game titled "HumanLang Odyssey: Seven Worlds" with size 480 by 270 and ba
     every frame
         add 1 to tick
         if mode is "intro"
-            play video "humanlang_intro.mp4"
             change mode to "title"
             play the music "Exploration_Menu.mp3"
         otherwise if mode is "title"

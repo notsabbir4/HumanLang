@@ -161,7 +161,36 @@
   // ---- arcade games: drawn on a canvas, one frame at a time (the engine is shared with the Playground) ----
   const abox = $("arcade-box"), acanvas = $("arcade-screen");
   let arcade = null, frameWaiting = null, starting = false, info = null;
-  function stopArcade() { if (arcade) { arcade.stop(); arcade = null; } frameWaiting = null; starting = false; leaveLand(); }
+  function stopArcade(keepCurtain) { if (arcade) { arcade.stop(); arcade = null; } frameWaiting = null; starting = false; held = false; if (!keepCurtain) dropCurtain(); leaveLand(); }
+
+  // ---- the curtain: a game can name an intro video that plays the moment the player starts, while the game loads behind it ----
+  let curtain = null, held = false;
+  function dropCurtain() { if (curtain) { curtain.el.remove(); curtain = null; } }
+  function showCurtain(name) {
+    const f = (current.files || {})[name]; if (!f || curtain) return;
+    const el = document.createElement("div");
+    el.style.cssText = "position:absolute;inset:0;z-index:50;background:#000;display:flex;align-items:center;justify-content:center";
+    const v = document.createElement("video");
+    v.src = f.url; v.playsInline = true; v.setAttribute("playsinline", ""); v.preload = "auto";
+    v.style.cssText = "width:100%;height:100%;object-fit:contain";
+    el.appendChild(v);
+    const c = curtain = { el, over: false };
+    const end = () => { if (curtain !== c || c.over) return; c.over = true; dropCurtain(); if (held) begin(); };
+    v.onended = end; v.onerror = end;
+    if (!phone) {                                   // computers can skip; phones watch it all (it hides the loading)
+      const sk = document.createElement("button"); sk.type = "button"; sk.textContent = "Skip \u25B6";
+      sk.style.cssText = "position:absolute;right:14px;bottom:14px;padding:8px 14px;border:0;border-radius:8px;background:rgba(255,255,255,.85);color:#000;font:600 14px sans-serif;cursor:pointer";
+      sk.onclick = end; el.appendChild(sk);
+    }
+    if (getComputedStyle(abox).position === "static") abox.style.position = "relative";
+    abox.appendChild(el);
+    const p = v.play();
+    if (p && p.catch) p.catch(() => {               // the browser wants a tap before it plays
+      const t = document.createElement("button"); t.type = "button"; t.textContent = "Tap to play \u25B6";
+      t.style.cssText = "position:absolute;inset:0;margin:auto;width:200px;height:56px;border:0;border-radius:12px;background:#fff;color:#000;font:700 18px sans-serif";
+      t.onclick = () => { t.remove(); v.play().catch(end); }; el.appendChild(t);
+    });
+  }
 
   // ---- phones: the game always fits the screen, and "Landscape" fills it sideways (a phone is wider than tall that way) ----
   const phone = !!((window.matchMedia && matchMedia("(pointer: coarse)").matches) || (navigator.maxTouchPoints > 0 && /Android|iPhone|iPad|iPod|Mobi/i.test(navigator.userAgent || "")));
@@ -230,7 +259,7 @@
   addEventListener("resize", layout); addEventListener("orientationchange", () => setTimeout(layout, 120));
   document.addEventListener("fullscreenchange", () => setTimeout(layout, 100));
   function startArcade() {
-    stopArcade();
+    stopArcade(true);
     if (!ready) { setStatus("Loading HumanLang... (the first time takes a few seconds)"); return; }
     starting = true; setStatus("Starting the game...");
     const kinds = {}; for (const n in (current.files || {})) kinds[n] = current.files[n].kind;
@@ -250,6 +279,12 @@
       onError: (msg) => { setStatus("The game stopped with a problem."); screen.hidden = false; screen.className = "error"; screen.textContent = msg; },
       onOver: () => setStatus("Game over. Press Restart to play again."),
     });
+    if (curtain) { held = true; layout(); movePad(); return; }     // the curtain is still playing: the game waits behind it
+    begin();
+  }
+  function begin() {
+    held = false;
+    if (!arcade) return;
     setStatus(phone ? "Use the buttons on the screen." : "Click the game, then use the keys."); if (!phone) acanvas.focus(); arcade.start();
     landMsg.hidden = true;
     if (phone && !land) enterLand(false);        // a phone always plays sideways
@@ -268,7 +303,7 @@
   }
 
   function play() {
-    if (current && current.kind === "arcade") { startArcade(); return; }
+    if (current && current.kind === "arcade") { if (current.curtain) showCurtain(current.curtain); startArcade(); return; }
     answers = []; waiting = false; shown(""); restartBtn.textContent = "Restart"; setStatus("");
     if (!ready) { setStatus("Loading HumanLang... (the first time takes a few seconds)"); return; }
     if (running) { worker.terminate(); startWorker(); return; }  // answered mid-run: start clean

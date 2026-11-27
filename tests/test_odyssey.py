@@ -109,11 +109,12 @@ class Odyssey(unittest.TestCase):
             g = [x for x in json.load(f) if x["id"] == "humanlang-odyssey"][0]
         self.assertEqual(g["version"], "0.6.2")
         self.assertIn("humanlang_intro.mp4", g["files"])
+        self.assertEqual(g.get("curtain"), "humanlang_intro.mp4")      # the website plays it as a curtain while the game loads
         self.assertTrue(os.path.isfile(os.path.join(ROOT, "games", "files", "humanlang_intro.mp4")))
 
-    def test_video_plays_on_the_first_frame_then_the_title(self):
+    def test_goes_straight_to_the_title_the_video_is_the_curtain(self):
         g = Game()
-        self.assertEqual(g.fr().get("video"), "humanlang_intro.mp4")
+        self.assertIsNone(g.fr().get("video"))
         self.assertEqual(g.var("mode"), "title")
         self.assertIsNone(g.fr().get("video"))
 
