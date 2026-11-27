@@ -45,9 +45,14 @@
       o.connect(g); g.connect(c.destination);
       o.start(t); o.stop(t + dur + 0.02);
     }
+    const noises = {};   // made once, used again: filling a buffer with random numbers every shot made the game hiccup
     function noise(c, t, dur, vol) {
-      const n = Math.max(1, Math.floor(c.sampleRate * dur)), buf = c.createBuffer(1, n, c.sampleRate), d = buf.getChannelData(0);
-      for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n);
+      let buf = noises[dur];
+      if (!buf) {
+        const n = Math.max(1, Math.floor(c.sampleRate * dur)); buf = noises[dur] = c.createBuffer(1, n, c.sampleRate);
+        const d = buf.getChannelData(0);
+        for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n);
+      }
       const s = c.createBufferSource(), g = c.createGain();
       s.buffer = buf; g.gain.value = vol; s.connect(g); g.connect(c.destination); s.start(t);
     }
@@ -95,9 +100,13 @@
       };
       tick(); timer = setInterval(tick, step * 1000);
     }
+    const playedAt = {};
     return {
       unlock: ensure,
       play(name, files) {
+        const nowT = Date.now();                       // the same sound again within 45 ms is one sound (also saves a busy phone)
+        if (playedAt[name] && nowT - playedAt[name] < 45) return;
+        playedAt[name] = nowT;
         if (files && files[name]) {
           if (uMuted) return;
           const a = new Audio(files[name]); a.volume = 0.8; const p = a.play(); if (p && p.catch) p.catch(() => {});
@@ -307,20 +316,28 @@
 
     // The game clock: 60 frames a second of GAME time. A slow device does not slow the game down: when it is behind it runs
     // several frames in one go (steps) and draws only the last one, and the next frame starts the moment the last one is back.
-    const MAXSTEPS = 4, clock = () => (root.performance && root.performance.now ? root.performance.now() : Date.now());
+    let cost = 0;
+    const MAXSTEPS = 3, clock = () => (root.performance && root.performance.now ? root.performance.now() : Date.now());
     async function pump() {
       if (!running || busy || videoOn) return;
       const now = clock();
       if (!last) last = now;
       acc = Math.min(acc + (now - last), STEP * (MAXSTEPS + 1));
+      if (acc > STEP * 2 && cost >= STEP * 0.6) acc = STEP * 2;
       last = now;
       if (acc < STEP) return;
-      const steps = Math.min(MAXSTEPS, Math.floor(acc / STEP));
-      acc -= steps * STEP; busy = true;
+      // When the device is slower than the game, running more frames in one go cannot catch up (it only makes the pictures
+      // fewer and jumpier), so then the game just plays a little slower but evenly. Catching up is only for a quick device
+      // that hit a small hiccup.
+      const quick = cost < STEP * 0.6;
+      const steps = quick ? Math.min(MAXSTEPS, Math.max(1, Math.floor(acc / STEP))) : 1;
+      acc = quick ? acc - steps * STEP : Math.min(acc - STEP, STEP); busy = true;
+      const began = now;
       const input = { down: Array.from(down), pressed, clicked, mouse, steps };
       pressed = []; clicked = false;
       try {
         frame = await step(input);
+        const took = (clock() - began) / steps; cost = cost ? cost * 0.8 + took * 0.2 : took;
         draw(frame);
         const f = frame, after = () => {
           if (!muted) for (const s of f.sounds || []) sound.play(s, files);

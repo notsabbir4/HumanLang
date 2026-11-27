@@ -15,6 +15,16 @@ sys.setrecursionlimit(max(sys.getrecursionlimit(), 5000))
 _state = {}
 
 
+def _calm_the_collector():
+    """Python's clean-up of old objects looks at EVERYTHING the game has (its whole program) every so often, which takes
+    10-20 ms on a computer and far more on a phone: that was the sudden hiccup. The program doesn't change while it plays,
+    so it is set aside (frozen) and the clean-up only looks at the new things, and less often."""
+    import gc
+    gc.collect()
+    gc.freeze()
+    gc.set_threshold(10000, 30, 60)
+
+
 def start(code, seed=None, store=None, assets=None):
     """assets: {file name: 'picture', 'audio' or 'video'} (JSON text or a dict): the files the person added."""
     if seed is not None:
@@ -39,6 +49,7 @@ def start(code, seed=None, store=None, assets=None):
     if info is None:
         return json.dumps({"error": 'This program doesn\'t have a game in it.\nStart one with:  play a game titled "My game" with size 320 by 240'})
     _state.update(interp=interp, lines=lines, memory=memory)
+    _calm_the_collector()
     return json.dumps({"info": info, "warnings": [w[2] and f"Line {w[0]}: {w[1]}" for w in interp.warnings]})
 
 

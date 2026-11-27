@@ -8,9 +8,13 @@ all run the same HumanLang engine). The courses, Odyssey and the other 0.6.2 wor
   remembered, and `floor of` / `abs` are quick. Results and mistake messages are exactly the same (tested against the plain way).
   Games gain the most: a frame of HUMANLANG ODYSSEY takes about 35% less time and PLANET DEFENDERS 2 about 45% less (measured in the
   browser's Python). Plain programs with loops get about 10-25% faster.
-- **Slow devices no longer slow the game down.** The game keeps its 60-frames-a-second pace of game time: a device that is behind
-  runs a few frames in one go and draws only the last one (sounds and music of skipped frames still play), and the next frame starts
-  the moment the last one is back instead of waiting for the screen. Games you run with `hl run` or save with `hl build` get this too.
+- **No more sudden hiccups.** Python's clean-up used to look through the game's whole program every so often (10-20 ms on a computer,
+  much more on a phone), which showed as a sudden stutter. The program is now set aside while the game plays, so the clean-up is
+  instant (0.03 ms) and rarer. Sound effects also stopped re-making their "noise" every shot, and the same sound twice within
+  45 ms plays once.
+- **Even pace on slow devices.** A device that cannot keep up now plays the game a little slower but evenly (every frame drawn),
+  instead of jumping; a quick device that hits a small hiccup catches up with up to 3 frames in one go. The next frame starts
+  the moment the last one is back. Games you run with `hl run` or save with `hl build` get this too.
 - **Lighter drawing:** the game screen is opaque (faster to put on the screen), and ODYSSEY's painting world uses a quicker colour lookup.
 - **Intro video as a curtain (HUMANLANG ODYSSEY and future games):** the logo video plays the moment you press Play while the game
   loads behind it. A game opts in with a `curtain` file in games/index.json. On phones there is no Skip button.

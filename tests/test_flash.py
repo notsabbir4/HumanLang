@@ -55,5 +55,20 @@ class Flash(unittest.TestCase):
         self.assertTrue(any(c[1] is not None for c in it._fast.values()))
 
 
+class NoHiccups(unittest.TestCase):
+    def test_the_program_is_set_aside_from_the_cleanup_when_a_game_starts(self):
+        import gc
+        from humanlang import gamehost
+        old = gc.get_threshold()
+        try:
+            gc.unfreeze()
+            r = gamehost.start('play a game titled "T" with size 50 by 50\n    every frame\n        put a circle at 5, 5 with radius 3 and colour "red"\n')
+            self.assertIn("info", r)
+            self.assertGreater(gc.get_freeze_count(), 0)
+        finally:
+            gc.unfreeze()
+            gc.set_threshold(*old)
+
+
 if __name__ == "__main__":
     unittest.main()

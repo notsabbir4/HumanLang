@@ -935,16 +935,30 @@ class Interpreter(DesignRun, GameRun, LiveRun, PhysicsRun):
             return False
         return True
 
+    def body_fns(self, body):
+        """The ready-made functions of a loop body (made at once), or None when somebody is watching step by step."""
+        if self.trace or self.on_step:
+            return None
+        c = self._fast.get(id(body))
+        if c is None or c[1] is None:
+            c = self._fast[id(body)] = (body, self.compile_block(body))
+        return c[1]
+
     def x_times(self, s, env):
         n = self.ev(s[2], env)
         if not is_num(n) or int(n) != n or n < 0:
             raise self.err(f"\"repeat\" needs a whole number of times (0 or more), but got {self.show(n)}.")
         body, run = s[3], self.exec_block
+        fns = self.body_fns(body)
         for _ in range(int(n)):
             if self.deadline:
                 self.tick()
             try:
-                run(body, env)
+                if fns is not None:
+                    for f in fns:
+                        f(env)
+                else:
+                    run(body, env)
             except SkipSignal:
                 continue
             except StopSignal:
@@ -952,6 +966,7 @@ class Interpreter(DesignRun, GameRun, LiveRun, PhysicsRun):
 
     def x_while(self, s, env):
         body, run, line = s[3], self.exec_block, s[1]
+        fns = self.body_fns(body)
         while True:
             self.line = line
             if self.deadline:
@@ -962,7 +977,11 @@ class Interpreter(DesignRun, GameRun, LiveRun, PhysicsRun):
             if not v:
                 break
             try:
-                run(body, env)
+                if fns is not None:
+                    for f in fns:
+                        f(env)
+                else:
+                    run(body, env)
             except SkipSignal:
                 continue
             except StopSignal:
@@ -977,12 +996,17 @@ class Interpreter(DesignRun, GameRun, LiveRun, PhysicsRun):
         else:
             raise self.err(f'"for each" needs a list or text to go through, but got {desc(seq)}.')
         body, run, name = s[4], self.exec_block, s[2]
+        fns = self.body_fns(body)
         for item in seq:
             if self.deadline:
                 self.tick()
             env.vars[name] = copy_val(item) if type(item) in BOXES else item
             try:
-                run(body, env)
+                if fns is not None:
+                    for f in fns:
+                        f(env)
+                else:
+                    run(body, env)
             except SkipSignal:
                 continue
             except StopSignal:
