@@ -296,6 +296,30 @@ class GameRun:
         except StopSignal:
             pass
 
+    def game_frames(self, steps=1, down=(), pressed=(), clicked=False, mouse=None):
+        """Catch up: run several frames, but hand back only the last picture (a slow device skips drawing, not game time).
+        Sounds, changed maps and music from the skipped frames are kept, and a video stops the catching up so it plays on time."""
+        out = self.game_frame(down=down, pressed=pressed, clicked=clicked, mouse=mouse)
+        if steps <= 1:
+            return out
+        sounds, maps, music = list(out["sounds"]), dict(out["maps"]), None
+        if "music" in out:
+            music = (out["music"], out.get("resume"))
+        for _ in range(min(int(steps), 6) - 1):
+            if out["over"] or "video" in out:
+                break
+            out = self.game_frame(down=down, mouse=mouse)
+            sounds += out["sounds"]
+            maps.update(out["maps"])
+            if "music" in out:
+                music = (out["music"], out.get("resume"))
+        out["sounds"], out["maps"] = sounds, maps
+        if music is not None:
+            out["music"] = music[0]
+            if music[1]:
+                out["resume"] = True
+        return out
+
     def game_frame(self, down=(), pressed=(), clicked=False, mouse=None, dt=1 / 60):
         """Run one frame. down: keys held now; pressed: keys that went down since the last frame.
         Returns {"cmds": [...], "sounds": [...], "maps": {...changed maps...}, "over": bool}."""

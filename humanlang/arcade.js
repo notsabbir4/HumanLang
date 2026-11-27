@@ -145,7 +145,7 @@
   // ---- the game -------------------------------------------------------------------------------------
   function Arcade(canvas, info, step, opts) {
     opts = opts || {};
-    const g = canvas.getContext("2d");
+    const g = canvas.getContext("2d", { alpha: false });
     const sound = makeSound();
     const sprites = {}, maps = {};
     for (const k in info.sprites) sprites[k] = buildSprite(info.sprites[k]);
@@ -305,31 +305,40 @@
       go();
     }
 
-    async function tick(now) {
-      if (!running) return;
+    // The game clock: 60 frames a second of GAME time. A slow device does not slow the game down: when it is behind it runs
+    // several frames in one go (steps) and draws only the last one, and the next frame starts the moment the last one is back.
+    const MAXSTEPS = 4, clock = () => (root.performance && root.performance.now ? root.performance.now() : Date.now());
+    async function pump() {
+      if (!running || busy || videoOn) return;
+      const now = clock();
       if (!last) last = now;
-      acc = Math.min(acc + (now - last), STEP * 5);
+      acc = Math.min(acc + (now - last), STEP * (MAXSTEPS + 1));
       last = now;
-      if (videoOn) { last = now; acc = 0; }
-      if (acc >= STEP && !busy && !videoOn) {
-        acc -= STEP; busy = true;
-        const input = { down: Array.from(down), pressed, clicked, mouse };
-        pressed = []; clicked = false;
-        try {
-          frame = await step(input);
-          draw(frame);
-          const f = frame, after = () => {
-            if (!muted) for (const s of f.sounds || []) sound.play(s, files);
-            if (f.music !== undefined && f.music !== lastMusic) { lastMusic = f.music; sound.music(f.music, files, f.resume); }
-            if (f.over) { over = true; running = false; if (opts.onOver) opts.onOver(); }
-          };
-          if (f.video) playVideo(f.video, after); else after();
-        } catch (err) {
-          running = false;
-          if (opts.onError) opts.onError(err && err.message ? err.message : String(err));
-        }
-        busy = false;
+      if (acc < STEP) return;
+      const steps = Math.min(MAXSTEPS, Math.floor(acc / STEP));
+      acc -= steps * STEP; busy = true;
+      const input = { down: Array.from(down), pressed, clicked, mouse, steps };
+      pressed = []; clicked = false;
+      try {
+        frame = await step(input);
+        draw(frame);
+        const f = frame, after = () => {
+          if (!muted) for (const s of f.sounds || []) sound.play(s, files);
+          if (f.music !== undefined && f.music !== lastMusic) { lastMusic = f.music; sound.music(f.music, files, f.resume); }
+          if (f.over) { over = true; running = false; if (opts.onOver) opts.onOver(); }
+        };
+        if (f.video) playVideo(f.video, after); else after();
+      } catch (err) {
+        running = false;
+        if (opts.onError) opts.onError(err && err.message ? err.message : String(err));
       }
+      busy = false;
+      if (running && !videoOn) pump();               // behind already? go on at once, don't wait for the screen
+    }
+    function tick() {
+      if (!running) return;
+      if (videoOn) { last = clock(); acc = 0; }
+      pump();
       if (running) root.requestAnimationFrame(tick);
     }
 

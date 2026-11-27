@@ -24,7 +24,8 @@ class DesignRun:
 
     # -- values --------------------------------------------------------------------
     def dnumber(self, expr, env, what):
-        v = self._ev[expr[0]](expr, env)
+        k = expr[0]
+        v = self.cx(expr)(env) if k in self.FAST_KINDS else self._ev[k](expr, env)
         if type(v) is int and -MAX_NUMBER <= v <= MAX_NUMBER:  # the common case in games: a whole number
             return v
         if isinstance(v, bool) or not isinstance(v, (int, float)) and not hasattr(v, "as_tuple"):

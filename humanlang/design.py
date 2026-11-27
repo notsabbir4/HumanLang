@@ -86,8 +86,24 @@ def _mix(hex_colour, target, amount):
     return "#" + "".join(f"{round(x + (y - x) * amount):02x}" for x, y in zip(a, b))
 
 
+_COLOURS_SEEN = {}
+
+
 def resolve_colour(text):
     """Colour words ("dark blue", "red", "#ff8800") as #rrggbb, or None when they are not a colour."""
+    if type(text) is str:                      # games ask for the same few colours every frame: remember the answers
+        try:
+            return _COLOURS_SEEN[text]
+        except KeyError:
+            pass
+        found = _resolve_colour(text)
+        if len(_COLOURS_SEEN) < 5000:
+            _COLOURS_SEEN[text] = found
+        return found
+    return _resolve_colour(text)
+
+
+def _resolve_colour(text):
     text = " ".join(str(text).lower().replace("-", " ").replace("_", " ").split())
     if not text:
         return None
@@ -105,7 +121,7 @@ def resolve_colour(text):
     if joined in CSS:
         return CSS[joined]
     if words[0] in ("dark", "light", "pale", "bright") and len(words) > 1:
-        base = resolve_colour(" ".join(words[1:]))
+        base = _resolve_colour(" ".join(words[1:]))
         if base:
             return _mix(base, "#000000" if words[0] == "dark" else "#ffffff", 0.35 if words[0] != "bright" else 0.0)
     return None

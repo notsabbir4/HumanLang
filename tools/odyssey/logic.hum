@@ -1159,7 +1159,7 @@ define update_w4
         set c to (i - 1) mod n
         set have to item i of canvas
         set want to item i of paint_target
-        set colr to cell_colour with have
+        set colr to item have + 1 of paint_cols
         put a rectangle at 20 + c * cell, 40 + r * cell with width cell - 1 and height cell - 1 and colour colr
         if have is 0 and want is greater than 0
             set dot to cell_colour with want
@@ -1175,7 +1175,7 @@ define update_w4
     for each i from 1 to n * n
         set r to floor of ((i - 1) / n)
         set c to (i - 1) mod n
-        set colr to cell_colour with (item i of paint_target)
+        set colr to item (item i of paint_target) + 1 of paint_cols
         put a rectangle at 196 + c * tc, 40 + r * tc with width tc and height tc and colour colr
     text_at with "COPY THIS" and (190 + floor of (tbox / 2)) and (tbox + 38) and 10 and "#7FD6FF" and "center"
     for each o from 1 to 4

@@ -1,6 +1,16 @@
 # Changelog
 
-## 0.6.2 - 2026-11-16
+## 0.6.2 - 2026-11-16 - "Flash"
+**HL v0.6.2 - Flash: faster and smoother games, on any device.**
+- **A faster HumanLang.** Sums, tests and "item of" inside things that run again and again (every frame, functions, loops) are
+  turned into ready-made functions the second time they run, drawing words/colours are remembered, and `floor of` is quick. In
+  the browser (Pyodide) a frame of HUMANLANG ODYSSEY and PLANET DEFENDERS 2 now takes about 40% less time. Results and mistake
+  messages are exactly the same (tested against the plain way).
+- **Slow devices no longer slow the game down.** The game keeps its 60-frames-a-second pace of game time: when a phone is behind it
+  runs a few frames in one go and draws only the last, the sounds/music of skipped frames still play, and the next frame starts
+  the moment the last one is back instead of waiting for the screen. (Tested with a worker that takes 2, 30 and 70 ms a frame.)
+- **Lighter drawing:** the game screen is opaque (faster to put on the screen), and ODYSSEY's painting world draws its pictures
+  with a quicker colour lookup.
 **All four courses are interactive now**, and the mascot is in them.
 - **Designer Go, Game Maker and Master 2.0** are interactive like Beginner+: 6 units each with short lessons, quick questions
   (predict, fill the gap, put in order, find the bug, write a line, follow the program, follow a game frame by frame), a test after

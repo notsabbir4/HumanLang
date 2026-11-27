@@ -187,6 +187,10 @@ class Source:
         self.name, self.lines, self.path = name, lines, path
 
 
+import operator
+CMP_FAST = {"eq": operator.eq, "lt": operator.lt, "gt": operator.gt, "ge": operator.ge, "le": operator.le}
+
+
 class Interpreter(DesignRun, GameRun, LiveRun, PhysicsRun):
     def __init__(self, out=None, inp=None, memory=None):
         self.memory = memory or Memory()
@@ -214,6 +218,8 @@ class Interpreter(DesignRun, GameRun, LiveRun, PhysicsRun):
         # look each statement/expression handler up once, not on every step
         self._ex = {k[2:]: getattr(self, k) for k in dir(self) if k.startswith("x_")}
         self._ev = {k[2:]: getattr(self, k) for k in dir(self) if k.startswith("e_")}
+        self._fe = {}
+        self._fast = {}  # id(block) -> (block, the same block with its sums and tests turned into ready-made functions)
 
     # ---- running ---------------------------------------------------------
     def prepare(self, source, path=None):
@@ -429,8 +435,154 @@ class Interpreter(DesignRun, GameRun, LiveRun, PhysicsRun):
         raise self.err(f"I expected yes or no here, but got {desc(v)}.", hint)
 
     # ---- statements ------------------------------------------------------
+    # ---- the fast path ---------------------------------------------------
+    # A block that runs again and again (a game's "every frame", a function) gets a copy in which the sums, tests and
+    # "item of" are turned into small Python functions once, so the next runs don't walk the tree. Anything unusual
+    # (decimals, text, mistakes) is handed to the normal code, so results and messages stay exactly the same.
+    FAST_KINDS = ("bin", "cmp", "and", "or", "not", "item")
+    FAST_STMTS = ("set", "change", "add", "subtract", "if", "while", "times", "for", "give", "say", "changeitem")
+
+    def e_fast(self, n, env):
+        return n[1](env)
+
+    def cx(self, n):
+        """The ready-made function for a sum/test node (made once, kept)."""
+        c = self._fe.get(id(n))
+        if c is None:
+            c = self._fe[id(n)] = (n, self.fast_fn(n))
+        return c[1]
+
+    def compile_block(self, stmts):
+        out = []
+        for s in stmts:
+            try:
+                out.append(self.compile_stmt(s) if s[0] in self.FAST_STMTS else s)
+            except Exception:
+                out.append(s)
+        return out
+
+    def compile_stmt(self, s):
+        if s[0] == "if":
+            pairs = s[2]
+            if not isinstance(pairs, list):
+                return s
+            return s[:2] + ([(self.fast_node(c), b) for c, b in pairs],) + s[3:]
+        new = list(s)
+        for i in range(2, len(s)):
+            e = s[i]
+            if type(e) is tuple and e and type(e[0]) is str and e[0] in self.FAST_KINDS:
+                new[i] = self.fast_node(e)
+        return tuple(new)
+
+    def fast_node(self, n):
+        if type(n) is tuple and n and n[0] in self.FAST_KINDS:
+            return ("fast", self.fast_fn(n), n)
+        return n
+
+    def fast_fn(self, n):
+        k, ev, truth = n[0], self._ev, self.truth
+
+        def sub(c):
+            if type(c) is tuple and c and c[0] == "lit":
+                v = c[1]
+                return lambda env: v
+            if type(c) is tuple and c and c[0] in self.FAST_KINDS:
+                return self.fast_fn(c)
+            if type(c) is tuple and c and c[0] == "var":
+                name = c[1]
+                slow = self.e_var
+
+                def var(env):
+                    e = env
+                    while e is not None:
+                        vs = e.vars
+                        if name in vs:
+                            v = vs[name]
+                            return slow(c, env) if type(v) is Function else v
+                        e = e.parent
+                    return slow(c, env)                   # not found: the usual message
+                return var
+            h = ev[c[0]]
+            return lambda env: h(c, env)
+
+        if k in ("bin", "cmp") and len(n) == 4:
+            op, la, lb = n[1], sub(n[2]), sub(n[3])
+            slow = self.bin_values if k == "bin" else self.cmp_values
+            if k == "bin" and op == "+":
+                def f(env):
+                    a = la(env); b = lb(env)
+                    return a + b if type(a) is int and type(b) is int else slow(op, a, b)
+            elif k == "bin" and op == "-":
+                def f(env):
+                    a = la(env); b = lb(env)
+                    return a - b if type(a) is int and type(b) is int else slow(op, a, b)
+            elif k == "bin" and op == "*":
+                def f(env):
+                    a = la(env); b = lb(env)
+                    return a * b if type(a) is int and type(b) is int else slow(op, a, b)
+            elif k == "cmp" and op in CMP_FAST:
+                py = CMP_FAST[op]
+                def f(env):
+                    a = la(env); b = lb(env)
+                    return py(a, b) if type(a) is int and type(b) is int else slow(op, a, b)
+            else:
+                def f(env):
+                    return slow(op, la(env), lb(env))
+            return f
+        if k == "and" and len(n) == 3:
+            la, lb = sub(n[1]), sub(n[2])
+
+            def f(env):
+                v = la(env)
+                if not (v is True or truth(v)):
+                    return False
+                v = lb(env)
+                return v is True or truth(v)
+            return f
+        if k == "or" and len(n) == 3:
+            la, lb = sub(n[1]), sub(n[2])
+
+            def f(env):
+                v = la(env)
+                if v is True or truth(v):
+                    return True
+                v = lb(env)
+                return v is True or truth(v)
+            return f
+        if k == "not" and len(n) == 2:
+            la = sub(n[1])
+
+            def f(env):
+                v = la(env)
+                return (not v) if type(v) is bool else not truth(v)
+            return f
+        if k == "item" and len(n) == 3:
+            li, ls, slow = sub(n[1]), sub(n[2]), self.item_values
+
+            def f(env):
+                seq = ls(env)
+                idx = li(env)
+                if type(idx) is int and type(seq) is list and 0 < idx <= len(seq):
+                    return seq[idx - 1]
+                return slow(seq, idx)
+            return f
+        h = ev[k]
+        return lambda env: h(n, env)
+
     def exec_block(self, stmts, env):
         ex, trace, step = self._ex, self.trace, self.on_step
+        if not (trace or step):                       # the usual case (a game, a program): nothing watches, so go straight through
+            c = self._fast.get(id(stmts))
+            if c is None:                             # first run: just remember it; blocks that run again get the fast copy
+                self._fast[id(stmts)] = (stmts, None)
+            else:
+                if c[1] is None:
+                    c = self._fast[id(stmts)] = (stmts, self.compile_block(stmts))
+                stmts = c[1]
+            for s in stmts:
+                self.line = s[1]
+                ex[s[0]](s, env)
+            return
         for s in stmts:
             self.line = s[1]
             if trace or step:
@@ -450,7 +602,8 @@ class Interpreter(DesignRun, GameRun, LiveRun, PhysicsRun):
         return "(" + self.fmt(x) + ")" if type(x) in BOXES else self.fmt(x)
 
     def x_set(self, s, env):
-        v = self.ev(s[3], env)
+        n = s[3]
+        v = n[1](env) if n[0] == "fast" else self._ev[n[0]](n, env)
         env.vars[s[2]] = copy_val(v) if type(v) in BOXES else v
         if v is None or self.nothing_from:
             self.note_nothing(s[2], s[3], v, s[1], env)
@@ -481,7 +634,8 @@ class Interpreter(DesignRun, GameRun, LiveRun, PhysicsRun):
 
     def x_change(self, s, env):
         e = self.target(s[2], env)
-        v = self.ev(s[3], env)
+        n = s[3]
+        v = self._ev[n[0]](n, env)
         e.vars[s[2]] = copy_val(v) if type(v) in BOXES else v
         if v is None or self.nothing_from:
             self.note_nothing(s[2], s[3], v, s[1], env)
@@ -684,7 +838,7 @@ class Interpreter(DesignRun, GameRun, LiveRun, PhysicsRun):
     def x_if(self, s, env):
         for cond, body in s[2]:
             self.line = s[1]
-            v = self._ev[cond[0]](cond, env)
+            v = cond[1](env) if cond[0] == "fast" else self._ev[cond[0]](cond, env)
             if v is not True and v is not False:
                 self.truth(v)  # raises the friendly error
             if v:
@@ -979,7 +1133,7 @@ class Interpreter(DesignRun, GameRun, LiveRun, PhysicsRun):
 
     def e_str(self, n, env):
         fmt, ev = self.fmt, self.ev
-        return "".join(p if type(p) is str else fmt(ev(p, env)) for p in n[1])
+        return "".join([p if type(p) is str else fmt(ev(p, env)) for p in n[1]])
 
     def e_var(self, n, env):
         name, e = n[1], env
@@ -1000,11 +1154,19 @@ class Interpreter(DesignRun, GameRun, LiveRun, PhysicsRun):
         return self.call_fn(v, [])
 
     def e_list(self, n, env):
-        return [copy_val(self.ev(x, env)) for x in n[1]]
+        ev = self._ev
+        return [copy_val(ev[x[0]](x, env)) for x in n[1]]
 
     def e_item(self, n, env):
-        seq = self.ev(n[2], env)
-        idx = self.ev(n[1], env)
+        ev = self._ev
+        a, b = n[2], n[1]
+        seq = ev[a[0]](a, env)
+        idx = ev[b[0]](b, env)
+        if type(idx) is int and type(seq) is list and 0 < idx <= len(seq):      # the usual case
+            return seq[idx - 1]
+        return self.item_values(seq, idx)
+
+    def item_values(self, seq, idx):
         if not isinstance(seq, (list, str)):
             raise self.err(f'"item ... of" needs a list or text, but got {desc(seq)}.')
         return seq[self.index(seq, idx)]
@@ -1019,15 +1181,31 @@ class Interpreter(DesignRun, GameRun, LiveRun, PhysicsRun):
         return not self.truth(self.ev(n[1], env))
 
     def e_and(self, n, env):
-        return self.truth(self.ev(n[1], env)) and self.truth(self.ev(n[2], env))
+        ev, truth = self._ev, self.truth
+        a = n[1]
+        v = ev[a[0]](a, env)
+        if not (v is True or truth(v)):
+            return False
+        b = n[2]
+        v = ev[b[0]](b, env)
+        return v is True or truth(v)
 
     def e_or(self, n, env):
-        return self.truth(self.ev(n[1], env)) or self.truth(self.ev(n[2], env))
+        ev, truth = self._ev, self.truth
+        a = n[1]
+        v = ev[a[0]](a, env)
+        if v is True or truth(v):
+            return True
+        b = n[2]
+        v = ev[b[0]](b, env)
+        return v is True or truth(v)
 
     def e_cmp(self, n, env):
         _, op, ln, rn = n
         ev = self._ev
-        a, b = ev[ln[0]](ln, env), ev[rn[0]](rn, env)
+        return self.cmp_values(op, ev[ln[0]](ln, env), ev[rn[0]](rn, env))
+
+    def cmp_values(self, op, a, b):
         ta, tb = type(a), type(b)
         if ((ta is int or ta is Decimal) and (tb is int or tb is Decimal)) or (ta is str and tb is str):
             if op == "eq":
@@ -1056,7 +1234,9 @@ class Interpreter(DesignRun, GameRun, LiveRun, PhysicsRun):
     def e_bin(self, n, env):
         _, op, ln, rn = n
         ev = self._ev
-        a, b = ev[ln[0]](ln, env), ev[rn[0]](rn, env)
+        return self.bin_values(op, ev[ln[0]](ln, env), ev[rn[0]](rn, env))
+
+    def bin_values(self, op, a, b):
         ta, tb = type(a), type(b)
         if ta is int and tb is int and op in "+-*":
             return a + b if op == "+" else a - b if op == "-" else a * b
@@ -1168,7 +1348,8 @@ class Interpreter(DesignRun, GameRun, LiveRun, PhysicsRun):
                            f"but you gave {len(n[2])}.")
         ev, args = self._ev, []
         for a in n[2]:
-            v = ev[a[0]](a, env)
+            k = a[0]
+            v = self.cx(a)(env) if k in self.FAST_KINDS else ev[k](a, env)
             args.append(copy_val(v) if type(v) in BOXES else v)
         return self.call_fn(fn, args)
 
@@ -1234,9 +1415,18 @@ class Interpreter(DesignRun, GameRun, LiveRun, PhysicsRun):
 
     def e_fn(self, n, env):
         name = n[1]
-        args = [self.ev(a, env) for a in n[2]]
+        ev, fk = self._ev, self.FAST_KINDS
+        args = [self.cx(a)(env) if a[0] in fk else ev[a[0]](a, env) for a in n[2]]
         if name in MODULE_FNS:
             self.require(MODULE_FNS[name])
+        if name == "floor" and len(args) == 1:          # the usual case in games
+            v = args[0]
+            if type(v) is int:
+                return v
+            if type(v) is Decimal:
+                return int(math.floor(v))
+        elif name == "abs" and len(args) == 1 and type(args[0]) is int:
+            return abs(args[0])
         if name in ("today", "now"):
             import datetime
             t = datetime.datetime.now()

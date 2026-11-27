@@ -48,8 +48,8 @@ def frame(input_json):
         return json.dumps({"error": "The game hasn't started."})
     d = json.loads(input_json)
     try:
-        out = interp.game_frame(down=d.get("down", ()), pressed=d.get("pressed", ()), clicked=bool(d.get("clicked")),
-                                mouse=d.get("mouse"))
+        out = interp.game_frames(steps=d.get("steps") or 1, down=d.get("down", ()), pressed=d.get("pressed", ()),
+                                 clicked=bool(d.get("clicked")), mouse=d.get("mouse"))
     except HLError as e:
         interp.frame_cmds = None
         return json.dumps({"error": e.format(_state["lines"])})

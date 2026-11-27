@@ -152,6 +152,7 @@ def data_block():
     out.append("set done_lines to " + strlist(["You said hello to HumanLang!", "You can read lists now!", "Words and numbers are no problem!", "You painted with pixels!",
                                                "You climbed the Platform Peaks!", "The Citadel is free!", "You are a HumanLang builder!"]))
     out.append("set paint_pal to " + strlist(["#2EB2F5", "#F6F8FF", "#FFD95C", "#E43A4C"]))
+    out.append("set paint_cols to " + strlist(["#141C3E", "#2EB2F5", "#F6F8FF", "#FFD95C", "#E43A4C"]))
     out.append("set paint_t1 to " + lst(PAINT_T1))
     out.append("set paint_t2 to " + lst(PAINT_T2))
     out.append("set user_letters to " + strlist(["G", "D", "S", "^", "c", "F"]))

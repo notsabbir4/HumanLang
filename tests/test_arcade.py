@@ -872,5 +872,30 @@ class Showcase(unittest.TestCase):
         self.assertGreater(g["score"], 0)
 
 
+class CatchUp(unittest.TestCase):
+    """HL v0.6.2 Flash: a slow device runs several frames in one go and draws only the last one."""
+    CODE = ('set n to 0\n\nplay a game titled "T" with size 100 by 100\n    every frame\n        add 1 to n\n        play the sound "jump"\n'
+            '        if n is 3\n            play the music "Galaxy_Dash.mp3"\n        put a circle at n, 5 with radius 4 and colour "red"\n')
+
+    def test_several_steps_in_one_call(self):
+        it = Interpreter()
+        it.assets = {"Galaxy_Dash.mp3": "audio"}
+        it.run(self.CODE)
+        out = it.game_frames(steps=4)
+        self.assertEqual(it.game["env"].find("n").vars["n"], 4)
+        self.assertEqual(len(out["sounds"]), 4)                      # no sound is lost
+        self.assertEqual(out["music"], "Galaxy_Dash.mp3")            # nor the music that started in a skipped frame
+        self.assertEqual(len(out["cmds"]), 1)                        # but only the last picture is handed back
+
+    def test_one_step_is_the_normal_frame(self):
+        a, b = make(self.CODE), make(self.CODE)
+        self.assertEqual(a.game_frames(steps=1), b.game_frame())
+
+    def test_pressed_keys_count_once(self):
+        it = make('set n to 0\n\nplay a game titled "T" with size 50 by 50\n    when the key "space" is pressed\n        add 1 to n\n')
+        it.game_frames(steps=4, pressed=["space"])
+        self.assertEqual(it.game["env"].find("n").vars["n"], 1)
+
+
 if __name__ == "__main__":
     unittest.main()
