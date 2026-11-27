@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------- header notes and state
-sub("note: HUMANLANG ODYSSEY: SEVEN WORLDS (the first slice). Made with HumanLang 0.6.2.",
-    "note: HUMANLANG ODYSSEY: SEVEN WORLDS. Made with HumanLang 0.6.2.")
+sub("note: HUMANLANG ODYSSEY: SEVEN WORLDS (the first slice). Made with HumanLang 0.7.1.",
+    "note: HUMANLANG ODYSSEY: SEVEN WORLDS. Made with HumanLang 0.7.1.")
 sub("note: Your logo reveal plays first (play video), then the title, the Motherboard hub, World 1 (Say Hello) and\nnote: World 5 (Platform Peaks).",
     "note: Your logo reveal is the website curtain (it plays while the game loads), then the title and the Motherboard hub with its seven worlds:\nnote: 1 Say Hello, 2 Lists and Machines, 3 Word and Number Town, 4 Pixel Gallery, 5 Platform Peaks, 6 The Boss Citadel, 7 Your World.")
 sub("note: Keys: left/right run, space jumps, enter talks, opens doors and confirms. On a phone: arrows, A = jump, B = enter.",

@@ -219,6 +219,7 @@ class Interpreter(DesignRun, GameRun, LiveRun, PhysicsRun):
         self._ex = {k[2:]: getattr(self, k) for k in dir(self) if k.startswith("x_")}
         self._ev = {k[2:]: getattr(self, k) for k in dir(self) if k.startswith("e_")}
         self._fe = {}
+        self._args = {}
         self._fast = {}  # id(block) -> (block, the same block with its sums and tests turned into ready-made functions)
 
     # ---- running ---------------------------------------------------------
@@ -453,13 +454,81 @@ class Interpreter(DesignRun, GameRun, LiveRun, PhysicsRun):
         return c[1]
 
     def compile_block(self, stmts):
+        """The block as a list of small functions, one per statement (each knows its own line)."""
         out = []
+        ex = self._ex
         for s in stmts:
             try:
-                out.append(self.compile_stmt(s) if s[0] in self.FAST_STMTS else s)
+                f = self.stmt_fn(self.compile_stmt(s) if s[0] in self.FAST_STMTS else s, s)
             except Exception:
-                out.append(s)
+                f = None
+            if f is None:
+                h, line = ex[s[0]], s[1]
+
+                def f(env, h=h, s=s, line=line):
+                    self.line = line
+                    h(s, env)
+            out.append(f)
         return out
+
+    def stmt_fn(self, c, s):
+        kind, line = s[0], s[1]
+        part = self.part_fn
+        if kind == "set" and len(s) == 4:
+            name, node = s[2], s[3]
+            vf = part(node)
+            nn = self.note_nothing
+
+            def f(env):
+                self.line = line
+                v = vf(env)
+                env.vars[name] = copy_val(v) if type(v) in BOXES else v
+                if v is None or self.nothing_from:
+                    nn(name, node, v, line, env)
+            return f
+        if kind == "add" and len(s) == 4 and type(s[3]) is str:
+            name, vf = s[3], part(s[2])
+            av = self.add_values
+
+            def f(env):
+                self.line = line
+                e = env
+                while e is not None and name not in e.vars:
+                    e = e.parent
+                if e is None:
+                    raise self.unknown(name, env, creating=True)
+                av(s, e, e.vars[name], vf(env))
+            return f
+        if kind == "if" and isinstance(s[2], list):
+            pairs = [(part(cond), body) for cond, body in s[2]]
+            els, truth, run = s[3], self.truth, self.exec_block
+
+            def f(env):
+                for cf, body in pairs:
+                    self.line = line
+                    v = cf(env)
+                    if v is not True and v is not False:
+                        truth(v)  # raises the friendly error
+                    if v:
+                        run(body, env)
+                        return
+                if els is not None:
+                    run(els, env)
+            return f
+        if kind == "give" and s[2] is not None:
+            vf = part(s[2])
+
+            def f(env):
+                self.line = line
+                v = vf(env)
+                raise ReturnSignal(copy_val(v) if type(v) in BOXES else v)
+            return f
+        h = self._ex[kind]
+
+        def f(env):
+            self.line = line
+            h(c, env)
+        return f
 
     def compile_stmt(self, s):
         if s[0] == "if":
@@ -479,31 +548,34 @@ class Interpreter(DesignRun, GameRun, LiveRun, PhysicsRun):
             return ("fast", self.fast_fn(n), n)
         return n
 
+    def part_fn(self, c):
+        ev = self._ev
+        if type(c) is tuple and c and c[0] == "lit":
+            v = c[1]
+            return lambda env: v
+        if type(c) is tuple and c and c[0] in self.FAST_KINDS:
+            return self.fast_fn(c)
+        if type(c) is tuple and c and c[0] == "var":
+            name = c[1]
+            slow = self.e_var
+
+            def var(env):
+                e = env
+                while e is not None:
+                    vs = e.vars
+                    if name in vs:
+                        v = vs[name]
+                        return slow(c, env) if type(v) is Function else v
+                    e = e.parent
+                return slow(c, env)                   # not found: the usual message
+            return var
+        h = ev[c[0]]
+        return lambda env: h(c, env)
+
     def fast_fn(self, n):
         k, ev, truth = n[0], self._ev, self.truth
 
-        def sub(c):
-            if type(c) is tuple and c and c[0] == "lit":
-                v = c[1]
-                return lambda env: v
-            if type(c) is tuple and c and c[0] in self.FAST_KINDS:
-                return self.fast_fn(c)
-            if type(c) is tuple and c and c[0] == "var":
-                name = c[1]
-                slow = self.e_var
-
-                def var(env):
-                    e = env
-                    while e is not None:
-                        vs = e.vars
-                        if name in vs:
-                            v = vs[name]
-                            return slow(c, env) if type(v) is Function else v
-                        e = e.parent
-                    return slow(c, env)                   # not found: the usual message
-                return var
-            h = ev[c[0]]
-            return lambda env: h(c, env)
+        sub = self.part_fn
 
         if k in ("bin", "cmp") and len(n) == 4:
             op, la, lb = n[1], sub(n[2]), sub(n[3])
@@ -579,6 +651,10 @@ class Interpreter(DesignRun, GameRun, LiveRun, PhysicsRun):
                 if c[1] is None:
                     c = self._fast[id(stmts)] = (stmts, self.compile_block(stmts))
                 stmts = c[1]
+            if c is not None:
+                for f in stmts:
+                    f(env)
+                return
             for s in stmts:
                 self.line = s[1]
                 ex[s[0]](s, env)
@@ -783,10 +859,12 @@ class Interpreter(DesignRun, GameRun, LiveRun, PhysicsRun):
             e = e.parent
         if e is None:
             raise self.unknown(name, env, creating=True)
-        cur, val = e.vars[name], self.ev(s[2], env)
+        self.add_values(s, e, e.vars[name], self.ev(s[2], env))
+
+    def add_values(self, s, e, cur, val):
         tc, tv = type(cur), type(val)
         if tc is int and tv is int:
-            e.vars[name] = cur + val
+            e.vars[s[3]] = cur + val
             return
         if isinstance(cur, list):
             cur.append(copy_val(val))
@@ -928,7 +1006,8 @@ class Interpreter(DesignRun, GameRun, LiveRun, PhysicsRun):
     def x_give(self, s, env):
         if s[2] is None:
             raise ReturnSignal(None)
-        v = self._ev[s[2][0]](s[2], env)
+        n = s[2]
+        v = n[1](env) if n[0] == "fast" else self._ev[n[0]](n, env)
         raise ReturnSignal(copy_val(v) if type(v) in BOXES else v)
 
     def x_stop(self, s, env):
@@ -1346,10 +1425,12 @@ class Interpreter(DesignRun, GameRun, LiveRun, PhysicsRun):
             raise self.err(f'"{name}" needs {need} value{"s" if need != 1 else ""}'
                            f'{" (" + " and ".join(fn.params) + ")" if need else ""}, '
                            f"but you gave {len(n[2])}.")
-        ev, args = self._ev, []
-        for a in n[2]:
-            k = a[0]
-            v = self.cx(a)(env) if k in self.FAST_KINDS else ev[k](a, env)
+        fns = self._args.get(id(n))
+        if fns is None:                                   # made once per call spot
+            fns = self._args[id(n)] = (n, [self.part_fn(a) for a in n[2]])
+        args = []
+        for f in fns[1]:
+            v = f(env)
             args.append(copy_val(v) if type(v) in BOXES else v)
         return self.call_fn(fn, args)
 

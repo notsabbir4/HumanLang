@@ -873,7 +873,7 @@ class Showcase(unittest.TestCase):
 
 
 class CatchUp(unittest.TestCase):
-    """HL v0.6.2 Flash: a slow device runs several frames in one go and draws only the last one."""
+    """HL v0.7.1 Flash: a slow device runs several frames in one go and draws only the last one."""
     CODE = ('set n to 0\n\nplay a game titled "T" with size 100 by 100\n    every frame\n        add 1 to n\n        play the sound "jump"\n'
             '        if n is 3\n            play the music "Galaxy_Dash.mp3"\n        put a circle at n, 5 with radius 4 and colour "red"\n')
 

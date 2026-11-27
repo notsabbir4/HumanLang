@@ -1,4 +1,4 @@
-"""HL v0.6.2 - Flash: the fast path must give exactly the same answers and the same messages as the plain walk."""
+"""HL v0.7.1 - Flash: the fast path must give exactly the same answers and the same messages as the plain walk."""
 import unittest
 
 from humanlang.errors import HLError

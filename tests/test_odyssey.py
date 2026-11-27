@@ -107,7 +107,7 @@ class Odyssey(unittest.TestCase):
     def test_listed_with_version_and_video_file(self):
         with open(os.path.join(ROOT, "games", "index.json"), encoding="utf-8") as f:
             g = [x for x in json.load(f) if x["id"] == "humanlang-odyssey"][0]
-        self.assertEqual(g["version"], "0.6.2")
+        self.assertEqual(g["version"], "0.7.1")
         self.assertIn("humanlang_intro.mp4", g["files"])
         self.assertEqual(g.get("curtain"), "humanlang_intro.mp4")      # the website plays it as a curtain while the game loads
         self.assertTrue(os.path.isfile(os.path.join(ROOT, "games", "files", "humanlang_intro.mp4")))

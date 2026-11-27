@@ -601,7 +601,7 @@
     ],
     "keys": "Left/Right run, Space jumps, Enter talks and opens doors. World 4 and 7 show their own keys on the screen.",
     "image": "thumbs/humanlang-odyssey.jpg",
-    "version": "0.6.2",
+    "version": "0.7.1",
     "curtain": "humanlang_intro.mp4",
     "files": [
       "humanlang_intro.mp4",

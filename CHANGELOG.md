@@ -1,16 +1,21 @@
 # Changelog
 
-## 0.6.2 - 2026-11-16 - "Flash"
-**HL v0.6.2 - Flash: faster and smoother games, on any device.**
-- **A faster HumanLang.** Sums, tests and "item of" inside things that run again and again (every frame, functions, loops) are
-  turned into ready-made functions the second time they run, drawing words/colours are remembered, and `floor of` is quick. In
-  the browser (Pyodide) a frame of HUMANLANG ODYSSEY and PLANET DEFENDERS 2 now takes about 40% less time. Results and mistake
-  messages are exactly the same (tested against the plain way).
-- **Slow devices no longer slow the game down.** The game keeps its 60-frames-a-second pace of game time: when a phone is behind it
-  runs a few frames in one go and draws only the last, the sounds/music of skipped frames still play, and the next frame starts
-  the moment the last one is back instead of waiting for the screen. (Tested with a worker that takes 2, 30 and 70 ms a frame.)
-- **Lighter drawing:** the game screen is opaque (faster to put on the screen), and ODYSSEY's painting world draws its pictures
-  with a quicker colour lookup.
+## 0.7.1 - 2026-11-27 - "Flash"
+**HL v0.7.1 - Flash: a faster, smoother HumanLang everywhere** (the website, the Playground, and `hl` on your computer, because they
+all run the same HumanLang engine). The courses, Odyssey and the other 0.6.2 work are part of this release too.
+- **A faster engine.** Sums, tests, `item of`, `if`, `set`, `add`, `give back` and calls inside code that runs again and again
+  (every frame, functions, loops) are turned into ready-made small functions the second time they run; drawing colours are
+  remembered, and `floor of` / `abs` are quick. Results and mistake messages are exactly the same (tested against the plain way).
+  Games gain the most: a frame of HUMANLANG ODYSSEY takes about 35% less time and PLANET DEFENDERS 2 about 45% less (measured in the
+  browser's Python). Plain programs with loops get about 10-25% faster.
+- **Slow devices no longer slow the game down.** The game keeps its 60-frames-a-second pace of game time: a device that is behind
+  runs a few frames in one go and draws only the last one (sounds and music of skipped frames still play), and the next frame starts
+  the moment the last one is back instead of waiting for the screen. Games you run with `hl run` or save with `hl build` get this too.
+- **Lighter drawing:** the game screen is opaque (faster to put on the screen), and ODYSSEY's painting world uses a quicker colour lookup.
+- **Intro video as a curtain (HUMANLANG ODYSSEY and future games):** the logo video plays the moment you press Play while the game
+  loads behind it. A game opts in with a `curtain` file in games/index.json. On phones there is no Skip button.
+
+## 0.6.2 - 2026-11-16 (rolled into 0.7.1)
 **All four courses are interactive now**, and the mascot is in them.
 - **Designer Go, Game Maker and Master 2.0** are interactive like Beginner+: 6 units each with short lessons, quick questions
   (predict, fill the gap, put in order, find the bug, write a line, follow the program, follow a game frame by frame), a test after
