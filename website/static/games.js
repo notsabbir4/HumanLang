@@ -169,10 +169,10 @@
   function showCurtain(name) {
     const f = (current.files || {})[name]; if (!f || curtain) return;
     const el = document.createElement("div");
-    el.style.cssText = "position:absolute;inset:0;z-index:50;background:#000;display:flex;align-items:center;justify-content:center";
+    el.style.cssText = "position:absolute;left:0;top:0;width:100%;height:100%;z-index:50;background:#000;overflow:hidden";
     const v = document.createElement("video");
     v.src = f.url; v.playsInline = true; v.setAttribute("playsinline", ""); v.preload = "auto";
-    v.style.cssText = "width:100%;height:100%;object-fit:contain";
+    v.style.cssText = "width:100%;height:100%;object-fit:fill;display:block";
     el.appendChild(v);
     const c = curtain = { el, over: false };
     const end = () => { if (curtain !== c || c.over) return; c.over = true; dropCurtain(); if (held) begin(); };
@@ -183,7 +183,7 @@
       sk.onclick = end; el.appendChild(sk);
     }
     if (getComputedStyle(abox).position === "static") abox.style.position = "relative";
-    abox.appendChild(el);
+    abox.appendChild(el); sizeCanvas();
     const p = v.play();
     if (p && p.catch) p.catch(() => {               // the browser wants a tap before it plays
       const t = document.createElement("button"); t.type = "button"; t.textContent = "Tap to play \u25B6";
@@ -206,17 +206,29 @@
   function movePad() { const pad = document.querySelector(".hl-touchpad"); if (pad) (land ? abox : document.body).appendChild(pad); }
   window.hlPadHost = () => (land ? abox : document.body);
   function sizeCanvas() {
-    if (!info) return;
+    const gi = info || (curtain ? { w: 480, h: 270 } : null);      // behind the curtain the game's size is not known yet: it is 16:9
+    if (!gi) return;
     if (!phone) {                                  // computers: exactly as before
-      const k = Math.max(1, Math.floor(Math.min(stage.clientWidth || 640, 900) / info.w));
-      acanvas.style.width = info.w * k + "px"; acanvas.style.height = info.h * k + "px"; return;
+      const k = Math.max(1, Math.floor(Math.min(stage.clientWidth || 640, 900) / gi.w));
+      acanvas.style.width = gi.w * k + "px"; acanvas.style.height = gi.h * k + "px"; sizeCurtain(); return;
     }
     const portrait = innerHeight > innerWidth;
     let W, H;
     if (land) { W = forced && portrait ? innerHeight : innerWidth; H = forced && portrait ? innerWidth : innerHeight; }
     else { W = Math.max(200, Math.min(stage.clientWidth || innerWidth, innerWidth) - 24); H = 1e5; }
-    const k = Math.min(W / info.w, H / info.h);
-    acanvas.style.width = Math.floor(info.w * k) + "px"; acanvas.style.height = Math.floor(info.h * k) + "px";
+    const k = Math.min(W / gi.w, H / gi.h);
+    acanvas.style.width = Math.floor(gi.w * k) + "px"; acanvas.style.height = Math.floor(gi.h * k) + "px";
+    sizeCurtain();
+  }
+  // the curtain covers exactly the game's screen, the same size and place, so the video and the game match
+  function sizeCurtain() {
+    if (!curtain) return;
+    const w = parseFloat(acanvas.style.width) || 0, h = parseFloat(acanvas.style.height) || 0, st = curtain.el.style;
+    if (!w || !h) return;
+    st.width = w + "px"; st.height = h + "px"; st.right = "auto"; st.bottom = "auto";
+    if (abox.classList.contains("rot") || (land && phone)) { st.left = "50%"; st.top = "50%"; st.transform = "translate(-50%,-50%)"; return; }
+    const r = acanvas.getBoundingClientRect(), a = abox.getBoundingClientRect();
+    st.transform = "none"; st.left = (r.left - a.left - abox.clientLeft) + "px"; st.top = (r.top - a.top - abox.clientTop) + "px";
   }
   function layout() {
     const portrait = innerHeight > innerWidth;
