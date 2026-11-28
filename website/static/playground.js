@@ -195,7 +195,9 @@
     running = false; runBtn.disabled = false; stopBtn.disabled = true;
     if (m.error) { show(m.error, true); setStatus("The game has an error"); showTab("console"); return; }
     tabPreview.hidden = false; preview.hidden = true; gamebox.hidden = false; pnote.hidden = true;
-    const k = Math.max(1, Math.floor(Math.min(prepane.clientWidth - 16 || 600, 960) / m.info.w));
+    showTab("preview");                            // show the pane first: a hidden pane has no width to measure
+    const room = (prepane.clientWidth > 80 ? prepane.clientWidth : (window.innerWidth || 600)) - 16;   // the pane is hidden for a moment, so its width can read 0
+    const k = Math.max(1, Math.floor(Math.min(room, 960) / m.info.w));
     screen.style.width = m.info.w * k + "px"; screen.style.height = m.info.h * k + "px";
     arcade = Arcade(screen, Object.assign(m.info), (input) => new Promise((resolve, reject) => {
       frameWaiting = { resolve, reject };
@@ -205,7 +207,7 @@
       onError: (msg) => { show(msg, true); showTab("console"); setStatus("The game stopped with an error"); },
       onOver: () => setStatus("Game over (press Run to play again)"),
     });
-    showTab("preview"); screen.focus(); arcade.start();
+    screen.focus(); arcade.start();
     setStatus("Playing: click the game, then use the keys");
   }
   function gameFrame(m) {
@@ -272,7 +274,7 @@
           show(text, !!m.err);
           if (!liveRun) showTab("preview");
         } else {
-          show(text || "(the program printed nothing)", !!m.err);
+          show(text || quietNote(), !!m.err);
           if (!hasPage(code.value)) { tabPreview.hidden = true; if (!prepane.hidden) showTab("console"); lastPage = null; }
           else if (liveRun && lastPage && m.err) {
             pnote.textContent = "Showing your last working page. The Console tab says what to fix."; pnote.hidden = false;
@@ -291,12 +293,22 @@
   }
 
   // ---- live pages: clicks inside the preview come here, run in the worker, and the page is updated ----
+  // a program that only makes a sprite (or a map) shows nothing by itself: say what to add instead of "printed nothing"
+  function quietNote() {
+    const t = code.value;
+    if (/^\s*make a (sprite|map) called/m.test(t) && !/\bplay a game\b|\bshow a page\b/.test(t)) {
+      return "(nothing to show yet)\n\nThis program makes a sprite or a map, but a sprite only appears when a game draws it. Add a game below it:\n\n"
+        + "play a game titled \"My game\" with size 160 by 120\n    every frame\n        draw the sprite NAME at 20, 20\n\n"
+        + "(In the Sprite Editor, Export to HumanLang has a \"Ready to run\" choice that writes this for you.)";
+    }
+    return "(the program printed nothing)";
+  }
   function liveStarted(m) {
     clearTimeout(slowTimer); running = false; runBtn.disabled = false; stopBtn.disabled = true;
     took.textContent = Math.round(performance.now() - startedAt) + " ms";
     if (m.error) { show(m.error, true); setStatus("Finished with an error"); showTab("console"); return; }
     if (m.page) { preview.srcdoc = ""; showPage(m.page); if (!liveRun) showTab("preview"); }
-    show(m.out || "(the program printed nothing)", false);
+    show(m.out || quietNote(), false);
     if (m.warnings && m.warnings.length) {
       const box = document.createElement("div"); box.className = "warn"; box.textContent = m.warnings.join("\n\n"); out.appendChild(box);
     }

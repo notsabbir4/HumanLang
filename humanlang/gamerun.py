@@ -281,7 +281,7 @@ class GameRun:
                 "sprites": {k: {"rows": v["rows"], "legend": v["legend"], "ps": v["ps"], "frames": v["frames"]}
                             for k, v in self.sprites.items()},
                 "maps": self.maps_snapshot(self.maps), "sounds": list(SOUNDS),
-                "music": list(BUILTIN_MUSIC), "keys": sorted(set(re.findall(r'\bkey\s+"(\w+)"', "\n".join(self.source_lines or []))))}
+                "music": list(BUILTIN_MUSIC), "keys": self.keys_used()}
 
     def maps_snapshot(self, names):
         return {k: {"rows": ["".join(r) for r in self.maps[k]["rows"]], "legend": self.maps[k]["legend"],
@@ -295,6 +295,10 @@ class GameRun:
             self.exec_block(h["body"], local)
         except StopSignal:
             pass
+
+    def keys_used(self):
+        """The keys the program names (the touch buttons follow this); a program that names none gets no buttons."""
+        return sorted(set(re.findall(r'\bkey\s+"(\w+)"', "\n".join(self.source_lines or []))))
 
     def game_frames(self, steps=1, down=(), pressed=(), clicked=False, mouse=None):
         """Catch up: run several frames, but hand back only the last picture (a slow device skips drawing, not game time).

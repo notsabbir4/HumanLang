@@ -234,6 +234,24 @@ class SpriteEditorAccount(unittest.TestCase):
         self.assertIn("#cloud=", open(os.path.join(ROOT, "website", "static", "account-page.js"), encoding="utf-8").read())
         self.assertIn("1 to 256", js)
 
+    def test_the_playground_measures_the_game_pane_after_showing_it_and_explains_a_sprite_only_program(self):
+        js = open(os.path.join(ROOT, "website", "static", "playground.js"), encoding="utf-8").read()
+        self.assertLess(js.index('showTab("preview");                            // show the pane first'), js.index("const room ="))
+        self.assertIn("quietNote", js)
+        css = open(os.path.join(ROOT, "website", "static", "style.css"), encoding="utf-8").read()
+        self.assertIn("#gamebox #screen{min-height:0", css)
+
+    def test_export_offers_ready_to_run_and_sprite_only(self):
+        import sys
+        sys.path.insert(0, os.path.join(ROOT, "website"))
+        import build
+        page = str(build.sprites_page())
+        self.assertIn("e-m-run", page)
+        self.assertIn("e-m-sprite", page)
+        r = node("""show(S.demoProgram({ name: "robot", w: 4, h: 4, ps: 4, frames: [new Int32Array(16).fill(0xff0000)] }));""")
+        self.assertIn("play a game", r)
+        self.assertIn("draw the sprite robot", r)
+
     def test_the_open_window_has_the_account_part(self):
         import sys
         sys.path.insert(0, os.path.join(ROOT, "website"))

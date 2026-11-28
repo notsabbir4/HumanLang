@@ -566,7 +566,9 @@ def sprites_page():
  <div class="sp-actions"><button class="sp-btn" type="button" data-close>Cancel</button><button class="sp-btn primary" type="submit">Save</button></div></form></dialog>
 
 <dialog class="sp-dlg wide" id="d-export"><div><h2>HumanLang code</h2>
- <p class="sp-hint">Copy this into your program, above the game. Then draw it with <code id="e-use"></code></p>
+ <div class="sp-seg" role="group" aria-label="What to copy"><button type="button" class="on" id="e-m-run" aria-pressed="true">Ready to run</button><button type="button" id="e-m-sprite" aria-pressed="false">Just the sprite</button></div>
+ <p class="sp-hint" id="e-hint-run">A complete program: paste it into the Playground and press Run, and your sprite appears (it animates if it has more than one frame).</p>
+ <p class="sp-hint" id="e-hint-sprite" hidden>Only the sprite. Copy this into your own program, above the game. Then draw it with <code id="e-use"></code></p>
  <div class="sp-warn" id="e-warn" hidden></div>
  <pre class="sp-code" id="e-code" tabindex="0"></pre>
  <div class="sp-actions"><button class="sp-btn" type="button" id="e-reduce" hidden>Fewer colours&hellip;</button><span class="sp-grow"></span>

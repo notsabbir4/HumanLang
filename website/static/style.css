@@ -177,7 +177,7 @@ footer .fl a:hover{color:var(--fg)}
 
 #gamebox{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#0b0d14;overflow:auto}
 #gamebox[hidden]{display:none}
-#gamebox #screen{display:block;image-rendering:pixelated;background:#000;outline:none;box-shadow:0 0 0 2px #2a2f45}
+#gamebox #screen{min-height:0;max-height:none;display:block;image-rendering:pixelated;background:#000;outline:none;box-shadow:0 0 0 2px #2a2f45}
 #gamebox #screen:focus{box-shadow:0 0 0 2px #6aa7ff}
 
 /* games: Inspect and the arcade screen */

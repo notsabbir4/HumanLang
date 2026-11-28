@@ -70,5 +70,19 @@ class NoHiccups(unittest.TestCase):
             gc.set_threshold(*old)
 
 
+class TouchButtons(unittest.TestCase):
+    """The touch buttons follow the keys a program names: none named means no buttons (a sprite demo)."""
+    def keys(self, code):
+        it = Interpreter()
+        it.run(code)
+        return it.game_info()["keys"]
+
+    def test_a_game_with_no_keys_gets_no_buttons(self):
+        self.assertEqual(self.keys('play a game titled "T" with size 100 by 100\n    every frame\n        put a circle at 5, 5 with radius 3 and colour "red"\n'), [])
+
+    def test_named_keys(self):
+        self.assertEqual(self.keys('play a game titled "T" with size 100 by 100\n    when the key "space" is pressed\n        say "x"\n'), ["space"])
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -436,7 +436,7 @@
     syncAll(); if (msg) toast(msg); saveDraftSoon();
   }
   const sure = () => !dirty || confirm("The sprite you are drawing has changes that are not saved. Continue anyway?");
-  function openDlg(d) { if (d.showModal) d.showModal(); else d.setAttribute("open", ""); }
+  function openDlg(d) { if (d.open) return; if (d.showModal) d.showModal(); else d.setAttribute("open", ""); }
   document.querySelectorAll("dialog [data-close]").forEach((b) => (b.onclick = () => b.closest("dialog").close()));
   document.querySelectorAll("dialog").forEach((d) => d.addEventListener("click", (e) => { if (e.target === d) d.close(); }));
 
@@ -516,19 +516,23 @@
   $("b-save").title = "Save in this browser (Ctrl+S). Right-click for Save As.";
 
   // ---- export, import ---------------------------------------------------------------------------------------------------------------------------------------------
-  let lastCode = "";
+  let lastCode = "", exportMode = "run";
   function showExport() {
     const g = S.generate(doc), code = $("e-code"), warn = $("e-warn");
     $("e-reduce").hidden = !(g.error && /colours/.test(g.error));
+    ["e-m-run", "e-m-sprite"].forEach((id) => { const on = (id === "e-m-run") === (exportMode === "run"); $(id).classList.toggle("on", on); $(id).setAttribute("aria-pressed", String(on)); });
+    $("e-hint-run").hidden = exportMode !== "run"; $("e-hint-sprite").hidden = exportMode === "run";
     if (g.error) { code.textContent = ""; warn.hidden = false; warn.className = "sp-warn bad"; warn.textContent = g.error; lastCode = ""; $("e-use").textContent = ""; }
     else {
-      lastCode = g.code; code.textContent = g.code; $("e-use").textContent = "draw the sprite " + S.sanitiseName(doc.name) + " at 20, 30" + (doc.frames.length > 1 ? " frame 2" : "");
+      lastCode = exportMode === "run" ? S.demoProgram(doc) || g.code : g.code; code.textContent = lastCode; $("e-use").textContent = "draw the sprite " + S.sanitiseName(doc.name) + " at 20, 30" + (doc.frames.length > 1 ? " frame 2" : "");
       warn.hidden = !g.warnings.length; warn.className = "sp-warn"; warn.textContent = g.warnings.join(" ");
     }
     ["e-copy", "e-dl", "e-play"].forEach((id) => ($(id).disabled = !lastCode));
     openDlg($("d-export"));
   }
   $("b-export").onclick = showExport;
+  $("e-m-run").onclick = () => { exportMode = "run"; showExport(); };
+  $("e-m-sprite").onclick = () => { exportMode = "sprite"; showExport(); };
   $("e-copy").onclick = () => {
     const done = () => { $("e-copy").lastChild.textContent = "Copied!"; setTimeout(() => ($("e-copy").lastChild.textContent = "Copy code"), 1600); };
     if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(lastCode).then(done, fallbackCopy); else fallbackCopy();

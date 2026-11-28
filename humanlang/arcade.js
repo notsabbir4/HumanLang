@@ -386,6 +386,7 @@
     }
     function padScale() { return Math.max(0.72, Math.min(1, ((root.innerWidth || 400)) / 440)); }
     function makePad() {
+      if (info.keys && info.keys.length === 0) return null;      // a game that listens to no keys needs no buttons
       const doc = canvas.ownerDocument, used = info.keys && info.keys.length ? info.keys : ["left", "right", "up", "space"];
       const want = (k) => used.indexOf(k) >= 0;
       const LABEL = { left: "◀", right: "▶", up: "▲", down: "▼", space: "A", enter: "B" };

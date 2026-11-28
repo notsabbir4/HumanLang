@@ -15,6 +15,11 @@ sprites by hand works exactly as before. You can go back and forth: draw, export
 - **Export to HumanLang:** the code with a Copy button, a Download, and a ready-to-run example program. Common colours get their usual
   letters (r, b, g, y, p ...) and colour words (`red`, `skin`); others get `"#rrggbb"`. Colours are never dropped: if a picture has
   more colours than letters, the editor says so and offers "Fewer colours".
+- **Export has two choices:** **Ready to run** (default: the sprite plus a tiny game that shows it, so pasting it into the Playground and
+  pressing Run shows your picture) and **Just the sprite** (to put in your own game). A sprite-only program in the Playground now
+  explains that a sprite needs a game to draw it, instead of saying "printed nothing".
+- **Playground game preview fixes (phones):** a small game was stretched tall (the preview was measured while hidden, and a text-screen
+  minimum height squashed pixel art), and a game that listens to no keys no longer shows touch buttons.
 - **Import code:** paste or open a sprite written by hand and it becomes a picture to edit; a mistake is explained by line.
 - **Save and open** in your browser (and as files), and **in your website account** when you are signed in (Save keeps both up to date, Open lists them under "In your account", and they show on your Account page), undo and redo that remember only what changed, a draft that survives a closed
   tab, a short first-time tour, and a layout that works on phones.
