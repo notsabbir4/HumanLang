@@ -5,6 +5,7 @@
 Nothing changes in the language: the editor writes (and reads) the same `make a sprite called NAME with pixel size N and M frames`
 letter-grid text HumanLang already has, so what it makes runs in the real interpreter unchanged and the old way of writing
 sprites by hand works exactly as before. You can go back and forth: draw, export, edit the code by hand, import it again.
+- **A workspace laid out like Blender's:** tools in a slim column on the left (all eight always visible), the picture in the middle with its options and zoom above it, Colour and Sprite panels on the right (click a title to fold it), the frames timeline along the bottom and a status line under that. On a computer the editor fills the window, so nothing needs scrolling. Phones get a stacked layout.
 - **Tools:** Draw, Erase, Fill (flood fill), Pick (eyedropper), Line, Box and Circle (outline or filled), Move. Click-and-drag,
   zoom (wheel, pinch or buttons), pan (Space, middle mouse, or Move), a see-through checkerboard, a grid, always-sharp pixels,
   and the pixel under the cursor shown. Shortcuts: P E F I L R C H, Ctrl+Z / Ctrl+Y, Ctrl+S.

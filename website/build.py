@@ -464,24 +464,24 @@ def sprites_page():
     body = f"""
 <div class="sp-app" id="sp">
 <div class="sp-top">
- <div class="sp-brand"><span class="sp-badge">HL</span> Sprite Editor</div>
- <label class="sp-name">Name <input id="sp-name" type="text" maxlength="40" spellcheck="false" autocomplete="off" aria-label="Sprite name" title="The name your game uses: draw the sprite NAME at ..."></label>
+ <div class="sp-brand"><span class="sp-badge">HL</span><span class="lb">Sprite Editor</span></div>
+ <label class="sp-name"><span class="lb">Name</span> <input id="sp-name" type="text" maxlength="40" spellcheck="false" autocomplete="off" aria-label="Sprite name" title="The name your game uses: draw the sprite NAME at ..."></label>
  <div class="sp-group">
-  <button class="sp-btn" id="b-new" type="button" title="Start a new sprite"><i data-icon="new"></i>New</button>
-  <button class="sp-btn" id="b-open" type="button" title="Open a sprite you saved"><i data-icon="open"></i>Open</button>
-  <button class="sp-btn" id="b-save" type="button" title="Save in this browser (Ctrl+S)"><i data-icon="save"></i>Save</button>
+  <button class="sp-btn" id="b-new" type="button" title="Start a new sprite"><i data-icon="new"></i><span class="lb">New</span></button>
+  <button class="sp-btn" id="b-open" type="button" title="Open a sprite you saved"><i data-icon="open"></i><span class="lb">Open</span></button>
+  <button class="sp-btn" id="b-save" type="button" title="Save in this browser (Ctrl+S)"><i data-icon="save"></i><span class="lb">Save</span></button>
  </div>
  <div class="sp-group">
   <button class="sp-btn icon" id="b-undo" type="button" title="Undo (Ctrl+Z)" aria-label="Undo"><i data-icon="undo"></i></button>
   <button class="sp-btn icon" id="b-redo" type="button" title="Redo (Ctrl+Y)" aria-label="Redo"><i data-icon="redo"></i></button>
  </div>
  <div class="sp-group">
-  <button class="sp-btn" id="b-preview" type="button" title="See it move, as it will look in a game"><i data-icon="play"></i>Preview</button>
-  <button class="sp-btn" id="b-import" type="button" title="Turn a sprite you wrote in HumanLang into a picture you can edit"><i data-icon="import"></i>Import code</button>
+  <button class="sp-btn" id="b-preview" type="button" title="See it move, as it will look in a game"><i data-icon="play"></i><span class="lb">Preview</span></button>
+  <button class="sp-btn" id="b-import" type="button" title="Turn a sprite you wrote in HumanLang into a picture you can edit"><i data-icon="import"></i><span class="lb">Import code</span></button>
  </div>
  <span class="sp-grow"></span>
  <button class="sp-btn icon" id="b-help" type="button" title="Help: the quick tour and the keys" aria-label="Help"><i data-icon="help"></i></button>
- <button class="sp-btn primary" id="b-export" type="button" title="Get the HumanLang code for this sprite"><i data-icon="code"></i>Export to HumanLang</button>
+ <button class="sp-btn primary" id="b-export" type="button" title="Get the HumanLang code for this sprite"><i data-icon="code"></i>Export<span class="lb">&nbsp;to HumanLang</span></button>
 </div>
 <div class="sp-main">
  <div class="sp-tools" id="sp-tools" role="toolbar" aria-label="Drawing tools">
@@ -489,58 +489,64 @@ def sprites_page():
   {tool("eraser", "Erase", "Erase (E): make pixels see-through again")}
   {tool("bucket", "Fill", "Fill (F): colour a whole connected area")}
   {tool("picker", "Pick", "Pick a colour (I): click a pixel to use its colour")}
+  <hr>
   {tool("line", "Line", "Line (L): drag from one point to another")}
   {tool("rect", "Box", "Rectangle (R): drag a box")}
   {tool("oval", "Circle", "Circle or oval (C): drag the box it fits in")}
+  <hr>
   {tool("hand", "Move", "Move the picture around (H). You can also hold Space, or use the middle mouse button")}
  </div>
  <div class="sp-stage">
   <div class="sp-opts" id="sp-opts">
-   <span id="o-shape" hidden><span class="sp-lbl">Shape</span>
+   <span id="o-shape" class="sp-shape" hidden><span class="sp-lbl">Shape</span>
     <button class="sp-seg on" id="o-outline" type="button">Outline</button><button class="sp-seg" id="o-filled" type="button">Filled</button></span>
-   <label class="sp-chk"><input type="checkbox" id="o-onion"> Show the frame before (faint)</label>
+   <label class="sp-chk"><input type="checkbox" id="o-onion"> Onion skin<span class="lb"> (faint frame before)</span></label>
    <label class="sp-chk"><input type="checkbox" id="o-grid" checked> Grid</label>
    <span class="sp-grow"></span>
-   <button class="sp-btn icon" id="z-out" type="button" title="Zoom out (-)" aria-label="Zoom out"><i data-icon="minus"></i></button>
+   <button class="sp-btn small icon" id="z-out" type="button" title="Zoom out (-)" aria-label="Zoom out"><i data-icon="minus"></i></button>
    <span class="sp-zoom" id="z-val" title="Zoom">1&times;</span>
-   <button class="sp-btn icon" id="z-in" type="button" title="Zoom in (+)" aria-label="Zoom in"><i data-icon="plus"></i></button>
-   <button class="sp-btn" id="z-fit" type="button" title="Fit the picture in the window (0)">Fit</button>
+   <button class="sp-btn small icon" id="z-in" type="button" title="Zoom in (+)" aria-label="Zoom in"><i data-icon="plus"></i></button>
+   <button class="sp-btn small" id="z-fit" type="button" title="Fit the picture in the window (0)">Fit</button>
   </div>
   <div class="sp-wrap" id="sp-wrap"><canvas id="sp-canvas" aria-label="Drawing area" tabindex="0"></canvas><div class="sp-toast" id="sp-toast" role="status" aria-live="polite"></div></div>
-  <div class="sp-status"><span id="sp-info"></span><span id="s-pos">&nbsp;</span><span class="sp-grow"></span><span id="s-tip"></span></div>
  </div>
  <aside class="sp-side">
   <section class="sp-panel" id="p-colour"><h3>Colour</h3>
+   <div class="sp-body">
    <div class="sp-cur"><button class="sp-big" id="c-swatch" type="button" title="Pick any colour" aria-label="Current colour"></button>
     <input type="color" id="c-input" aria-label="Pick a colour" value="#e43a4c">
     <input type="text" id="c-hex" maxlength="24" spellcheck="false" autocomplete="off" aria-label="Colour code or name" title="Type a code like #ff8800 or a colour name like sky blue"></div>
    <h4>Recent</h4><div class="sp-sw" id="c-recent"></div>
    <h4>My palette <button class="sp-mini" id="c-add" type="button" title="Add the current colour to the palette">+ Add</button></h4>
    <div class="sp-sw" id="c-pal"></div>
-   <p class="sp-hint">Click a colour to use it. Right-click (or long-press) a palette colour to remove it.</p>
+   <p class="sp-hint">Click to use a colour. Right-click (or long-press) a palette colour to remove it.</p>
+   </div>
   </section>
   <section class="sp-panel" id="p-props"><h3>Sprite</h3>
+   <div class="sp-body">
    <div class="sp-row"><label>Width <input type="number" id="p-w" min="1" max="256" step="1"></label><label>Height <input type="number" id="p-h" min="1" max="256" step="1"></label>
     <button class="sp-mini" id="p-resize" type="button" title="Change the size of the picture (it keeps the top-left)">Resize</button></div>
     <div class="sp-chips" id="p-chips"></div>
    <div class="sp-row"><label>Pixel size <input type="number" id="p-ps" min="1" max="64" step="1" title="How big each pixel is in the game"></label></div>
    <p class="sp-hint" id="p-note"></p>
+   </div>
   </section>
  </aside>
-</div>
-<div class="sp-time">
- <div class="sp-tl-head"><b>Frames</b>
-  <button class="sp-btn small" id="f-add" type="button" title="Add an empty frame after this one"><i data-icon="plus"></i>Add</button>
-  <button class="sp-btn small" id="f-dup" type="button" title="Copy this frame"><i data-icon="copy"></i>Copy</button>
-  <button class="sp-btn small" id="f-del" type="button" title="Delete this frame"><i data-icon="trash"></i>Delete</button>
-  <button class="sp-btn small icon" id="f-left" type="button" title="Move this frame earlier" aria-label="Move frame earlier"><i data-icon="left"></i></button>
-  <button class="sp-btn small icon" id="f-right" type="button" title="Move this frame later" aria-label="Move frame later"><i data-icon="right"></i></button>
-  <span class="sp-grow"></span>
-  <button class="sp-btn small primary" id="f-play" type="button" title="Play the animation (Enter)"><i data-icon="play"></i><span>Play</span></button>
-  <label class="sp-speed">Speed <input type="range" id="f-speed" min="1" max="24" value="6" aria-label="Animation speed"><span id="f-fps">6/s</span></label>
+ <div class="sp-time">
+  <div class="sp-tl-head"><b>Frames</b>
+   <button class="sp-btn small" id="f-add" type="button" title="Add an empty frame after this one"><i data-icon="plus"></i><span class="lb">Add</span></button>
+   <button class="sp-btn small" id="f-dup" type="button" title="Copy this frame"><i data-icon="copy"></i><span class="lb">Copy</span></button>
+   <button class="sp-btn small" id="f-del" type="button" title="Delete this frame"><i data-icon="trash"></i><span class="lb">Delete</span></button>
+   <button class="sp-btn small icon" id="f-left" type="button" title="Move this frame earlier" aria-label="Move frame earlier"><i data-icon="left"></i></button>
+   <button class="sp-btn small icon" id="f-right" type="button" title="Move this frame later" aria-label="Move frame later"><i data-icon="right"></i></button>
+   <span class="sp-grow"></span>
+   <button class="sp-btn small primary" id="f-play" type="button" title="Play the animation (Enter)"><i data-icon="play"></i><span>Play</span></button>
+   <label class="sp-speed">Speed <input type="range" id="f-speed" min="1" max="24" value="6" aria-label="Animation speed"><span id="f-fps">6/s</span></label>
+  </div>
+  <div class="sp-tl-body"><div class="sp-frames" id="sp-frames" role="listbox" aria-label="Frames"></div>
+   <div class="sp-mini-prev" title="The animation"><canvas id="sp-mini"></canvas></div></div>
  </div>
- <div class="sp-tl-body"><div class="sp-frames" id="sp-frames" role="listbox" aria-label="Frames"></div>
-  <div class="sp-mini-prev" title="The animation"><canvas id="sp-mini"></canvas></div></div>
+ <div class="sp-status"><span id="sp-info"></span><span id="s-pos">&nbsp;</span><span class="sp-grow"></span><span id="s-tip"></span></div>
 </div>
 
 <dialog class="sp-dlg" id="d-new"><form method="dialog" id="f-new"><h2>New sprite</h2>

@@ -637,6 +637,15 @@
   document.addEventListener("keyup", (e) => { if (e.key === " ") { spaceDown = false; wrap.classList.toggle("pan", tool === "hand"); } });
   window.addEventListener("beforeunload", (e) => { if (dirty) { store.set(DRAFT, { doc: pack(doc), dirty, saved }); } });
 
+  // ---- fold the side panels: click a panel title (remembered in this browser) --------------------------------------------------------------------------------------------
+  document.querySelectorAll(".sp-panel").forEach((sec) => {
+    const h = sec.querySelector("h3"); if (!h) return; const key = "hl.sp.fold." + sec.id;
+    try { if (localStorage.getItem(key) === "1") sec.classList.add("folded"); } catch (e) { /* fine */ }
+    h.setAttribute("role", "button"); h.tabIndex = 0; h.setAttribute("aria-expanded", sec.classList.contains("folded") ? "false" : "true");
+    const flip = () => { const f = sec.classList.toggle("folded"); h.setAttribute("aria-expanded", f ? "false" : "true"); try { localStorage.setItem(key, f ? "1" : "0"); } catch (e) { /* fine */ } };
+    h.onclick = flip; h.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.stopPropagation(); flip(); } };
+  });
+
   // ---- start -----------------------------------------------------------------------------------------------------------------------------------------------------------------
   if (window.ResizeObserver) new ResizeObserver(() => { layout(); }).observe(wrap); else window.addEventListener("resize", layout);
   const draft = store.get(DRAFT, null);

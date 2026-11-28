@@ -261,6 +261,20 @@ class SpriteEditorAccount(unittest.TestCase):
         for ident in ("o-cloud", "o-signin", "o-acc-msg"):
             self.assertIn(ident, page)
 
+    def test_the_workspace_layout_keeps_every_control_and_never_scrolls_the_page(self):
+        import sys
+        sys.path.insert(0, os.path.join(ROOT, "website"))
+        import build
+        page = build.sprites_page()
+        page = page if isinstance(page, str) else str(page)
+        for tool in ("pencil", "eraser", "bucket", "picker", "line", "rect", "oval", "hand"):
+            self.assertIn('data-tool="%s"' % tool, page)
+        for ident in ("sp-frames", "f-play", "p-ps", "c-pal", "b-export", "sp-canvas", "sp-info"):
+            self.assertIn('id="%s"' % ident, page)
+        css = open(os.path.join(ROOT, "website", "static", "sprites.css"), encoding="utf-8").read()
+        self.assertIn("grid-template-areas", css)
+        self.assertIn("overflow:hidden", css)
+
 
 if __name__ == "__main__":
     unittest.main()
