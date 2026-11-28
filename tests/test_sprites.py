@@ -209,6 +209,40 @@ show([Array.from(S.resizeFrame(b, 3, 2, 4, 3)), Array.from(S.resizeFrame(b, 3, 2
         self.assertEqual(r[0], [7, 7, -1, -1, -1, 7, 7, -1, -1, -1, -1, -1])
         self.assertEqual(r[1], [7, 7])
 
+    def test_a_256_by_256_sprite_with_frames_goes_through_the_interpreter(self):
+        r = node("""
+const w = 256, h = 256, frames = [];
+for (let f = 0; f < 3; f++) { const b = new Int32Array(w*h).fill(-1); for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if ((x + y + f) % 5 === 0) b[y*w+x] = (x % 2) ? 0xff0000 : 0x0000ff; frames.push(b); }
+const g = S.generate({ name: "big", w, h, ps: 1, frames });
+const back = S.parse(g.code);
+show({ error: g.error || null, code: g.code, errors: back.errors, w: back.sprites[0].w, h: back.sprites[0].h, n: back.sprites[0].frames.length,
+  same: back.sprites[0].frames.every((fr, i) => fr.every((v, j) => v === frames[i][j])) });""")
+        self.assertIsNone(r["error"])
+        self.assertEqual(r["errors"], [])
+        self.assertEqual((r["w"], r["h"], r["n"]), (256, 256, 3))
+        self.assertTrue(r["same"])
+        sp = run_sprite(r["code"])["big"]
+        self.assertIsNotNone(sp)
+
+
+class SpriteEditorAccount(unittest.TestCase):
+    """Sprites are also kept in the website account (the saved_programs table, kind "sprite")."""
+    def test_the_editor_saves_lists_and_deletes_account_sprites(self):
+        js = open(os.path.join(ROOT, "website", "static", "sprites.js"), encoding="utf-8").read()
+        self.assertIn('kind: "sprite"', js)
+        self.assertIn('.eq("kind", "sprite")', js)
+        self.assertIn("#cloud=", open(os.path.join(ROOT, "website", "static", "account-page.js"), encoding="utf-8").read())
+        self.assertIn("1 to 256", js)
+
+    def test_the_open_window_has_the_account_part(self):
+        import sys
+        sys.path.insert(0, os.path.join(ROOT, "website"))
+        import build
+        page = build.sprites_page()
+        page = page if isinstance(page, str) else str(page)
+        for ident in ("o-cloud", "o-signin", "o-acc-msg"):
+            self.assertIn(ident, page)
+
 
 if __name__ == "__main__":
     unittest.main()

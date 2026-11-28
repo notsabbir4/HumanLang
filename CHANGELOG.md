@@ -9,14 +9,14 @@ sprites by hand works exactly as before. You can go back and forth: draw, export
   zoom (wheel, pinch or buttons), pan (Space, middle mouse, or Move), a see-through checkerboard, a grid, always-sharp pixels,
   and the pixel under the cursor shown. Shortcuts: P E F I L R C H, Ctrl+Z / Ctrl+Y, Ctrl+S.
 - **Colours:** a colour picker, a hex box, recent colours, and a custom palette you can add to and remove from.
-- **Sprite settings:** any size from 1 to 128 (8x8, 16x16, 24x24, 32x32, 48x48, 64x64 or your own), resize, and the pixel size 1 to 64.
+- **Sprite settings:** any size from 1 to 256 (8x8 up to 64x64, or your own), resize, and the pixel size 1 to 64.
 - **Animation:** frame thumbnails, add / copy / delete / move frames, a faint "frame before" to line things up, playback with a speed
   control, and a Preview that shows it as a game would.
 - **Export to HumanLang:** the code with a Copy button, a Download, and a ready-to-run example program. Common colours get their usual
   letters (r, b, g, y, p ...) and colour words (`red`, `skin`); others get `"#rrggbb"`. Colours are never dropped: if a picture has
   more colours than letters, the editor says so and offers "Fewer colours".
 - **Import code:** paste or open a sprite written by hand and it becomes a picture to edit; a mistake is explained by line.
-- **Save and open** in your browser (and as files), undo and redo that remember only what changed, a draft that survives a closed
+- **Save and open** in your browser (and as files), and **in your website account** when you are signed in (Save keeps both up to date, Open lists them under "In your account", and they show on your Account page), undo and redo that remember only what changed, a draft that survives a closed
   tab, a short first-time tour, and a layout that works on phones.
 
 ## 0.7.1 - 2026-11-27 - "Flash"

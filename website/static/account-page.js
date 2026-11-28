@@ -41,7 +41,8 @@
     if (error || !data || !data.length) { const li = document.createElement("li"); li.className = "muted"; li.textContent = error ? "Could not load them." : "Nothing saved yet."; ul.appendChild(li); return; }
     data.forEach((r) => {
       const li = document.createElement("li"), a = document.createElement("a");
-      a.href = "playground.html#saved=" + encodeURIComponent(r.id); a.textContent = r.name; li.appendChild(a);
+      a.href = (r.kind === "sprite" ? "sprites.html#cloud=" : "playground.html#saved=") + encodeURIComponent(r.id); a.textContent = r.name; li.appendChild(a);
+      if (r.kind === "sprite") { const k = document.createElement("span"); k.className = "muted"; k.textContent = "sprite"; li.appendChild(k); }
       const t = document.createElement("span"); t.className = "muted"; t.textContent = new Date(r.updated_at).toLocaleDateString(); li.appendChild(t);
       const d = document.createElement("a"); d.href = "#"; d.textContent = "Delete"; d.className = "del";
       d.onclick = async (e) => { e.preventDefault(); if (!confirm('Delete "' + r.name + '"? This cannot be undone.')) return; await c.from("saved_programs").delete().eq("id", r.id); savedList(c); };

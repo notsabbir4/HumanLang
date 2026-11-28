@@ -520,7 +520,7 @@ def sprites_page():
    <p class="sp-hint">Click a colour to use it. Right-click (or long-press) a palette colour to remove it.</p>
   </section>
   <section class="sp-panel" id="p-props"><h3>Sprite</h3>
-   <div class="sp-row"><label>Width <input type="number" id="p-w" min="1" max="128" step="1"></label><label>Height <input type="number" id="p-h" min="1" max="128" step="1"></label>
+   <div class="sp-row"><label>Width <input type="number" id="p-w" min="1" max="256" step="1"></label><label>Height <input type="number" id="p-h" min="1" max="256" step="1"></label>
     <button class="sp-mini" id="p-resize" type="button" title="Change the size of the picture (it keeps the top-left)">Resize</button></div>
     <div class="sp-chips" id="p-chips"></div>
    <div class="sp-row"><label>Pixel size <input type="number" id="p-ps" min="1" max="64" step="1" title="How big each pixel is in the game"></label></div>
@@ -546,7 +546,7 @@ def sprites_page():
 <dialog class="sp-dlg" id="d-new"><form method="dialog" id="f-new"><h2>New sprite</h2>
  <label class="sp-field">Name <input id="n-name" type="text" maxlength="40" value="player" spellcheck="false" autocomplete="off"></label>
  <div class="sp-field"><span>Size (pixels)</span><div class="sp-chips" id="n-chips"></div>
-  <div class="sp-row"><label>Width <input type="number" id="n-w" min="1" max="128" value="16"></label><label>Height <input type="number" id="n-h" min="1" max="128" value="16"></label>
+  <div class="sp-row"><label>Width <input type="number" id="n-w" min="1" max="256" value="16"></label><label>Height <input type="number" id="n-h" min="1" max="256" value="16"></label>
   <label>Pixel size <input type="number" id="n-ps" min="1" max="64" value="4"></label></div></div>
  <p class="sp-hint">A 16 &times; 16 sprite with pixel size 4 is drawn 64 &times; 64 on the game screen.</p>
  <div class="sp-actions"><button class="sp-btn" value="cancel" type="button" data-close>Cancel</button><button class="sp-btn primary" id="n-go" type="submit">Start drawing</button></div></form></dialog>
@@ -555,6 +555,10 @@ def sprites_page():
  <p class="sp-hint">These are saved in this browser. <label class="sp-btn small" for="o-file">Open a file&hellip;</label><input type="file" id="o-file" accept=".json,.hum,.txt,text/plain,application/json" hidden>
   A file can be a sprite saved from here (.json) or a HumanLang program (.hum).</p>
  <div class="sp-lib" id="o-list"></div><p class="sp-hint" id="o-none" hidden>Nothing saved yet. Press Save to keep a sprite here.</p>
+ <h3 class="sp-h3">In your account</h3>
+ <p class="sp-hint" id="o-acc-msg">Sign in to keep your sprites in your account, on any device.</p>
+ <div class="sp-actions" id="o-acc-in" hidden><button class="sp-btn small primary" type="button" id="o-signin">Sign in with GitHub</button></div>
+ <div class="sp-lib" id="o-cloud"></div>
  <div class="sp-actions"><button class="sp-btn" type="button" data-close>Close</button></div></div></dialog>
 
 <dialog class="sp-dlg" id="d-saveas"><form method="dialog" id="f-saveas"><h2>Save as</h2>

@@ -58,7 +58,7 @@
   const unrle = (a, n) => { const b = new Int32Array(n); let p = 0; for (let i = 0; i < a.length; i += 2) { b.fill(a[i], p, p + a[i + 1]); p += a[i + 1]; } return b; };
   const pack = (d) => ({ format: "hl-sprite", id: d.id, name: d.name, w: d.w, h: d.h, ps: d.ps, frames: d.frames.map(rle) });
   function unpack(o) {
-    if (!o || o.format !== "hl-sprite" || !(o.w >= 1 && o.w <= 128 && o.h >= 1 && o.h <= 128) || !Array.isArray(o.frames) || !o.frames.length) throw new Error("This is not a sprite file from the editor.");
+    if (!o || o.format !== "hl-sprite" || !(o.w >= 1 && o.w <= 256 && o.h >= 1 && o.h <= 256) || !Array.isArray(o.frames) || !o.frames.length) throw new Error("This is not a sprite file from the editor.");
     const frames = o.frames.slice(0, S.MAX_FRAMES).map((f) => unrle(f, o.w * o.h));
     return { id: o.id || newId(), name: String(o.name || "sprite"), w: o.w | 0, h: o.h | 0, ps: Math.min(64, Math.max(1, o.ps | 0 || 4)), frames, cur: 0 };
   }
@@ -344,7 +344,7 @@
   $("p-w").oninput = syncChips; $("p-h").oninput = syncChips;
   $("p-resize").onclick = () => {
     const w = Math.round(+$("p-w").value), h = Math.round(+$("p-h").value);
-    if (!(w >= 1 && w <= 128 && h >= 1 && h <= 128)) { toast("The width and the height must be 1 to 128."); syncProps(); return; }
+    if (!(w >= 1 && w <= 256 && h >= 1 && h <= 256)) { toast("The width and the height must be 1 to 256."); syncProps(); return; }
     if (w === doc.w && h === doc.h) return;
     if ((w < doc.w || h < doc.h) && !confirm("The picture gets smaller, so what is outside the new size is cut off (you can undo it). Continue?")) { syncProps(); return; }
     structural(() => { doc.frames = doc.frames.map((f) => S.resizeFrame(f, doc.w, doc.h, w, h)); doc.w = w; doc.h = h; });
@@ -413,7 +413,23 @@
     if (!store.set(LIB, items)) { toast("I could not save in this browser (the storage is full or blocked). Use Export or the download button in Open instead."); return false; }
     dirty = false; saved = true; updateInfo(); saveDraftSoon(); toast('Saved "' + doc.name + '" in this browser.'); return true;
   }
-  $("b-save").onclick = () => saveToLib(false);
+  // ---- the account: sprites are also kept on the website for people who are signed in (the same table as saved programs) ----
+  const account = () => window.HLAccount && window.HLAccount.configured ? window.HLAccount : null;
+  async function who() { const a = account(); if (!a) return null; try { const s = await a.session(); return s ? { a, s, c: await a.client() } : null; } catch (e) { return null; } }
+  async function saveToCloud() {
+    const w = await who(); if (!w) return null;
+    const name = doc.name.slice(0, 60) || "sprite", code = JSON.stringify(pack(doc));
+    const { error } = await w.c.from("saved_programs").upsert({ user_id: w.s.user.id, kind: "sprite", name, code }, { onConflict: "user_id,kind,name" });
+    return error ? error.message : true;
+  }
+  async function saveBoth(asNew) {
+    if (!saveToLib(asNew === true)) return;
+    const w = await who();
+    if (!w) { if (account()) toast('Saved in this browser. Sign in (menu, top right) to keep it in your account too.'); return; }
+    const r = await saveToCloud();
+    toast(r === true ? 'Saved "' + doc.name + '" in this browser and in your account.' : 'Saved in this browser, but not in your account: ' + r);
+  }
+  $("b-save").onclick = saveBoth;
   function load(d, msg) {
     doc = d; undoSt = []; redoSt = []; dirty = false; saved = false; offDirty = true; playing = false; clearInterval(miniTimer);
     setIcon($("f-play"), "play"); $("f-play").querySelector("span").textContent = "Play";
@@ -431,7 +447,7 @@
   $("b-new").onclick = () => { if (!sure()) return; openDlg($("d-new")); $("n-name").select(); };
   $("f-new").onsubmit = (e) => {
     const w = Math.round(+$("n-w").value), h = Math.round(+$("n-h").value), ps = Math.round(+$("n-ps").value);
-    if (!(w >= 1 && w <= 128 && h >= 1 && h <= 128 && ps >= 1 && ps <= 64)) { e.preventDefault(); toast("The size must be 1 to 128, and the pixel size 1 to 64."); return; }
+    if (!(w >= 1 && w <= 256 && h >= 1 && h <= 256 && ps >= 1 && ps <= 64)) { e.preventDefault(); toast("The size must be 1 to 256, and the pixel size 1 to 64."); return; }
     load({ id: newId(), name: $("n-name").value.trim() || "sprite", w, h, ps, frames: [new Int32Array(w * h).fill(T)], cur: 0 });
     $("d-new").close(); e.preventDefault();
   };
@@ -453,7 +469,39 @@
       card.appendChild(row); box.appendChild(card);
     });
   }
-  $("b-open").onclick = () => { renderLib(); openDlg($("d-open")); };
+  async function renderCloud() {
+    const box = $("o-cloud"), msg = $("o-acc-msg"), inb = $("o-acc-in"); box.textContent = "";
+    if (!account()) { msg.textContent = "Accounts are not switched on here, so sprites stay in this browser."; inb.hidden = true; return; }
+    msg.textContent = "Looking for your sprites..."; inb.hidden = true;
+    const w = await who();
+    if (!w) { msg.textContent = "Sign in to keep your sprites in your account, on any device."; inb.hidden = false; return; }
+    const { data, error } = await w.c.from("saved_programs").select("id,name,code,updated_at").eq("kind", "sprite").order("updated_at", { ascending: false }).limit(60);
+    if (error) { msg.textContent = "I could not load your account sprites (" + error.message + ")."; return; }
+    msg.textContent = data.length ? "Saved in your account (Save keeps both places up to date; the name is what tells them apart)." : "Nothing in your account yet. Press Save while signed in.";
+    data.forEach((row) => {
+      let d; try { d = unpack(JSON.parse(row.code)); } catch (e) { return; }
+      const card = document.createElement("div"); card.className = "sp-card";
+      const c = document.createElement("canvas"); toImage(d.frames[0], c, d.w, d.h); card.appendChild(c);
+      const t = document.createElement("b"); t.textContent = d.name; t.title = d.name; card.appendChild(t);
+      const sm = document.createElement("small"); sm.textContent = d.w + "×" + d.h + " · " + d.frames.length + (d.frames.length === 1 ? " frame" : " frames"); card.appendChild(sm);
+      const r = document.createElement("div"); r.className = "sp-actions";
+      const mk = (label, fn, cls) => { const b = document.createElement("button"); b.type = "button"; b.className = "sp-btn small " + (cls || ""); b.textContent = label; b.onclick = fn; r.appendChild(b); };
+      mk("Open", () => { if (!sure()) return; d.id = newId(); load(d); $("d-open").close(); toast('Opened "' + d.name + '" from your account.'); }, "primary");
+      mk("Delete", async () => { if (!confirm('Delete "' + d.name + '" from your account? This cannot be undone.')) return; await w.c.from("saved_programs").delete().eq("id", row.id); renderCloud(); });
+      card.appendChild(r); box.appendChild(card);
+    });
+  }
+  $("o-signin").onclick = async () => { try { saveDraftSoon(); await account().signIn(); } catch (e) { toast("Could not start sign-in: " + (e.message || e)); } };
+  $("b-open").onclick = () => { renderLib(); renderCloud(); openDlg($("d-open")); };
+  // the Account page links here: sprites.html#cloud=ID
+  (async function fromAccount() {
+    const id = new URLSearchParams(location.hash.slice(1)).get("cloud"); if (!id) return;
+    for (let i = 0; i < 40 && !account(); i++) await new Promise((r) => setTimeout(r, 100));
+    const w = await who(); if (!w) { toast("Sign in to open your account sprites."); return; }
+    const { data } = await w.c.from("saved_programs").select("code").eq("id", id).eq("kind", "sprite").maybeSingle();
+    if (!data) { toast("I could not find that sprite."); return; }
+    try { const d = unpack(JSON.parse(data.code)); d.id = newId(); load(d, 'Opened "' + d.name + '" from your account.'); saved = true; updateInfo(); } catch (e) { toast("That sprite could not be read."); }
+  })();
   function readFile(file, cb) { const r = new FileReader(); r.onload = () => cb(String(r.result)); r.onerror = () => toast("I could not read that file."); r.readAsText(file); }
   $("o-file").onchange = (e) => {
     const f = e.target.files[0]; e.target.value = ""; if (!f) return;
@@ -463,7 +511,7 @@
     });
   };
   // save as (and Ctrl+Shift+S)
-  $("f-saveas").onsubmit = (e) => { e.preventDefault(); const n = $("sa-name").value.trim(); if (!n) return; doc.name = n; $("sp-name").value = n; saveToLib(true); $("d-saveas").close(); };
+  $("f-saveas").onsubmit = (e) => { e.preventDefault(); const n = $("sa-name").value.trim(); if (!n) return; doc.name = n; $("sp-name").value = n; $("d-saveas").close(); saveBoth(true); };
   $("b-save").addEventListener("contextmenu", (e) => { e.preventDefault(); $("sa-name").value = doc.name; openDlg($("d-saveas")); });
   $("b-save").title = "Save in this browser (Ctrl+S). Right-click for Save As.";
 
@@ -521,7 +569,7 @@
     if (!r.sprites.length) return;
     let i = 0; const ch = document.querySelector('input[name="ipick"]:checked'); if (ch) i = +ch.value;
     const s = r.sprites[i];
-    if (s.w > 128 || s.h > 128) { const e = $("i-err"); e.hidden = false; e.textContent = "This sprite is " + s.w + " × " + s.h + ". The editor handles up to 128 × 128."; return; }
+    if (s.w > 256 || s.h > 256) { const e = $("i-err"); e.hidden = false; e.textContent = "This sprite is " + s.w + " × " + s.h + ". The editor handles up to 256 × 256."; return; }
     if (!sure()) return;
     load({ id: newId(), name: s.name, w: s.w, h: s.h, ps: s.ps, frames: s.frames, cur: 0 }, 'Imported "' + s.name + '". Edit it, then Export to get the code back.');
     $("d-import").close();
@@ -568,7 +616,7 @@
     const t = e.target, typing = t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT" || t.isContentEditable);
     const mod = e.ctrlKey || e.metaKey, k = e.key.toLowerCase();
     if (document.querySelector("dialog[open]")) return;
-    if (mod && k === "s") { e.preventDefault(); if (e.shiftKey) { $("sa-name").value = doc.name; openDlg($("d-saveas")); } else saveToLib(false); return; }
+    if (mod && k === "s") { e.preventDefault(); if (e.shiftKey) { $("sa-name").value = doc.name; openDlg($("d-saveas")); } else saveBoth(); return; }
     if (typing) return;
     if (mod && k === "z") { e.preventDefault(); if (e.shiftKey) redo(); else undo(); return; }
     if (mod && k === "y") { e.preventDefault(); redo(); return; }
