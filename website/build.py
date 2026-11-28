@@ -142,7 +142,7 @@ def render_markdown(text):
 
 # ---- page template -----------------------------------------------------------
 NAV = [("index.html", "Home"), ("tutorial.html", "Tutorial"), ("reference.html", "Reference"),
-       ("playground.html", "Playground"), ("games.html", "Games"), ("community.html", "Community"), ("editors.html", "Editors"),
+       ("playground.html", "Playground"), ("sprites.html", "Sprites"), ("games.html", "Games"), ("community.html", "Community"), ("editors.html", "Editors"),
        ("install.html", "Download")]
 REPO = "https://github.com/notsabbir4/HumanLang"
 # The website's accounts, saved programs and shared coding live on a Supabase project. These two values are PUBLIC by design
@@ -458,6 +458,160 @@ def community_snapshot():
     return posts
 
 
+def sprites_page():
+    """The Visual Sprite Editor: draw a sprite with the mouse, get the HumanLang sprite code."""
+    tool = lambda key, title, tip: f'<button class="sp-tool" type="button" data-tool="{key}" title="{tip}" aria-label="{title}"><i data-icon="{key}"></i><span>{title}</span></button>'
+    body = f"""
+<div class="sp-app" id="sp">
+<div class="sp-top">
+ <div class="sp-brand"><span class="sp-badge">HL</span> Sprite Editor</div>
+ <label class="sp-name">Name <input id="sp-name" type="text" maxlength="40" spellcheck="false" autocomplete="off" aria-label="Sprite name" title="The name your game uses: draw the sprite NAME at ..."></label>
+ <div class="sp-group">
+  <button class="sp-btn" id="b-new" type="button" title="Start a new sprite"><i data-icon="new"></i>New</button>
+  <button class="sp-btn" id="b-open" type="button" title="Open a sprite you saved"><i data-icon="open"></i>Open</button>
+  <button class="sp-btn" id="b-save" type="button" title="Save in this browser (Ctrl+S)"><i data-icon="save"></i>Save</button>
+ </div>
+ <div class="sp-group">
+  <button class="sp-btn icon" id="b-undo" type="button" title="Undo (Ctrl+Z)" aria-label="Undo"><i data-icon="undo"></i></button>
+  <button class="sp-btn icon" id="b-redo" type="button" title="Redo (Ctrl+Y)" aria-label="Redo"><i data-icon="redo"></i></button>
+ </div>
+ <div class="sp-group">
+  <button class="sp-btn" id="b-preview" type="button" title="See it move, as it will look in a game"><i data-icon="play"></i>Preview</button>
+  <button class="sp-btn" id="b-import" type="button" title="Turn a sprite you wrote in HumanLang into a picture you can edit"><i data-icon="import"></i>Import code</button>
+ </div>
+ <span class="sp-grow"></span>
+ <button class="sp-btn icon" id="b-help" type="button" title="Help: the quick tour and the keys" aria-label="Help"><i data-icon="help"></i></button>
+ <button class="sp-btn primary" id="b-export" type="button" title="Get the HumanLang code for this sprite"><i data-icon="code"></i>Export to HumanLang</button>
+</div>
+<div class="sp-main">
+ <div class="sp-tools" id="sp-tools" role="toolbar" aria-label="Drawing tools">
+  {tool("pencil", "Draw", "Draw (P): click or drag to colour pixels")}
+  {tool("eraser", "Erase", "Erase (E): make pixels see-through again")}
+  {tool("bucket", "Fill", "Fill (F): colour a whole connected area")}
+  {tool("picker", "Pick", "Pick a colour (I): click a pixel to use its colour")}
+  {tool("line", "Line", "Line (L): drag from one point to another")}
+  {tool("rect", "Box", "Rectangle (R): drag a box")}
+  {tool("oval", "Circle", "Circle or oval (C): drag the box it fits in")}
+  {tool("hand", "Move", "Move the picture around (H). You can also hold Space, or use the middle mouse button")}
+ </div>
+ <div class="sp-stage">
+  <div class="sp-opts" id="sp-opts">
+   <span id="o-shape" hidden><span class="sp-lbl">Shape</span>
+    <button class="sp-seg on" id="o-outline" type="button">Outline</button><button class="sp-seg" id="o-filled" type="button">Filled</button></span>
+   <label class="sp-chk"><input type="checkbox" id="o-onion"> Show the frame before (faint)</label>
+   <label class="sp-chk"><input type="checkbox" id="o-grid" checked> Grid</label>
+   <span class="sp-grow"></span>
+   <button class="sp-btn icon" id="z-out" type="button" title="Zoom out (-)" aria-label="Zoom out"><i data-icon="minus"></i></button>
+   <span class="sp-zoom" id="z-val" title="Zoom">1&times;</span>
+   <button class="sp-btn icon" id="z-in" type="button" title="Zoom in (+)" aria-label="Zoom in"><i data-icon="plus"></i></button>
+   <button class="sp-btn" id="z-fit" type="button" title="Fit the picture in the window (0)">Fit</button>
+  </div>
+  <div class="sp-wrap" id="sp-wrap"><canvas id="sp-canvas" aria-label="Drawing area" tabindex="0"></canvas><div class="sp-toast" id="sp-toast" role="status" aria-live="polite"></div></div>
+  <div class="sp-status"><span id="sp-info"></span><span id="s-pos">&nbsp;</span><span class="sp-grow"></span><span id="s-tip"></span></div>
+ </div>
+ <aside class="sp-side">
+  <section class="sp-panel" id="p-colour"><h3>Colour</h3>
+   <div class="sp-cur"><button class="sp-big" id="c-swatch" type="button" title="Pick any colour" aria-label="Current colour"></button>
+    <input type="color" id="c-input" aria-label="Pick a colour" value="#e43a4c">
+    <input type="text" id="c-hex" maxlength="24" spellcheck="false" autocomplete="off" aria-label="Colour code or name" title="Type a code like #ff8800 or a colour name like sky blue"></div>
+   <h4>Recent</h4><div class="sp-sw" id="c-recent"></div>
+   <h4>My palette <button class="sp-mini" id="c-add" type="button" title="Add the current colour to the palette">+ Add</button></h4>
+   <div class="sp-sw" id="c-pal"></div>
+   <p class="sp-hint">Click a colour to use it. Right-click (or long-press) a palette colour to remove it.</p>
+  </section>
+  <section class="sp-panel" id="p-props"><h3>Sprite</h3>
+   <div class="sp-row"><label>Width <input type="number" id="p-w" min="1" max="128" step="1"></label><label>Height <input type="number" id="p-h" min="1" max="128" step="1"></label>
+    <button class="sp-mini" id="p-resize" type="button" title="Change the size of the picture (it keeps the top-left)">Resize</button></div>
+    <div class="sp-chips" id="p-chips"></div>
+   <div class="sp-row"><label>Pixel size <input type="number" id="p-ps" min="1" max="64" step="1" title="How big each pixel is in the game"></label></div>
+   <p class="sp-hint" id="p-note"></p>
+  </section>
+ </aside>
+</div>
+<div class="sp-time">
+ <div class="sp-tl-head"><b>Frames</b>
+  <button class="sp-btn small" id="f-add" type="button" title="Add an empty frame after this one"><i data-icon="plus"></i>Add</button>
+  <button class="sp-btn small" id="f-dup" type="button" title="Copy this frame"><i data-icon="copy"></i>Copy</button>
+  <button class="sp-btn small" id="f-del" type="button" title="Delete this frame"><i data-icon="trash"></i>Delete</button>
+  <button class="sp-btn small icon" id="f-left" type="button" title="Move this frame earlier" aria-label="Move frame earlier"><i data-icon="left"></i></button>
+  <button class="sp-btn small icon" id="f-right" type="button" title="Move this frame later" aria-label="Move frame later"><i data-icon="right"></i></button>
+  <span class="sp-grow"></span>
+  <button class="sp-btn small primary" id="f-play" type="button" title="Play the animation (Enter)"><i data-icon="play"></i><span>Play</span></button>
+  <label class="sp-speed">Speed <input type="range" id="f-speed" min="1" max="24" value="6" aria-label="Animation speed"><span id="f-fps">6/s</span></label>
+ </div>
+ <div class="sp-tl-body"><div class="sp-frames" id="sp-frames" role="listbox" aria-label="Frames"></div>
+  <div class="sp-mini-prev" title="The animation"><canvas id="sp-mini"></canvas></div></div>
+</div>
+
+<dialog class="sp-dlg" id="d-new"><form method="dialog" id="f-new"><h2>New sprite</h2>
+ <label class="sp-field">Name <input id="n-name" type="text" maxlength="40" value="player" spellcheck="false" autocomplete="off"></label>
+ <div class="sp-field"><span>Size (pixels)</span><div class="sp-chips" id="n-chips"></div>
+  <div class="sp-row"><label>Width <input type="number" id="n-w" min="1" max="128" value="16"></label><label>Height <input type="number" id="n-h" min="1" max="128" value="16"></label>
+  <label>Pixel size <input type="number" id="n-ps" min="1" max="64" value="4"></label></div></div>
+ <p class="sp-hint">A 16 &times; 16 sprite with pixel size 4 is drawn 64 &times; 64 on the game screen.</p>
+ <div class="sp-actions"><button class="sp-btn" value="cancel" type="button" data-close>Cancel</button><button class="sp-btn primary" id="n-go" type="submit">Start drawing</button></div></form></dialog>
+
+<dialog class="sp-dlg wide" id="d-open"><div><h2>Open a sprite</h2>
+ <p class="sp-hint">These are saved in this browser. <label class="sp-btn small" for="o-file">Open a file&hellip;</label><input type="file" id="o-file" accept=".json,.hum,.txt,text/plain,application/json" hidden>
+  A file can be a sprite saved from here (.json) or a HumanLang program (.hum).</p>
+ <div class="sp-lib" id="o-list"></div><p class="sp-hint" id="o-none" hidden>Nothing saved yet. Press Save to keep a sprite here.</p>
+ <div class="sp-actions"><button class="sp-btn" type="button" data-close>Close</button></div></div></dialog>
+
+<dialog class="sp-dlg" id="d-saveas"><form method="dialog" id="f-saveas"><h2>Save as</h2>
+ <label class="sp-field">Name <input id="sa-name" type="text" maxlength="40" spellcheck="false" autocomplete="off"></label>
+ <div class="sp-actions"><button class="sp-btn" type="button" data-close>Cancel</button><button class="sp-btn primary" type="submit">Save</button></div></form></dialog>
+
+<dialog class="sp-dlg wide" id="d-export"><div><h2>HumanLang code</h2>
+ <p class="sp-hint">Copy this into your program, above the game. Then draw it with <code id="e-use"></code></p>
+ <div class="sp-warn" id="e-warn" hidden></div>
+ <pre class="sp-code" id="e-code" tabindex="0"></pre>
+ <div class="sp-actions"><button class="sp-btn" type="button" id="e-reduce" hidden>Fewer colours&hellip;</button><span class="sp-grow"></span>
+  <button class="sp-btn" type="button" id="e-play"><i data-icon="play"></i>Try it in the Playground</button>
+  <button class="sp-btn" type="button" id="e-dl"><i data-icon="save"></i>Download .hum</button>
+  <button class="sp-btn primary" type="button" id="e-copy"><i data-icon="copy"></i>Copy code</button>
+  <button class="sp-btn" type="button" data-close>Close</button></div></div></dialog>
+
+<dialog class="sp-dlg wide" id="d-import"><div><h2>Import a sprite</h2>
+ <p class="sp-hint">Paste a sprite you wrote in HumanLang (it starts with <code>make a sprite called</code>) and it becomes a picture you can edit.
+  <label class="sp-btn small" for="i-file">Open a .hum file&hellip;</label><input type="file" id="i-file" accept=".hum,.txt,text/plain" hidden></p>
+ <textarea id="i-text" spellcheck="false" rows="12" aria-label="Sprite code" placeholder='make a sprite called heart with pixel size 4&#10;    where "r" is red&#10;    ".rr.rr."&#10;    ...'></textarea>
+ <div class="sp-warn" id="i-err" hidden></div><div class="sp-pick" id="i-pick" hidden></div>
+ <div class="sp-actions"><button class="sp-btn" type="button" data-close>Cancel</button><button class="sp-btn primary" type="button" id="i-go">Import</button></div></div></dialog>
+
+<dialog class="sp-dlg" id="d-reduce"><form method="dialog" id="f-reduce"><h2>Fewer colours</h2>
+ <p class="sp-hint">HumanLang gives every colour one letter. This joins the colours that look most alike until only the number you choose is left.
+  You can undo it.</p>
+ <label class="sp-field">Keep at most <input type="number" id="r-n" min="1" max="200" value="40"></label>
+ <div class="sp-actions"><button class="sp-btn" type="button" data-close>Cancel</button><button class="sp-btn primary" type="submit">Join colours</button></div></form></dialog>
+
+<dialog class="sp-dlg wide" id="d-preview"><div><h2>Preview</h2>
+ <p class="sp-hint">This is how the sprite looks in a game (each pixel is the size you chose).</p>
+ <div class="sp-pv-bg" id="pv-bg"><canvas id="pv-canvas"></canvas></div>
+ <div class="sp-row"><span class="sp-lbl">Background</span>
+  <button class="sp-seg on" data-bg="dark" type="button">Dark</button><button class="sp-seg" data-bg="light" type="button">Light</button><button class="sp-seg" data-bg="sky" type="button">Sky</button><button class="sp-seg" data-bg="check" type="button">Checker</button>
+  <label class="sp-speed">Speed <input type="range" id="pv-speed" min="1" max="24" value="6" aria-label="Preview speed"></label></div>
+ <div class="sp-actions"><button class="sp-btn primary" type="button" data-close>Close</button></div></div></dialog>
+
+<div class="sp-coach" id="sp-coach" hidden role="dialog" aria-label="Quick tour"><div class="sp-coach-n" id="co-n"></div><h4 id="co-t"></h4><p id="co-p"></p>
+ <div class="sp-actions"><button class="sp-btn small" type="button" id="co-skip">Skip tour</button><span class="sp-grow"></span>
+  <button class="sp-btn small" type="button" id="co-back">Back</button><button class="sp-btn small primary" type="button" id="co-next">Next</button></div></div>
+
+<dialog class="sp-dlg wide" id="d-help"><div><h2>Help</h2>
+ <p>Draw with the mouse (or your finger). When you are happy, press <b>Export to HumanLang</b> and copy the code into your program.</p>
+ <div class="sp-keys"><div><b>P</b> Draw</div><div><b>E</b> Erase</div><div><b>F</b> Fill</div><div><b>I</b> Pick a colour</div><div><b>L</b> Line</div><div><b>R</b> Box</div><div><b>C</b> Circle</div><div><b>H</b> Move</div>
+ <div><b>Space</b> + drag: move</div><div><b>Scroll</b> zoom</div><div><b>+ / -</b> zoom</div><div><b>0</b> fit</div><div><b>Ctrl+Z</b> undo</div><div><b>Ctrl+Y</b> redo</div><div><b>Ctrl+S</b> save</div><div><b>, / .</b> frame before / after</div><div><b>Enter</b> play</div></div>
+ <p class="sp-hint">You can still write sprites by hand in HumanLang. This editor makes the same code, and <b>Import code</b> turns hand-written sprites into pictures.</p>
+ <div class="sp-actions"><button class="sp-btn" type="button" id="h-tour">Show the quick tour</button><span class="sp-grow"></span><button class="sp-btn primary" type="button" data-close>Close</button></div></div></dialog>
+</div>
+"""
+    from humanlang.design import CSS, EXTRA_COLOURS
+    from humanlang.parser import RESERVED
+    data = {"colours": {**CSS, **EXTRA_COLOURS}, "reserved": sorted(RESERVED)}
+    head = '<link rel="stylesheet" href="sprites.css">'
+    script = f'<script>window.HL_SPRITE_DATA = {json.dumps(data)};</script><script src="sprites-core.js"></script><script src="sprites.js"></script>'
+    return page("Sprite Editor - HumanLang", body, "sprites.html", extra_head=head, extra_body=script, main_class="sp-page")
+
+
 def community_page():
     sys.path.insert(0, os.path.join(ROOT, "tools"))
     import community_check
@@ -639,6 +793,7 @@ def main():
     write(os.path.join(out, "changelog.html"), doc_page("What's new", read(os.path.join(ROOT, "CHANGELOG.md")), "changelog.html"))
     write(os.path.join(out, "playground.html"), playground_page(examples))
     write(os.path.join(out, "games.html"), games_page(games))
+    write(os.path.join(out, "sprites.html"), sprites_page())
     write(os.path.join(out, "community.html"), community_page())
     write(os.path.join(out, "account.html"), account_page())
     write(os.path.join(out, ".nojekyll"), "")

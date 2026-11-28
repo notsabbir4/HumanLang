@@ -293,6 +293,8 @@ play a game titled "Dot" with size 120 by 60 and background black
         draw the sprite dot at x, 20
 ```
 
+> **Don't want to type every pixel?** The **Sprites** page of the website is a Visual Sprite Editor: draw with the mouse, then press **Export to HumanLang** to get this same text (and **Import code** to turn a sprite you wrote by hand into a picture). Writing sprites by hand keeps working exactly as before.
+
 | Phrase | What it does |
 |---|---|
 | `make a sprite called NAME` + `where` + rows | a picture; `with pixel size N` (default 4), `with N frames` (rows of all frames, one after another) |
